@@ -1,0 +1,137 @@
+#!/usr/bin/python
+
+'''
+Copyright (c) <2012> Tarek Galal <tare2.galal@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this 
+software and associated documentation files (the "Software"), to deal in the Software 
+without restriction, including without limitation the rights to use, copy, modify, 
+merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
+permit persons to whom the Software is furnished to do so, subject to the following 
+conditions:
+
+The above copyright notice and this permission notice shall be included in all 
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR 
+A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+'''
+
+import argparse, sys, os
+from Yowsup.Tools.utilities import Utilities
+from Yowsup.Tools.debugger import Debugger
+from Examples.CmdClient import WhatsappCmdClient
+from Examples.EchoClient import WhatsappEchoClient
+from Examples.ListenerClient import WhatsappListenerClient
+from Yowsup.Registration.coderequest import WACodeRequest
+from Yowsup.Registration.regrequest import WARegRequest
+import threading,time
+
+DEFAULT_CONFIG = os.path.expanduser("~")+"/.yowsup/auth"
+
+def startDbusInterface():
+	from dbus.mainloop.glib import DBusGMainLoop
+	from Yowsup.Interfaces.DBus.DBusInterface import DBusInitInterface
+	import gobject
+	
+	DBusGMainLoop(set_as_default=True)
+	
+	DBusInitInterface()
+	
+	mainloop = gobject.MainLoop()
+	
+	gobject.threads_init()
+	print "starting"
+	mainloop.run()
+
+def getCredentials(config = DEFAULT_CONFIG):
+	if os.path.isfile(config):
+		f = open(config)
+		l = f.readline().strip()
+		auth = l.split(":", 1)
+		if len(auth) == 2:
+			return auth
+		
+		return 0
+
+parser = argparse.ArgumentParser(description='yowsup-cli Command line options')
+
+
+#lobalsGroup = parser.add_argument_group("Global options")
+clientsGroup = parser.add_argument_group("Client options")#.add_mutually_exclusive_group()
+
+regGroup = parser.add_argument_group("Registration options")#.add_mutually_exclusive_group()
+
+
+modes = clientsGroup.add_mutually_exclusive_group()
+modes.add_argument('-l','--listen', help='Listen to messages', action="store_true", required=False, default=False)
+modes.add_argument('-s','--send', help="Send message to phone number and close connection. Phone is full number including country code, without '+' or '00'", action="store",  nargs=2, metavar=('<phone>','<message>'), required=False)
+modes.add_argument('-i','--interactive', help="Start an interactive conversation with a contact. Phone is full number including country code, without '+' or '00'", action="store", metavar='<phone>', required=False)
+
+
+clientsGroup.add_argument('-w','--wait', help='If used with -s, then connection will not close until server confirms reception of the message', action="store_true", required=False, default=False)
+clientsGroup.add_argument('-a','--autoack', help='If used with -l or -i, then a message received ack would be automatically sent for received messages', action="store_true", required=False, default=False)
+clientsGroup.add_argument('-k','--keepalive', help="When used with -l or -i, Yowsup will automatically respond to server's ping requests to keep connection alive", action="store_true", required=False, default=False)
+
+
+regSteps = regGroup.add_mutually_exclusive_group()
+regSteps.add_argument("-r", '--requestcode', help='Request the 3 digit registration code from Whatsapp.', action="store", required=False, metavar="(sms|voice)")
+regSteps.add_argument("-R", '--register', help='Register account on Whatsapp using the provided 3 digit code', action="store", required=False, metavar="code")
+
+parser.add_argument('-c','--config', help="Path to config file. Config file should contain full phone number including country code without '+' or '00', and Identity, separated by a colon. Identity is the phone's IMEI if your account is setup on a Nokia or Android device, or your phone's WLAN's MAC Address for iphone devices. Example: 123456789:FF:FF:FF:FF:FF:FF", action="store", metavar="file", required=False, default=False)
+parser.add_argument('-p','--assumepassword', help="Assume provided identity is the actual login password", action="store_true", required=False, default=False)
+parser.add_argument('-D','--dbus', help='Start DBUS interface', action="store_true", required=False, default=False)
+parser.add_argument('-d','--debug', help='Enable debug messages', action="store_true", required=False, default=False)
+parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.2')
+
+
+args = vars(parser.parse_args())
+
+if len(sys.argv) == 1:
+	parser.print_help()
+
+else:
+	credentials = getCredentials(args["config"] or DEFAULT_CONFIG)
+	
+	if credentials:
+		
+		sender, identity = credentials
+		password = Utilities.getPassword(identity) if not args["assumepassword"] else identity
+		
+		countryCode = sender[0:2]
+		phonenumber= sender[2:]
+		
+		if args["interactive"]:
+			val = args["interactive"]
+			wa = WhatsappCmdClient(val, args['keepalive'] ,args['autoack'])
+			wa.login(sender, password)
+		elif args['send']:
+			phone = args["send"][0]
+			message = args["send"][1]
+			wa = WhatsappEchoClient(phone, message, args['wait'])
+			wa.login(sender, password)
+		elif args['listen']:
+			Debugger.enabled = args['debug']
+			wa = WhatsappListenerClient(args['keepalive'], args['autoack'])
+			wa.login(sender, password)
+		elif args["dbus"]:
+			startDbusInterface()
+		elif args["requestcode"]:
+			method = args["requestcode"]
+			if method not in ("sms","voice"):
+				print "coderequest accepts only sms or voice as a value"
+			else:
+				wc = WACodeRequest(countryCode, phonenumber, method)
+				result = wc.requestCode()
+				print "Got response: %s:%s"%(result[0], result[1])
+		elif args["register"]:
+			code = args["register"]
+			wr = WARegRequest(countryCode, phonenumber, code, password)
+			result = wr.register()
+			print "Got response: %s:%s"%(result[0], result[1])
+	else:
+		print "Error: config file is invalid"
