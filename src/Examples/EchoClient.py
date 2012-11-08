@@ -56,7 +56,10 @@ class WhatsappEchoClient:
 
 	def onAuthSuccess(self, username):
 		print "Authed %s" % username
-		self.methodsInterface.call("ready")
+
+		if self.waitForReceipt:
+			self.methodsInterface.call("ready")
+
 		self.methodsInterface.call("message_send", (self.jid, self.message))
 		print "Sent message"
 		if self.waitForReceipt:
