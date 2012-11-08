@@ -104,7 +104,7 @@ else:
 		
 		countryCode = sender[0:2]
 		phonenumber= sender[2:]
-		
+		Debugger.enabled = args['debug']
 		if args["interactive"]:
 			val = args["interactive"]
 			wa = WhatsappCmdClient(val, args['keepalive'] ,args['autoack'])
@@ -115,7 +115,6 @@ else:
 			wa = WhatsappEchoClient(phone, message, args['wait'])
 			wa.login(sender, password)
 		elif args['listen']:
-			Debugger.enabled = args['debug']
 			wa = WhatsappListenerClient(args['keepalive'], args['autoack'])
 			wa.login(sender, password)
 		elif args["dbus"]:
