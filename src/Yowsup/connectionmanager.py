@@ -276,6 +276,7 @@ class YowsupConnectionManager:
 			self.readerThread.setSocket(self.socket)
 			self.readerThread.disconnectedCallback = self.onDisconnected
 			self.readerThread.onPing = self.sendPong
+			self.readerThread.ping = self.sendPing
 			
 	
 			self.signalInterface.send("auth_success", (username,))
@@ -674,6 +675,7 @@ class ReaderThread(threading.Thread):
 		self.lock = threading.Lock()
 		self.disconnectedCallback = None
 		self.autoPong = True
+		self.onPing = self.ping = None
 
 		self.lastPongTime = int(time.time())
 		super(ReaderThread,self).__init__();
@@ -718,7 +720,8 @@ class ReaderThread(threading.Thread):
 				if countdown % (self.selectTimeout*10) == 0 or countdown < 11:
 					self._d("Waiting, time to die: T-%i seconds" % countdown )
 					
-				
+				if self.timeout-countdown == 180 and self.ping and self.autoPong:
+					self.ping()
 
 				self.selectTimeout = 1 if countdown < 11 else 3
 
