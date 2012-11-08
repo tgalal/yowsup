@@ -386,8 +386,8 @@ class YowsupConnectionManager:
 		node = ProtocolTreeNode("iq",{"to":"s.whatsapp.net","type":"set","id":str(int(time.time()))+"-1"},None,'expired');
 		self._writeNode(node);
 
-	def sendAvailableForChat(self):
-		presenceNode = ProtocolTreeNode("presence",{"name":self.push_name})
+	def sendAvailableForChat(self, pushname):
+		presenceNode = ProtocolTreeNode("presence",{"name":pushname})
 		self._writeNode(presenceNode);
 
 	def sendAvailable(self):
