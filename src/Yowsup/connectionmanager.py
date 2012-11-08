@@ -720,7 +720,7 @@ class ReaderThread(threading.Thread):
 				if countdown % (self.selectTimeout*10) == 0 or countdown < 11:
 					self._d("Waiting, time to die: T-%i seconds" % countdown )
 					
-				if self.timeout-countdown == 180 and self.ping and self.autoPong:
+				if self.timeout-countdown == 210 and self.ping and self.autoPong:
 					self.ping()
 
 				self.selectTimeout = 1 if countdown < 11 else 3
