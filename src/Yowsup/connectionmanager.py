@@ -1051,7 +1051,6 @@ class ReaderThread(threading.Thread):
 				self.signalInterface.send("message_error", (msgId, fromAttribute, errorCode))
 
 		elif typeAttribute == "notification":
-			print "NOTIFICATION!"
 
 			receiptRequested = False;
 			pictureUpdated = None
@@ -1064,7 +1063,6 @@ class ReaderThread(threading.Thread):
 				receiptRequested = True
 				
 			if pictureUpdated == "picture":
-				print "PICTURE UPDATED!"
 				bodyNode = messageNode.getChild("notification").getChild("set") or messageNode.getChild("notification").getChild("delete")
 
 				if isGroup:
@@ -1204,7 +1202,6 @@ class ReaderThread(threading.Thread):
 				elif ProtocolTreeNode.tagEquals(childNode,"received") and fromAttribute is not None and msgId is not None:
 
 					if fromAttribute == "s.us":
-						print "STATUS CHANGED NOTIFICATION!!!"
 						self.signalInterface.send("profile_setStatusSuccess", ("s.us", msgId,))
 						return;
 
