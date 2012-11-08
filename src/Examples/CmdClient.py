@@ -106,6 +106,9 @@ class WhatsappCmdClient:
 		print self.getPrompt()
 		while True:
 			message = raw_input()
+			message = message.strip()
+			if not len(message):
+				continue
 			if not self.runCommand(message.strip()):
 				msgId = self.methodsInterface.call("message_send", (jid, message))
 				self.sentCache[msgId] = [int(time.time()/1000), message]
