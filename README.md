@@ -19,6 +19,11 @@ Yowsup also comes with a cross platform command-line frontend called [yowsup-cli
  * **[yowsup-cli](https://github.com/tgalal/yowsup/wiki/yowsup-cli)**
  * **[Yowsup Library Documentation](https://github.com/tgalal/yowsup/wiki/Yowsup-Library-Documentation)**
 
+### Requirements:
+ * python 2.6+
+ * [python-dateutil](http://labix.org/python-dateutil)
+ * **yowsup-cli** requires [argparse](http://code.google.com/p/argparse/) for python < 2.7
+
 ## License:
 MIT License:
 
