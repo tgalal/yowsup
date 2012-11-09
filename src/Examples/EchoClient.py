@@ -30,7 +30,11 @@ class WhatsappEchoClient:
 	
 	def __init__(self, phoneNumber, message, waitForReceipt=False):
 		
-		self.jid = "%s@s.whatsapp.net" % phoneNumber
+		if '-' in phoneNumber:
+			self.jid = "%s@g.us" % phoneNumber
+		else:
+			self.jid = "%s@s.whatsapp.net" % phoneNumber
+
 		self.message = message
 		self.waitForReceipt = waitForReceipt
 		
