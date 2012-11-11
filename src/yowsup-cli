@@ -86,7 +86,7 @@ parser.add_argument('-c','--config', help="Path to config file. Config file shou
 parser.add_argument('-p','--assumepassword', help="Assume provided identity is the actual login password", action="store_true", required=False, default=False)
 parser.add_argument('-D','--dbus', help='Start DBUS interface', action="store_true", required=False, default=False)
 parser.add_argument('-d','--debug', help='Enable debug messages', action="store_true", required=False, default=False)
-parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.2')
+#parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.2')
 
 
 args = vars(parser.parse_args())
@@ -117,8 +117,6 @@ else:
 		elif args['listen']:
 			wa = WhatsappListenerClient(args['keepalive'], args['autoack'])
 			wa.login(sender, password)
-		elif args["dbus"]:
-			startDbusInterface()
 		elif args["requestcode"]:
 			method = args["requestcode"]
 			if method not in ("sms","voice"):
@@ -132,5 +130,7 @@ else:
 			wr = WARegRequest(countryCode, phonenumber, code, password)
 			result = wr.register()
 			print "Got response: %s:%s"%(result[0], result[1])
+	elif args["dbus"]:
+            startDbusInterface()
 	else:
 		print "Error: config file is invalid"
