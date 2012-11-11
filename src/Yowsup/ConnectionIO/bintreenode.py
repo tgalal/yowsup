@@ -27,7 +27,6 @@ from Yowsup.Tools.constants import Constants
 from protocoltreenode import ProtocolTreeNode
 from ioexceptions import InvalidReadException
 
-
 class BinTreeNodeReader():
     def __init__(self,inputstream):
         
@@ -58,7 +57,7 @@ class BinTreeNodeReader():
         self.fillBuffer(stanzaSize);
         
         if self.inputKey is not None and isEncrypted:
-            self.inn.buf = bytearray(self.inn.buf)
+            #self.inn.buf = bytearray(self.inn.buf)
             self.inn.buf = self.inputKey.decodeMessage(self.inn.buf, 0, 4, len(self.inn.buf)-4)[4:]
 
     def streamStart(self):
@@ -142,19 +141,19 @@ class BinTreeNodeReader():
 
         if token == 252:
             size8 = self.readInt8(self.inn);
-            buf8 = bytearray(size8);
+            buf8 = [0] * size8;
             
             self.fillArray(buf8,len(buf8),self.inn);
             #print self.inn.buf;
-            return str(buf8);
+            return "".join(map(chr, buf8));
             #return size8;
             
         
         if token == 253:
             size24 = self.readInt24(self.inn);
-            buf24 = bytearray(size24);
+            buf24 = [0] * size24;
             self.fillArray(buf24,len(buf24),self.inn);
-            return str(buf24);
+            return "".join(map(chr, buf24));
             
         if token == 254:
             token = self.inn.read();
@@ -320,7 +319,7 @@ class BinTreeNodeWriter():
             prep.extend([0,0,0,0])
             length1 += 4
 
-            prep = bytearray(prep)
+            #prep = bytearray(prep)
             res = self.outputKey.encodeMessage(prep, len(prep) - 4 , 3, len(prep)-4-3)
 
             res[0] = ((num << 4) | (length1 & 16711680) >> 16) % 256
@@ -365,10 +364,12 @@ class BinTreeNodeWriter():
         self.writeAttributes(node.attributes);
         
         if node.data is not None:
-            if type(node.data) == bytearray:
+            self.writeBytes(node.data)
+            '''if type(node.data) == bytearray:
                 self.writeBytes(node.data);
             else:
                 self.writeBytes(bytearray(node.data));
+            '''
         
         if node.children is not None:
             self.writeListStart(len(node.children));

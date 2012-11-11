@@ -19,10 +19,11 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
+
 class ByteArray():
 	def __init__(self,size=0):
 		self.size = size;
-		self.buf = []#bytearray(size);
+		self.buf = [0] * size#bytearray(size);
 
 	def toByteArray(self):
 		res = ByteArray();
@@ -32,7 +33,7 @@ class ByteArray():
 		return res;
 
 	def reset(self):
-		self.buf = bytearray(self.size);
+		self.buf = [0] * self.size;
 
 	def getBuffer(self):
 		return self.buf
@@ -71,7 +72,7 @@ class ByteArray():
 			self.buf.append(ord(data));
 		elif type(data) is str:
 			self.writeString(data);
-		elif type(data) in (bytearray, list):
+		elif type(data) is list:
 			self.writeByteArray(data);
 		else:
 			raise Exception("Unsupported datatype "+str(type(data)));

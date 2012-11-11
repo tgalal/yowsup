@@ -22,7 +22,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import time
 
 class Debugger():
-	enabled = False
+	enabled = True
 	def __init__(self):
 		
 		cname = self.__class__.__name__

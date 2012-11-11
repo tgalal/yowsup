@@ -23,11 +23,29 @@ import socket, hashlib, hmac
 from Yowsup.Tools.debugger import Debugger
 from Yowsup.Tools.watime import WATime
 from Yowsup.ConnectionIO.protocoltreenode import ProtocolTreeNode
+from Yowsup.Tools.datastructures import ByteArray
 
 from struct import pack
 from operator import xor
 from itertools import izip, starmap
 from hashlib import sha1
+
+
+def _bytearray(data):
+
+	if type(data) == str:
+		return data
+	elif type(data) == list:
+		tmp = [chr(x) if type(x) == int else x for x in data]
+		return "".join(tmp)
+	elif type(data) == int:
+		tmp = ""
+		#for i in range(0,data):
+		#	tmp = tmp + chr(0)
+		#	return tmp
+		return [0] * data
+
+	return ""
 
 class WAuth():
 
@@ -112,7 +130,7 @@ class WAuth():
 		self.conn.reader.inn.buf = [];
 
 	def getAuthBlob(self, nonce):
-		numArray = bytearray(KeyStream.keyFromPasswordAndNonce(self.authObject.password, nonce))
+		numArray = _bytearray(KeyStream.keyFromPasswordAndNonce(self.authObject.password, nonce))
 		self.conn.reader.inputKey = self.inputKey = KeyStream(numArray)
 		self.outputKey = KeyStream(numArray)
 
@@ -128,8 +146,9 @@ class WAuth():
 		utcNow = int(wt.utcTimestamp())
 		nums.extend(str(utcNow))
 
-		encoded = self.outputKey.encodeMessage(bytearray(nums), 0, 4, len(nums) - 4)
+		encoded = self.outputKey.encodeMessage(nums, 0, 4, len(nums) - 4)
 		encoded = "".join(map(chr, encoded))
+
 		return encoded
 
 	def readSuccess(self):
@@ -180,25 +199,24 @@ class WAuth():
 		return 1
 
 
-
 class RC4:
 	def __init__(self, key, drop):
 		self.s = []
 		self.i = 0;
 		self.j = 0;
 		
-		self.s = bytearray(256)
+		self.s = [0] * 256
 		
 		for i in range(0, len(self.s)):
 			self.s[i] = i
 		
 		for i in range(0, len(self.s)):
-			self.j = (self.j + self.s[i] + key[i % len(key)]) % 256
+			self.j = (self.j + self.s[i] + ord(key[i % len(key)])) % 256
 			RC4.swap(self.s, i, self.j)
 		
 		self.j = 0;
 		
-		self.cipher(bytearray(drop), 0, drop)
+		self.cipher(_bytearray(drop), 0, drop)
 	
 	
 	def cipher(self, data, offset, length):
@@ -216,6 +234,7 @@ class RC4:
 			num2 = offset
 			offset = num2 + 1
 
+			data[num2] = ord(data[num2]) if type(data[num2]) == str else data[num2]
 			data[num2] = (data[num2] ^ self.s[(self.s[self.i] + self.s[self.j]) % 256])
 	
 	@staticmethod
@@ -235,7 +254,7 @@ class KeyStream:
 	def decodeMessage(self, bufdata, macOffset, offset, length):
 
 		buf = bufdata[:]
-		hashed = hmac.new(buffer(self.key), buffer(buf[offset:]), sha1)
+		hashed = hmac.new(buffer(self.key), buffer(_bytearray(buf[offset:])), sha1)
 		numArray = hashed.digest()
 
 		numArray = [ord(x) for x in numArray];
@@ -255,10 +274,10 @@ class KeyStream:
 		return [x for x in buf]
 
 	def encodeMessage(self, buf, macOffset, offset, length):
-		buf = bytearray(buf)
+		#buf = _bytearray(buf)
 		self.rc4.cipher(buf, offset, length)
 
-		hashed = hmac.new(buffer(self.key), buffer(buf[offset:length+offset]), sha1)
+		hashed = hmac.new(buffer(self.key), buffer(_bytearray(buf[offset:length+offset])), sha1)
 		numArray = hashed.digest()#binascii.b2a_base64(hashed.digest())[:-1]
 		numArray = [ord(x) for x in numArray]
 		
@@ -278,7 +297,7 @@ class KeyStream:
 	
 			def prf( h, data ):
 				hm = h.copy()
-				hm.update( buffer(bytearray(data)) )
+				hm.update( buffer(_bytearray(data)) )
 				return map(ord, hm.digest())
 	
 			U = prf( h, salt + pack('>i',blocknum ) )
