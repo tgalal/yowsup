@@ -436,7 +436,7 @@ class YowsupConnectionManager:
 	def sendChangeStatus(self,status):
 		self._d("updating status to: %s"%(status))
 		
-		bodyNode = ProtocolTreeNode("body",None,None,status.encode('utf-8'));
+		bodyNode = ProtocolTreeNode("body",None,None,status);
 		messageNode = self.getMessageNode("s.us",bodyNode)
 		self._writeNode(messageNode);
 		
@@ -446,7 +446,7 @@ class YowsupConnectionManager:
 	
 	@sendMessage
 	def sendText(self,jid, content):
-		return ProtocolTreeNode("body",None,None,content.encode('utf-8'));
+		return ProtocolTreeNode("body",None,None,content);
 
 	@sendMessage
 	@mediaNode
@@ -558,7 +558,7 @@ class YowsupConnectionManager:
 		self._writeNode(iqNode)
 
 	def sendSetGroupSubject(self,gjid,subject):
-		subject = subject.encode('utf-8')
+		#subject = subject.encode('utf-8')
 		#self._d("setting group subject of " + gjid + " to " + subject)
 		idx = self.makeId("set_group_subject_")
 		self.readerThread.requests[idx] = self.readerThread.parseGroupSubject
