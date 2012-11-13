@@ -136,6 +136,7 @@ class YowsupConnectionManager:
 		self.methodInterface.registerCallback("group_setSubject",self.sendSetGroupSubject)
 		self.methodInterface.registerCallback("group_setPicture", self.sendSetPicture)
 		self.methodInterface.registerCallback("group_getPicture", self.sendGetPicture)
+		self.methodInterface.registerCallback("group_getGroups", self.sendGetGroups)
 		
 		self.methodInterface.registerCallback("group_getParticipants",self.sendGetParticipants)
 
@@ -483,6 +484,16 @@ class YowsupConnectionManager:
 
 		self._writeNode(iqNode);
 
+
+	def sendGetGroups(self,gtype):
+		self._d("getting groups %s"%(gtype))
+		idx = self.makeId("get_groups_")
+		self.readerThread.requests[idx] = self.readerThread.parseGroups;
+
+		queryNode = ProtocolTreeNode("list",{"xmlns":"w:g","type":gtype})
+		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":"g.us"},[queryNode])
+
+		self._writeNode(iqNode)
 
 
 	def sendGetGroupInfo(self,jid):
@@ -878,6 +889,21 @@ class ReaderThread(threading.Thread):
 				self.signalInterface.send("presence_updated", (jid, int(seconds)))
 		except:
 			self._d("Ignored exception in handleLastOnline "+ sys.exc_info()[1])
+
+
+	def parseGroups(self,node):
+		children = node.getAllChildren("group");
+		groups = []
+		for groupNode in children:
+			gJid = groupNode.getAttributeValue("id") + "@g.us"
+			ownerJid = groupNode.getAttributeValue("owner")
+			subject = groupNode.getAttributeValue("subject")
+			subjectOwnerJid = groupNode.getAttributeValue("s_o")
+			subjectT = groupNode.getAttributeValue("s_t")
+			creation = groupNode.getAttributeValue("creation")
+			groups.append({"gJid":gJid, "ownerJid":ownerJid, "subject":subject, "subjectOwnerJid":subjectOwnerJid, "subjectT":subjectT, "creation":creation})
+			self.signalInterface.send("group_gotGroups", (groups,))
+
 
 	def parseGroupInfo(self,node):
 		jid = node.getAttributeValue("from");
