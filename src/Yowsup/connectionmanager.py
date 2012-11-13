@@ -1001,9 +1001,13 @@ class ReaderThread(threading.Thread):
 
 
 		bodyNode = messageNode.getChild("body");
+#		offlineNode = messageNode.getChild("offline")
+
+		
 		newSubject = "" if bodyNode is None else bodyNode.data;
 		msgData = None
-		timestamp = long(time.time()*1000)
+#		timestamp =long(time.time()*1000) if not offlineNode else int(messageNode.getAttributeValue("t"))*1000;
+		timestamp =int(messageNode.getAttributeValue("t"))
 		isGroup = False
 		
 		if newSubject.find("New version of WhatsApp Messenger is now available")>-1:
