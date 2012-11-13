@@ -1263,7 +1263,7 @@ class ReaderThread(threading.Thread):
 					self.signalInterface.send("group_messageReceived", (msgId, fromAttribute, author, msgData, timestamp, wantsReceipt))
 
 				else:
-					self.signalInterface.send("message_received", (msgId, fromAttribute, msgData, timestamp, wantsReceipt))
+					self.signalInterface.send("message_received", (msgId, fromAttribute, msgData, timestamp, wantsReceipt, pushName))
 
 				##@@TODO FROM CLIENT
 				'''if conversation.type == "group":
