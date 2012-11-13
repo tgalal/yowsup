@@ -65,6 +65,7 @@ class SignalInterfaceBase(object):
 			"group_setPictureSuccess",
 			"group_setPictureError",
 			"group_gotPicture",
+			"group_gotGroups",			
 			
 			
 			"notification_contactProfilePictureUpdated",
@@ -156,6 +157,7 @@ class MethodInterfaceBase(object):
 
 			"subject_ack", #B
 
+			"group_getGroups",
 			"group_getInfo",
 			"group_create",
 			"group_addParticipants",
