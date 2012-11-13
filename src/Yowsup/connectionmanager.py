@@ -902,7 +902,7 @@ class ReaderThread(threading.Thread):
 			subjectT = groupNode.getAttributeValue("s_t")
 			creation = groupNode.getAttributeValue("creation")
 			groups.append({"gJid":gJid, "ownerJid":ownerJid, "subject":subject, "subjectOwnerJid":subjectOwnerJid, "subjectT":subjectT, "creation":creation})
-			self.signalInterface.send("group_gotGroups", (groups,))
+		self.signalInterface.send("group_gotGroups", (groups,))
 
 
 	def parseGroupInfo(self,node):
