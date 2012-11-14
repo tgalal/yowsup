@@ -129,6 +129,7 @@ class YowsupConnectionManager:
 
 		self.methodInterface.registerCallback("subject_ack",self.sendSubjectReceived)
 
+		self.methodInterface.registerCallback("group_getGroups", self.sendGetGroups)
 		self.methodInterface.registerCallback("group_getInfo",self.sendGetGroupInfo)
 		self.methodInterface.registerCallback("group_create",self.sendCreateGroupChat)
 		self.methodInterface.registerCallback("group_addParticipants",self.sendAddParticipants)
@@ -485,6 +486,16 @@ class YowsupConnectionManager:
 		self._writeNode(iqNode);
 
 
+	def sendGetGroups(self,gtype):
+		self._d("getting groups %s"%(gtype))
+		idx = self.makeId("get_groups_")
+		self.readerThread.requests[idx] = self.readerThread.parseGroups;
+
+		queryNode = ProtocolTreeNode("list",{"xmlns":"w:g","type":gtype})
+		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":"g.us"},[queryNode])
+
+		self._writeNode(iqNode)
+
 
 	def sendGetGroupInfo(self,jid):
 		self._d("getting group info for %s"%(jid))
@@ -495,6 +506,7 @@ class YowsupConnectionManager:
 		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":jid},[queryNode])
 
 		self._writeNode(iqNode)
+
 
 	def sendCreateGroupChat(self,subject):
 		self._d("creating group: %s"%(subject))
@@ -880,6 +892,21 @@ class ReaderThread(threading.Thread):
 		except:
 			self._d("Ignored exception in handleLastOnline "+ sys.exc_info()[1])
 
+
+	def parseGroups(self,node):
+		children = node.getAllChildren("group");
+		groups = []
+		for groupNode in children:
+			gJid = groupNode.getAttributeValue("id") + "@g.us"
+			ownerJid = groupNode.getAttributeValue("owner")
+			subject = groupNode.getAttributeValue("subject")
+			subjectOwnerJid = groupNode.getAttributeValue("s_o")
+			subjectT = groupNode.getAttributeValue("s_t")
+			creation = groupNode.getAttributeValue("creation")
+			groups.append({"gJid":gJid, "ownerJid":ownerJid, "subject":subject, "subjectOwnerJid":subjectOwnerJid, "subjectT":subjectT, "creation":creation})
+		self.signalInterface.send("group_gotGroups", (groups,))
+
+
 	def parseGroupInfo(self,node):
 		jid = node.getAttributeValue("from");
 		groupNode = node.getChild(0)
@@ -976,10 +1003,12 @@ class ReaderThread(threading.Thread):
 		groupNode = node.getChild("list")
 		#self._d(groupNode.toString())
 		children = groupNode.getAllChildren("user");
-		jids = []
+		pids = []
 		for c in children:
 			if c.getAttributeValue("id") is not None:
-				self.signalInterface.send("contact_gotProfilePictureId", (c.getAttributeValue("jid"), c.getAttributeValue("id")))
+				pids.append({"jid":c.getAttributeValue("jid"),"id":c.getAttributeValue("id")})
+		self.signalInterface.send("contact_gotProfilePictureIds", (pids,))
+
 
 	def parseSetPicture(self,node):
 		jid = node.getAttributeValue("from");
