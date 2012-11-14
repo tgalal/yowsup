@@ -54,4 +54,4 @@ class Constants:
 	#resource = "Android-2.8.5732"
 	domain = "s.whatsapp.net"
 	
-	v="0.2.2"
+	v="0.2.3"
