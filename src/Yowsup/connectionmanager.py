@@ -34,6 +34,7 @@ from random import randrange
 import socket
 import hashlib
 import base64
+import sys
 
 
 
@@ -794,7 +795,7 @@ class ReaderThread(threading.Thread):
 									self.onPing(idx)
 									
 								self.signalInterface.send("ping", (idx,))	
-							elif ProtocolTreeNode.tagEquals(childNode,"query") and jid is not None and "http://jabber.org/protocol/disco#info" == childNode.getAttributeValue("xmlns"):
+							elif ProtocolTreeNode.tagEquals(childNode,"query") and node.getAttributeValue("from") is not None and "http://jabber.org/protocol/disco#info" == childNode.getAttributeValue("xmlns"):
 								pin = childNode.getAttributeValue("pin");
 								timeoutString = childNode.getAttributeValue("timeout");
 								try:
