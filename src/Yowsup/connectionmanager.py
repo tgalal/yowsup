@@ -73,10 +73,10 @@ class YowsupConnectionManager:
 		
 		self.bindMethods()
 		
-	def getSignalsInterface(self):
+	def getSignalInterface(self):
 		return self.signalInterface
 	
-	def getMethodsInterface(self):
+	def getMethodInterface(self):
 		return self.methodInterface
 
 	def setAutoPong(self, autoPong):
@@ -137,6 +137,7 @@ class YowsupConnectionManager:
 		self.methodInterface.registerCallback("group_setSubject",self.sendSetGroupSubject)
 		self.methodInterface.registerCallback("group_setPicture", self.sendSetPicture)
 		self.methodInterface.registerCallback("group_getPicture", self.sendGetPicture)
+		self.methodInterface.registerCallback("group_getGroups", self.sendGetGroups)
 		
 		self.methodInterface.registerCallback("group_getParticipants",self.sendGetParticipants)
 
@@ -277,7 +278,6 @@ class YowsupConnectionManager:
 			self.readerThread.setSocket(self.socket)
 			self.readerThread.disconnectedCallback = self.onDisconnected
 			self.readerThread.onPing = self.sendPong
-			self.readerThread.ping = self.sendPing
 			
 	
 			self.signalInterface.send("auth_success", (username,))
@@ -437,7 +437,7 @@ class YowsupConnectionManager:
 	def sendChangeStatus(self,status):
 		self._d("updating status to: %s"%(status))
 		
-		bodyNode = ProtocolTreeNode("body",None,None,status);
+		bodyNode = ProtocolTreeNode("body",None,None,status.encode('utf-8'));
 		messageNode = self.getMessageNode("s.us",bodyNode)
 		self._writeNode(messageNode);
 		
@@ -447,7 +447,7 @@ class YowsupConnectionManager:
 	
 	@sendMessage
 	def sendText(self,jid, content):
-		return ProtocolTreeNode("body",None,None,content);
+		return ProtocolTreeNode("body",None,None,content.encode('utf-8'));
 
 	@sendMessage
 	@mediaNode
@@ -485,6 +485,16 @@ class YowsupConnectionManager:
 		self._writeNode(iqNode);
 
 
+	def sendGetGroups(self,gtype):
+		self._d("getting groups %s"%(gtype))
+		idx = self.makeId("get_groups_")
+		self.readerThread.requests[idx] = self.readerThread.parseGroups;
+
+		queryNode = ProtocolTreeNode("list",{"xmlns":"w:g","type":gtype})
+		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":"g.us"},[queryNode])
+
+		self._writeNode(iqNode)
+
 
 	def sendGetGroupInfo(self,jid):
 		self._d("getting group info for %s"%(jid))
@@ -495,6 +505,7 @@ class YowsupConnectionManager:
 		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":jid},[queryNode])
 
 		self._writeNode(iqNode)
+
 
 	def sendCreateGroupChat(self,subject):
 		self._d("creating group: %s"%(subject))
@@ -559,7 +570,7 @@ class YowsupConnectionManager:
 		self._writeNode(iqNode)
 
 	def sendSetGroupSubject(self,gjid,subject):
-		#subject = subject.encode('utf-8')
+		subject = subject.encode('utf-8')
 		#self._d("setting group subject of " + gjid + " to " + subject)
 		idx = self.makeId("set_group_subject_")
 		self.readerThread.requests[idx] = self.readerThread.parseGroupSubject
@@ -676,7 +687,6 @@ class ReaderThread(threading.Thread):
 		self.lock = threading.Lock()
 		self.disconnectedCallback = None
 		self.autoPong = True
-		self.onPing = self.ping = None
 
 		self.lastPongTime = int(time.time())
 		super(ReaderThread,self).__init__();
@@ -721,8 +731,7 @@ class ReaderThread(threading.Thread):
 				if countdown % (self.selectTimeout*10) == 0 or countdown < 11:
 					self._d("Waiting, time to die: T-%i seconds" % countdown )
 					
-				if self.timeout-countdown == 210 and self.ping and self.autoPong:
-					self.ping()
+				
 
 				self.selectTimeout = 1 if countdown < 11 else 3
 
@@ -880,6 +889,21 @@ class ReaderThread(threading.Thread):
 		except:
 			self._d("Ignored exception in handleLastOnline "+ sys.exc_info()[1])
 
+
+	def parseGroups(self,node):
+		children = node.getAllChildren("group");
+		groups = []
+		for groupNode in children:
+			gJid = groupNode.getAttributeValue("id") + "@g.us"
+			ownerJid = groupNode.getAttributeValue("owner")
+			subject = groupNode.getAttributeValue("subject")
+			subjectOwnerJid = groupNode.getAttributeValue("s_o")
+			subjectT = groupNode.getAttributeValue("s_t")
+			creation = groupNode.getAttributeValue("creation")
+			groups.append({"gJid":gJid, "ownerJid":ownerJid, "subject":subject, "subjectOwnerJid":subjectOwnerJid, "subjectT":subjectT, "creation":creation})
+		self.signalInterface.send("group_gotGroups", (groups,))
+
+
 	def parseGroupInfo(self,node):
 		jid = node.getAttributeValue("from");
 		groupNode = node.getChild(0)
@@ -976,10 +1000,12 @@ class ReaderThread(threading.Thread):
 		groupNode = node.getChild("list")
 		#self._d(groupNode.toString())
 		children = groupNode.getAllChildren("user");
-		jids = []
+		pids = []
 		for c in children:
 			if c.getAttributeValue("id") is not None:
-				self.signalInterface.send("contact_gotProfilePictureId", (c.getAttributeValue("jid"), c.getAttributeValue("id")))
+				pids.append({"jid":c.getAttributeValue("jid"),"id":c.getAttributeValue("id")})
+		self.signalInterface.send("contact_gotProfilePictureIds", (pids,))
+
 
 	def parseSetPicture(self,node):
 		jid = node.getAttributeValue("from");
@@ -1059,6 +1085,7 @@ class ReaderThread(threading.Thread):
 				self.signalInterface.send("message_error", (msgId, fromAttribute, errorCode))
 
 		elif typeAttribute == "notification":
+			print "NOTIFICATION!"
 
 			receiptRequested = False;
 			pictureUpdated = None
@@ -1071,6 +1098,7 @@ class ReaderThread(threading.Thread):
 				receiptRequested = True
 				
 			if pictureUpdated == "picture":
+				print "PICTURE UPDATED!"
 				bodyNode = messageNode.getChild("notification").getChild("set") or messageNode.getChild("notification").getChild("delete")
 
 				if isGroup:
@@ -1210,6 +1238,7 @@ class ReaderThread(threading.Thread):
 				elif ProtocolTreeNode.tagEquals(childNode,"received") and fromAttribute is not None and msgId is not None:
 
 					if fromAttribute == "s.us":
+						print "STATUS CHANGED NOTIFICATION!!!"
 						self.signalInterface.send("profile_setStatusSuccess", ("s.us", msgId,))
 						return;
 
