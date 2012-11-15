@@ -145,6 +145,8 @@ class YowsupConnectionManager:
 
 		self.methodInterface.registerCallback("contact_getProfilePicture", self.sendGetPicture)
 
+		self.methodInterface.registerCallback("contacts_setPrivacyBlockedList",self.setPrivacyBlockedList)
+
 		self.methodInterface.registerCallback("status_update",self.sendChangeStatus)
 
 		self.methodInterface.registerCallback("presence_request",self.getLastOnline)
@@ -214,12 +216,15 @@ class YowsupConnectionManager:
 		self._d("Setting state to 0")
 		self.state = 0
 
-	def auth(self, username, password):
+	def auth(self, username, password, force=False):
 		self._d(">>>>>>>>                         AUTH CALLED")
 		username = str(username)
 		password = str(password)
 		#traceback.print_stack()
 		
+		if force:
+			self.state = 0
+
 		self.lock.acquire()
 		if self.state == 0 :
 		
@@ -406,6 +411,24 @@ class YowsupConnectionManager:
 		presenceNode = ProtocolTreeNode("presence",{"type":"subscribe","to":to});
 
 		self._writeNode(presenceNode);
+
+
+	def setPrivacyBlockedList(self,blockedlist):
+		listNodeChildren = []
+		order = 0
+		for c in blockedlist:
+			if "@s.whatsapp.net" in c:
+				listNodeChildren.append( ProtocolTreeNode("item", {"type":"jid", "value":c, "action":"deny", "order":str(order)}) )
+				order = order +1
+
+		idx = self.makeId("privacy_");
+		listNode = ProtocolTreeNode("list", {"name":"default"}, listNodeChildren);
+		print "LIST NODE: " + listNode.toString()
+		queryNode = ProtocolTreeNode("query", {"xmlns":"jabber:iq:privacy"}, [listNode]);
+		print "QUERY NODE: " + queryNode.toString()
+		iqNode = ProtocolTreeNode("iq", {"id":idx, "type":"set"}, [queryNode]);
+
+		self._writeNode(iqNode);
 
 
 	def mediaNode(fn):
@@ -758,6 +781,11 @@ class ReaderThread(threading.Thread):
 							raise Exception("iq doesn't have type")
 
 						if iqType == "result":
+							if "privacy" in idx:
+								self._d("Privacy list changed, need to login again")
+								self.signalInterface.send("contacts_privacyBlockedListChanged")
+								return;
+							
 							if self.requests.has_key(idx):
 								self.requests[idx](node)
 								del self.requests[idx]
