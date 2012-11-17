@@ -46,6 +46,8 @@ class SignalInterfaceBase(object):
 			"presence_available", #k
 			"presence_unavailable", #k
 			
+			"contacts_privacyBlockedListChanged",
+			
 			"group_subjectReceived",
 			"group_createSuccess",
 			"group_createFail",
@@ -171,6 +173,8 @@ class MethodInterfaceBase(object):
 			"picture_getIds",
 
 			"contact_getProfilePicture",
+
+			"contacts_setPrivacyBlockedList",
 
 			"presence_request", #B
 			"presence_unsubscribe", #B
