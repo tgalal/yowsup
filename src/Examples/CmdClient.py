@@ -92,7 +92,7 @@ class WhatsappCmdClient:
 	def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName):
 		if jid[:jid.index('@')] != self.phoneNumber:
 			return
-		formattedDate = datetime.datetime.fromtimestamp(timestamp/1000).strftime('%d-%m-%Y %H:%M')
+		formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
 		print "%s [%s]:%s"%(jid, formattedDate, messageContent)
 		
 		if wantsReceipt and self.sendReceipts:
@@ -111,7 +111,7 @@ class WhatsappCmdClient:
 				continue
 			if not self.runCommand(message.strip()):
 				msgId = self.methodsInterface.call("message_send", (jid, message))
-				self.sentCache[msgId] = [int(time.time()/1000), message]
+				self.sentCache[msgId] = [int(time.time()), message]
 		self.done = True
 	def getPrompt(self):
 		return "Enter Message or command: (/%s)" % ", /".join(self.commandMappings)
