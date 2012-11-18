@@ -71,7 +71,7 @@ class WhatsappCmdClient:
 		
 	def onPresenceUpdated(self, jid, lastSeen):
 		formattedDate = datetime.datetime.fromtimestamp(long(time.time()) - lastSeen).strftime('%d-%m-%Y %H:%M')
-		self.onMessageReceived(0, jid, "LAST SEEN RESULT: %s"%formattedDate, long(time.time()) * 1000, False)
+		self.onMessageReceived(0, jid, "LAST SEEN RESULT: %s"%formattedDate, long(time.time()), False)
 
 	def onMessageSent(self, jid, messageId):
 		formattedDate = datetime.datetime.fromtimestamp(self.sentCache[messageId][0]).strftime('%d-%m-%Y %H:%M')
@@ -89,7 +89,7 @@ class WhatsappCmdClient:
 		
 		return 0
 			
-	def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName):
+	def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName=None):
 		if jid[:jid.index('@')] != self.phoneNumber:
 			return
 		formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
