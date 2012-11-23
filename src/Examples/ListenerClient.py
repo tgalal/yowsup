@@ -38,6 +38,7 @@ class WhatsappListenerClient:
 		self.methodsInterface = connectionManager.getMethodsInterface()
 		
 		self.signalsInterface.registerListener("message_received", self.onMessageReceived)
+                self.signalsInterface.registerListener("group_messageReceived", self.onGroupMessageReceived)
 		self.signalsInterface.registerListener("auth_success", self.onAuthSuccess)
 		self.signalsInterface.registerListener("auth_fail", self.onAuthFailed)
 		self.signalsInterface.registerListener("disconnected", self.onDisconnected)
@@ -69,3 +70,7 @@ class WhatsappListenerClient:
 		if wantsReceipt and self.sendReceipts:
 			self.methodsInterface.call("message_ack", (jid, messageId))
 	
+
+        def onGroupMessageReceived(self, messageId, jid, author, messageContent, timestamp, wantsReceipt, pushName):
+                formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+                print "%s [%s %s]:%s"%(jid, formattedDate, pushName.encode("utf-8"), messageContent)
