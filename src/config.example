@@ -1,0 +1,16 @@
+######## Yowsup Configuration file #####################
+# Lines are commented using # and ;
+# Your configuration should contain info about your login credentials to Whatsapp. This typically consist of 3 fields:\n
+# phone:	Your full phone number including country code, without '+' or '00'
+# id:		This field is used in registration calls (-r|-R|-e), and for login if you are trying to use an existing account which is setup 
+#		on a physical device (--v1). Typically it should be the phone's IMEI if your account is setup on a Nokia or Android device, 
+#		or the phone's WLAN's MAC Address for iOS devices. If you are not trying to use an existing account, you can leave this field 
+#		blank or set it to some random text. Do not change this field after registering using Yowsup
+# password:	Password to use for login. You obtain this password when you register using Yowsup.
+######################################################
+
+## Actual config starts below ##
+
+phone=20111111111
+id=0000000000
+password=MDAwMDAwMDAwMA==

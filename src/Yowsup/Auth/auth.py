@@ -21,7 +21,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from mechanisms.wauth import WAuth as AuthMechanism
 
-from Yowsup.Tools.constants import Constants
+from Yowsup.Common.constants import Constants
 
 class YowsupAuth:
 	def __init__(self, connection):

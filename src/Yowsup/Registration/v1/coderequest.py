@@ -19,12 +19,16 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-from warequest import WARequest
+from Yowsup.Common.Http.warequest import WARequest
+from Yowsup.Common.Http.waresponseparser import XMLResponseParser
 import hashlib
 from xml.dom import minidom
 
 class WACodeRequest(WARequest):
+
 	def __init__(self,cc, p_in, method="sms"):
+		super(WACodeRequest,self).__init__();
+
 		self.addParam("cc",cc);
 		self.addParam("in",p_in);
 		self.addParam("to",cc+p_in);
@@ -35,25 +39,15 @@ class WACodeRequest(WARequest):
 		self.addParam("imsi","000000000000000");
 		self.addParam("method",method);
 
-		token = "k7Iy3bWARdNeSL8gYgY6WveX12A1g4uTNXrRzt1H"+"889d4f44e479e6c38b4a834c6d8417815f999abe"+p_in
-		digest = hashlib.md5(token)
-		self.addParam("token", digest.hexdigest())
+		self.addParam("token", self.getToken(p_in))
 
-		self.base_url = "r.whatsapp.net"
-		self.req_file = "/v1/code.php"
-		super(WACodeRequest,self).__init__();
-		
-	def handleResponse(self,data):
-		response_node  = data.getElementsByTagName("response")[0];
+		self.url = "r.whatsapp.net/v1/code.php"
 
-		for (name, value) in response_node.attributes.items():
-			if name == "status":
-				self.status = value
-			elif name == "result":
-				self.result = value
+		self.pvars = {"status": "/code/response/@status",
+					  "result": "/code/response/@result"
+					}
 
-	def requestCode(self):
-		resp = self.sendRequest();
-		resp = minidom.parseString(resp)
-		self.handleResponse(resp);
-		return [self.status, self.result]
+		self.type = "POST"
+
+		self.setParser(XMLResponseParser())
+

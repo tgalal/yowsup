@@ -23,11 +23,11 @@ from ConnectionIO.protocoltreenode import ProtocolTreeNode
 from ConnectionIO.ioexceptions import ConnectionClosedException
 from ConnectionIO.connectionengine import ConnectionEngine
 
-from Tools.debugger import Debugger
+from Common.debugger import Debugger
 import threading, select, time
-from Tools.watime import WATime
+from Common.watime import WATime
 from Auth.auth import YowsupAuth
-from Tools.constants import Constants
+from Common.constants import Constants
 from Interfaces.Lib.LibInterface import LibMethodInterface, LibSignalInterface
 import thread
 from random import randrange

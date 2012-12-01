@@ -23,7 +23,7 @@ import socket;
 import sys
 from bintreenode import BinTreeNodeReader, BinTreeNodeWriter
 
-from Yowsup.Tools.debugger import Debugger
+from Yowsup.Common.debugger import Debugger
 
 from ioexceptions import ConnectionClosedException
 

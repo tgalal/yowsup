@@ -22,16 +22,49 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 import argparse, sys, os
-from Yowsup.Tools.utilities import Utilities
-from Yowsup.Tools.debugger import Debugger
+from Yowsup.Common.utilities import Utilities
+from Yowsup.Common.debugger import Debugger
 from Examples.CmdClient import WhatsappCmdClient
 from Examples.EchoClient import WhatsappEchoClient
 from Examples.ListenerClient import WhatsappListenerClient
-from Yowsup.Registration.coderequest import WACodeRequest
-from Yowsup.Registration.regrequest import WARegRequest
-import threading,time
+from Yowsup.Registration.v1.coderequest import WACodeRequest
+from Yowsup.Registration.v1.regrequest import WARegRequest
+from Yowsup.Registration.v1.existsrequest import WAExistsRequest
+from Yowsup.Registration.v2.existsrequest import WAExistsRequest as WAExistsRequestV2
+from Yowsup.Registration.v2.coderequest import WACodeRequest as WACodeRequestV2
+from Yowsup.Registration.v2.regrequest import WARegRequest as WARegRequestV2
+
+import threading,time, base64
 
 DEFAULT_CONFIG = os.path.expanduser("~")+"/.yowsup/auth"
+
+CONFIG_HELP = """\
+Yowsup Configuration
+====================
+Your configuration should contain info about your login credentials to Whatsapp. This typically consist of 3 fields:\n
+	phone:		Your full phone number including country code, without '+' or '00'
+	id:		This field is used in registration calls (-r|-R|-e), and for login if you are trying to use an existing account which is setup 
+			on a physical device (--v1). Typically it should be the phone's IMEI if your account is setup on a Nokia or Android device, 
+			or the phone's WLAN's MAC Address for iOS devices. If you are not trying to use an existing account, you can leave this field 
+			blank or set it to some random text. Do not change this field after registering using Yowsup
+	password:	Password to use for login. You obtain this password when you register using Yowsup.
+
+You can specify those variables using -c argument, as a path to a file containing this configuration.
+
+Config file Example:
+
+##/home/user/my_whatsapp_config.txt#
+phone=201111111111
+id=FF:FF:FF:FF:FF:FF
+password=S1nBGCvZhb6TBQrbm2sQCfSLkXM=
+#########
+
+Usage Example for listening to incoming messages:
+
+	yowsup-cli -c /home/user/my_whatsapp_config.txt -l
+
+You can also use config.example as a template
+"""
 
 def startDbusInterface():
 	from dbus.mainloop.glib import DBusGMainLoop
@@ -48,23 +81,52 @@ def startDbusInterface():
 	print "starting"
 	mainloop.run()
 
+
+def resultToString(result):
+	out = []
+	for k, v in result.items():
+		if v is None:
+			continue
+		out.append("%s: %s" %(k, v))
+		
+	return "\n".join(out)
+
 def getCredentials(config = DEFAULT_CONFIG):
 	if os.path.isfile(config):
 		f = open(config)
-		l = f.readline().strip()
-		auth = l.split(":", 1)
-		if len(auth) == 2:
-			return auth
 		
-		return 0
+		phone = ""
+		idx = ""
+		pw = ""
+		
+		try:
+			for l in f:
+				line = l.strip()
+				if len(line) and line[0] not in ('#',';'):
+					
+					prep = line.split('#', 1)[0].split(';', 1)[0].split('=', 1)
+					
+					varname = prep[0].strip()
+					val = prep[1].strip()
+					
+					if varname == "phone":
+						phone = val
+					elif varname == "id":
+						idx = val
+					elif varname =="password":
+						pw =val
+
+			return [phone, idx, pw];
+		except:
+			pass
+
+	return 0
 
 parser = argparse.ArgumentParser(description='yowsup-cli Command line options')
 
+clientsGroup = parser.add_argument_group("Client options")
 
-#lobalsGroup = parser.add_argument_group("Global options")
-clientsGroup = parser.add_argument_group("Client options")#.add_mutually_exclusive_group()
-
-regGroup = parser.add_argument_group("Registration options")#.add_mutually_exclusive_group()
+regGroup = parser.add_argument_group("Registration options")
 
 
 modes = clientsGroup.add_mutually_exclusive_group()
@@ -81,27 +143,37 @@ clientsGroup.add_argument('-k','--keepalive', help="When used with -l or -i, Yow
 regSteps = regGroup.add_mutually_exclusive_group()
 regSteps.add_argument("-r", '--requestcode', help='Request the 3 digit registration code from Whatsapp.', action="store", required=False, metavar="(sms|voice)")
 regSteps.add_argument("-R", '--register', help='Register account on Whatsapp using the provided 3 digit code', action="store", required=False, metavar="code")
+regSteps.add_argument("-e", '--exists', help='Check if account credentials are valid', action="store_true", required=False)
 
-parser.add_argument('-c','--config', help="Path to config file. Config file should contain full phone number including country code without '+' or '00', and Identity, separated by a colon. Identity is the phone's IMEI if your account is setup on a Nokia or Android device, or your phone's WLAN's MAC Address for iphone devices. Example: 123456789:FF:FF:FF:FF:FF:FF", action="store", metavar="file", required=False, default=False)
-parser.add_argument('-p','--assumepassword', help="Assume provided identity is the actual login password", action="store_true", required=False, default=False)
+
+debugTools = parser.add_argument_group("Debug tools").add_mutually_exclusive_group();
+
+debugTools.add_argument("-g", '--generatepassword', help="Generate password from given string", action="store", metavar="input")
+
+
+parser.add_argument("--help-config", help="Display info about configuration format", action="store_true")
+parser.add_argument("--v1", help="If specified, it will force usage of old API in registration calls. Also password field in config will be ignored and will attempt to generate password from specified identity (IMEI/MAC)", action="store_true")
+parser.add_argument('-c','--config', help="Path to config file containing authentication info. For more info about config format use --help-config", action="store", metavar="file", required=False, default=False)
 parser.add_argument('-D','--dbus', help='Start DBUS interface', action="store_true", required=False, default=False)
 parser.add_argument('-d','--debug', help='Enable debug messages', action="store_true", required=False, default=False)
 #parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.2')
 
 
 args = vars(parser.parse_args())
-
 if len(sys.argv) == 1:
 	parser.print_help()
 
+elif args["help_config"]:
+	print CONFIG_HELP
 else:
 	credentials = getCredentials(args["config"] or DEFAULT_CONFIG)
 	
 	if credentials:
-		
-		sender, identity = credentials
-		password = Utilities.getPassword(identity) if not args["assumepassword"] else identity
-		
+
+		sender, identity, password = credentials
+		identity = Utilities.processIdentity(identity)
+		password = identity or password if args["v1"] else password
+
 		countryCode = sender[0:2]
 		phonenumber= sender[2:]
 		Debugger.enabled = args['debug']
@@ -113,24 +185,56 @@ else:
 			phone = args["send"][0]
 			message = args["send"][1]
 			wa = WhatsappEchoClient(phone, message, args['wait'])
-			wa.login(sender, password)
+			wa.login(sender, base64.b64decode(password))
 		elif args['listen']:
 			wa = WhatsappListenerClient(args['keepalive'], args['autoack'])
-			wa.login(sender, password)
+
+			wa.login(sender, base64.b64decode(password))
+
 		elif args["requestcode"]:
+
 			method = args["requestcode"]
 			if method not in ("sms","voice"):
 				print "coderequest accepts only sms or voice as a value"
 			else:
-				wc = WACodeRequest(countryCode, phonenumber, method)
-				result = wc.requestCode()
-				print "Got response: %s:%s"%(result[0], result[1])
+				if(args["v1"]):
+					wc = WACodeRequest(countryCode, phonenumber, method)
+				else:
+					wc = WACodeRequestV2(countryCode, phonenumber, identity, method)
+					
+				result = wc.send()
+				print resultToString(result)
+				
 		elif args["register"]:
 			code = args["register"]
-			wr = WARegRequest(countryCode, phonenumber, code, password)
-			result = wr.register()
-			print "Got response: %s:%s"%(result[0], result[1])
+
+			if(args["v1"]):
+				wr = WARegRequest(countryCode, phonenumber, code, identity)
+			else:
+				code = "".join(code.split('-'))
+				wr = WARegRequestV2(countryCode, phonenumber, code, identity)
+			
+			
+			result = wr.send()
+			print resultToString(result)
+			
+		elif args["exists"]:
+
+			if(args["v1"]):
+				we = WAExistsRequest(countryCode, phonenumber, identity)
+				result = we.send()
+				print resultToString(result)
+			else:
+				we = WAExistsRequestV2(countryCode, phonenumber, identity)
+				result = we.send()
+				print resultToString(result)
+
+				if result["pw"] is not None:
+					print "\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(countryCode, phonenumber, result["pw"])
+
 	elif args["dbus"]:
             startDbusInterface()
+	elif args["generatepassword"]:
+		print Utilities.processIdentity(args["generatepassword"]);
 	else:
 		print "Error: config file is invalid"

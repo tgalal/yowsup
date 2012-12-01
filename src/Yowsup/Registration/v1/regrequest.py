@@ -19,17 +19,26 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-import hashlib
-class Utilities:
-	@staticmethod
-	def getPassword(identifier):
-		try:
-			identifier.index(":")
-			identifier = identifier.upper()
-			identifier = identifier + identifier
-			
-		except:
-			identifier = identifier[::-1]
+from Yowsup.Common.Http.warequest import WARequest
+from Yowsup.Common.Http.waresponseparser import XMLResponseParser
+
+class WARegRequest(WARequest):
+	
+	def __init__(self,cc, p_in, code, password):
+		super(WARegRequest,self).__init__();
 		
-		digest = hashlib.md5(identifier)
-		return digest.hexdigest()
+		self.addParam("cc",cc);
+		self.addParam("in",p_in);
+		self.addParam("code",code);
+		self.addParam("udid", password);
+
+		self.url = "r.whatsapp.net/v1/register.php"
+		
+		self.pvars = {"status": "/register/response/@status",
+					  "login": "/register/response/@login",
+					  "result": "/register/response/@result"
+					}
+
+		self.type = "POST"
+
+		self.setParser(XMLResponseParser())		

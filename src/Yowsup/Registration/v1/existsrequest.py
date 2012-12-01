@@ -19,34 +19,23 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-from warequest import WARequest
-from xml.dom import minidom
+from Yowsup.Common.Http.warequest import WARequest
+from Yowsup.Common.Http.waresponseparser import XMLResponseParser
 
-class WARegRequest(WARequest):
-	
-	def __init__(self,cc, p_in, code, password):
+class WAExistsRequest(WARequest):
+
+	def __init__(self,cc, p_in, password):
+		super(WAExistsRequest,self).__init__();
+
 		self.addParam("cc",cc);
 		self.addParam("in",p_in);
-		self.addParam("code",code);
 		self.addParam("udid", password);
-		#self.addParam("method",method)
-		self.base_url = "r.whatsapp.net"
-		self.req_file = "/v1/register.php"
+
+		self.url = "r.whatsapp.net/v1/exist.php"
+
+		self.pvars = {"status": "/exist/response/@status",
+					  "result": "/exist/response/@result"
+					}
 		
-		self.login=0
-		super(WARegRequest,self).__init__();
-
-	def handleResponse(self,data):
-		response_node  = data.getElementsByTagName("response")[0];
-
-		for (name, value) in response_node.attributes.items():
-			if name == "login":
-				self.login = value
-			
-			if name == "status":
-				self.status = value
-
-	def register(self):
-		resp = self.sendRequest();
-		self.handleResponse(minidom.parseString(resp));
-		return [self.status, self.login]
+		self.type = "POST"
+		self.setParser(XMLResponseParser())

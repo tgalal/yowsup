@@ -22,7 +22,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import time
 
 class Debugger():
-	enabled = True
+	enabled = False
 	def __init__(self):
 		
 		cname = self.__class__.__name__
@@ -37,6 +37,10 @@ class Debugger():
 	@staticmethod
 	def stdDebug(message,messageType="General"):
 		#enabledTypes = ["general","stanzareader","sql","conn","waxmpp","wamanager","walogin","waupdater","messagestore"];
+		
+		if not Debugger.enabled:
+			return
+		
 		disabledTypes = ["sql"]
 		if messageType.lower() not in disabledTypes:
 			print message;
@@ -46,7 +50,7 @@ class Debugger():
 		t = time.time()
 		message = "%s:\t%s"%(self.type,message)
 		return message
-
+	
 	def debug(self,message):
 		if Debugger.enabled:
 			Debugger.stdDebug(self.formatMessage(message),self.type)

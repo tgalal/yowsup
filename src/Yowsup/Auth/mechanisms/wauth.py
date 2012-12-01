@@ -20,10 +20,10 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 import socket, hashlib, hmac
-from Yowsup.Tools.debugger import Debugger
-from Yowsup.Tools.watime import WATime
+from Yowsup.Common.debugger import Debugger
+from Yowsup.Common.watime import WATime
 from Yowsup.ConnectionIO.protocoltreenode import ProtocolTreeNode
-from Yowsup.Tools.datastructures import ByteArray
+from Yowsup.Common.datastructures import ByteArray
 
 from struct import pack
 from operator import xor

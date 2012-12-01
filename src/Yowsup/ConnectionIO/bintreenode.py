@@ -19,9 +19,9 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-from Yowsup.Tools.debugger import Debugger
-from Yowsup.Tools.datastructures import ByteArray
-from Yowsup.Tools.constants import Constants
+from Yowsup.Common.debugger import Debugger
+from Yowsup.Common.datastructures import ByteArray
+from Yowsup.Common.constants import Constants
 
 
 from protocoltreenode import ProtocolTreeNode
