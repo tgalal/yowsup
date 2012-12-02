@@ -19,9 +19,8 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-import json
+import json, sys
 from xml.dom import minidom
-import libxml2
 
 class ResponseParser(object):
 	def __init__(self):
@@ -51,10 +50,17 @@ class ResponseParser(object):
 class XMLResponseParser(ResponseParser):
 	
 	def __init__(self):
+		
+		try:
+			import libxml2
+		except ImportError:
+			print "libxml2 XMLResponseParser requires libxml2"
+			sys.exit(1)
+
 		self.meta = "text/xml";
 
 	def parse(self, xml, pvars):
-		
+		import libxml2
 		doc = libxml2.parseDoc(xml)
 		
 		pvars = self.getVars(pvars)
