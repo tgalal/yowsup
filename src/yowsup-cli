@@ -21,9 +21,15 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
+__author__ = "Tarek Galal"
+__version__ = "0.3.1"
+__email__ = "tare2.galal@gmail.com"
+__license__ = "MIT"
+
 import argparse, sys, os
 from Yowsup.Common.utilities import Utilities
 from Yowsup.Common.debugger import Debugger
+from Yowsup.Common.constants import Constants
 from Examples.CmdClient import WhatsappCmdClient
 from Examples.EchoClient import WhatsappEchoClient
 from Examples.ListenerClient import WhatsappListenerClient
@@ -137,6 +143,7 @@ modes = clientsGroup.add_mutually_exclusive_group()
 modes.add_argument('-l','--listen', help='Listen to messages', action="store_true", required=False, default=False)
 modes.add_argument('-s','--send', help="Send message to phone number and close connection. Phone is full number including country code, without '+' or '00'", action="store",  nargs=2, metavar=('<phone>','<message>'), required=False)
 modes.add_argument('-i','--interactive', help="Start an interactive conversation with a contact. Phone is full number including country code, without '+' or '00'", action="store", metavar='<phone>', required=False)
+#modes.add_argument('-b','--bot', help='Bot', action="store_true", required=False, default=False)
 
 
 clientsGroup.add_argument('-w','--wait', help='If used with -s, then connection will not close until server confirms reception of the message', action="store_true", required=False, default=False)
@@ -152,7 +159,7 @@ regSteps.add_argument("-e", '--exists', help='Check if account credentials are v
 
 debugTools = parser.add_argument_group("Debug tools").add_mutually_exclusive_group();
 
-debugTools.add_argument("-g", '--generatepassword', help="Generate password from given string", action="store", metavar="input")
+debugTools.add_argument("-g", '--generatepassword', help="Generate password from given string, in same way Whatsapp generates it from a given IMEI or MAC Address", action="store", metavar="input")
 
 
 parser.add_argument("--help-config", help="Display info about configuration format", action="store_true")
@@ -160,7 +167,7 @@ parser.add_argument("--v1", help="If specified, it will force usage of old API i
 parser.add_argument('-c','--config', help="Path to config file containing authentication info. For more info about config format use --help-config", action="store", metavar="file", required=False, default=False)
 parser.add_argument('-D','--dbus', help='Start DBUS interface', action="store_true", required=False, default=False)
 parser.add_argument('-d','--debug', help='Enable debug messages', action="store_true", required=False, default=False)
-#parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.2')
+parser.add_argument('-v', '--version', help="Print version info and exit", action='store_true', required=False, default=False)
 
 
 args = vars(parser.parse_args())
@@ -169,6 +176,8 @@ if len(sys.argv) == 1:
 
 elif args["help_config"]:
 	print CONFIG_HELP
+elif args["version"]:
+	print "yowsup-cli %s, using Yowsup %s"%(__version__, Constants.v)
 else:
 	credentials = getCredentials(args["config"] or DEFAULT_CONFIG)
 	
@@ -181,6 +190,7 @@ else:
 		countryCode = sender[0:2]
 		phonenumber= sender[2:]
 		Debugger.enabled = args['debug']
+
 		if args["interactive"]:
 			val = args["interactive"]
 			wa = WhatsappCmdClient(val, args['keepalive'] ,args['autoack'])
