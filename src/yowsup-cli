@@ -160,7 +160,7 @@ regSteps.add_argument("-e", '--exists', help='Check if account credentials are v
 debugTools = parser.add_argument_group("Debug tools").add_mutually_exclusive_group();
 
 debugTools.add_argument('--generatepassword', help="Generate password from given string in same way Whatsapp generates it from a given IMEI or MAC Address", action="store", metavar="input")
-debugTools.add_argument('--decodestring', help="Decode byte arrays found in decompiled version of Whatsapp. Tested with S40 version. Input should be comma separated without the enclosing brackets. Example: ./yowsup-cli --decodestring 112,61,100,123,114,103,96,114,99,99,61,125,118,103", action="store", metavar="encoded array")
+debugTools.add_argument('--decodestring', help="Decode byte arrays found in decompiled version of Whatsapp. Tested with S40 version. Input should be comma separated without the enclosing brackets. Example: ./yowsup-cli --decodestring 112,61,100,123,114,103,96,114,99,99,61,125,118,103", action="store", metavar="encoded_array")
 
 
 parser.add_argument("--help-config", help="Display info about configuration format", action="store_true")
