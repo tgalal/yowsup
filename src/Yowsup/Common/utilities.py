@@ -34,3 +34,7 @@ class Utilities:
 		
 		digest = hashlib.md5(identifier)
 		return digest.hexdigest()
+		
+	@staticmethod
+	def decodeString(encoded):
+		return "".join(map(chr,  map(lambda x: x ^ 19, encoded)))
