@@ -195,7 +195,7 @@ else:
 		if args["interactive"]:
 			val = args["interactive"]
 			wa = WhatsappCmdClient(val, args['keepalive'] ,args['autoack'])
-			wa.login(sender, password)
+			wa.login(sender, base64.b64decode(password))
 		elif args['send']:
 			phone = args["send"][0]
 			message = args["send"][1]
