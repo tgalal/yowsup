@@ -186,7 +186,7 @@ else:
 
 		sender, identity, password = credentials
 		identity = Utilities.processIdentity(identity)
-		password = identity or password if args["v1"] else password
+		password = identity or password if args["v1"] else base64.b64decode(password)
 
 		countryCode = sender[0:2]
 		phonenumber= sender[2:]
@@ -195,16 +195,16 @@ else:
 		if args["interactive"]:
 			val = args["interactive"]
 			wa = WhatsappCmdClient(val, args['keepalive'] ,args['autoack'])
-			wa.login(sender, base64.b64decode(password))
+			wa.login(sender, password)
 		elif args['send']:
 			phone = args["send"][0]
 			message = args["send"][1]
 			wa = WhatsappEchoClient(phone, message, args['wait'])
-			wa.login(sender, base64.b64decode(password))
+			wa.login(sender, password)
 		elif args['listen']:
 			wa = WhatsappListenerClient(args['keepalive'], args['autoack'])
 
-			wa.login(sender, base64.b64decode(password))
+			wa.login(sender, password)
 
 		elif args["requestcode"]:
 
