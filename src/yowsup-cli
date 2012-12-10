@@ -40,7 +40,7 @@ from Yowsup.Registration.v2.existsrequest import WAExistsRequest as WAExistsRequ
 from Yowsup.Registration.v2.coderequest import WACodeRequest as WACodeRequestV2
 from Yowsup.Registration.v2.regrequest import WARegRequest as WARegRequestV2
 
-import threading,time, base64
+import threading,time, base64, fileinput
 
 DEFAULT_CONFIG = os.path.expanduser("~")+"/.yowsup/auth"
 
@@ -130,6 +130,15 @@ def getCredentials(config = DEFAULT_CONFIG):
 		except:
 			pass
 
+	return 0
+
+def updatePassword(newpw, config = DEFAULT_CONFIG):
+	if os.path.isfile(config):
+		for line in fileinput.input(config, inplace=1):
+			if "password=" in line:
+				print "password=%s" % (newpw),
+			else:
+				print "%s" % (line),
 	return 0
 
 parser = argparse.ArgumentParser(description='yowsup-cli Command line options')
@@ -245,7 +254,8 @@ else:
 				print resultToString(result)
 
 				if result["pw"] is not None:
-					print "\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(countryCode, phonenumber, result["pw"])
+					print "Config file updated with new password\n"
+					updatePassword(result["pw"], args["config"] or DEFAULT_CONFIG)
 
 	elif args["dbus"]:
             startDbusInterface()
