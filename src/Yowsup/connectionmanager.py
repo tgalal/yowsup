@@ -1003,11 +1003,12 @@ class ReaderThread(threading.Thread):
 		groupNode = node.getChild("list")
 		#self._d(groupNode.toString())
 		children = groupNode.getAllChildren("user");
-		pids = []
+		#pids = []
 		for c in children:
 			if c.getAttributeValue("id") is not None:
-				pids.append({"jid":c.getAttributeValue("jid"),"id":c.getAttributeValue("id")})
-		self.signalInterface.send("contact_gotProfilePictureIds", (pids,))
+				#pids.append({"jid":c.getAttributeValue("jid"),"id":c.getAttributeValue("id")})
+				self.signalInterface.send("contact_gotProfilePictureId", (c.getAttributeValue("jid"), c.getAttributeValue("id")))
+		#self.signalInterface.send("contact_gotProfilePictureIds", (pids,))
 
 
 	def parseSetPicture(self,node):
