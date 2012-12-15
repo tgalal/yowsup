@@ -71,9 +71,9 @@ class DBusSignalInterface(SignalInterfaceBase, dbus.service.Object):
 			try:
 				currBusSig = getattr(self, s)
 				self.registerListener(s, currBusSig)
-				print "Registered %s on Dbus " % s
+				print("Registered %s on Dbus " % s)
 			except AttributeError:
-				print "Skipping %s" %s
+				print("Skipping %s" %s)
 
 	## Signals ##
 	

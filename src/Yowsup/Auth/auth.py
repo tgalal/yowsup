@@ -51,10 +51,10 @@ class YowsupAuth:
 		#should process callbacks
 
 	def authenticationFailed(self):
-		print "AUTH FAIL"
+		print("AUTH FAIL")
 
 	def authenticate(self, username, password, domain, resource):
-		print "Connecting to "+Constants.host
+		print("Connecting to "+Constants.host)
 		#connection = ConnectionEngine()
 		self.connection.connect((Constants.host, Constants.port));
 

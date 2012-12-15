@@ -43,7 +43,7 @@ class Debugger():
 		
 		disabledTypes = ["sql"]
 		if messageType.lower() not in disabledTypes:
-			print message;
+			print(message)
 	
 	def formatMessage(self,message):
 		#default = "{type}:{time}:\t{message}"

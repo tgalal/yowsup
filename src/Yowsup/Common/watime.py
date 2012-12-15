@@ -41,21 +41,4 @@ class WATime():
 	
 	def datetimeToTimestamp(self,dt):
 		return time.mktime(dt.timetuple());
-		
-
-if __name__=="__main__":
-	ds = "2012-06-16T15:24:36Z"
-	watime = WATime();
-	
-	print ds
-	
-	parsed = watime.parseIso(ds)
-	print parsed
-	
-	local = watime.utcToLocal(parsed)
-	print local
-	
-	stamp = watime.datetimeToTimestamp(local)
-	print stamp
-	
 	

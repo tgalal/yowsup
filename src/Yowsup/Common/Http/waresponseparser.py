@@ -54,7 +54,7 @@ class XMLResponseParser(ResponseParser):
 		try:
 			import libxml2
 		except ImportError:
-			print "libxml2 XMLResponseParser requires libxml2"
+			print("libxml2 XMLResponseParser requires libxml2")
 			sys.exit(1)
 
 		self.meta = "text/xml";
@@ -79,7 +79,7 @@ class XMLResponseParser(ResponseParser):
 				elif r.type == 'attribute':
 					vals[k].append(r.content)
 				else:
-					print "UNKNOWN TYPE"
+					print("UNKNOWN TYPE")
 			
 			if len(vals[k]) == 1:
 				vals[k] = vals[k][0]

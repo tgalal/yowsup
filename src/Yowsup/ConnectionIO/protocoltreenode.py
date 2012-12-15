@@ -50,9 +50,9 @@ class ProtocolTreeNode():
 			out+= "</"+self.tag+">\n"
 			return out
 		except TypeError:
-			print "ignored toString call, probably encountered byte"
+			print("ignored toString call, probably encountered byte")
 		except UnicodeDecodeError:
-			print "ingnored toString call, encountered unicode error"
+			print("ingnored toString call, encountered unicode error")
 		
 		
 	

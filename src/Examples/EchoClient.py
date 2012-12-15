@@ -59,13 +59,13 @@ class WhatsappEchoClient:
 			time.sleep(0.5)
 
 	def onAuthSuccess(self, username):
-		print "Authed %s" % username
+		print("Authed %s" % username)
 
 		if self.waitForReceipt:
 			self.methodsInterface.call("ready")
 
 		self.methodsInterface.call("message_send", (self.jid, self.message))
-		print "Sent message"
+		print("Sent message")
 		if self.waitForReceipt:
 			timeout = 5
 			t = 0;
@@ -74,17 +74,17 @@ class WhatsappEchoClient:
 				t+=1
 
 			if not self.gotReceipt:
-				print "print timedout!"
+				print("print timedout!")
 			else:
-				print "Got sent receipt"
+				print("Got sent receipt")
 
 		self.done = True
 
 	def onAuthFailed(self, username, err):
-		print "Auth Failed!"
+		print("Auth Failed!")
 
 	def onDisconnected(self, reason):
-		print "Disconnected because %s" %reason
+		print("Disconnected because %s" %reason)
 
 	def onMessageSent(self, jid, messageId):
 		self.gotReceipt = True

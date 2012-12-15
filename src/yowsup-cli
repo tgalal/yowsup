@@ -88,7 +88,7 @@ def startDbusInterface():
 	mainloop = gobject.MainLoop()
 	
 	gobject.threads_init()
-	print "starting"
+	print("starting")
 	mainloop.run()
 
 
@@ -176,9 +176,9 @@ if len(sys.argv) == 1:
 	parser.print_help()
 
 elif args["help_config"]:
-	print CONFIG_HELP
+	print(CONFIG_HELP)
 elif args["version"]:
-	print "yowsup-cli %s, using Yowsup %s"%(__version__, Constants.v)
+	print("yowsup-cli %s, using Yowsup %s"%(__version__, Constants.v))
 else:
 	credentials = getCredentials(args["config"] or DEFAULT_CONFIG)
 	
@@ -210,7 +210,7 @@ else:
 
 			method = args["requestcode"]
 			if method not in ("sms","voice"):
-				print "coderequest accepts only sms or voice as a value"
+				print("coderequest accepts only sms or voice as a value")
 			else:
 				if(args["v1"]):
 					wc = WACodeRequest(countryCode, phonenumber, method)
@@ -218,7 +218,7 @@ else:
 					wc = WACodeRequestV2(countryCode, phonenumber, identity, method)
 					
 				result = wc.send()
-				print resultToString(result)
+				print(resultToString(result))
 				
 		elif args["register"]:
 			code = args["register"]
@@ -231,27 +231,27 @@ else:
 			
 			
 			result = wr.send()
-			print resultToString(result)
+			print(resultToString(result))
 			
 		elif args["exists"]:
 
 			if(args["v1"]):
 				we = WAExistsRequest(countryCode, phonenumber, identity)
 				result = we.send()
-				print resultToString(result)
+				print(resultToString(result))
 			else:
 				we = WAExistsRequestV2(countryCode, phonenumber, identity)
 				result = we.send()
-				print resultToString(result)
+				print(resultToString(result))
 
 				if result["pw"] is not None:
-					print "\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(countryCode, phonenumber, result["pw"])
+					print("\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(countryCode, phonenumber, result["pw"]))
 
 	elif args["dbus"]:
             startDbusInterface()
 	elif args["generatepassword"]:
-		print Utilities.processIdentity(args["generatepassword"]);
+		print(Utilities.processIdentity(args["generatepassword"]));
 	elif args["decodestring"]:
-		print Utilities.decodeString(map(int, "".join(args["decodestring"].split(' ')).split(',')))
+		print(Utilities.decodeString(map(int, "".join(args["decodestring"].split(' ')).split(','))))
 	else:
-		print "Error: config file is invalid"
+		print("Error: config file is invalid")
