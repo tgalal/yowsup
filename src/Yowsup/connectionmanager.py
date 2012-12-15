@@ -19,17 +19,16 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-from ConnectionIO.protocoltreenode import ProtocolTreeNode
-from ConnectionIO.ioexceptions import ConnectionClosedException
-from ConnectionIO.connectionengine import ConnectionEngine
+from Yowsup.ConnectionIO.protocoltreenode import ProtocolTreeNode
+from Yowsup.ConnectionIO.ioexceptions import ConnectionClosedException
+from Yowsup.ConnectionIO.connectionengine import ConnectionEngine
 
-from Common.debugger import Debugger
+from Yowsup.Common.debugger import Debugger
 import threading, select, time
-from Common.watime import WATime
-from Auth.auth import YowsupAuth
-from Common.constants import Constants
-from Interfaces.Lib.LibInterface import LibMethodInterface, LibSignalInterface
-import thread
+from Yowsup.Common.watime import WATime
+from .Auth.auth import YowsupAuth
+from Yowsup.Common.constants import Constants
+from Yowsup.Interfaces.Lib.LibInterface import LibMethodInterface, LibSignalInterface
 from random import randrange
 import socket
 import hashlib
@@ -37,8 +36,6 @@ import base64
 import sys
 
 
-
-import traceback
 class YowsupConnectionManager:
 	
 	def __init__(self):
@@ -218,7 +215,7 @@ class YowsupConnectionManager:
 	def auth(self, username, password):
 		self._d(">>>>>>>>                         AUTH CALLED")
 		username = str(username)
-		password = str(password)
+		#password = str(password)
 		#traceback.print_stack()
 		
 		self.lock.acquire()

@@ -24,8 +24,8 @@ from Yowsup.Common.datastructures import ByteArray
 from Yowsup.Common.constants import Constants
 
 
-from protocoltreenode import ProtocolTreeNode
-from ioexceptions import InvalidReadException
+from .protocoltreenode import ProtocolTreeNode
+from .ioexceptions import InvalidReadException
 
 class BinTreeNodeReader():
     def __init__(self,inputstream):
@@ -112,7 +112,8 @@ class BinTreeNodeReader():
     
     def readAttributes(self,attribCount):
         attribs = {};
-        for i in range(0,attribCount):
+        
+        for i in range(0, int(attribCount)):
             key = self.readString(self.inn.read());
             value = self.readString(self.inn.read());
             attribs[key]=value;

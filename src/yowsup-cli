@@ -186,7 +186,7 @@ else:
 
 		sender, identity, password = credentials
 		identity = Utilities.processIdentity(identity)
-		password = identity or password if args["v1"] else base64.b64decode(password)
+		password = identity or password if args["v1"] else base64.b64decode(bytes(password.encode('utf-8')))
 
 		countryCode = sender[0:2]
 		phonenumber= sender[2:]
@@ -196,6 +196,20 @@ else:
 			val = args["interactive"]
 			wa = WhatsappCmdClient(val, args['keepalive'] ,args['autoack'])
 			wa.login(sender, password)
+			
+			from Yowsup.Auth.mechanisms.wauth import KeyStream, WAuth
+			from Yowsup.Auth.auth import YowsupAuth
+			
+			nonce = "".join(map(chr,[190, 197, 251, 188, 212, 184, 217, 211, 53, 28, 244, 113, 145, 25, 90, 102, 186, 198, 87, 106]))
+			y = YowsupAuth(None)
+			w = WAuth(None)
+			
+			y.password  = password
+			w.setAuthObject(y)
+			
+			b = w.getAuthBlob(nonce)
+			#KeyStream.keyFromPasswordAndNonce(password, nonce)
+			
 		elif args['send']:
 			phone = args["send"][0]
 			message = args["send"][1]

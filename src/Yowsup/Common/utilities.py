@@ -32,7 +32,7 @@ class Utilities:
 		except:
 			identifier = identifier[::-1]
 		
-		digest = hashlib.md5(identifier)
+		digest = hashlib.md5(identifier.encode("utf-8"))
 		return digest.hexdigest()
 		
 	@staticmethod

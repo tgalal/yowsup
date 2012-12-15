@@ -19,9 +19,15 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-import httplib,urllib
+import urllib,sys
+
+if sys.version_info < (3, 0):
+	import httplib
+else:
+	from http import client as httplib
+
 import hashlib
-from waresponseparser import ResponseParser
+from .waresponseparser import ResponseParser
 from Yowsup.Common.debugger import Debugger as WADebug
 
 class WARequest(object):

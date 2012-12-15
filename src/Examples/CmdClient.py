@@ -19,7 +19,11 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 from Yowsup.connectionmanager import YowsupConnectionManager
-import time, datetime
+import time, datetime, sys
+
+
+if sys.version_info >= (3, 0):
+	raw_input = input
 
 class WhatsappCmdClient:
 	

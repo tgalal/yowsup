@@ -19,7 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-from mechanisms.wauth import WAuth as AuthMechanism
+from .mechanisms.wauth import WAuth as AuthMechanism
 
 from Yowsup.Common.constants import Constants
 
