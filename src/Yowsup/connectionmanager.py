@@ -35,7 +35,7 @@ import socket
 import hashlib
 import base64
 import sys
-
+from tempfile import gettempdir
 
 
 import traceback
@@ -968,11 +968,11 @@ class ReaderThread(threading.Thread):
 
 
 	def createTmpFile(self, identifier ,data):
-		tmpDir = "/tmp"
+		tmpDir = gettempdir()
 		
 		filename = "%s/wazapp_%i_%s" % (tmpDir, randrange(0,100000) , hashlib.md5(identifier).hexdigest())
 		
-		tmpfile = open(filename, "w")
+		tmpfile = open(filename, "wb")
 		tmpfile.write(data)
 		tmpfile.close()
 
