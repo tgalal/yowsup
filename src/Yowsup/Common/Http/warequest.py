@@ -27,7 +27,7 @@ from Yowsup.Common.debugger import Debugger as WADebug
 class WARequest(object):
 	
 	UserAgents = [
-			("WhatsApp/2.8.2 WP7/7.10.8773.98 Device/NOKIA-Lumia_800-H112.1402.2.3", 
+			("WhatsApp/2.8.10 WP7/7.10.8773.98 Device/NOKIA-Lumia_800-H112.1402.2.3", 
 				"k7Iy3bWARdNeSL8gYgY6WveX12A1g4uTNXrRzt1H"+"889d4f44e479e6c38b4a834c6d8417815f999abe{phone}"),
 			
 			("WhatsApp/2.3.52 S40Version/microedition.platform", 
