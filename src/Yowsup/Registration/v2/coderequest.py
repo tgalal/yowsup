@@ -39,6 +39,7 @@ class WACodeRequest(WARequest):
 
 		self.url = "v.whatsapp.net/v2/code"
 
-		self.pvars = ["status","reason","length", "method", "retry_after", "code"]
+		self.pvars = ["status","reason","length", "method", "retry_after", "code", "param"] +\
+					["login", "pw", "type", "expiration", "kind", "price", "cost", "currency", "price_expiration"]
 
 		self.setParser(JSONResponseParser())
