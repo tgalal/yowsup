@@ -27,11 +27,11 @@ from Yowsup.Common.debugger import Debugger as WADebug
 class WARequest(object):
 	
 	UserAgents = [
-			("WhatsApp/2.8.10 WP7/7.10.8773.98 Device/NOKIA-Lumia_800-H112.1402.2.3", 
+			("WhatsApp/2.8.2 WP7/7.10.8773.98 Device/NOKIA-Lumia_800-H112.1402.2.3", 
 				"k7Iy3bWARdNeSL8gYgY6WveX12A1g4uTNXrRzt1H"+"889d4f44e479e6c38b4a834c6d8417815f999abe{phone}"),
 			
-			("WhatsApp/2.3.52 S40Version/microedition.platform", 
-				"PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk" + "1353374633101{phone}"),
+			("WhatsApp/2.3.53 S40Version/14.26 Device/Nokia302", 
+				"PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk" + "1354754753509{phone}"),
 				
 			("WhatsApp/2.8.22 S60Version/5.3 Device/C7-00", "")
 		]
@@ -39,7 +39,7 @@ class WARequest(object):
 	def __init__(self):
 		WADebug.attach(self)
 		
-		self.uaIndex = 0;
+		self.uaIndex = 1;
 		self.pvars = [];
 		self.port = 443;
 		self.type = "GET"
