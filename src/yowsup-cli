@@ -47,8 +47,10 @@ DEFAULT_CONFIG = os.path.expanduser("~")+"/.yowsup/auth"
 CONFIG_HELP = """\
 Yowsup Configuration
 ====================
-Your configuration should contain info about your login credentials to Whatsapp. This typically consist of 3 fields:\n
-	phone:		Your full phone number including country code, without '+' or '00'
+Your configuration should contain info about your login credentials to Whatsapp. This typically consist of 4 fields:\n
+	cc:		Your phone's country code, without '+' or '00'
+	
+	phone:		Your phone number including without country code, '+' or '00'
 	
 	id:		This field is used in registration calls (-r|-R|-e), and for login if you are trying to use an existing account that is setup \
 on a physical device. Whatsapp has recently deprecated using IMEI/MAC to generate the account's password in updated versions\
@@ -64,7 +66,8 @@ You can specify those variables using -c argument, as a path to a file containin
 Config file Example:
 
 ##/home/user/my_whatsapp_config.txt#
-phone=201111111111
+cc=20
+phone=1111111111
 id=FF:FF:FF:FF:FF:FF
 password=S1nBGCvZhb6TBQrbm2sQCfSLkXM=
 #########
@@ -105,6 +108,7 @@ def getCredentials(config = DEFAULT_CONFIG):
 	if os.path.isfile(config):
 		f = open(config)
 		
+		cc = ""
 		phone = ""
 		idx = ""
 		pw = ""
@@ -119,14 +123,16 @@ def getCredentials(config = DEFAULT_CONFIG):
 					varname = prep[0].strip()
 					val = prep[1].strip()
 					
-					if varname == "phone":
+					if varname == "cc":
+						cc = val
+					elif varname == "phone":
 						phone = val
 					elif varname == "id":
 						idx = val
 					elif varname =="password":
 						pw =val
 
-			return [phone, idx, pw];
+			return [cc, phone, idx, pw];
 		except:
 			pass
 
@@ -184,12 +190,10 @@ else:
 	
 	if credentials:
 
-		sender, identity, password = credentials
+		countryCode, phonenumber, identity, password = credentials
 		identity = Utilities.processIdentity(identity)
 		password = identity or password if args["v1"] else base64.b64decode(password)
 
-		countryCode = sender[0:2]
-		phonenumber= sender[2:]
 		Debugger.enabled = args['debug']
 
 		if args["interactive"]:
