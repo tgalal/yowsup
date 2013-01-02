@@ -97,6 +97,8 @@ def resultToString(result):
 	for k, v in result.items():
 		if v is None:
 			continue
+		if type(v) is str:
+			v = v.encode('utf-8')
 		out.append("%s: %s" %(k, v))
 		
 	return "\n".join(out)
