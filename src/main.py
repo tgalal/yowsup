@@ -1,4 +1,5 @@
 #!/usr/bin/python
+
 '''
 Copyright (c) <2012> Tarek Galal <tare2.galal@gmail.com>
 
@@ -44,6 +45,49 @@ CONFIG_PATH = os.path.expanduser("~/.whatsapp")
 CONFIG_FILE = CONFIG_PATH + "/config.json"
 ALIASES_FILE = CONFIG_PATH + "/aliases.db"
 
+usage = """
+  Whatsapp desktop client, interactive mode
+  =========================================
+  
+  Destinations
+  ------------
+  There are two types of destinations:
+  * Users can be addressed by their phone number (with country code and without any special 
+    characters, e.g. 49179....)
+  * Group chats can be addressed by prepending a # sign to the group chat id (e.g. #491...-130...)
+  
+  Sending messages
+  ----------------
+  Messages can be sent to a destination by typing:
+    @DESTINATION: MESSAGE
+  A default destination ca be set by typing:
+    @DESTINATION
+  Any text that is neither an @DESTINATION nor a command will be sent to the default destination.
+  
+  Aliases
+  -------
+  Instead of destination ids, the client can also use named aliases. If an alias exists for a
+  destination id, it can be used instead of the destination id and it will be displayed on incoming
+  messages.
+
+  Commands
+  --------
+  All commands have the following form:
+    !COMMAND PARAMETERS
+  The following commands are recognized:
+    !alias name=destination
+      Assigns an alias to a destination (user or group), removes alias if destinatio is empty
+    !aliases
+      Displays all aliases
+    !status user
+      Determines the status of a user
+    !debug 1|0
+      Enables/Disables debug mode
+    !help
+    !usage
+      Displays this message    
+"""
+
 def readConfig(path):
     with open(path) as fp:
         return json.load(fp)
@@ -76,7 +120,6 @@ class WhatsappListenerClient:
         
         self.defaultReceiver = None
         self._login()
-        self.methodsInterface.call("presence_sendAvailable")
     
     def close(self):
         self.aliases.close()
@@ -115,12 +158,17 @@ class WhatsappListenerClient:
     def onAuthSuccess(self, username):
         print "Authed %s" % username
         self.methodsInterface.call("ready")
+        self.methodsInterface.call("presence_sendAvailable")
 
     def onAuthFailed(self, username, err):
         print "Auth Failed!"
 
     def onDisconnected(self, reason):
         print "Disconnected because %s" %reason
+        try:
+            self._login()
+        except:
+            pass
 
     def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName):
         formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
@@ -144,6 +192,10 @@ class WhatsappListenerClient:
            print ", ".join(["%s=%s" % (k, v) for k, v in self.aliases.iteritems()])
         elif cmd == "status":
            self.methodsInterface.call("presence_request", (self._name2jid(args[0]),))
+        elif cmd == "debug":
+           Debugger.enabled = args[0].lower() in ["true", "1", "yes"]
+        elif cmd == "help" or cmd == "usage":
+           print usage
         
     def onPresenceUpdated(self, jid, lastseen):
         print "%s was last seen %s seconds ago" % (self._jid2name(jid), lastseen)
@@ -156,7 +208,7 @@ class WhatsappListenerClient:
 
     def run(self):
         while True:
-            line = raw_input()
+            line = raw_input("@%s:> " % (self.defaultReceiver or "???"))
             match = re.match("!alias ([^=]*)=(.*)", line)
             if match:
                 alias, name = match.groups()
@@ -180,7 +232,7 @@ class WhatsappListenerClient:
                 msg = line.strip()
                 self._send(self.defaultReceiver, msg)
                 continue
-            print "Warning: line ignored"
+            print "Warning: line ignored (type !usage to see a help message)"
 
 def configure(CONFIG_FILE):
     phoneNumber = raw_input("Phone number (without country code, no leading 0): ")
@@ -207,7 +259,6 @@ def configure(CONFIG_FILE):
     writeConfig(CONFIG_FILE, config)
                      
 if __name__ == "__main__":
-    #Debugger.enabled = True
     if not os.path.exists(CONFIG_PATH):
         os.mkdir(CONFIG_PATH)
     if not os.path.exists(CONFIG_FILE):
