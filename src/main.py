@@ -46,61 +46,13 @@ CONFIG_FILE = CONFIG_PATH + "/config.json"
 ALIASES_FILE = CONFIG_PATH + "/aliases.db"
 LOG_FILE = CONFIG_PATH + "/chat.log"
 
-usage = """
-  Whatsapp desktop client, interactive mode
-  =========================================
-  
-  Destinations
-  ------------
-  There are two types of destinations:
-  * Users can be addressed by their phone number (with country code and without any special 
-    characters, e.g. 49179....)
-  * Group chats can be addressed by prepending a # sign to the group chat id (e.g. #491...-130...)
-  
-  Sending messages
-  ----------------
-  Messages can be sent to a destination by typing:
-    @DESTINATION: MESSAGE
-  A default destination ca be set by typing:
-    @DESTINATION
-  Any text that is neither an @DESTINATION nor a command will be sent to the default destination.
-  
-  Aliases
-  -------
-  Instead of destination ids, the client can also use named aliases. If an alias exists for a
-  destination id, it can be used instead of the destination id and it will be displayed on incoming
-  messages.
-
-  Commands
-  --------
-  All commands have the following form:
-    !COMMAND PARAMETERS
-  The following commands are recognized:
-    !alias name=destination
-      Assigns an alias to a destination (user or group), removes alias if destinatio is empty
-    !aliases
-      Displays all aliases
-    !status user
-      Determines the status of a user
-    !group_create subject
-      Creates a group with given subject
-    !group_destroy group
-      Destroys the group
-    !group_invite group user
-    
-    !group_kick group user
-    
-    !group_subject group subject
-    
-    !group_members group
-      Lists the group members
-    !group_info group
-      Retrieves information about a group
-    !debug 1|0
-      Enables/Disables debug mode
-    !help
-    !usage
-      Displays this message
+GENERAL_DOC = """
+Whatsapp desktop client, interactive mode
+=========================================
+Type '!help send' to get information on sending messages.
+Type '!help alias' to get information on using aliases.
+Commands can be invoked by typing '!CMD' where CMD is one of the following.
+Type '!help CMD' to get help on a command.  
 """
 
 def readConfig(path):
@@ -210,6 +162,8 @@ class WhatsappClient(cmd.Cmd):
         
     def onecmd(self, line):
         cmd, args, line = self.parseline(line)
+        if args:
+            args = args.split()
         if line == "EOF":
             return self.do_EOF()
         if not line:
@@ -235,6 +189,15 @@ class WhatsappClient(cmd.Cmd):
         return matching[nr] if len(matching) >= nr else None
         
     def do_alias(self, args):
+        """
+        Syntax: !alias alias=destination
+        
+        Assigns an alias to a destination.
+        
+        Instead of destination ids, the client can also use named aliases. If an alias exists for a
+        destination id, it can be used instead of the destination id and it will be displayed on incoming
+        messages.
+        """
         alias, name = (" ".join(args)).split("=")
         self.aliases[alias] = name
         if not name:
@@ -301,6 +264,21 @@ class WhatsappClient(cmd.Cmd):
         Debugger.enabled = debug.lower() in ["true", "1", "yes"]
         
     def do_send(self, receiver, msg):
+        """
+        Syntax: !send destination message
+        
+        Sends a message to a destination. There are two types of destinations:
+        * Users can be addressed by their phone number (with country code and without any special 
+          characters, e.g. 49179....)
+        * Group chats can be addressed by prepending a # sign to the group chat id 
+          (e.g. #491...-130...)
+  
+        Messages can also be sent to a destination by typing:
+          @DESTINATION: MESSAGE
+        A default destination ca be set by typing:
+          @DESTINATION
+        Any text that is neither an @DESTINATION nor a command will be sent to the default destination.
+        """
         if not "@" in receiver:
            receiver = self._name2jid(receiver)
         self.methodsInterface.call("message_send", (receiver, msg))
@@ -324,6 +302,11 @@ class WhatsappClient(cmd.Cmd):
         except:
             pass
 
+    def do_help(self, topic):
+        if not topic:
+            print GENERAL_DOC
+        cmd.Cmd.do_help(self, topic)
+            
     def _log(self, msg, timestamp=None):
         if not timestamp:
             timestamp = time.time()
@@ -387,4 +370,6 @@ if __name__ == "__main__":
     try:
         wa.cmdloop()
     except:
+        import traceback
+        traceback.print_exc()
         wa.close()
