@@ -24,7 +24,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os, re, json, anydbm as dbm
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.sys.path.insert(0,parentdir)
-import time, datetime, readline
+import time, datetime, readline, cmd
 import threading,time, base64
 
 from Yowsup.Common.utilities import Utilities
@@ -44,6 +44,7 @@ from Yowsup.connectionmanager import YowsupConnectionManager
 CONFIG_PATH = os.path.expanduser("~/.whatsapp")
 CONFIG_FILE = CONFIG_PATH + "/config.json"
 ALIASES_FILE = CONFIG_PATH + "/aliases.db"
+LOG_FILE = CONFIG_PATH + "/chat.log"
 
 usage = """
   Whatsapp desktop client, interactive mode
@@ -110,14 +111,21 @@ def writeConfig(path, config):
     with open(path, "w") as fp:
         json.dump(config, fp, indent=2)
 
-class WhatsappListenerClient:
+class WhatsappClient(cmd.Cmd):
     
     def __init__(self, configFile):
+        cmd.Cmd.__init__(self)
+        self.prompt = "@???:> "
+        self.identchars += "!"
+        readline.set_completer_delims(" ") 
+    
         self.configFile = configFile
         self.config = readConfig(self.configFile)
         self.aliases = dbm.open(ALIASES_FILE, "c")
         self._loadAliases()
         self.jid = "%s@s.whatsapp.net" % self.config["phone"]
+        
+        self.logfile = open(LOG_FILE, "a")
         
         connectionManager = YowsupConnectionManager()
         connectionManager.setAutoPong(True)
@@ -140,23 +148,11 @@ class WhatsappListenerClient:
         
         self.defaultReceiver = None
         self._login()
-        readline.parse_and_bind("tab: complete")
-        readline.set_completer(self._complete)
-        readline.set_completer_delims(" ")
-    
+        
     def close(self):
         self.aliases.close()
         self.methodsInterface.call("presence_sendUnavailable")
-        
-    def _complete(self, text, nr):
-        tokens = ["!help", "!usage", "!status", "!debug", "!alias", "!aliases", "!group_create",
-                  "!group_destroy", "!group_invite", "!group_kick", "!group_members", "!group_info",
-                  "!group_subject"]
-        for alias in self.aliases:
-            tokens.append("@%s:" % alias)
-            tokens.append(alias)
-        matching = filter(lambda t: t.startswith(text), tokens)
-        return matching[nr] if len(matching) >= nr else None
+        self.logfile.close()
         
     def _loadAliases(self):
         self.aliasesRev = dict([(v, k) for (k, v) in self.aliases.iteritems()])
@@ -182,123 +178,181 @@ class WhatsappListenerClient:
             name = self.aliasesRev[name]
         return name
         
-    def _alias(self, alias, name):
+    def parseline(self, line):
+        if not line.startswith("!"):
+            return (None, None, line)
+        return cmd.Cmd.parseline(self, line[1:])
+        
+    def default(self, line):
+        match = re.match("@([^:]*):[ ]*(.*)", line)
+        if match:
+            addr, msg = match.groups()
+            self.do_send(addr, msg)
+            return
+        match = re.match("@([^:]*)", line)
+        if match:
+            addr = match.groups()[0]
+            self.defaultReceiver = addr
+            self.prompt = "@%s:> " % self.defaultReceiver
+            return
+        if line and self.defaultReceiver:
+            msg = line.strip()
+            self.do_send(self.defaultReceiver, msg)
+            return
+        print "Warning: line ignored (type !help to see a help message)"
+        
+    def postloop(self):
+        print
+        
+    def do_EOF(self):
+        self.close()
+        return True
+        
+    def onecmd(self, line):
+        cmd, args, line = self.parseline(line)
+        if line == "EOF":
+            return self.do_EOF()
+        if not line:
+            return
+        if not cmd:
+            return self.default(line)
+        if cmd == "help":
+            return self.do_help(" ".join(args))
+        else:
+            try:
+                func = getattr(self, 'do_' + cmd)
+            except AttributeError:
+                return self.default(line)
+            return func(*args)
+        
+    def complete(self, text, nr):
+        tokens = ["!%s" % c for c in self.completenames("")]
+        tokens.remove("!EOF")
+        for alias in self.aliases:
+            tokens.append("@%s:" % alias)
+            tokens.append(alias)
+        matching = filter(lambda t: t.startswith(text), tokens)
+        return matching[nr] if len(matching) >= nr else None
+        
+    def do_alias(self, args):
+        alias, name = (" ".join(args)).split("=")
         self.aliases[alias] = name
         if not name:
             del self.aliases[alias]
         self._loadAliases()
 
-    def onAuthSuccess(self, username):
-        print "Logged in as %s" % username
-        self.methodsInterface.call("ready")
-        self.methodsInterface.call("presence_sendAvailable")
-
-    def onAuthFailed(self, username, err):
-        print "Auth Failed!"
-
-    def onDisconnected(self, reason):
-        print "Disconnected because %s" %reason
-        try:
-            self._login()
-        except:
-            pass
+    def do_aliases(self):
+        print ", ".join(["%s=%s" % (k, v) for k, v in self.aliases.iteritems()])
+        
+    def do_group_info(self, group):
+        self.methodsInterface.call("group_getInfo", (self._name2jid(group),))
 
     def onGroupInfo(self, jid, owner, subject, subjectOwner, subjectTimestamp, creationTimestamp):
         creationTimestamp = datetime.datetime.fromtimestamp(creationTimestamp).strftime('%d-%m-%Y %H:%M')
         subjectTimestamp = datetime.datetime.fromtimestamp(subjectTimestamp).strftime('%d-%m-%Y %H:%M')
         print "Information on group %s: created by %s at %s, subject '%s' set by %s at %s" % (self._jid2name(jid), self._jid2name(owner), creationTimestamp, subject, self._jid2name(subjectOwner), subjectTimestamp)
+        self._log("Information on group %s: created by %s at %s, subject '%s' set by %s at %s" % (self._jid2name(jid), self._jid2name(owner), creationTimestamp, subject, self._jid2name(subjectOwner), subjectTimestamp))
             
+    def do_group_invite(self, group, user):
+        self.methodsInterface.call("group_addParticipant", (self._name2jid(group), self._name2jid(user)))
+        
+    def do_group_kick(self, group, user):
+        self.methodsInterface.call("group_removeParticipant", (self._name2jid(group), self._name2jid(user)))
+        
+    def do_group_create(self, subject):
+        self.methodsInterface.call("group_create", (subject,))
+        
     def onGroupCreated(self, jid, groupJid):
         groupJid = "%s@%s" % (groupJid, jid) 
         print "New group: %s" % self._jid2name(groupJid)
-            
+        self._log("New group: %s" % self._jid2name(groupJid))
+
+    def do_group_destroy(self, group):
+        self.methodsInterface.call("group_end", (self._name2jid(group),))
+        
     def onGroupDestroyed(self, jid):
         pass #jid contains only "g.us" ????
 
+    def do_group_subject(self, group, subject):
+        self.methodsInterface.call("group_subject", (self._name2jid(group), subject))
+        
+    def onGroupSubjectReceived(self, messageId, jid, author, subject, timestamp, wantsReceipt, pushName):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        print "[%s] %s changed subject of %s to '%s'" % (formattedDate, self._jid2name(author), self._jid2name(jid), subject)
+        self._log("%s changed subject of %s to '%s'" % (self._jid2name(author), self._jid2name(jid), subject), timestamp)
+        if wantsReceipt:
+            self.methodsInterface.call("subject_ack", (jid, messageId))
+
+    def do_group_members(self, group):
+        self.methodsInterface.call("group_getParticipants", (self._name2jid(group),))
+
+    def onGroupGotParticipants(self, groupJid, participants):
+        print "Members of group %s: %s" % (self._jid2name(groupJid), [self._jid2name(p) for p in participants])
+        self._log("Members of group %s: %s" % (self._jid2name(groupJid), [self._jid2name(p) for p in participants]))
+                    
+    def do_status(self, user):
+        self.methodsInterface.call("presence_request", (self._name2jid(user),))
+        
+    def onPresenceUpdated(self, jid, lastseen):
+        print "%s was last seen %s seconds ago" % (self._jid2name(jid), lastseen)
+        self._log("%s was last seen %s seconds ago" % (self._jid2name(jid), lastseen))
+        
+    def do_debug(self, debug):
+        Debugger.enabled = debug.lower() in ["true", "1", "yes"]
+        
+    def do_send(self, receiver, msg):
+        if not "@" in receiver:
+           receiver = self._name2jid(receiver)
+        self.methodsInterface.call("message_send", (receiver, msg))
+        self._log("%s -> %s: %s" % (self._jid2name(self.jid), self._jid2name(receiver), msg))
+
+    def onAuthSuccess(self, username):
+        print "Logged in as %s" % username
+        self._log("Logged in as %s" % username)
+        self.methodsInterface.call("ready")
+        self.methodsInterface.call("presence_sendAvailable")
+
+    def onAuthFailed(self, username, err):
+        print "Auth Failed!"
+        self._log("Auth Failed!")
+
+    def onDisconnected(self, reason):
+        print "Disconnected because %s" %reason
+        self._log("Disconnected because %s" %reason)
+        try:
+            self._login()
+        except:
+            pass
+
+    def _log(self, msg, timestamp=None):
+        if not timestamp:
+            timestamp = time.time()
+        timestamp = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self.logfile.write("[%s] %s\n" % (timestamp, msg))
+        self.logfile.flush()
+            
     def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName):
         formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
         print "[%s] %s: %s"%(formattedDate, self._jid2name(jid), messageContent)
+        self._log("%s: %s" % (self._jid2name(jid), messageContent), timestamp)
         if wantsReceipt:
             self.methodsInterface.call("message_ack", (jid, messageId))
             
     def onGroupMessageReceived(self, messageId, jid, author, messageContent, timestamp, wantsReceipt, pushName):
         formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
         print "[%s] %s -> %s: %s"%(formattedDate, self._jid2name(author), self._jid2name(jid), messageContent)
+        self._log("%s -> %s: %s" % (self._jid2name(author), self._jid2name(jid), messageContent), timestamp)
         if wantsReceipt:
             self.methodsInterface.call("message_ack", (jid, messageId))
             
-    def onGroupSubjectReceived(self, messageId, jid, author, subject, timestamp, wantsReceipt, pushName):
-        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
-        print "[%s] %s changed subject of %s to '%s'" % (formattedDate, self._jid2name(author), self._jid2name(jid), subject)
-        if wantsReceipt:
-            self.methodsInterface.call("subject_ack", (jid, messageId))
-
-    def onGroupGotParticipants(self, groupJid, participants):
-        print "Members of group %s: %s" % (self._jid2name(groupJid), [self._jid2name(p) for p in participants])
-            
-    def _send(self, receiver, msg):
-        if not "@" in receiver:
-           receiver = self._name2jid(receiver)
-        self.methodsInterface.call("message_send", (receiver, msg))
-            
-    def _cmd(self, cmd, args):
-        if cmd == "alias":
-           alias, name = (" ".join(args)).split("=")
-           self._alias(alias, name)           
-        elif cmd == "aliases":
-           print ", ".join(["%s=%s" % (k, v) for k, v in self.aliases.iteritems()])
-        elif cmd == "group_info":
-           self.methodsInterface.call("group_getInfo", (self._name2jid(args[0]),))
-        elif cmd == "group_invite":
-           self.methodsInterface.call("group_addParticipant", (self._name2jid(args[0]), self._name2jid(args[1])))
-        elif cmd == "group_kick":
-           self.methodsInterface.call("group_removeParticipant", (self._name2jid(args[0]), self._name2jid(args[1])))
-        elif cmd == "group_create":
-           self.methodsInterface.call("group_create", (args[0],))
-        elif cmd == "group_destroy":
-           self.methodsInterface.call("group_end", (self._name2jid(args[0]),))
-        elif cmd == "group_subject":
-           self.methodsInterface.call("group_subject", (self._name2jid(args[0]), args[0]))
-        elif cmd == "group_members":
-           self.methodsInterface.call("group_getParticipants", (self._name2jid(args[0]),))
-        elif cmd == "status":
-           self.methodsInterface.call("presence_request", (self._name2jid(args[0]),))
-        elif cmd == "debug":
-           Debugger.enabled = args[0].lower() in ["true", "1", "yes"]
-        elif cmd == "help" or cmd == "usage":
-           print usage
-        
-    def onPresenceUpdated(self, jid, lastseen):
-        print "%s was last seen %s seconds ago" % (self._jid2name(jid), lastseen)
-        
     def onPresenceAvailable(self, jid):
         print "%s is now available" % self._jid2name(jid)
+        self._log("%s is now available" % self._jid2name(jid))
         
     def onPresenceUnavailable(self, jid):
         print "%s is now unavailable" % self._jid2name(jid)
+        self._log("%s is now unavailable" % self._jid2name(jid))
 
-    def run(self):
-        while True:
-            line = raw_input("@%s:> " % (self.defaultReceiver or "???"))
-            if line.startswith("!"):
-                args = line[1:].split(" ")
-                self._cmd(args[0], args[1:])
-                continue
-            match = re.match("@([^:]*):[ ]*(.*)", line)
-            if match:
-                addr, msg = match.groups()
-                self._send(addr, msg)
-                continue
-            match = re.match("@([^:]*)", line)
-            if match:
-                addr = match.groups()[0]
-                self.defaultReceiver = addr
-                continue
-            if line and self.defaultReceiver:
-                msg = line.strip()
-                self._send(self.defaultReceiver, msg)
-                continue
-            print "Warning: line ignored (type !usage to see a help message)"
 
 def configure(CONFIG_FILE):
     phoneNumber = raw_input("Phone number (without country code, no leading 0): ")
@@ -329,8 +383,8 @@ if __name__ == "__main__":
         os.mkdir(CONFIG_PATH)
     if not os.path.exists(CONFIG_FILE):
         configure(CONFIG_FILE)
-    wa = WhatsappListenerClient(CONFIG_FILE)
+    wa = WhatsappClient(CONFIG_FILE)
     try:
-        wa.run()
+        wa.cmdloop()
     except:
         wa.close()
