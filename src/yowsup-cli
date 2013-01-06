@@ -26,7 +26,7 @@ __version__ = "0.3.1"
 __email__ = "tare2.galal@gmail.com"
 __license__ = "MIT"
 
-import argparse, sys, os
+import argparse, sys, os, csv
 from Yowsup.Common.utilities import Utilities
 from Yowsup.Common.debugger import Debugger
 from Yowsup.Common.constants import Constants
@@ -43,6 +43,7 @@ from Yowsup.Registration.v2.regrequest import WARegRequest as WARegRequestV2
 import threading,time, base64
 
 DEFAULT_CONFIG = os.path.expanduser("~")+"/.yowsup/auth"
+COUNTRIES_CSV = "countries.csv"
 
 CONFIG_HELP = """\
 Yowsup Configuration
@@ -110,6 +111,7 @@ def getCredentials(config = DEFAULT_CONFIG):
 		phone = ""
 		idx = ""
 		pw = ""
+		cc = ""
 		
 		try:
 			for l in f:
@@ -126,13 +128,38 @@ def getCredentials(config = DEFAULT_CONFIG):
 					elif varname == "id":
 						idx = val
 					elif varname =="password":
-						pw =val
+						pw = val
+					elif varname == "cc":
+						cc = val
 
-			return [phone, idx, pw];
+			return (cc, phone, idx, pw);
 		except:
 			pass
 
 	return 0
+
+def dissectPhoneNumber(phoneNumber):
+	try:
+		with open(COUNTRIES_CSV, 'rb') as csvfile:
+			reader = csv.reader(csvfile, delimiter=',')
+			for row in reader:
+				if len(row) == 3:
+					country, cc, mcc = row
+				else:
+					country,cc = row
+					mcc = "000"
+				try:
+					if phoneNumber.index(cc) == 0:
+						print("Detected cc: %s"%cc)
+						return (cc, phoneNumber[len(cc):])
+
+				except ValueError:
+					continue
+				
+	except:
+		pass
+	
+	return False
 
 parser = argparse.ArgumentParser(description='yowsup-cli Command line options')
 
@@ -186,27 +213,34 @@ else:
 	
 	if credentials:
 
-		sender, identity, password = credentials
+		countryCode, login, identity, password = credentials
+
 		identity = Utilities.processIdentity(identity)
 		password = identity or password if args["v1"] else base64.b64decode(password)
-
-		countryCode = sender[0:2]
-		phonenumber= sender[2:]
+		
+		if countryCode:
+			phoneNumber = login[len(countryCode):]
+		else:
+			dissected = dissectPhoneNumber(login)
+			if not dissected:
+					sys.exit("ERROR. Couldn't detect cc, you have to manually place it your config")
+			countryCode, phoneNumber = dissected
+				
 		Debugger.enabled = args['debug']
 
 		if args["interactive"]:
 			val = args["interactive"]
 			wa = WhatsappCmdClient(val, args['keepalive'] ,args['autoack'])
-			wa.login(sender, password)
+			wa.login(login, password)
 		elif args['send']:
 			phone = args["send"][0]
 			message = args["send"][1]
 			wa = WhatsappEchoClient(phone, message, args['wait'])
-			wa.login(sender, password)
+			wa.login(login, password)
 		elif args['listen']:
 			wa = WhatsappListenerClient(args['keepalive'], args['autoack'])
 
-			wa.login(sender, password)
+			wa.login(login, password)
 
 		elif args["requestcode"]:
 
@@ -215,9 +249,9 @@ else:
 				print "coderequest accepts only sms or voice as a value"
 			else:
 				if(args["v1"]):
-					wc = WACodeRequest(countryCode, phonenumber, method)
+					wc = WACodeRequest(countryCode, phoneNumber, method)
 				else:
-					wc = WACodeRequestV2(countryCode, phonenumber, identity, method)
+					wc = WACodeRequestV2(countryCode, phoneNumber, identity, method)
 					
 				result = wc.send()
 				print resultToString(result)
@@ -226,10 +260,10 @@ else:
 			code = args["register"]
 
 			if(args["v1"]):
-				wr = WARegRequest(countryCode, phonenumber, code, identity)
+				wr = WARegRequest(countryCode, phoneNumber, code, identity)
 			else:
 				code = "".join(code.split('-'))
-				wr = WARegRequestV2(countryCode, phonenumber, code, identity)
+				wr = WARegRequestV2(countryCode, phoneNumber, code, identity)
 			
 			
 			result = wr.send()
@@ -238,16 +272,16 @@ else:
 		elif args["exists"]:
 
 			if(args["v1"]):
-				we = WAExistsRequest(countryCode, phonenumber, identity)
+				we = WAExistsRequest(countryCode, phoneNumber, identity)
 				result = we.send()
 				print resultToString(result)
 			else:
-				we = WAExistsRequestV2(countryCode, phonenumber, identity)
+				we = WAExistsRequestV2(countryCode, phoneNumber, identity)
 				result = we.send()
 				print resultToString(result)
 
 				if result["pw"] is not None:
-					print "\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(countryCode, phonenumber, result["pw"])
+					print "\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(countryCode, phoneNumber, result["pw"])
 
 	elif args["dbus"]:
             startDbusInterface()
