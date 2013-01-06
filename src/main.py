@@ -24,7 +24,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os, re, json, anydbm as dbm
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.sys.path.insert(0,parentdir)
-import time, datetime
+import time, datetime, readline
 import threading,time, base64
 
 from Yowsup.Common.utilities import Utilities
@@ -81,11 +81,25 @@ usage = """
       Displays all aliases
     !status user
       Determines the status of a user
+    !group_create subject
+      Creates a group with given subject
+    !group_destroy group
+      Destroys the group
+    !group_invite group user
+    
+    !group_kick group user
+    
+    !group_subject group subject
+    
+    !group_members group
+      Lists the group members
+    !group_info group
+      Retrieves information about a group
     !debug 1|0
       Enables/Disables debug mode
     !help
     !usage
-      Displays this message    
+      Displays this message
 """
 
 def readConfig(path):
@@ -103,6 +117,7 @@ class WhatsappListenerClient:
         self.config = readConfig(self.configFile)
         self.aliases = dbm.open(ALIASES_FILE, "c")
         self._loadAliases()
+        self.jid = "%s@s.whatsapp.net" % self.config["phone"]
         
         connectionManager = YowsupConnectionManager()
         connectionManager.setAutoPong(True)
@@ -113,17 +128,35 @@ class WhatsappListenerClient:
         self.signalsInterface.registerListener("presence_available", self.onPresenceAvailable)
         self.signalsInterface.registerListener("presence_unavailable", self.onPresenceUnavailable)
         self.signalsInterface.registerListener("message_received", self.onMessageReceived)
+        self.signalsInterface.registerListener("group_gotInfo", self.onGroupInfo)
+        self.signalsInterface.registerListener("group_createSuccess", self.onGroupCreated)
+        self.signalsInterface.registerListener("group_endSuccess", self.onGroupDestroyed)
         self.signalsInterface.registerListener("group_messageReceived", self.onGroupMessageReceived)
+        self.signalsInterface.registerListener("group_subjectReceived", self.onGroupSubjectReceived)
+        self.signalsInterface.registerListener("group_gotParticipants", self.onGroupGotParticipants)
         self.signalsInterface.registerListener("auth_success", self.onAuthSuccess)
         self.signalsInterface.registerListener("auth_fail", self.onAuthFailed)
         self.signalsInterface.registerListener("disconnected", self.onDisconnected)
         
         self.defaultReceiver = None
         self._login()
+        readline.parse_and_bind("tab: complete")
+        readline.set_completer(self._complete)
+        readline.set_completer_delims(" ")
     
     def close(self):
         self.aliases.close()
         self.methodsInterface.call("presence_sendUnavailable")
+        
+    def _complete(self, text, nr):
+        tokens = ["!help", "!usage", "!status", "!debug", "!alias", "!aliases", "!group_create",
+                  "!group_destroy", "!group_invite", "!group_kick", "!group_members", "!group_info",
+                  "!group_subject"]
+        for alias in self.aliases:
+            tokens.append("@%s:" % alias)
+            tokens.append(alias)
+        matching = filter(lambda t: t.startswith(text), tokens)
+        return matching[nr] if len(matching) >= nr else None
         
     def _loadAliases(self):
         self.aliasesRev = dict([(v, k) for (k, v) in self.aliases.iteritems()])
@@ -156,7 +189,7 @@ class WhatsappListenerClient:
         self._loadAliases()
 
     def onAuthSuccess(self, username):
-        print "Authed %s" % username
+        print "Logged in as %s" % username
         self.methodsInterface.call("ready")
         self.methodsInterface.call("presence_sendAvailable")
 
@@ -170,6 +203,18 @@ class WhatsappListenerClient:
         except:
             pass
 
+    def onGroupInfo(self, jid, owner, subject, subjectOwner, subjectTimestamp, creationTimestamp):
+        creationTimestamp = datetime.datetime.fromtimestamp(creationTimestamp).strftime('%d-%m-%Y %H:%M')
+        subjectTimestamp = datetime.datetime.fromtimestamp(subjectTimestamp).strftime('%d-%m-%Y %H:%M')
+        print "Information on group %s: created by %s at %s, subject '%s' set by %s at %s" % (self._jid2name(jid), self._jid2name(owner), creationTimestamp, subject, self._jid2name(subjectOwner), subjectTimestamp)
+            
+    def onGroupCreated(self, jid, groupJid):
+        groupJid = "%s@%s" % (groupJid, jid) 
+        print "New group: %s" % self._jid2name(groupJid)
+            
+    def onGroupDestroyed(self, jid):
+        pass #jid contains only "g.us" ????
+
     def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName):
         formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
         print "[%s] %s: %s"%(formattedDate, self._jid2name(jid), messageContent)
@@ -182,14 +227,40 @@ class WhatsappListenerClient:
         if wantsReceipt:
             self.methodsInterface.call("message_ack", (jid, messageId))
             
+    def onGroupSubjectReceived(self, messageId, jid, author, subject, timestamp, wantsReceipt, pushName):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        print "[%s] %s changed subject of %s to '%s'" % (formattedDate, self._jid2name(author), self._jid2name(jid), subject)
+        if wantsReceipt:
+            self.methodsInterface.call("subject_ack", (jid, messageId))
+
+    def onGroupGotParticipants(self, groupJid, participants):
+        print "Members of group %s: %s" % (self._jid2name(groupJid), [self._jid2name(p) for p in participants])
+            
     def _send(self, receiver, msg):
         if not "@" in receiver:
            receiver = self._name2jid(receiver)
         self.methodsInterface.call("message_send", (receiver, msg))
             
     def _cmd(self, cmd, args):
-        if cmd == "aliases":
+        if cmd == "alias":
+           alias, name = (" ".join(args)).split("=")
+           self._alias(alias, name)           
+        elif cmd == "aliases":
            print ", ".join(["%s=%s" % (k, v) for k, v in self.aliases.iteritems()])
+        elif cmd == "group_info":
+           self.methodsInterface.call("group_getInfo", (self._name2jid(args[0]),))
+        elif cmd == "group_invite":
+           self.methodsInterface.call("group_addParticipant", (self._name2jid(args[0]), self._name2jid(args[1])))
+        elif cmd == "group_kick":
+           self.methodsInterface.call("group_removeParticipant", (self._name2jid(args[0]), self._name2jid(args[1])))
+        elif cmd == "group_create":
+           self.methodsInterface.call("group_create", (args[0],))
+        elif cmd == "group_destroy":
+           self.methodsInterface.call("group_end", (self._name2jid(args[0]),))
+        elif cmd == "group_subject":
+           self.methodsInterface.call("group_subject", (self._name2jid(args[0]), args[0]))
+        elif cmd == "group_members":
+           self.methodsInterface.call("group_getParticipants", (self._name2jid(args[0]),))
         elif cmd == "status":
            self.methodsInterface.call("presence_request", (self._name2jid(args[0]),))
         elif cmd == "debug":
@@ -209,11 +280,6 @@ class WhatsappListenerClient:
     def run(self):
         while True:
             line = raw_input("@%s:> " % (self.defaultReceiver or "???"))
-            match = re.match("!alias ([^=]*)=(.*)", line)
-            if match:
-                alias, name = match.groups()
-                self._alias(alias, name)
-                continue
             if line.startswith("!"):
                 args = line[1:].split(" ")
                 self._cmd(args[0], args[1:])
