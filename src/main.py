@@ -107,7 +107,7 @@ class WhatsappClient(cmd.Cmd):
         self.logfile.close()
         
     def _loadAliases(self):
-        self.aliasesRev = dict([(v, k) for (k, v) in self.aliases.iteritems()])
+        self.aliasesRev = dict([(self.aliases[k], k) for k in self.aliases])
     
     def _login(self):
         self.username = self.config["phone"]
