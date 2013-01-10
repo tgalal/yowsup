@@ -78,8 +78,8 @@ digest-uri="{digest_uri}",response="{response}",charset="utf-8"'
         self.type = "POST"
         cnonce = Utilities.str(random.randint(100000000000000,1000000000000000), 36)
         
-        credentials = bytearray(username+":s.whatsapp.net:")
-        credentials.extend(password)
+        credentials = str(username+":s.whatsapp.net:")
+        credentials+=str(password)
 
         response = self.encode(self.md5(self.encode(self.md5(self.md5(credentials)+":" + nonce +":" + cnonce  ))
                                         +":"+nonce+":" + WAContactsSyncAuth.nc+":" + cnonce + ":auth:"
