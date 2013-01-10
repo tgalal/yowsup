@@ -84,7 +84,7 @@ digest-uri="{digest_uri}",response="{response}",charset="utf-8"'
         credentials = bytearray(username+":s.whatsapp.net:")
         credentials.extend(password)
 
-        response = self.encode(self.md5(self.encode(self.md5(self.md5(credentials)+":" + nonce +":" + cnonce  ))
+        response = self.encode(self.md5(self.encode(self.md5(self.md5(buffer(credentials))+":" + nonce +":" + cnonce  ))
                                         +":"+nonce+":" + WAContactsSyncAuth.nc+":" + cnonce + ":auth:"
                                         + self.encode(self.md5("AUTHENTICATE:"+WAContactsSyncAuth.digestUri))))
         
