@@ -36,6 +36,9 @@ class WAContactsSyncRequest():
         
         self.authReq = WAContactsSyncAuth(username, password)
         
+    def setContacts(self, contacts):
+        self.contacts = contacts
+        
     def send(self):
         auth = self.authReq.send()
         
