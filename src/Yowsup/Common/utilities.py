@@ -19,7 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-import hashlib
+import hashlib, string
 class Utilities:
 	
 	@staticmethod
@@ -38,3 +38,26 @@ class Utilities:
 	@staticmethod
 	def decodeString(encoded):
 		return "".join(map(chr,  map(lambda x: x ^ 19, encoded)))
+
+	@staticmethod
+	def str( number, radix ):
+		"""str( number, radix ) -- reverse function to int(str,radix) and long(str,radix)"""
+		
+		if not 2 <= radix <= 36:
+			raise ValueError, "radix must be in 2..36"
+		
+		abc = string.digits + string.letters
+		
+		result = ''
+		
+		if number < 0:
+			number = -number
+			sign = '-'
+		else:
+			sign = ''
+		
+		while True:
+			number, rdigit = divmod( number, radix )
+			result = abc[rdigit] + result
+			if number == 0:
+				return sign + result
