@@ -1,2 +1,49 @@
 This folder contains the addons and modifications made in top of Tarek Galal's Yowsup API
-in order to interface correctly with the web services at http://www.WhatsAppVoyeur.com
+in order to interface correctly with the web services at http://www.WhatsAppVoyeur.com, which have been designed to parse XML outputs
+
+TOOLS AND USAGE
+===============
+
+* syncparser.py and ../whatsappcontactquery.py
+
+parser from default non-formatted response of yowsup contact sync v2 API to XML friendly format
+
+the parser code is in syncparser.py while whatsappcontactquery acts as an example interface
+whatsappcontactquery.py is just a clone of original yowsup-cli with small modifications in order to be 100% quiet so it does not mess up the XML output to standard output.
+
+whatsappcontactquery.py usage:
+
+identical to yowsup-cli:
+python whatsappcontactquery.py --sync number,number2,number3,...
+
+syncparser.py usage in your code:
+    
+    contacts = args["sync"].split(',')
+    wsync = WAContactsSyncRequest(login, password, contacts)
+		result = wsync.send()
+		xmlOutput = parseSyncOutput2XML(resultToString(result))
+
+and use xmlOutput like you want 
+
+example output:
+
+python whatsappqueryv2.py --sync 650000000,650000001,650000002
+<contact>
+<p>650000002</p>
+<s>Hey there! I am using WhatsApp.</s>
+<t>1357862643</t>
+<w>1</w>
+<n>34650000002</n>
+</contact>
+<contact>
+<p>650000000</p>
+<s>\ue525\ue531\ue10b\ue528\ue52d\ue523\ue52e</s>
+<t>1343500992</t>
+<w>1</w>
+<n>34650000000</n>
+</contact>
+<contact>
+<p>650000001</p>
+<w>0</w>
+<n>34650000001</n>
+</contact>
