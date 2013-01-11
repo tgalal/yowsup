@@ -22,8 +22,8 @@ syncparser.py usage in your code:
     
     contacts = args["sync"].split(',')
     wsync = WAContactsSyncRequest(login, password, contacts)
-		result = wsync.send()
-		xmlOutput = parseSyncOutput2XML(resultToString(result))
+    result = wsync.send()
+    xmlOutput = parseSyncOutput2XML(resultToString(result))
 
 and use xmlOutput like you want 
 
