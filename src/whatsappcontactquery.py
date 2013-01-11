@@ -40,7 +40,6 @@ from Yowsup.Registration.v2.existsrequest import WAExistsRequest as WAExistsRequ
 from Yowsup.Registration.v2.coderequest import WACodeRequest as WACodeRequestV2
 from Yowsup.Registration.v2.regrequest import WARegRequest as WARegRequestV2
 from Yowsup.Contacts.contacts import WAContactsSyncRequest
-
 from Yowsup.Contacts.Parse2XML.syncParser import *
 
 import threading,time, base64
