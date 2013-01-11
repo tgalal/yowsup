@@ -10,7 +10,8 @@ TOOLS AND USAGE
 parser from default non-formatted response of yowsup contact sync v2 API to XML friendly format
 
 the parser code is in syncparser.py while whatsappcontactquery acts as an example interface
-whatsappcontactquery.py is just a clone of original yowsup-cli with small modifications in order to be 100% quiet so it does not mess up the XML output to standard output.
+whatsappcontactquery.py is just a clone of original yowsup-cli with small modifications in order to be 100% quiet 
+so it does not mess up the XML output to standard output.
 
 whatsappcontactquery.py usage:
 
