@@ -29,7 +29,7 @@ and use xmlOutput like you want
 
 example output:
 
-python whatsappqueryv2.py --sync 650000000,650000001,650000002
+python whatsappcontactquery.py --sync 650000000,650000001,650000002
 <contact>
 <p>650000002</p>
 <s>Hey there! I am using WhatsApp.</s>
