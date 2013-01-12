@@ -1066,7 +1066,7 @@ class ReaderThread(threading.Thread):
 		notifNode = messageNode.getChild("notify")
 		if notifNode is not None:
 			pushName = notifNode.getAttributeValue("name");
-			pushName = pushName.decode("utf8")
+			#pushName = pushName.decode("utf8")
 
 
 		msgId = messageNode.getAttributeValue("id");
