@@ -184,11 +184,11 @@ class YowsupConnectionManager:
 		return self.socket
 
 	def triggerEvent(self, eventName, stanza):
-		if self.events.has_key(eventName) and self.events[eventName] is not None:
+		if eventName in self.events and self.events[eventName] is not None:
 			self.events[eventName](stanza)
 
 	def bindEvent(self, eventName, callback):
-		if self.events.has_key(eventName):
+		if eventName in self.events:
 			self.events[eventName] = callback
 
 	##########################################################
@@ -767,7 +767,7 @@ class ReaderThread(threading.Thread):
 							raise Exception("iq doesn't have type")
 
 						if iqType == "result":
-							if self.requests.has_key(idx):
+							if idx in self.requests:
 								self.requests[idx](node)
 								del self.requests[idx]
 							elif idx.startswith(self.connection.user):
@@ -794,7 +794,7 @@ class ReaderThread(threading.Thread):
 
 								self.eventHandler.onAccountChanged(self.connection.account_kind,self.connection.expire_date)
 						elif iqType == "error":
-							if self.requests.has_key(idx):
+							if idx in self.requests:
 								self.requests[idx](node)
 								del self.requests[idx]
 						elif iqType == "get":
@@ -967,9 +967,9 @@ class ReaderThread(threading.Thread):
 	def createTmpFile(self, identifier ,data):
 		tmpDir = "/tmp"
 		
-		filename = "%s/wazapp_%i_%s" % (tmpDir, randrange(0,100000) , hashlib.md5(identifier).hexdigest())
+		filename = "%s/wazapp_%i_%s" % (tmpDir, randrange(0,100000) , hashlib.md5(identifier.encode()).hexdigest())
 		
-		tmpfile = open(filename, "w")
+		tmpfile = open(filename, "wb")
 		tmpfile.write(data)
 		tmpfile.close()
 
@@ -986,7 +986,7 @@ class ReaderThread(threading.Thread):
 			data = data[n:]
 			data = data.replace("</picture>","")
 
-			tmp = self.createTmpFile("picture_%s" % jid, data)
+			tmp = self.createTmpFile("picture_%s" % jid, data.encode())
 			
 			try:
 				jid.index('-')
