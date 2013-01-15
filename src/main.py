@@ -153,6 +153,12 @@ class WhatsappClient(cmd.Cmd):
         print
         
     def do_EOF(self):
+        return self.do_exit()
+        
+    def do_quit(self):
+        return self.do_exit()
+
+    def do_exit(self):
         self.close()
         return True
         
