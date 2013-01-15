@@ -49,10 +49,10 @@ LOG_FILE = CONFIG_PATH + "/chat.log"
 GENERAL_DOC = """
 Whatsapp desktop client, interactive mode
 =========================================
-Type '!help send' to get information on sending messages.
-Type '!help alias' to get information on using aliases.
-Commands can be invoked by typing '!CMD' where CMD is one of the following.
-Type '!help CMD' to get help on a command.  
+Type '/help send' to get information on sending messages.
+Type '/help alias' to get information on using aliases.
+Commands can be invoked by typing '/CMD' where CMD is one of the following.
+Type '/help CMD' to get help on a command.  
 """
 
 def readConfig(path):
@@ -68,7 +68,7 @@ class WhatsappClient(cmd.Cmd):
     def __init__(self, configFile):
         cmd.Cmd.__init__(self)
         self.prompt = "@???:> "
-        self.identchars += "!"
+        self.identchars += "/"
         readline.set_completer_delims(" ") 
     
         self.configFile = configFile
@@ -131,7 +131,7 @@ class WhatsappClient(cmd.Cmd):
         return name
         
     def parseline(self, line):
-        if not line.startswith("!"):
+        if not line.startswith("/"):
             return (None, None, line)
         return cmd.Cmd.parseline(self, line[1:])
         
@@ -151,7 +151,7 @@ class WhatsappClient(cmd.Cmd):
             msg = line.strip()
             self.do_send(self.defaultReceiver, msg)
             return
-        print "Warning: line ignored (type !help to see a help message)"
+        print "Warning: line ignored (type /help to see a help message)"
         
     def postloop(self):
         print
@@ -180,8 +180,8 @@ class WhatsappClient(cmd.Cmd):
             return func(*args)
         
     def complete(self, text, nr):
-        tokens = ["!%s" % c for c in self.completenames("")]
-        tokens.remove("!EOF")
+        tokens = ["/%s" % c for c in self.completenames("")]
+        tokens.remove("/EOF")
         for alias in self.aliases:
             tokens.append("@%s:" % alias)
             tokens.append(alias)
@@ -190,7 +190,7 @@ class WhatsappClient(cmd.Cmd):
         
     def do_alias(self, args):
         """
-        Syntax: !alias alias=destination
+        Syntax: /alias alias=destination
         
         Assigns an alias to a destination.
         
@@ -265,7 +265,7 @@ class WhatsappClient(cmd.Cmd):
         
     def do_send(self, receiver, msg):
         """
-        Syntax: !send destination message
+        Syntax: /send destination message
         
         Sends a message to a destination. There are two types of destinations:
         * Users can be addressed by their phone number (with country code and without any special 
