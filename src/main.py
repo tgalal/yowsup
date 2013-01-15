@@ -179,7 +179,10 @@ class WhatsappClient(cmd.Cmd):
                 func = getattr(self, 'do_' + cmd)
             except AttributeError:
                 return self.default(line)
-            return func(*args)
+            try:
+                return func(*args)
+            except Exception, exc:
+                print exc
         
     def complete(self, text, nr):
         tokens = ["/%s" % c for c in self.completenames("")]
