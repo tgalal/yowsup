@@ -63,6 +63,14 @@ def writeConfig(path, config):
     with open(path, "w") as fp:
         json.dump(config, fp, indent=2)
 
+_eventBindings = {}
+    
+def bind(event):
+    def wrap(func):
+        _eventBindings[event] = func
+        return func
+    return wrap
+
 class WhatsappClient(cmd.Cmd):
     
     def __init__(self, configFile):
@@ -84,23 +92,11 @@ class WhatsappClient(cmd.Cmd):
         self.cm = connectionManager
         self.signalsInterface = connectionManager.getSignalsInterface()
         self.methodsInterface = connectionManager.getMethodsInterface()
-        self.signalsInterface.registerListener("presence_updated", self.onPresenceUpdated)
-        self.signalsInterface.registerListener("presence_available", self.onPresenceAvailable)
-        self.signalsInterface.registerListener("presence_unavailable", self.onPresenceUnavailable)
-        self.signalsInterface.registerListener("message_received", self.onMessageReceived)
-        self.signalsInterface.registerListener("group_gotInfo", self.onGroupInfo)
-        self.signalsInterface.registerListener("group_createSuccess", self.onGroupCreated)
-        self.signalsInterface.registerListener("group_endSuccess", self.onGroupDestroyed)
-        self.signalsInterface.registerListener("group_messageReceived", self.onGroupMessageReceived)
-        self.signalsInterface.registerListener("group_subjectReceived", self.onGroupSubjectReceived)
-        self.signalsInterface.registerListener("group_gotParticipants", self.onGroupGotParticipants)
-        self.signalsInterface.registerListener("auth_success", self.onAuthSuccess)
-        self.signalsInterface.registerListener("auth_fail", self.onAuthFailed)
-        self.signalsInterface.registerListener("disconnected", self.onDisconnected)
-        
+        for event, func in _eventBindings.iteritems():
+            self.signalsInterface.registerListener(event, func.__get__(self))
         self.defaultReceiver = None
         self._login()
-        
+                
     def close(self):
         self.aliases.close()
         self.methodsInterface.call("presence_sendUnavailable")
@@ -210,6 +206,7 @@ class WhatsappClient(cmd.Cmd):
     def do_group_info(self, group):
         self.methodsInterface.call("group_getInfo", (self._name2jid(group),))
 
+    @bind("group_gotInfo")
     def onGroupInfo(self, jid, owner, subject, subjectOwner, subjectTimestamp, creationTimestamp):
         creationTimestamp = datetime.datetime.fromtimestamp(creationTimestamp).strftime('%d-%m-%Y %H:%M')
         subjectTimestamp = datetime.datetime.fromtimestamp(subjectTimestamp).strftime('%d-%m-%Y %H:%M')
@@ -225,6 +222,7 @@ class WhatsappClient(cmd.Cmd):
     def do_group_create(self, subject):
         self.methodsInterface.call("group_create", (subject,))
         
+    @bind("group_createSuccess")
     def onGroupCreated(self, jid, groupJid):
         groupJid = "%s@%s" % (groupJid, jid) 
         print "New group: %s" % self._jid2name(groupJid)
@@ -233,12 +231,14 @@ class WhatsappClient(cmd.Cmd):
     def do_group_destroy(self, group):
         self.methodsInterface.call("group_end", (self._name2jid(group),))
         
+    @bind("group_endSuccess")
     def onGroupDestroyed(self, jid):
         pass #jid contains only "g.us" ????
 
     def do_group_subject(self, group, subject):
         self.methodsInterface.call("group_subject", (self._name2jid(group), subject))
         
+    @bind("group_subjectReceived")
     def onGroupSubjectReceived(self, messageId, jid, author, subject, timestamp, wantsReceipt, pushName):
         formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
         print "[%s] %s changed subject of %s to '%s'" % (formattedDate, self._jid2name(author), self._jid2name(jid), subject)
@@ -249,6 +249,7 @@ class WhatsappClient(cmd.Cmd):
     def do_group_members(self, group):
         self.methodsInterface.call("group_getParticipants", (self._name2jid(group),))
 
+    @bind("group_gotParticipants")
     def onGroupGotParticipants(self, groupJid, participants):
         print "Members of group %s: %s" % (self._jid2name(groupJid), [self._jid2name(p) for p in participants])
         self._log("Members of group %s: %s" % (self._jid2name(groupJid), [self._jid2name(p) for p in participants]))
@@ -256,6 +257,7 @@ class WhatsappClient(cmd.Cmd):
     def do_status(self, user):
         self.methodsInterface.call("presence_request", (self._name2jid(user),))
         
+    @bind("presence_updated")
     def onPresenceUpdated(self, jid, lastseen):
         print "%s was last seen %s seconds ago" % (self._jid2name(jid), lastseen)
         self._log("%s was last seen %s seconds ago" % (self._jid2name(jid), lastseen))
@@ -284,16 +286,19 @@ class WhatsappClient(cmd.Cmd):
         self.methodsInterface.call("message_send", (receiver, msg))
         self._log("%s -> %s: %s" % (self._jid2name(self.jid), self._jid2name(receiver), msg))
 
+    @bind("auth_success")
     def onAuthSuccess(self, username):
         print "Logged in as %s" % username
         self._log("Logged in as %s" % username)
         self.methodsInterface.call("ready")
         self.methodsInterface.call("presence_sendAvailable")
 
+    @bind("auth_fail")
     def onAuthFailed(self, username, err):
         print "Auth Failed!"
         self._log("Auth Failed!")
 
+    @bind("disconnected")
     def onDisconnected(self, reason):
         print "Disconnected because %s" %reason
         self._log("Disconnected because %s" %reason)
@@ -314,6 +319,7 @@ class WhatsappClient(cmd.Cmd):
         self.logfile.write("[%s] %s\n" % (timestamp, msg))
         self.logfile.flush()
             
+    @bind("message_received")
     def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName):
         formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
         print "[%s] %s: %s"%(formattedDate, self._jid2name(jid), messageContent)
@@ -321,6 +327,7 @@ class WhatsappClient(cmd.Cmd):
         if wantsReceipt:
             self.methodsInterface.call("message_ack", (jid, messageId))
             
+    @bind("group_messageReceived")
     def onGroupMessageReceived(self, messageId, jid, author, messageContent, timestamp, wantsReceipt, pushName):
         formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
         print "[%s] %s -> %s: %s"%(formattedDate, self._jid2name(author), self._jid2name(jid), messageContent)
@@ -328,10 +335,12 @@ class WhatsappClient(cmd.Cmd):
         if wantsReceipt:
             self.methodsInterface.call("message_ack", (jid, messageId))
             
+    @bind("presence_available")
     def onPresenceAvailable(self, jid):
         print "%s is now available" % self._jid2name(jid)
         self._log("%s is now available" % self._jid2name(jid))
         
+    @bind("presence_unavailable")
     def onPresenceUnavailable(self, jid):
         print "%s is now unavailable" % self._jid2name(jid)
         self._log("%s is now unavailable" % self._jid2name(jid))
