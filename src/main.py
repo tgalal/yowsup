@@ -385,6 +385,7 @@ if __name__ == "__main__":
     if not os.path.exists(CONFIG_FILE):
         configure(CONFIG_FILE)
     wa = WhatsappClient(CONFIG_FILE)
+    print GENERAL_DOC
     try:
         wa.cmdloop()
     except:
