@@ -4,16 +4,15 @@ from urllib2 import urlopen
 import tempfile, sys
 
 class MediaDownloader(WARequest):
-    def __init__(self, url, successClbk = None, errorClbk = None, progressCallback = None):
-        self.url = url
+    def __init__(self, successClbk = None, errorClbk = None, progressCallback = None):
         self.successCallback = successClbk
         self.errorCallback = errorClbk
         self.progressCallback = progressCallback
         
 
-    def download(self):
+    def download(self, url):
         try:
-            u = urlopen(self.url)
+            u = urlopen(url)
             
             path = tempfile.mktemp()
             f = open(path, "wb")
