@@ -22,11 +22,11 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 __author__ = "Tarek Galal"
-__version__ = "0.3.1"
+__version__ = "0.3.3"
 __email__ = "tare2.galal@gmail.com"
 __license__ = "MIT"
 
-import argparse, sys, os
+import argparse, sys, os, csv
 from Yowsup.Common.utilities import Utilities
 from Yowsup.Common.debugger import Debugger
 from Yowsup.Common.constants import Constants
@@ -39,15 +39,20 @@ from Yowsup.Registration.v1.existsrequest import WAExistsRequest
 from Yowsup.Registration.v2.existsrequest import WAExistsRequest as WAExistsRequestV2
 from Yowsup.Registration.v2.coderequest import WACodeRequest as WACodeRequestV2
 from Yowsup.Registration.v2.regrequest import WARegRequest as WARegRequestV2
+from Yowsup.Contacts.contacts import WAContactsSyncRequest
 
 import threading,time, base64
 
 DEFAULT_CONFIG = os.path.expanduser("~")+"/.yowsup/auth"
+COUNTRIES_CSV = "countries.csv"
 
 CONFIG_HELP = """\
 Yowsup Configuration
 ====================
 Your configuration should contain info about your login credentials to Whatsapp. This typically consist of 3 fields:\n
+	cc:			Your country code. See http://www.ipipi.com/help/telephone-country-codes.htm
+If not set, it will be autodetected from phonenumber
+
 	phone:		Your full phone number including country code, without '+' or '00'
 	
 	id:		This field is used in registration calls (-r|-R|-e), and for login if you are trying to use an existing account that is setup \
@@ -108,6 +113,7 @@ def getCredentials(config = DEFAULT_CONFIG):
 		phone = ""
 		idx = ""
 		pw = ""
+		cc = ""
 		
 		try:
 			for l in f:
@@ -125,12 +131,37 @@ def getCredentials(config = DEFAULT_CONFIG):
 						idx = val
 					elif varname =="password":
 						pw =val
+					elif varname == "cc":
+						cc = val
 
-			return [phone, idx, pw];
+			return (cc, phone, idx, pw);
 		except:
 			pass
 
 	return 0
+
+def dissectPhoneNumber(phoneNumber):
+	try:
+		with open(COUNTRIES_CSV, 'rb') as csvfile:
+			reader = csv.reader(csvfile, delimiter=',')
+			for row in reader:
+				if len(row) == 3:
+					country, cc, mcc = row
+				else:
+					country,cc = row
+					mcc = "000"
+				try:
+					if phoneNumber.index(cc) == 0:
+						print("Detected cc: %s"%cc)
+						return (cc, phoneNumber[len(cc):])
+
+				except ValueError:
+					continue
+				
+	except:
+		pass
+	
+	return False
 
 parser = argparse.ArgumentParser(description='yowsup-cli Command line options')
 
@@ -155,6 +186,15 @@ regSteps = regGroup.add_mutually_exclusive_group()
 regSteps.add_argument("-r", '--requestcode', help='Request the 3 digit registration code from Whatsapp.', action="store", required=False, metavar="(sms|voice)")
 regSteps.add_argument("-R", '--register', help='Register account on Whatsapp using the provided 3 digit code', action="store", required=False, metavar="code")
 regSteps.add_argument("-e", '--exists', help='Check if account credentials are valid. WARNING: Whatsapp now changes your password everytime you use this. Make sure you update your config file if the output informs about a password change', action="store_true", required=False)
+
+
+
+
+
+contactOptions = parser.add_argument_group("Contacts options").add_mutually_exclusive_group();
+
+contactOptions.add_argument('--sync', help='Sync provided numbers. Numbers should be comma-separated. If a number is not in international format, Whatsapp will assume your own country code for it. Returned data indicate which numbers are whatsapp users and which are not. For Whatsapp users, it will return some info about each user, like user status.', metavar="numbers", action="store", required=False)
+
 
 
 debugTools = parser.add_argument_group("Debug tools").add_mutually_exclusive_group();
@@ -184,41 +224,34 @@ else:
 	
 	if credentials:
 
-		sender, identity, password = credentials
+		countryCode, login, identity, password = credentials
+
 		identity = Utilities.processIdentity(identity)
 		password = identity or password if args["v1"] else base64.b64decode(bytes(password.encode('utf-8')))
 
-		countryCode = sender[0:2]
-		phonenumber= sender[2:]
+		if countryCode:
+			phoneNumber = login[len(countryCode):]
+		else:
+			dissected = dissectPhoneNumber(login)
+			if not dissected:
+					sys.exit("ERROR. Couldn't detect cc, you have to manually place it your config")
+			countryCode, phoneNumber = dissected
+				
 		Debugger.enabled = args['debug']
 
 		if args["interactive"]:
 			val = args["interactive"]
 			wa = WhatsappCmdClient(val, args['keepalive'] ,args['autoack'])
-			wa.login(sender, password)
-			
-			from Yowsup.Auth.mechanisms.wauth import KeyStream, WAuth
-			from Yowsup.Auth.auth import YowsupAuth
-			
-			nonce = "".join(map(chr,[190, 197, 251, 188, 212, 184, 217, 211, 53, 28, 244, 113, 145, 25, 90, 102, 186, 198, 87, 106]))
-			y = YowsupAuth(None)
-			w = WAuth(None)
-			
-			y.password  = password
-			w.setAuthObject(y)
-			
-			b = w.getAuthBlob(nonce)
-			#KeyStream.keyFromPasswordAndNonce(password, nonce)
-			
+			wa.login(login, password)
 		elif args['send']:
 			phone = args["send"][0]
 			message = args["send"][1]
 			wa = WhatsappEchoClient(phone, message, args['wait'])
-			wa.login(sender, password)
+			wa.login(login, password)
 		elif args['listen']:
 			wa = WhatsappListenerClient(args['keepalive'], args['autoack'])
 
-			wa.login(sender, password)
+			wa.login(login, password)
 
 		elif args["requestcode"]:
 
@@ -227,9 +260,9 @@ else:
 				print("coderequest accepts only sms or voice as a value")
 			else:
 				if(args["v1"]):
-					wc = WACodeRequest(countryCode, phonenumber, method)
+					wc = WACodeRequest(countryCode, phoneNumber, method)
 				else:
-					wc = WACodeRequestV2(countryCode, phonenumber, identity, method)
+					wc = WACodeRequestV2(countryCode, phoneNumber, identity, method)
 					
 				result = wc.send()
 				print(resultToString(result))
@@ -238,7 +271,7 @@ else:
 			code = args["register"]
 
 			if(args["v1"]):
-				wr = WARegRequest(countryCode, phonenumber, code, identity)
+				wr = WARegRequest(countryCode, phoneNumber, code, identity)
 			else:
 				code = "".join(code.split('-'))
 				wr = WARegRequestV2(countryCode, phonenumber, code, identity)
@@ -250,16 +283,26 @@ else:
 		elif args["exists"]:
 
 			if(args["v1"]):
-				we = WAExistsRequest(countryCode, phonenumber, identity)
+				we = WAExistsRequest(countryCode, phoneNumber, identity)
 				result = we.send()
 				print(resultToString(result))
 			else:
-				we = WAExistsRequestV2(countryCode, phonenumber, identity)
+				we = WAExistsRequestV2(countryCode, phoneNumber, identity)
 				result = we.send()
 				print(resultToString(result))
 
 				if result["pw"] is not None:
 					print("\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(countryCode, phonenumber, result["pw"]))
+		
+		elif args["sync"]:
+
+			contacts = args["sync"].split(',')
+			wsync = WAContactsSyncRequest(login, password, contacts)
+			
+			print("Syncing %s contacts" % len(contacts))
+			result = wsync.send()
+			
+			print resultToString(result)
 
 	elif args["dbus"]:
             startDbusInterface()

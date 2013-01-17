@@ -36,22 +36,30 @@ class WARequest(object):
 			("WhatsApp/2.8.2 WP7/7.10.8773.98 Device/NOKIA-Lumia_800-H112.1402.2.3", 
 				"k7Iy3bWARdNeSL8gYgY6WveX12A1g4uTNXrRzt1H"+"889d4f44e479e6c38b4a834c6d8417815f999abe{phone}"),
 			
-			("WhatsApp/2.3.52 S40Version/microedition.platform", 
-				"PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk" + "1353374633101{phone}"),
+			("WhatsApp/2.3.53 S40Version/14.26 Device/Nokia302", 
+				"PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk" + "1354754753509{phone}"),
 				
 			("WhatsApp/2.8.22 S60Version/5.3 Device/C7-00", "")
 		]
+	
+	OK = 200
 
 	def __init__(self):
 		WADebug.attach(self)
 		
-		self.uaIndex = 0;
+		self.uaIndex = 1;
 		self.pvars = [];
 		self.port = 443;
 		self.type = "GET"
 		self.parser = None
 		self.params = []
+		self.headers = {}
 		
+		self.sent = False
+		self.response = None
+	
+
+	
 	def setParsableVariables(self, pvars):
 		self.pvars = pvars;
 	
@@ -63,6 +71,9 @@ class WARequest(object):
 			
 	def addParam(self,name,value):
 		self.params.append({name:value.encode('utf-8')})
+		
+	def addHeaderField(self, name, value):
+		self.headers[name] = value;
 
 	def clearParams(self):
 		self.params = []
@@ -108,36 +119,54 @@ class WARequest(object):
 		return (host, self.port, path)
 	
 	def sendGetRequest(self, parser = None):
+		self.response = None
 		params =  [param.items()[0] for param in self.params];
 		
 		parser = parser or self.parser or ResponseParser()
 		
-		headers = {"User-Agent":self.getUserAgent(),
+		headers = dict({"User-Agent":self.getUserAgent(),
 				"Accept": self.parser.getMeta()
-			};
+			}.items() + self.headers.items());
 
 		host,port,path = self.getConnectionParameters()
-		response = WARequest.sendRequest(host, port, path, headers, params, "GET")
-		self._d(response);
+		self.response = WARequest.sendRequest(host, port, path, headers, params, "GET")
 		
+		if not self.response.status == WARequest.OK:
+			self._d("Request not success, status was %s"%self.response.status)
+			return {}
+
+		data = self.response.read()
+		self._d(data);
 		
-		return parser.parse(response, self.pvars)
+		self.sent = True
+		return parser.parse(data, self.pvars)
 	
 	def sendPostRequest(self, parser = None):
+		self.response = None
 		params =  [param.items()[0] for param in self.params];
 		
 		parser = parser or self.parser or ResponseParser()
 		
-		headers = {"User-Agent":self.getUserAgent(),
+		headers = dict({"User-Agent":self.getUserAgent(),
 				"Accept": parser.getMeta(),
 				"Content-Type":"application/x-www-form-urlencoded"
-			};
+			}.items() + self.headers.items());
 	
 		host,port,path = self.getConnectionParameters()
-		response = WARequest.sendRequest(host, port, path, headers, params, "POST")
-		self._d(response);
+		self.response = WARequest.sendRequest(host, port, path, headers, params, "POST")
+		
+		
+		if not self.response.status == WARequest.OK:
+			self._d("Request not success, status was %s"%self.response.status)
+			return {}
 
-		return parser.parse(response, self.pvars)
+		data = self.response.read()
+		
+		self._d(data);
+		
+		self.sent = True
+		return parser.parse(data, self.pvars)
+	
 	
 	@staticmethod
 	def sendRequest(host, port, path, headers, params, reqType="GET"):
@@ -158,21 +187,8 @@ class WARequest(object):
 		WADebug.stdDebug("Requesting %s" % path)
 		conn.request(reqType, path, params, headers);
 
-		response = conn.getresponse().read();
+		response = conn.getresponse()
 		
 		#WADebug.stdDebug(response)
 
 		return response
-
-
-
-
-
-
-
-
-
-
-
-
-
