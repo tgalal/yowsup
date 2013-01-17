@@ -21,6 +21,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import json, sys
 from xml.dom import minidom
+import plistlib
 
 class ResponseParser(object):
 	def __init__(self):
@@ -161,4 +162,22 @@ class JSONResponseParser(ResponseParser):
 			
 			else:
 				return None
+
+class PListResponseParser(ResponseParser):
+	def __init__(self):
+		self.meta = "text/xml"
 	
+	def parse(self, xml, pvars):
+		
+		#tmp = minidom.parseString(xml)
+		
+		pl = plistlib.readPlistFromString(xml);
+		
+		parsed= {}
+		pvars = self.getVars(pvars)
+		
+		for k,v in pvars.items():
+			parsed[k] = pl[k] if  k in pl else None
+		
+		return parsed;
+		
