@@ -39,30 +39,30 @@ class MediaUploader(WARequest):
             contentLength = 0
             
             hBAOS = bytearray()
-            hBAOS += "--" + boundary + "\r\n"
-            hBAOS += "Content-Disposition: form-data; name=\"to\"\r\n\r\n"
-            hBAOS += self.jid + "\r\n"
-            hBAOS += "--" + boundary + "\r\n"
-            hBAOS += "Content-Disposition: form-data; name=\"from\"\r\n\r\n"
-            hBAOS += self.accountJid.replace("@whatsapp.net","").encode() + "\r\n"
+            hBAOS.extend("--" + boundary + "\r\n")
+            hBAOS.extend("Content-Disposition: form-data; name=\"to\"\r\n\r\n")
+            hBAOS.extend(self.jid + "\r\n")
+            hBAOS.extend( "--" + boundary + "\r\n")
+            hBAOS.extend("Content-Disposition: form-data; name=\"from\"\r\n\r\n")
+            hBAOS.extend(self.accountJid.replace("@whatsapp.net","").encode() + "\r\n")
     
-            hBAOS += "--" + boundary + "\r\n"
-            hBAOS += "Content-Disposition: form-data; name=\"file\"; filename=\"" + crypto.encode() + "\"\r\n"
-            hBAOS += "Content-Type: " + filetype + "\r\n\r\n"
+            hBAOS.extend("--" + boundary + "\r\n")
+            hBAOS.extend("Content-Disposition: form-data; name=\"file\"; filename=\"" + crypto.encode() + "\"\r\n")
+            hBAOS.extend("Content-Type: " + filetype + "\r\n\r\n")
     
             fBAOS = bytearray()
-            fBAOS += "\r\n--" + boundary + "--\r\n"
+            fBAOS.extend("\r\n--" + boundary + "--\r\n")
             
             contentLength += len(hBAOS)
             contentLength += len(fBAOS)
             contentLength += filesize
     
             POST = bytearray()
-            POST += "POST https://mms.whatsapp.net/client/iphone/upload.php HTTP/1.1\r\n"
-            POST += "Content-Type: multipart/form-data; boundary=" + boundary + "\r\n"
-            POST += "Host: %s\r\n" % self.url
-            POST += "User-Agent: %s\r\n" % self.getUserAgent()
-            POST += "Content-Length: " + str(contentLength) + "\r\n\r\n"
+            POST.extend("POST https://mms.whatsapp.net/client/iphone/upload.php HTTP/1.1\r\n")
+            POST.extend("Content-Type: multipart/form-data; boundary=" + boundary + "\r\n")
+            POST.extend("Host: %s\r\n" % self.url)
+            POST.extend("User-Agent: %s\r\n" % self.getUserAgent())
+            POST.extend("Content-Length: " + str(contentLength) + "\r\n\r\n")
     
             self._d("sending REQUEST ")
             self._d(hBAOS)
