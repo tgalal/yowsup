@@ -84,7 +84,7 @@ class MediaUploader(WARequest):
                 stream = stream[buf:]
                 totalsent = totalsent + buf
     
-            ssl_sock.write(str(fBAOS))
+            ssl_sock.write(bytearray(fBAOS.encode()))
     
             sleep(1)
             self._d("Reading response...")
@@ -100,7 +100,7 @@ class MediaUploader(WARequest):
             if self.progressCallback:
                 self.progressCallback(100)
                 
-            lines = data.splitlines()
+            lines = data.decode().splitlines()
             result = None
             for i in range(0, len(lines)):
                 if "<plist" in str(lines[i]):
