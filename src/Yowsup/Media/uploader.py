@@ -43,10 +43,10 @@ class MediaUploader(WARequest):
             hBAOS += self.jid + "\r\n"
             hBAOS += "--" + boundary + "\r\n"
             hBAOS += "Content-Disposition: form-data; name=\"from\"\r\n\r\n"
-            hBAOS += self.accountJid.replace("@whatsapp.net","").encode() + "\r\n"
+            hBAOS += self.accountJid.replace("@whatsapp.net","") + "\r\n"
     
             hBAOS += "--" + boundary + "\r\n"
-            hBAOS += "Content-Disposition: form-data; name=\"file\"; filename=\"" + crypto.encode() + "\"\r\n"
+            hBAOS += "Content-Disposition: form-data; name=\"file\"; filename=\"" + crypto + "\"\r\n"
             hBAOS  += "Content-Type: " + filetype + "\r\n\r\n"
     
             fBAOS = "\r\n--" + boundary + "--\r\n"
@@ -63,23 +63,23 @@ class MediaUploader(WARequest):
     
             self._d("sending REQUEST ")
             self._d(hBAOS)
-            ssl_sock.write(POST)
-            ssl_sock.write(hBAOS)
+            ssl_sock.write(bytearray(POST.encode()))
+            ssl_sock.write(bytearray(hBAOS.encode()))
     
             totalsent = 0
             buf = 1024
-            f = open(sourcePath, 'r')
+            f = open(sourcePath, 'rb')
             stream = f.read()
             f.close()
             status = 0
             lastEmit = 0
     
             while totalsent < int(filesize):
-                ssl_sock.write(str(stream[:buf]))
+                ssl_sock.write(stream[:buf])
                 status = totalsent * 100 / filesize
                 if lastEmit!=status and status!=100 and filesize>12288:
                     if self.progressCallback:
-                        self.progressCallback(status)
+                        self.progressCallback(int(status))
                 lastEmit = status
                 stream = stream[buf:]
                 totalsent = totalsent + buf
@@ -103,7 +103,7 @@ class MediaUploader(WARequest):
             lines = data.splitlines()
             result = None
             for i in range(0, len(lines)):
-                if "<plist" in lines[i]:
+                if "<plist" in str(lines[i]):
                     result = self.parser.parse("".join(lines[i:lines.index("</plist>") + 1]), self.pvars)
                     break;
 
