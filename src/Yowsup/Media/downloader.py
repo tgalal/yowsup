@@ -1,6 +1,6 @@
 from ..Common.Http.warequest import WARequest
-from urllib2 import urlopen
-#from urllib.request import urlopen
+#from urllib2 import urlopen
+from urllib.request import urlopen
 import tempfile, sys
 
 class MediaDownloader(WARequest):
@@ -17,8 +17,8 @@ class MediaDownloader(WARequest):
             path = tempfile.mktemp()
             f = open(path, "wb")
             meta = u.info()
-            fileSize = int(meta.getheaders("Content-Length")[0])
-            #fileSize = int(u.getheader("Content-Length"))
+            #fileSize = int(meta.getheaders("Content-Length")[0])
+            fileSize = int(u.getheader("Content-Length"))
 
             fileSizeDl = 0
             blockSz = 8192
