@@ -32,7 +32,7 @@ class MediaUploader(WARequest):
             ssl_sock = ssl.wrap_socket(self.sock)
     
             m = hashlib.md5()
-            m.update(filename)
+            m.update(filename.encode())
             crypto = m.hexdigest() + os.path.splitext(filename)[1]
     
             boundary = "-------" + m.hexdigest() #"zzXXzzYYzzXXzzQQ"
