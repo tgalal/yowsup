@@ -1,7 +1,12 @@
 from ..Common.Http.warequest import WARequest
-#from urllib2 import urlopen
-from urllib.request import urlopen
 import tempfile, sys
+
+if sys.version_info >= (3, 0):
+    from urllib.request import urlopen
+else:
+    from urllib2 import urlopen
+
+
 
 class MediaDownloader(WARequest):
     def __init__(self, successClbk = None, errorClbk = None, progressCallback = None):
@@ -17,8 +22,11 @@ class MediaDownloader(WARequest):
             path = tempfile.mktemp()
             f = open(path, "wb")
             meta = u.info()
-            #fileSize = int(meta.getheaders("Content-Length")[0])
-            fileSize = int(u.getheader("Content-Length"))
+
+            if sys.version_info >= (3, 0):
+                fileSize = int(u.getheader("Content-Length"))
+            else:
+                fileSize = int(meta.getheaders("Content-Length")[0])
 
             fileSizeDl = 0
             blockSz = 8192

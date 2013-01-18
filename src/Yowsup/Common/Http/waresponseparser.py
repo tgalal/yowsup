@@ -171,7 +171,10 @@ class PListResponseParser(ResponseParser):
 		
 		#tmp = minidom.parseString(xml)
 		
-		pl = plistlib.readPlistFromString(xml);
+		if sys.version_info >= (3, 0):
+			pl = plistlib.readPlistFromBytes(xml.encode());
+		else:
+			pl = plistlib.readPlistFromString(xml);
 		
 		parsed= {}
 		pvars = self.getVars(pvars)
