@@ -110,7 +110,7 @@ class XMLResponseParser(ResponseParser):
 				curr["__TEXT__"] = n.data
 				continue
 			
-			if not curr.has_key(n.nodeName):
+			if not n.nodeName in curr:
 				curr[n.nodeName] = []
 
 			if len(xmlNode.getElementsByTagName(n.nodeName)) > 1:
@@ -144,7 +144,7 @@ class JSONResponseParser(ResponseParser):
 			
 		currKey = keys[0]
 		
-		if(d.has_key(currKey)):
+		if(currKey in d):
 			item = d[currKey]
 			
 			if len(keys) == 1:

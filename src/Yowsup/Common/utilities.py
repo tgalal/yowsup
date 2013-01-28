@@ -44,9 +44,9 @@ class Utilities:
 		"""str( number, radix ) -- reverse function to int(str,radix) and long(str,radix)"""
 		
 		if not 2 <= radix <= 36:
-			raise ValueError, "radix must be in 2..36"
+			raise ValueError("radix must be in 2..36")
 		
-		abc = string.digits + string.letters
+		abc = string.digits + string.ascii_letters
 		
 		result = ''
 		

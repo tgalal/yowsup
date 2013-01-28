@@ -23,8 +23,10 @@ import urllib,sys
 
 if sys.version_info < (3, 0):
 	import httplib
+	from urllib import urlencode
 else:
 	from http import client as httplib
+	from urllib.parse import urlencode
 
 import hashlib
 from .waresponseparser import ResponseParser
@@ -70,7 +72,7 @@ class WARequest(object):
 			self.result = value
 			
 	def addParam(self,name,value):
-		self.params.append({name:value.encode('utf-8')})
+		self.params.append((name,value.encode('utf-8')))
 		
 	def addHeaderField(self, name, value):
 		self.headers[name] = value;
@@ -85,7 +87,7 @@ class WARequest(object):
 
 		token = WARequest.UserAgents[self.uaIndex][1]
 		
-		return hashlib.md5(token.format(phone=phone)).hexdigest()
+		return hashlib.md5(token.format(phone=phone).encode()).hexdigest()
 	
 	def send(self, parser = None):
 		
@@ -120,13 +122,13 @@ class WARequest(object):
 	
 	def sendGetRequest(self, parser = None):
 		self.response = None
-		params =  [param.items()[0] for param in self.params];
+		params =  self.params#[param.items()[0] for param in self.params];
 		
 		parser = parser or self.parser or ResponseParser()
 		
-		headers = dict({"User-Agent":self.getUserAgent(),
+		headers = dict(list({"User-Agent":self.getUserAgent(),
 				"Accept": self.parser.getMeta()
-			}.items() + self.headers.items());
+			}.items()) + list(self.headers.items()));
 
 		host,port,path = self.getConnectionParameters()
 		self.response = WARequest.sendRequest(host, port, path, headers, params, "GET")
@@ -139,18 +141,18 @@ class WARequest(object):
 		self._d(data);
 		
 		self.sent = True
-		return parser.parse(data, self.pvars)
+		return parser.parse(data.decode(), self.pvars)
 	
 	def sendPostRequest(self, parser = None):
 		self.response = None
-		params =  [param.items()[0] for param in self.params];
+		params =  self.params #[param.items()[0] for param in self.params];
 		
 		parser = parser or self.parser or ResponseParser()
 		
-		headers = dict({"User-Agent":self.getUserAgent(),
+		headers = dict(list({"User-Agent":self.getUserAgent(),
 				"Accept": parser.getMeta(),
 				"Content-Type":"application/x-www-form-urlencoded"
-			}.items() + self.headers.items());
+			}.items()) + list(self.headers.items()));
 	
 		host,port,path = self.getConnectionParameters()
 		self.response = WARequest.sendRequest(host, port, path, headers, params, "POST")
@@ -165,13 +167,13 @@ class WARequest(object):
 		self._d(data);
 		
 		self.sent = True
-		return parser.parse(data, self.pvars)
+		return parser.parse(data.decode(), self.pvars)
 	
 	
 	@staticmethod
 	def sendRequest(host, port, path, headers, params, reqType="GET"):
 
-		params = urllib.urlencode(params);
+		params = urlencode(params);
 
 		
 		path = path + "?"+ params if reqType == "GET" else path

@@ -142,7 +142,7 @@ def getCredentials(config = DEFAULT_CONFIG):
 
 def dissectPhoneNumber(phoneNumber):
 	try:
-		with open(COUNTRIES_CSV, 'rb') as csvfile:
+		with open(COUNTRIES_CSV, 'r') as csvfile:
 			reader = csv.reader(csvfile, delimiter=',')
 			for row in reader:
 				if len(row) == 3:
@@ -160,7 +160,6 @@ def dissectPhoneNumber(phoneNumber):
 				
 	except:
 		pass
-	
 	return False
 
 parser = argparse.ArgumentParser(description='yowsup-cli Command line options')
@@ -292,7 +291,7 @@ else:
 				print(resultToString(result))
 
 				if result["pw"] is not None:
-					print("\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(countryCode, phonenumber, result["pw"]))
+					print("\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(countryCode, phoneNumber, result["pw"]))
 		
 		elif args["sync"]:
 
@@ -302,7 +301,7 @@ else:
 			print("Syncing %s contacts" % len(contacts))
 			result = wsync.send()
 			
-			print resultToString(result)
+			print(resultToString(result))
 
 	elif args["dbus"]:
             startDbusInterface()
