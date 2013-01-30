@@ -127,7 +127,7 @@ class DBusSignalInterface(SignalInterfaceBase, dbus.service.Object):
 		pass
 	
 	@dbus.service.signal(DBUS_INTERFACE)
-	def group_createSuccess(self, jid, group_id):
+	def group_createSuccess(self, jid):
 		pass
 	
 	@dbus.service.signal(DBUS_INTERFACE)

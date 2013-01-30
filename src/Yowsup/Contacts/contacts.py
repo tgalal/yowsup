@@ -33,7 +33,11 @@ class WAContactsSyncRequest():
         self.password = password
         
         self.contacts = contacts
+        self.authReq = WAContactsSyncAuth(username, password)
         
+    def setCredentials(self, username, password):
+        self.username = username
+        self.password = password
         self.authReq = WAContactsSyncAuth(username, password)
         
     def setContacts(self, contacts):

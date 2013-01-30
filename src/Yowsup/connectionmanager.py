@@ -938,14 +938,19 @@ class ReaderThread(threading.Thread):
 			errorCode = groupNode.getAttributeValue("code")
 			self.signalInterface.send("group_createFail", (errorCode,))
 			return
-		
-		
+
 		ProtocolTreeNode.require(groupNode,"group")
 		group_id = groupNode.getAttributeValue("id")
-		self.signalInterface.send("group_createSuccess", (jid, group_id))
+		self.signalInterface.send("group_createSuccess", (group_id + "@g.us",))
 
 	def parseGroupEnded(self,node):
-		jid = node.getAttributeValue("from");
+		#jid = node.getAttributeValue("from");
+		
+		leaveNode = node.getChild(0)
+		groupNode = leaveNode.getChild(0)
+		
+		jid = groupNode.getAttributeValue("id")
+		
 		self.signalInterface.send("group_endSuccess", (jid,))
 
 	def parseGroupSubject(self,node):
