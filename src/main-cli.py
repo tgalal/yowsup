@@ -1,27 +1,6 @@
 #!/usr/bin/python
 
-'''
-Copyright (c) <2012> Tarek Galal <tare2.galal@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this 
-software and associated documentation files (the "Software"), to deal in the Software 
-without restriction, including without limitation the rights to use, copy, modify, 
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-permit persons to whom the Software is furnished to do so, subject to the following 
-conditions:
-
-The above copyright notice and this permission notice shall be included in all 
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR 
-A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
-OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-'''
-
-import os, re, json, anydbm as dbm
+import os, re, json
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.sys.path.insert(0,parentdir)
 import time, datetime, readline, cmd
@@ -43,7 +22,7 @@ from Yowsup.connectionmanager import YowsupConnectionManager
 
 CONFIG_PATH = os.path.expanduser("~/.whatsapp")
 CONFIG_FILE = CONFIG_PATH + "/config.json"
-ALIASES_FILE = CONFIG_PATH + "/aliases.db"
+ALIASES_FILE = CONFIG_PATH + "/aliases.json"
 LOG_FILE = CONFIG_PATH + "/chat.log"
 
 GENERAL_DOC = """
@@ -55,11 +34,11 @@ Commands can be invoked by typing '/CMD' where CMD is one of the following.
 Type '/help CMD' to get help on a command.  
 """
 
-def readConfig(path):
+def readJSON(path):
     with open(path) as fp:
         return json.load(fp)
 
-def writeConfig(path, config):
+def writeJSON(path, config):
     with open(path, "w") as fp:
         json.dump(config, fp, indent=2)
 
@@ -80,8 +59,7 @@ class WhatsappClient(cmd.Cmd):
         readline.set_completer_delims(" ") 
     
         self.configFile = configFile
-        self.config = readConfig(self.configFile)
-        self.aliases = dbm.open(ALIASES_FILE, "c")
+        self.config = readJSON(self.configFile)
         self._loadAliases()
         self.jid = "%s@s.whatsapp.net" % self.config["phone"]
         
@@ -98,13 +76,20 @@ class WhatsappClient(cmd.Cmd):
         self._login()
                 
     def close(self):
-        self.aliases.close()
         self.methodsInterface.call("presence_sendUnavailable")
         self.logfile.close()
         
     def _loadAliases(self):
-        self.aliasesRev = dict([(self.aliases[k], k) for k in self.aliases])
+        if os.path.exists(ALIASES_FILE):
+            self.aliases = readJSON(ALIASES_FILE)
+            self.aliasesRev = dict([(self.aliases[k], k) for k in self.aliases])
+        else:
+            self.aliases = {}
+            self.aliasesRev = {}
     
+    def _saveAliases(self):
+        writeJSON(ALIASES_FILE, self.aliases)
+
     def _login(self):
         self.username = self.config["phone"]
         password = base64.b64decode(self.config["password"])
@@ -193,7 +178,7 @@ class WhatsappClient(cmd.Cmd):
         matching = filter(lambda t: t.startswith(text), tokens)
         return matching[nr] if len(matching) >= nr else None
         
-    def do_alias(self, args):
+    def do_alias(self, *args):
         """
         Syntax: /alias alias=destination
         
@@ -204,10 +189,15 @@ class WhatsappClient(cmd.Cmd):
         messages.
         """
         alias, name = (" ".join(args)).split("=")
-        self.aliases[alias] = name
-        if not name:
+        print alias
+        print name
+        if name:
+            self.aliases[alias] = name
+            self.aliasesRev[name] = alias
+        else:
+            del self.aliasesRev[self.alias[alias]]
             del self.aliases[alias]
-        self._loadAliases()
+        self._saveAliases()
 
     def do_aliases(self):
         print ", ".join(["%s=%s" % (k, v) for k, v in self.aliases.iteritems()])
@@ -219,8 +209,7 @@ class WhatsappClient(cmd.Cmd):
     def onGroupInfo(self, jid, owner, subject, subjectOwner, subjectTimestamp, creationTimestamp):
         creationTimestamp = datetime.datetime.fromtimestamp(creationTimestamp).strftime('%d-%m-%Y %H:%M')
         subjectTimestamp = datetime.datetime.fromtimestamp(subjectTimestamp).strftime('%d-%m-%Y %H:%M')
-        print "Information on group %s: created by %s at %s, subject '%s' set by %s at %s" % (self._jid2name(jid), self._jid2name(owner), creationTimestamp, subject, self._jid2name(subjectOwner), subjectTimestamp)
-        self._log("Information on group %s: created by %s at %s, subject '%s' set by %s at %s" % (self._jid2name(jid), self._jid2name(owner), creationTimestamp, subject, self._jid2name(subjectOwner), subjectTimestamp))
+        self._out("Information on group %s: created by %s at %s, subject '%s' set by %s at %s" % (self._jid2name(jid), self._jid2name(owner), creationTimestamp, subject, self._jid2name(subjectOwner), subjectTimestamp))
             
     def do_group_invite(self, group, user):
         self.methodsInterface.call("group_addParticipant", (self._name2jid(group), self._name2jid(user)))
@@ -234,8 +223,7 @@ class WhatsappClient(cmd.Cmd):
     @bind("group_createSuccess")
     def onGroupCreated(self, jid, groupJid):
         groupJid = "%s@%s" % (groupJid, jid) 
-        print "New group: %s" % self._jid2name(groupJid)
-        self._log("New group: %s" % self._jid2name(groupJid))
+        self._out("New group: %s" % self._jid2name(groupJid))
 
     def do_group_destroy(self, group):
         self.methodsInterface.call("group_end", (self._name2jid(group),))
@@ -248,10 +236,9 @@ class WhatsappClient(cmd.Cmd):
         self.methodsInterface.call("group_subject", (self._name2jid(group), subject))
         
     @bind("group_subjectReceived")
-    def onGroupSubjectReceived(self, messageId, jid, author, subject, timestamp, wantsReceipt, pushName):
+    def onGroupSubjectReceived(self, messageId, jid, author, subject, timestamp, wantsReceipt):
         formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
-        print "[%s] %s changed subject of %s to '%s'" % (formattedDate, self._jid2name(author), self._jid2name(jid), subject)
-        self._log("%s changed subject of %s to '%s'" % (self._jid2name(author), self._jid2name(jid), subject), timestamp)
+        self._out("%s changed subject of %s to '%s'" % (self._jid2name(author), self._jid2name(jid), subject), timestamp)
         if wantsReceipt:
             self.methodsInterface.call("subject_ack", (jid, messageId))
 
@@ -260,17 +247,113 @@ class WhatsappClient(cmd.Cmd):
 
     @bind("group_gotParticipants")
     def onGroupGotParticipants(self, groupJid, participants):
-        print "Members of group %s: %s" % (self._jid2name(groupJid), [self._jid2name(p) for p in participants])
-        self._log("Members of group %s: %s" % (self._jid2name(groupJid), [self._jid2name(p) for p in participants]))
+        self._out("Members of group %s: %s" % (self._jid2name(groupJid), [self._jid2name(p) for p in participants]))
                     
     def do_status(self, user):
         self.methodsInterface.call("presence_request", (self._name2jid(user),))
         
     @bind("presence_updated")
     def onPresenceUpdated(self, jid, lastseen):
-        print "%s was last seen %s seconds ago" % (self._jid2name(jid), lastseen)
-        self._log("%s was last seen %s seconds ago" % (self._jid2name(jid), lastseen))
+        self._out("%s was last seen %s seconds ago" % (self._jid2name(jid), lastseen))
         
+    @bind("notification_groupParticipantAdded")
+    def onGroupParticipantAdded(self, groupJid, jid, author, timestamp, messageId, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s added %s to %s'" % (self._jid2name(author), self._jid2name(jid), self._jid2name(groupJid)), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (groupJid, messageId))
+    
+    @bind("notification_groupParticipantRemoved")
+    def onGroupParticipantRemoved(self, groupJid, jid, author, timestamp, messageId, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s removed %s from %s'" % (self._jid2name(author), self._jid2name(jid), self._jid2name(groupJid)), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (groupJid, messageId))
+        
+    @bind("notification_contactProfilePictureUpdated")
+    def onContactProfilePictureUpdated(self, jid, timestamp, messageId, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s updated his contact picture" % self._jid2name(jid), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (jid, messageId))
+
+    @bind("notification_groupPictureUpdated")
+    def onGroupPictureUpdated(self, groupJid, author, timestamp, messageId, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s updated the picture for group %s" % (self._jid2name(author), self._jid2name(groupJid)), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (groupJid, messageId))
+            
+    @bind("image_received")
+    def onImageReceived(self, messageId, jid, preview, url, size, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s sends an image file (size: %d, url: %s)" % (self._jid2name(jid), size, url), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (jid, messageId))
+
+    @bind("video_received")
+    def onVideoReceived(self, messageId, jid, preview, url, size, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s sends a video file (size: %d, url: %s)" % (self._jid2name(jid), size, url), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (jid, messageId))
+
+    @bind("audio_received")
+    def onAudioReceived(self, messageId, jid, url, size, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s sends an audio file (size: %d, url: %s)" % (self._jid2name(jid), size, url), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (jid, messageId))
+
+    @bind("location_received")
+    def onLocationReceived(self, messageId, jid, name, preview, latitude, longitude, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s sends a location '%s' (lat: %f, long: %f)" % (self._jid2name(jid), name, latitude, longitude), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (jid, messageId))
+
+    @bind("vcard_received")
+    def onVCardReceived(self, messageId, jid, name, data, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s sends contact information: %s" % (self._jid2name(jid), name), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (jid, messageId))
+
+    @bind("group_imageReceived")
+    def onGroupImageReceived(self, messageId, groupJid, author, preview, url, size, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s sends an image file to %s (size: %d, url: %s)" % (self._jid2name(author), self._jid2name(groupJid), size, url), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (groupJid, messageId))
+
+    @bind("group_videoReceived")
+    def onGroupVideoReceived(self, messageId, groupJid, author, preview, url, size, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s sends a video file to %s (size: %d, url: %s)" % (self._jid2name(author), self._jid2name(groupJid), size, url), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (groupJid, messageId))
+
+    @bind("group_audioReceived")
+    def onGroupAudioReceived(self, messageId, groupJid, author, url, size, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s sends an audio file to %s (size: %d, url: %s)" % (self._jid2name(author), self._jid2name(groupJid), size, url), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (groupJid, messageId))
+
+    @bind("group_locationReceived")
+    def onGroupLocationReceived(self, messageId, groupJid, author, name, preview, latitude, longitude, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s sends a location to %s: '%s' (lat: %f, long: %f)" % (self._jid2name(author), self._jid2name(groupJid), name, latitude, longitude), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (groupJid, messageId))
+
+    @bind("group_vcardReceived")
+    def onGroupVCardReceived(self, messageId, groupJid, author, name, data, receiptRequested):
+        formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
+        self._out("%s sends contact information to %s: %s" % (self._jid2name(author), self._jid2name(groupJid), name), timestamp)
+        if receiptRequested:
+            self.methodsInterface.call("notification_ack", (groupJid, messageId))
+
     def do_debug(self, debug):
         Debugger.enabled = debug.lower() in ["true", "1", "yes"]
         
@@ -293,24 +376,21 @@ class WhatsappClient(cmd.Cmd):
         if not "@" in receiver:
            receiver = self._name2jid(receiver)
         self.methodsInterface.call("message_send", (receiver, msg))
-        self._log("%s -> %s: %s" % (self._jid2name(self.jid), self._jid2name(receiver), msg))
+        self._out("%s -> %s: %s" % (self._jid2name(self.jid), self._jid2name(receiver), msg), noOut=True)
 
     @bind("auth_success")
     def onAuthSuccess(self, username):
-        print "Logged in as %s" % username
-        self._log("Logged in as %s" % username)
+        self._out("Logged in as %s" % username)
         self.methodsInterface.call("ready")
         self.methodsInterface.call("presence_sendAvailable")
 
     @bind("auth_fail")
     def onAuthFailed(self, username, err):
-        print "Auth Failed!"
-        self._log("Auth Failed!")
+        self._out("Auth Failed!")
 
     @bind("disconnected")
     def onDisconnected(self, reason):
-        print "Disconnected because %s" %reason
-        self._log("Disconnected because %s" %reason)
+        self._out("Disconnected because %s" %reason)
         try:
             self._login()
         except:
@@ -321,38 +401,36 @@ class WhatsappClient(cmd.Cmd):
             print GENERAL_DOC
         cmd.Cmd.do_help(self, topic)
             
-    def _log(self, msg, timestamp=None):
+    def _out(self, msg, timestamp=None, noOut=False):
         if not timestamp:
             timestamp = time.time()
         timestamp = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
         self.logfile.write("[%s] %s\n" % (timestamp, msg))
         self.logfile.flush()
+        if not noOut:
+            print "[%s] %s" % (timestamp, msg)
             
     @bind("message_received")
     def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName):
         formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
-        print "[%s] %s: %s"%(formattedDate, self._jid2name(jid), messageContent)
-        self._log("%s: %s" % (self._jid2name(jid), messageContent), timestamp)
+        self._out("%s: %s" % (self._jid2name(jid), messageContent), timestamp)
         if wantsReceipt:
             self.methodsInterface.call("message_ack", (jid, messageId))
             
     @bind("group_messageReceived")
     def onGroupMessageReceived(self, messageId, jid, author, messageContent, timestamp, wantsReceipt, pushName):
         formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
-        print "[%s] %s -> %s: %s"%(formattedDate, self._jid2name(author), self._jid2name(jid), messageContent)
-        self._log("%s -> %s: %s" % (self._jid2name(author), self._jid2name(jid), messageContent), timestamp)
+        self._out("%s -> %s: %s" % (self._jid2name(author), self._jid2name(jid), messageContent), timestamp)
         if wantsReceipt:
             self.methodsInterface.call("message_ack", (jid, messageId))
             
     @bind("presence_available")
     def onPresenceAvailable(self, jid):
-        print "%s is now available" % self._jid2name(jid)
-        self._log("%s is now available" % self._jid2name(jid))
+        self._out("%s is now available" % self._jid2name(jid))
         
     @bind("presence_unavailable")
     def onPresenceUnavailable(self, jid):
-        print "%s is now unavailable" % self._jid2name(jid)
-        self._log("%s is now unavailable" % self._jid2name(jid))
+        self._out("%s is now unavailable" % self._jid2name(jid))
 
 
 def configure(CONFIG_FILE):
@@ -377,7 +455,7 @@ def configure(CONFIG_FILE):
         print "-"*25
         password = res["pw"]
     config = {"phone": phone, "password": password}
-    writeConfig(CONFIG_FILE, config)
+    writeJSON(CONFIG_FILE, config)
                      
 if __name__ == "__main__":
     if not os.path.exists(CONFIG_PATH):
