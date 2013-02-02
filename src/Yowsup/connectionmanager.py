@@ -519,18 +519,16 @@ class YowsupConnectionManager:
 		self._writeNode(iqNode)
 
 
-	def sendAddParticipants(self,gjid,participants):
+	def sendAddParticipants(self, gjid, participants):
 		self._d("opening group: %s"%(gjid))
 		self._d("adding participants: %s"%(participants))
 		idx = self.makeId("add_group_participants_")
 		self.readerThread.requests[idx] = self.readerThread.parseAddedParticipants;
-		parts = participants.split(',')
+		
 		innerNodeChildren = []
-		i = 0;
-		for part in parts:
-			if part != "undefined":
-				innerNodeChildren.append( ProtocolTreeNode("participant",{"jid":part}) )
-			i = i + 1;
+
+		for part in participants:
+			innerNodeChildren.append( ProtocolTreeNode("participant",{"jid":part}) )
 
 		queryNode = ProtocolTreeNode("add",{"xmlns":"w:g"},innerNodeChildren)
 		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid},[queryNode])
@@ -538,18 +536,15 @@ class YowsupConnectionManager:
 		self._writeNode(iqNode)
 
 
-	def sendRemoveParticipants(self,gjid,participants):
+	def sendRemoveParticipants(self,gjid, participants):
 		self._d("opening group: %s"%(gjid))
 		self._d("removing participants: %s"%(participants))
 		idx = self.makeId("remove_group_participants_")
 		self.readerThread.requests[idx] = self.readerThread.parseRemovedParticipants;
-		parts = participants.split(',')
+
 		innerNodeChildren = []
-		i = 0;
-		for part in parts:
-			if part != "undefined":
-				innerNodeChildren.append( ProtocolTreeNode("participant",{"jid":part}) )
-			i = i + 1;
+		for part in participants:
+			innerNodeChildren.append( ProtocolTreeNode("participant",{"jid":part}) )
 
 		queryNode = ProtocolTreeNode("remove",{"xmlns":"w:g"},innerNodeChildren)
 		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid},[queryNode])
@@ -610,13 +605,9 @@ class YowsupConnectionManager:
 		idx = self.makeId("get_picture_ids_")
 		self.readerThread.requests[idx] = self.readerThread.parseGetPictureIds
 
-		parts = jids.split(',')
 		innerNodeChildren = []
-		i = 0;
-		for part in parts:
-			if part != "undefined":
-				innerNodeChildren.append( ProtocolTreeNode("user",{"jid":part}) )
-			i = i + 1;
+		for jid in jids:
+			innerNodeChildren.append( ProtocolTreeNode("user",{"jid": jid}) )
 
 		queryNode = ProtocolTreeNode("list",{"xmlns":"w:profile:picture"},innerNodeChildren)
 		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get"},[queryNode])
@@ -925,7 +916,16 @@ class ReaderThread(threading.Thread):
 
 	def parseAddedParticipants(self, node):
 		jid = node.getAttributeValue("from");
-		self.signalInterface.send("group_addParticipantsSuccess", (jid,))
+		jids = []
+		
+		notifNode = jid.getChild("notification")
+		
+		addNodes = notifNode.getAllChildren("add")
+
+		for a in addNodes:
+			jids.append(a.getAttributeValue("jid"))
+		
+		self.signalInterface.send("group_addParticipantsSuccess", (jid, jids))
 
 
 	def parseRemovedParticipants(self,node): #fromm, successVector=None,failTable=None
