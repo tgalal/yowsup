@@ -915,20 +915,33 @@ class ReaderThread(threading.Thread):
 		jid = node.getAttributeValue("from");
 		jids = []
 		
-		notifNode = jid.getChild("notification")
-		
-		addNodes = notifNode.getAllChildren("add")
+		addNodes = node.getAllChildren("add")
 
 		for a in addNodes:
-			jids.append(a.getAttributeValue("jid"))
+			t = a.getAttributeValue("type")
+			if t == "success":
+				jids.append(a.getAttributeValue("participant"))
+			else:
+				self._d("Failed to add %s" % jids.append(a.getAttributeValue("participant")))
 		
 		self.signalInterface.send("group_addParticipantsSuccess", (jid, jids))
 
 
 	def parseRemovedParticipants(self,node): #fromm, successVector=None,failTable=None
 		jid = node.getAttributeValue("from");
+		jids = []
+		
+		addNodes = node.getAllChildren("remove")
+
+		for a in addNodes:
+			t = a.getAttributeValue("type")
+			if t == "success":
+				jids.append(a.getAttributeValue("participant"))
+			else:
+				self._d("Failed to add %s" % jids.append(a.getAttributeValue("participant")))
 		self._d("handleRemovedParticipants DONE!");
-		self.signalInterface.send("group_removeParticipantsSuccess", (jid,))
+
+		self.signalInterface.send("group_removeParticipantsSuccess", (jid, jids))
 
 	def parseGroupCreated(self,node):
 		jid = node.getAttributeValue("from");

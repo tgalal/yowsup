@@ -119,11 +119,11 @@ class DBusSignalInterface(SignalInterfaceBase, dbus.service.Object):
 		pass
 	
 	@dbus.service.signal(DBUS_INTERFACE)
-	def group_addParticipantsSuccess(self, jid):
+	def group_addParticipantsSuccess(self, jid, jids):
 		pass
 	
 	@dbus.service.signal(DBUS_INTERFACE)
-	def group_removeParticipantsSuccess(self, jid):
+	def group_removeParticipantsSuccess(self, jid, jids):
 		pass
 	
 	@dbus.service.signal(DBUS_INTERFACE)
