@@ -50,9 +50,9 @@ class Constants:
 	#host = "bin-nokia.whatsapp.net"
 	host = "c.whatsapp.net"
 	port = 443
-	resource = "S40-2.3.53"
+	resource = "S40-2.4.7"
 	#resource = ""
 	#resource = "Android-2.8.5732"
 	domain = "s.whatsapp.net"
 	
-	v="0.2.7"
+	v="0.2.8"
