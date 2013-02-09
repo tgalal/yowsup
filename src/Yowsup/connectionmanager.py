@@ -29,7 +29,7 @@ from Common.watime import WATime
 from Auth.auth import YowsupAuth
 from Common.constants import Constants
 from Interfaces.Lib.LibInterface import LibMethodInterface, LibSignalInterface
-import thread
+import tempfile
 from random import randrange
 import socket
 import hashlib
@@ -623,7 +623,7 @@ class YowsupConnectionManager:
 	
 	def sendSetPicture(self, jid, imagePath):
 
-		f = open(imagePath, 'r')
+		f = open(imagePath, 'rb')
 		imageData = f.read()
 		imageData = bytearray(imageData)
 		f.close()
@@ -985,16 +985,15 @@ class ReaderThread(threading.Thread):
 	#@@TODO PICTURE STUFF
 
 
-	def createTmpFile(self, identifier ,data):
-		tmpDir = "/tmp"
+	def createTmpFile(self, data, mode = "w"):
 		
-		filename = "%s/wazapp_%i_%s" % (tmpDir, randrange(0,100000) , hashlib.md5(identifier).hexdigest())
-		
-		tmpfile = open(filename, "w")
+		tmp = tempfile.mkstemp()[1]
+
+		tmpfile = open(tmp, mode)
 		tmpfile.write(data)
 		tmpfile.close()
 
-		return filename
+		return tmp
 	
 	def parseGetPicture(self,node):
 		jid = node.getAttributeValue("from");
@@ -1007,7 +1006,7 @@ class ReaderThread(threading.Thread):
 			data = data[n:]
 			data = data.replace("</picture>","")
 
-			tmp = self.createTmpFile("picture_%s" % jid, data)
+			tmp = self.createTmpFile(data.encode('latin-1'), "wb")
 			
 			try:
 				jid.index('-')

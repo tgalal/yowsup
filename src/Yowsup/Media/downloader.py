@@ -14,7 +14,7 @@ class MediaDownloader(WARequest):
         try:
             u = urlopen(url)
             
-            path = tempfile.mktemp()
+            path = tempfile.mkstemp()[1]
             f = open(path, "wb")
             meta = u.info()
             fileSize = int(meta.getheaders("Content-Length")[0])
