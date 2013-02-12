@@ -139,7 +139,7 @@ class DBusSignalInterface(SignalInterfaceBase, dbus.service.Object):
 		pass
 	
 	@dbus.service.signal(DBUS_INTERFACE)
-	def group_gotPicture(self, jid, filepath):
+	def group_gotPicture(self, jid, pictureId, filepath):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
@@ -151,7 +151,7 @@ class DBusSignalInterface(SignalInterfaceBase, dbus.service.Object):
 		pass
 	
 	@dbus.service.signal(DBUS_INTERFACE)
-	def group_setPictureSuccess(self, jid):
+	def group_setPictureSuccess(self, jid, pictureId):
 		pass
 	
 	@dbus.service.signal(DBUS_INTERFACE)
@@ -166,7 +166,7 @@ class DBusSignalInterface(SignalInterfaceBase, dbus.service.Object):
 	
 	
 	@dbus.service.signal(DBUS_INTERFACE)
-	def profile_setPictureSuccess(self):
+	def profile_setPictureSuccess(self, pictureId):
 		pass
 	
 	@dbus.service.signal(DBUS_INTERFACE)
@@ -202,12 +202,16 @@ class DBusSignalInterface(SignalInterfaceBase, dbus.service.Object):
 		pass
 	
 	@dbus.service.signal(DBUS_INTERFACE)
-	def contact_gotProfilePicture(self, jid, filename):
+	def contact_gotProfilePicture(self, jid, pictureId, filename):
 		pass
 
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def notification_contactProfilePictureUpdated(self, jid, timestamp, messageId, wantsReceipt = True):
+	def notification_contactProfilePictureUpdated(self, jid, timestamp, messageId, pictureId, wantsReceipt = True):
+		pass
+	
+	@dbus.service.signal(DBUS_INTERFACE)
+	def notification_contactProfilePictureRemoved(self, jid, timestamp, messageId, wantsReceipt = True):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
@@ -219,7 +223,11 @@ class DBusSignalInterface(SignalInterfaceBase, dbus.service.Object):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def notification_groupPictureUpdated(self, jid, author, timestamp, messageId, wantsReceipt = True):
+	def notification_groupPictureUpdated(self, jid, author, timestamp, messageId, pictureId, wantsReceipt = True):
+		pass
+	
+	@dbus.service.signal(DBUS_INTERFACE)
+	def notification_groupPictureRemoved(self, jid, author, timestamp, messageId, wantsReceipt = True):
 		pass
 
 
