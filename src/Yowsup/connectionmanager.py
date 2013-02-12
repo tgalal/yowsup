@@ -1085,7 +1085,7 @@ class ReaderThread(threading.Thread):
 		notifNode = messageNode.getChild("notify")
 		if notifNode is not None:
 			pushName = notifNode.getAttributeValue("name");
-			pushName = pushName.decode("utf8")
+			#pushName = pushName.decode("utf8")
 
 
 		msgId = messageNode.getAttributeValue("id");
@@ -1124,7 +1124,7 @@ class ReaderThread(threading.Thread):
 				
 				if bodyNode:
 					pictureId = int(bodyNode.getAttributeValue("id"))
-				if isGroup:
+					if isGroup:
 						self.signalInterface.send("notification_groupPictureUpdated",(bodyNode.getAttributeValue("jid"), bodyNode.getAttributeValue("author"), timestamp, msgId, pictureId, receiptRequested))
 					else:
 						self.signalInterface.send("notification_contactProfilePictureUpdated",(bodyNode.getAttributeValue("jid"), timestamp, msgId, pictureId, receiptRequested))
@@ -1328,7 +1328,7 @@ class ReaderThread(threading.Thread):
 
 
 			if msgData:
-
+				msgData = msgData.encode('latin-1').decode()
 				if isGroup:
 					self.signalInterface.send("group_messageReceived", (msgId, fromAttribute, author, msgData, timestamp, wantsReceipt, pushName))
 
