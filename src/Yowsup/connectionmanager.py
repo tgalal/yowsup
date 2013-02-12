@@ -29,6 +29,7 @@ from Yowsup.Common.watime import WATime
 from .Auth.auth import YowsupAuth
 from Yowsup.Common.constants import Constants
 from Yowsup.Interfaces.Lib.LibInterface import LibMethodInterface, LibSignalInterface
+import tempfile
 from random import randrange
 import socket
 import hashlib
@@ -36,6 +37,8 @@ import base64
 import sys
 
 
+
+import traceback
 class YowsupConnectionManager:
 	
 	def __init__(self):
@@ -620,7 +623,7 @@ class YowsupConnectionManager:
 	
 	def sendSetPicture(self, jid, imagePath):
 
-		f = open(imagePath, 'r')
+		f = open(imagePath, 'rb')
 		imageData = f.read()
 		imageData = bytearray(imageData)
 		f.close()
@@ -982,35 +985,31 @@ class ReaderThread(threading.Thread):
 	#@@TODO PICTURE STUFF
 
 
-	def createTmpFile(self, identifier ,data):
-		tmpDir = "/tmp"
+	def createTmpFile(self, data, mode = "w"):
 		
-		filename = "%s/wazapp_%i_%s" % (tmpDir, randrange(0,100000) , hashlib.md5(identifier.encode()).hexdigest())
+		tmp = tempfile.mkstemp()[1]
 		
-		tmpfile = open(filename, "wb")
+		tmpfile = open(tmp, mode)
 		tmpfile.write(data)
 		tmpfile.close()
 
-		return filename
+		return tmp
 	
 	def parseGetPicture(self,node):
 		jid = node.getAttributeValue("from");
 		if "error code" in node.toString():
 			return;
 
-		data = node.getChild("picture").toString()
-		if data is not None:
-			n = data.find(">") +2
-			data = data[n:]
-			data = data.replace("</picture>","")
+		pictureNode = node.getChild("picture")
+		if pictureNode.data is not None:
+			tmp = self.createTmpFile(pictureNode.data.encode('latin-1'), "wb")
 
-			tmp = self.createTmpFile("picture_%s" % jid, data.encode())
-			
+			pictureId = int(pictureNode.getAttributeValue('id'))
 			try:
 				jid.index('-')
-				self.signalInterface.send("group_gotPicture", (jid, tmp))
+				self.signalInterface.send("group_gotPicture", (jid, pictureId, tmp))
 			except ValueError:
-				self.signalInterface.send("contact_gotProfilePicture", (jid, tmp))
+				self.signalInterface.send("contact_gotProfilePicture", (jid, pictureId, tmp))
 
 
 	def parseGetPictureIds(self,node):
@@ -1036,12 +1035,14 @@ class ReaderThread(threading.Thread):
 			if picNode is None:
 				self.signalInterface.send("group_setPictureError", (jid,0)) #@@TODO SEND correct error code
 			else:
-				self.signalInterface.send("group_setPictureSuccess", (jid,))
+				pictureId = int(picNode.getAttributeValue("id"))
+				self.signalInterface.send("group_setPictureSuccess", (jid, pictureId))
 		except ValueError:
 			if picNode is None:
 				self.signalInterface.send("profile_setPictureError", (0,)) #@@TODO SEND correct error code
 			else:
-				self.signalInterface.send("profile_setPictureSuccess")
+				pictureId = int(picNode.getAttributeValue("id"))
+				self.signalInterface.send("profile_setPictureSuccess", (pictureId,))
 	
 	def parseMessage(self,messageNode):
 
@@ -1084,7 +1085,7 @@ class ReaderThread(threading.Thread):
 		notifNode = messageNode.getChild("notify")
 		if notifNode is not None:
 			pushName = notifNode.getAttributeValue("name");
-			#pushName = pushName.decode("utf8")
+			pushName = pushName.decode("utf8")
 
 
 		msgId = messageNode.getAttributeValue("id");
@@ -1116,13 +1117,32 @@ class ReaderThread(threading.Thread):
 				receiptRequested = True
 				
 			if pictureUpdated == "picture":
-				bodyNode = messageNode.getChild("notification").getChild("set") or messageNode.getChild("notification").getChild("delete")
+				notifNode = messageNode.getChild("notification");
+				#bodyNode = messageNode.getChild("notification").getChild("set") or messageNode.getChild("notification").getChild("delete")
 
+				bodyNode = notifNode.getChild("set")
+				
+				if bodyNode:
+					pictureId = int(bodyNode.getAttributeValue("id"))
 				if isGroup:
+						self.signalInterface.send("notification_groupPictureUpdated",(bodyNode.getAttributeValue("jid"), bodyNode.getAttributeValue("author"), timestamp, msgId, pictureId, receiptRequested))
+					else:
+						self.signalInterface.send("notification_contactProfilePictureUpdated",(bodyNode.getAttributeValue("jid"), timestamp, msgId, pictureId, receiptRequested))
 
-					self.signalInterface.send("notification_groupPictureUpdated",(bodyNode.getAttributeValue("jid"), bodyNode.getAttributeValue("author"), timestamp, msgId, receiptRequested))
 				else:
-					self.signalInterface.send("notification_contactProfilePictureUpdated",(bodyNode.getAttributeValue("jid"), timestamp, msgId, receiptRequested))
+					bodyNode = notifNode.getChild("delete")
+
+					if bodyNode:
+						if isGroup:
+							self.signalInterface.send("notification_groupPictureRemoved",(bodyNode.getAttributeValue("jid"), bodyNode.getAttributeValue("author"), timestamp, msgId, receiptRequested))
+						else:
+							self.signalInterface.send("notification_contactProfilePictureRemoved",(bodyNode.getAttributeValue("jid"), timestamp, msgId, receiptRequested))
+
+				#if isGroup:
+				#	
+				#	self.signalInterface.send("notification_groupPictureUpdated",(bodyNode.getAttributeValue("jid"), bodyNode.getAttributeValue("author"), timestamp, msgId, receiptRequested))
+				#else:
+				#	self.signalInterface.send("notification_contactProfilePictureUpdated",(bodyNode.getAttributeValue("jid"), timestamp, msgId, receiptRequested))
 
 			else:
 				addSubject = None
