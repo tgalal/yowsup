@@ -1207,7 +1207,7 @@ class ReaderThread(threading.Thread):
 						mediaPreview = messageNode.getChild("media").data
 						
 						if encoding == "raw" and mediaPreview:
-							mediaPreview = base64.b64encode(mediaPreview.encode()).decode()
+							mediaPreview = base64.b64encode(mediaPreview.encode('latin-1')).decode()
 
 						if isGroup:
 							self.signalInterface.send("group_imageReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, wantsReceipt))
@@ -1218,7 +1218,7 @@ class ReaderThread(threading.Thread):
 						mediaPreview = messageNode.getChild("media").data
 						
 						if encoding == "raw" and mediaPreview:
-							mediaPreview = base64.b64encode(mediaPreview.encode()).decode()
+							mediaPreview = base64.b64encode(mediaPreview.encode('latin-1')).decode()
 
 						if isGroup:
 							self.signalInterface.send("group_videoReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, wantsReceipt))
@@ -1240,7 +1240,7 @@ class ReaderThread(threading.Thread):
 						mediaPreview = messageNode.getChild("media").data
 						
 						if encoding == "raw" and mediaPreview:
-							mediaPreview = base64.b64encode(mediaPreview.encode()).decode()
+							mediaPreview = base64.b64encode(mediaPreview.encode('latin-1')).decode()
 
 						if isGroup:
 							self.signalInterface.send("group_locationReceived", (msgId, fromAttribute, author, name or "", mediaPreview, mlatitude, mlongitude, wantsReceipt))
