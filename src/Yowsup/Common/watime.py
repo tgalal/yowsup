@@ -20,7 +20,10 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 import time,datetime,re
-from dateutil import tz
+try:
+	from dateutil import tz
+except ImportError:
+	from .dateutil import tz
 
 class WATime():
 	def parseIso(self,iso):
