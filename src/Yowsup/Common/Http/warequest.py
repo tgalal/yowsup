@@ -128,7 +128,7 @@ class WARequest(object):
 		parser = parser or self.parser or ResponseParser()
 		
 		headers = dict(list({"User-Agent":self.getUserAgent(),
-				"Accept": self.parser.getMeta()
+				"Accept": parser.getMeta()
 			}.items()) + list(self.headers.items()));
 
 		host,port,path = self.getConnectionParameters()
@@ -185,7 +185,7 @@ class WARequest(object):
 
 		WADebug.stdDebug("Opening connection to %s" % host);
 		
-		conn = httplib.HTTPSConnection(host ,port);
+		conn = httplib.HTTPSConnection(host ,port) if port == 443 else httplib.HTTPConnection(host ,port)
 		
 		WADebug.stdDebug("Requesting %s" % path)
 		conn.request(reqType, path, params, headers);
