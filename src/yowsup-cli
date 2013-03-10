@@ -273,7 +273,7 @@ else:
 				wr = WARegRequest(countryCode, phoneNumber, code, identity)
 			else:
 				code = "".join(code.split('-'))
-				wr = WARegRequestV2(countryCode, phonenumber, code, identity)
+				wr = WARegRequestV2(countryCode, phoneNumber, code, identity)
 			
 			
 			result = wr.send()
