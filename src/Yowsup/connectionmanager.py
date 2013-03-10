@@ -886,16 +886,15 @@ class ReaderThread(threading.Thread):
 
 	def parseGroups(self,node):
 		children = node.getAllChildren("group");
-		groups = []
 		for groupNode in children:
-			gJid = groupNode.getAttributeValue("id") + "@g.us"
-			ownerJid = groupNode.getAttributeValue("owner")
-			subject = groupNode.getAttributeValue("subject")
-			subjectOwnerJid = groupNode.getAttributeValue("s_o")
+			jid = groupNode.getAttributeValue("id") + "@g.us"
+			owner = groupNode.getAttributeValue("owner")
+			subject = groupNode.getAttributeValue("subject").encode('latin-1').decode();
 			subjectT = groupNode.getAttributeValue("s_t")
+			subjectOwner = groupNode.getAttributeValue("s_o")
 			creation = groupNode.getAttributeValue("creation")
-			groups.append({"gJid":gJid, "ownerJid":ownerJid, "subject":subject, "subjectOwnerJid":subjectOwnerJid, "subjectT":subjectT, "creation":creation})
-		self.signalInterface.send("group_gotGroups", (groups,))
+
+			self.signalInterface.send("group_gotInfo",(jid, owner, subject, subjectOwner, int(subjectT),int(creation)))
 
 
 	def parseGroupInfo(self,node):
@@ -907,7 +906,7 @@ class ReaderThread(threading.Thread):
 			ProtocolTreeNode.require(groupNode,"group")
 			#gid = groupNode.getAttributeValue("id")
 			owner = groupNode.getAttributeValue("owner")
-			subject = groupNode.getAttributeValue("subject")
+			subject = groupNode.getAttributeValue("subject").encode('latin-1').decode();
 			subjectT = groupNode.getAttributeValue("s_t")
 			subjectOwner = groupNode.getAttributeValue("s_o")
 			creation = groupNode.getAttributeValue("creation")
@@ -1175,7 +1174,7 @@ class ReaderThread(threading.Thread):
 					receiptRequested = True;
 
 			bodyNode = messageNode.getChild("body");
-			newSubject = None if bodyNode is None else bodyNode.data;
+			newSubject = None if bodyNode is None else bodyNode.data.encode('latin-1').decode();
 			
 			if newSubject is not None:
 				self.signalInterface.send("group_subjectReceived",(msgId, fromAttribute, author, newSubject, int(attribute_t),  receiptRequested))
@@ -1237,6 +1236,10 @@ class ReaderThread(threading.Thread):
 						mlatitude = messageNode.getChild("media").getAttributeValue("latitude")
 						mlongitude = messageNode.getChild("media").getAttributeValue("longitude")
 						name = messageNode.getChild("media").getAttributeValue("name")
+						
+						if name:
+							name = name.encode('latin-1').decode()
+						
 						mediaPreview = messageNode.getChild("media").data
 						
 						if encoding == "raw" and mediaPreview:
@@ -1252,6 +1255,9 @@ class ReaderThread(threading.Thread):
 						#mediaItem.preview = messageNode.getChild("media").data
 						vcardData = messageNode.getChild("media").getChild("vcard").toString()
 						vcardName = messageNode.getChild("media").getChild("vcard").getAttributeValue("name")
+						
+						if vcardName:
+							vcardName = vcardName.encode('latin-1').decode()
 						
 						if vcardData is not None:
 							n = vcardData.find(">") +1
