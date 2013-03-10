@@ -703,8 +703,8 @@ class ReaderThread(threading.Thread):
 			self.disconnectedSent = True
 			if self.disconnectedCallback:
 				self.disconnectedCallback()
-			self.lock.release()
-			self.signalInterface.send("disconnected", (reason,))
+		self.lock.release()
+		self.signalInterface.send("disconnected", (reason,))
 
 	def run(self):
 		self._d("Read thread startedX");
