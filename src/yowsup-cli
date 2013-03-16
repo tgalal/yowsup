@@ -22,7 +22,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 __author__ = "Tarek Galal"
-__version__ = "0.3.3"
+__version__ = "0.3.4"
 __email__ = "tare2.galal@gmail.com"
 __license__ = "MIT"
 
@@ -173,6 +173,8 @@ modes = clientsGroup.add_mutually_exclusive_group()
 modes.add_argument('-l','--listen', help='Listen to messages', action="store_true", required=False, default=False)
 modes.add_argument('-s','--send', help="Send message to phone number and close connection. Phone is full number including country code, without '+' or '00'", action="store",  nargs=2, metavar=('<phone>','<message>'), required=False)
 modes.add_argument('-i','--interactive', help="Start an interactive conversation with a contact. Phone is full number including country code, without '+' or '00'", action="store", metavar='<phone>', required=False)
+modes.add_argument('-b','--broadcast', help="Broadcast message to multiple recepients, comma seperated", action="store", nargs=2, metavar=('<jids>', '<message>'), required=False)
+
 #modes.add_argument('-b','--bot', help='Bot', action="store_true", required=False, default=False)
 
 
@@ -250,6 +252,14 @@ else:
 		elif args['listen']:
 			wa = WhatsappListenerClient(args['keepalive'], args['autoack'])
 
+			wa.login(login, password)
+			
+		elif args['broadcast']:
+			
+			phones = args["broadcast"][0]
+			message = args["broadcast"][1]
+			
+			wa = WhatsappEchoClient(phones, message, args['wait'])
 			wa.login(login, password)
 
 		elif args["requestcode"]:

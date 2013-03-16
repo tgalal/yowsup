@@ -93,7 +93,7 @@ class WhatsappCmdClient:
 		
 		return 0
 			
-	def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName=None):
+	def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName, isBroadcast):
 		if jid[:jid.index('@')] != self.phoneNumber:
 			return
 		formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')

@@ -197,7 +197,9 @@ class MethodInterfaceBase(object):
 
 			
 			"ready",
-			"disconnect"
+			"disconnect",
+			
+			"message_broadcast"
 			]
 	def __init__(self):
 		self.registeredMethods = {}

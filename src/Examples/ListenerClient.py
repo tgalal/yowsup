@@ -65,7 +65,7 @@ class WhatsappListenerClient:
 	def onDisconnected(self, reason):
 		print("Disconnected because %s" %reason)
 
-	def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName):
+	def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName, isBroadCast):
 		formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
 		print("%s [%s]:%s"%(jid, formattedDate, messageContent))
 

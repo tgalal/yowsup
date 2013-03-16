@@ -110,6 +110,8 @@ class YowsupConnectionManager:
 		self.methodInterface.registerCallback("message_videoSend",self.sendVideo)
 		self.methodInterface.registerCallback("message_locationSend",self.sendLocation)
 		self.methodInterface.registerCallback("message_vcardSend",self.sendVCard)
+		
+		self.methodInterface.registerCallback("message_broadcast",self.sendBroadcast)
 
 		self.methodInterface.registerCallback("message_ack",self.sendMessageReceipt)
 
@@ -426,7 +428,7 @@ class YowsupConnectionManager:
 	def sendMessage(fn):
 			def wrapped(self, *args):
 				node = fn(self, *args)
-				jid = args[0]
+				jid = "broadcast" if type(args[0]) == list else args[0]
 				messageNode = self.getMessageNode(jid, node)
 				
 				self._writeNode(messageNode);
@@ -476,7 +478,15 @@ class YowsupConnectionManager:
 		
 		cardNode = ProtocolTreeNode("vcard",{"name":name},None,data);
 		return ProtocolTreeNode("media", {"xmlns":"urn:xmpp:whatsapp:mms","type":"vcard"},[cardNode])
-
+	
+	@sendMessage
+	def sendBroadcast(self, jids, content):
+		
+		broadcastNode = ProtocolTreeNode("broadcast", None, [ProtocolTreeNode("to", {"jid": jid}) for jid in jids])
+		
+		messageNode = ProtocolTreeNode("body",None,None,content);
+		
+		return [broadcastNode, messageNode]
 
 	def sendClientConfig(self,sound,pushID,preview,platform):
 		idx = self.makeId("config_");
@@ -645,20 +655,21 @@ class YowsupConnectionManager:
 			serverNode = ProtocolTreeNode("server",None);
 			xNode = ProtocolTreeNode("x",{"xmlns":"jabber:x:event"},[serverNode]);
 			childCount = (0 if requestNode is None else 1) +2;
-			messageChildren = [None]*childCount;
-			i = 0;
+			messageChildren = []#[None]*childCount;
 			if requestNode is not None:
-				messageChildren[i] = requestNode;
-				i+=1;
+				messageChildren.append(requestNode);
 			#System.currentTimeMillis() / 1000L + "-"+1
-			messageChildren[i] = xNode;
-			i+=1;
-			messageChildren[i]= child;
-			i+=1;
-
+			messageChildren.append(xNode)
+			
+			if type(child) == list:
+				messageChildren.extend(child)
+			else:
+				messageChildren.append(child)
+				
 			msgId = str(int(time.time()))+"-"+ str(self.currKeyId)
+			
 			messageNode = ProtocolTreeNode("message",{"to":jid,"type":"chat","id":msgId},messageChildren)
-
+			
 			self.currKeyId += 1
 
 
@@ -1055,6 +1066,7 @@ class ReaderThread(threading.Thread):
 #		timestamp =long(time.time()*1000) if not offlineNode else int(messageNode.getAttributeValue("t"))*1000;
 		timestamp =int(messageNode.getAttributeValue("t"))
 		isGroup = False
+		isBroadcast = False
 		
 		if newSubject.find("New version of WhatsApp Messenger is now available")>-1:
 			self._d("Rejecting whatsapp server message")
@@ -1186,7 +1198,10 @@ class ReaderThread(threading.Thread):
 			for childNode in messageChildren:
 				if ProtocolTreeNode.tagEquals(childNode,"request"):
 					wantsReceipt = True;
-				if ProtocolTreeNode.tagEquals(childNode,"composing"):
+				
+				if ProtocolTreeNode.tagEquals(childNode,"broadcast"):
+					isBroadcast = True
+				elif ProtocolTreeNode.tagEquals(childNode,"composing"):
 						self.signalInterface.send("contact_typing", (fromAttribute,))
 				elif ProtocolTreeNode.tagEquals(childNode,"paused"):
 						self.signalInterface.send("contact_paused",(fromAttribute,))
@@ -1211,7 +1226,7 @@ class ReaderThread(threading.Thread):
 						if isGroup:
 							self.signalInterface.send("group_imageReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, wantsReceipt))
 						else:
-							self.signalInterface.send("image_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize,  wantsReceipt))
+							self.signalInterface.send("image_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize,  wantsReceipt, isBroadcast))
 
 					elif mediaType == "video":
 						mediaPreview = messageNode.getChild("media").data
@@ -1222,7 +1237,7 @@ class ReaderThread(threading.Thread):
 						if isGroup:
 							self.signalInterface.send("group_videoReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, wantsReceipt))
 						else:
-							self.signalInterface.send("video_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize, wantsReceipt))
+							self.signalInterface.send("video_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize, wantsReceipt, isBroadcast))
 
 					elif mediaType == "audio":
 						mediaPreview = messageNode.getChild("media").data
@@ -1230,7 +1245,7 @@ class ReaderThread(threading.Thread):
 						if isGroup:
 							self.signalInterface.send("group_audioReceived", (msgId, fromAttribute, author, mediaUrl, mediaSize, wantsReceipt))
 						else:
-							self.signalInterface.send("audio_received", (msgId, fromAttribute, mediaUrl, mediaSize, wantsReceipt))
+							self.signalInterface.send("audio_received", (msgId, fromAttribute, mediaUrl, mediaSize, wantsReceipt, isBroadcast))
 
 					elif mediaType == "location":
 						mlatitude = messageNode.getChild("media").getAttributeValue("latitude")
@@ -1248,7 +1263,7 @@ class ReaderThread(threading.Thread):
 						if isGroup:
 							self.signalInterface.send("group_locationReceived", (msgId, fromAttribute, author, name or "", mediaPreview, mlatitude, mlongitude, wantsReceipt))
 						else:
-							self.signalInterface.send("location_received", (msgId, fromAttribute, name or "", mediaPreview, mlatitude, mlongitude, wantsReceipt))
+							self.signalInterface.send("location_received", (msgId, fromAttribute, name or "", mediaPreview, mlatitude, mlongitude, wantsReceipt, isBroadcast))
 		
 					elif mediaType =="vcard":
 						#return
@@ -1267,7 +1282,7 @@ class ReaderThread(threading.Thread):
 							if isGroup:
 								self.signalInterface.send("group_vcardReceived", (msgId, fromAttribute, author, vcardName, vcardData, wantsReceipt))
 							else:
-								self.signalInterface.send("vcard_received", (msgId, fromAttribute, vcardName, vcardData, wantsReceipt))
+								self.signalInterface.send("vcard_received", (msgId, fromAttribute, vcardName, vcardData, wantsReceipt, isBroadcast))
 							
 					else:
 						self._d("Unknown media type")
@@ -1339,7 +1354,7 @@ class ReaderThread(threading.Thread):
 					self.signalInterface.send("group_messageReceived", (msgId, fromAttribute, author, msgData, timestamp, wantsReceipt, pushName))
 
 				else:
-					self.signalInterface.send("message_received", (msgId, fromAttribute, msgData, timestamp, wantsReceipt, pushName))
+					self.signalInterface.send("message_received", (msgId, fromAttribute, msgData, timestamp, wantsReceipt, pushName, isBroadcast))
 
 				##@@TODO FROM CLIENT
 				'''if conversation.type == "group":

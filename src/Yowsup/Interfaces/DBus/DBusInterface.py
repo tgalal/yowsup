@@ -99,7 +99,7 @@ class DBusSignalInterface(SignalInterfaceBase, dbus.service.Object):
 		pass
 	
 	@dbus.service.signal(DBUS_INTERFACE)
-	def message_received(self, msgId, jid, content, timestamp, wantsReceipt):
+	def message_received(self, msgId, jid, content, timestamp, wantsReceipt, isBroadcast):
 		pass
 #--------------------------------------------------------------------------- Groups
 	@dbus.service.signal(DBUS_INTERFACE)
@@ -232,44 +232,44 @@ class DBusSignalInterface(SignalInterfaceBase, dbus.service.Object):
 
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def image_received(self, messageId, jid, preview, url, size, wantsReceipt = True):
+	def image_received(self, messageId, jid, preview, url, size, wantsReceipt, isBroadcast):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def video_received(self, messageId, jid, preview, url, size, wantsReceipt = True):
+	def video_received(self, messageId, jid, preview, url, size, wantsReceipt, isBroadcast):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def audio_received(self, messageId, jid, url, size, wantsReceipt = True):
+	def audio_received(self, messageId, jid, url, size, wantsReceipt, isBroadcast):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def location_received(self, messageId, jid, name, preview, latitude, longitude, wantsReceipt = True):
+	def location_received(self, messageId, jid, name, preview, latitude, longitude, isBroadcast):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def vcard_received(self, messageId, jid, name, data, wantsReceipt = True):
+	def vcard_received(self, messageId, jid, name, data, isBroadcast):
 		pass
 
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def group_imageReceived(self, messageId, jid, author, preview, url, size, wantsReceipt = True):
+	def group_imageReceived(self, messageId, jid, author, preview, url, size, wantsReceipt):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def group_videoReceived(self, messageId, jid, author, preview, url, size, wantsReceipt = True):
+	def group_videoReceived(self, messageId, jid, author, preview, url, size, wantsReceipt):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def group_audioReceived(self, messageId, jid, author, url, size, wantsReceipt = True):
+	def group_audioReceived(self, messageId, jid, author, url, size, wantsReceipt):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def group_locationReceived(self, messageId, jid, author, name, preview, latitude, longitude, wantsReceipt = True):
+	def group_locationReceived(self, messageId, jid, author, name, preview, latitude, longitude, wantsReceipt):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def group_vcardReceived(self, messageId, jid, author, name, data, wantsReceipt = True):
+	def group_vcardReceived(self, messageId, jid, author, name, data, wantsReceipt):
 		pass
 	
 	

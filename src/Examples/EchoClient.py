@@ -28,12 +28,14 @@ from Yowsup.connectionmanager import YowsupConnectionManager
 
 class WhatsappEchoClient:
 	
-	def __init__(self, phoneNumber, message, waitForReceipt=False):
+	def __init__(self, target, message, waitForReceipt=False):
 		
-		if '-' in phoneNumber:
-			self.jid = "%s@g.us" % phoneNumber
+		self.jids = []
+		
+		if '-' in target:
+			self.jids = ["%s@g.us" % target]
 		else:
-			self.jid = "%s@s.whatsapp.net" % phoneNumber
+			self.jids = ["%s@s.whatsapp.net" % t for t in target.split(',')]
 
 		self.message = message
 		self.waitForReceipt = waitForReceipt
@@ -63,8 +65,12 @@ class WhatsappEchoClient:
 
 		if self.waitForReceipt:
 			self.methodsInterface.call("ready")
-
-		self.methodsInterface.call("message_send", (self.jid, self.message))
+		
+		
+		if len(self.jids) > 1:
+			self.methodsInterface.call("message_broadcast", (self.jids, self.message))
+		else:
+			self.methodsInterface.call("message_send", (self.jids[0], self.message))
 		print("Sent message")
 		if self.waitForReceipt:
 			timeout = 5
