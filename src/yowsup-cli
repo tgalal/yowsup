@@ -33,6 +33,7 @@ from Yowsup.Common.constants import Constants
 from Examples.CmdClient import WhatsappCmdClient
 from Examples.EchoClient import WhatsappEchoClient
 from Examples.ListenerClient import WhatsappListenerClient
+from Examples.ForwarderClient import WhatsappForwarderClient
 from Yowsup.Registration.v1.coderequest import WACodeRequest
 from Yowsup.Registration.v1.regrequest import WARegRequest
 from Yowsup.Registration.v1.existsrequest import WAExistsRequest
@@ -173,6 +174,7 @@ modes = clientsGroup.add_mutually_exclusive_group()
 modes.add_argument('-l','--listen', help='Listen to messages', action="store_true", required=False, default=False)
 modes.add_argument('-s','--send', help="Send message to phone number and close connection. Phone is full number including country code, without '+' or '00'", action="store",  nargs=2, metavar=('<phone>','<message>'), required=False)
 modes.add_argument('-i','--interactive', help="Start an interactive conversation with a contact. Phone is full number including country code, without '+' or '00'", action="store", metavar='<phone>', required=False)
+modes.add_argument('-f','--forward', help="Forward all incomming messages to a phone number destination. Phone is full number including country code, without '+' or '00'", action="store", nargs=1,  metavar='<phone>', required=False)
 #modes.add_argument('-b','--bot', help='Bot', action="store_true", required=False, default=False)
 
 
@@ -249,7 +251,9 @@ else:
 			wa.login(login, password)
 		elif args['listen']:
 			wa = WhatsappListenerClient(args['keepalive'], args['autoack'])
-
+			wa.login(login, password)
+		elif args['forward']:
+			wa = WhatsappForwarderClient(args['forward'][0], args['keepalive'], args['autoack'])
 			wa.login(login, password)
 
 		elif args["requestcode"]:
