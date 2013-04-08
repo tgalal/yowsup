@@ -177,7 +177,7 @@ class WARequest(object):
 		params = urlencode(params);
 
 		
-		path = path + "?"+ params if reqType == "GET" else path
+		path = path + "?"+ params if reqType == "GET" and params else path
 		
 		WADebug.stdDebug(reqType)
 		WADebug.stdDebug(headers);
