@@ -919,7 +919,7 @@ class ReaderThread(threading.Thread):
 		for groupNode in children:
 			jid = groupNode.getAttributeValue("id") + "@g.us"
 			owner = groupNode.getAttributeValue("owner")
-			subject = groupNode.getAttributeValue("subject").encode('latin-1').decode();
+			subject = groupNode.getAttributeValue("subject") if sys.version_info < (3, 0) else groupNode.getAttributeValue("subject").encode('latin-1').decode() 
 			subjectT = groupNode.getAttributeValue("s_t")
 			subjectOwner = groupNode.getAttributeValue("s_o")
 			creation = groupNode.getAttributeValue("creation")
@@ -936,7 +936,7 @@ class ReaderThread(threading.Thread):
 			ProtocolTreeNode.require(groupNode,"group")
 			#gid = groupNode.getAttributeValue("id")
 			owner = groupNode.getAttributeValue("owner")
-			subject = groupNode.getAttributeValue("subject").encode('latin-1').decode();
+			subject = groupNode.getAttributeValue("subject") if sys.version_info < (3, 0) else groupNode.getAttributeValue("subject").encode('latin-1').decode();
 			subjectT = groupNode.getAttributeValue("s_t")
 			subjectOwner = groupNode.getAttributeValue("s_o")
 			creation = groupNode.getAttributeValue("creation")
@@ -1238,7 +1238,7 @@ class ReaderThread(threading.Thread):
 					receiptRequested = True;
 
 			bodyNode = messageNode.getChild("body");
-			newSubject = None if bodyNode is None else bodyNode.data.encode('latin-1').decode();
+			newSubject = None if bodyNode is None else (bodyNode.data if sys.version_info < (3, 0) else bodyNode.data.encode('latin-1').decode());
 			
 			if newSubject is not None:
 				self.signalInterface.send("group_subjectReceived",(msgId, fromAttribute, author, newSubject, int(attribute_t),  receiptRequested))
@@ -1273,7 +1273,7 @@ class ReaderThread(threading.Thread):
 						mediaPreview = messageNode.getChild("media").data
 						
 						if encoding == "raw" and mediaPreview:
-							mediaPreview = base64.b64encode(mediaPreview.encode('latin-1')).decode()
+							mediaPreview = base64.b64encode(mediaPreview) if sys.version_info < (3, 0) else base64.b64encode(mediaPreview.encode('latin-1')).decode()
 
 						if isGroup:
 							self.signalInterface.send("group_imageReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, wantsReceipt))
@@ -1284,7 +1284,7 @@ class ReaderThread(threading.Thread):
 						mediaPreview = messageNode.getChild("media").data
 						
 						if encoding == "raw" and mediaPreview:
-							mediaPreview = base64.b64encode(mediaPreview.encode('latin-1')).decode()
+							mediaPreview = base64.b64encode(mediaPreview) if sys.version_info < (3, 0) else base64.b64encode(mediaPreview.encode('latin-1')).decode()
 
 						if isGroup:
 							self.signalInterface.send("group_videoReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, wantsReceipt))
@@ -1304,13 +1304,13 @@ class ReaderThread(threading.Thread):
 						mlongitude = messageNode.getChild("media").getAttributeValue("longitude")
 						name = messageNode.getChild("media").getAttributeValue("name")
 						
-						if name:
+						if name and not sys.version_info < (3, 0):
 							name = name.encode('latin-1').decode()
 						
 						mediaPreview = messageNode.getChild("media").data
 						
 						if encoding == "raw" and mediaPreview:
-							mediaPreview = base64.b64encode(mediaPreview.encode('latin-1')).decode()
+							mediaPreview = base64.b64encode(mediaPreview) if sys.version_info < (3, 0) else base64.b64encode(mediaPreview.encode('latin-1')).decode()
 
 						if isGroup:
 							self.signalInterface.send("group_locationReceived", (msgId, fromAttribute, author, name or "", mediaPreview, mlatitude, mlongitude, wantsReceipt))
@@ -1323,7 +1323,7 @@ class ReaderThread(threading.Thread):
 						vcardData = messageNode.getChild("media").getChild("vcard").toString()
 						vcardName = messageNode.getChild("media").getChild("vcard").getAttributeValue("name")
 						
-						if vcardName:
+						if vcardName and not sys.version_info < (3, 0)::
 							vcardName = vcardName.encode('latin-1').decode()
 						
 						if vcardData is not None:
@@ -1406,7 +1406,7 @@ class ReaderThread(threading.Thread):
 
 
 			if msgData:
-				msgData = msgData.encode('latin-1').decode()
+				msgData = msgData if sys.version_info < (3, 0) else msgData.encode('latin-1').decode()
 				if isGroup:
 					self.signalInterface.send("group_messageReceived", (msgId, fromAttribute, author, msgData, timestamp, wantsReceipt, pushName))
 
