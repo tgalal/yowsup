@@ -1323,7 +1323,7 @@ class ReaderThread(threading.Thread):
 						vcardData = messageNode.getChild("media").getChild("vcard").toString()
 						vcardName = messageNode.getChild("media").getChild("vcard").getAttributeValue("name")
 						
-						if vcardName and not sys.version_info < (3, 0)::
+						if vcardName and not sys.version_info < (3, 0):
 							vcardName = vcardName.encode('latin-1').decode()
 						
 						if vcardData is not None:
