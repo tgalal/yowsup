@@ -168,6 +168,8 @@ class YowsupConnectionManager:
 		
 		self.methodInterface.registerCallback("auth_login", self.auth )
 		#self.methodInterface.registerCallback("auth_login", self.auth)
+		
+		self.methodInterface.registerCallback("media_requestUpload", self.sendRequestUpload)
 
 
 	def disconnect(self, reason=""):
@@ -648,7 +650,24 @@ class YowsupConnectionManager:
 		self._writeNode(iqNode)
 
 	
+	def sendRequestUpload(self, b64Hash, t, size, b64OrigHash = None):
+		idx = self.makeId("upload_")
+		
+		self.readerThread.requests[idx] = lambda iqresnode: self.readerThread.parseRequestUpload(iqresnode, b64Hash)
 
+		if type(size) is not str:
+			size = str(size)
+
+		attribs = {"xmlns":"w:m","hash":b64Hash, "type":t, "size":size}
+
+		if b64OrigHash:
+			attribs["orighash"] = b64OrigHash
+
+		mediaNode = ProtocolTreeNode("media", attribs)
+		iqNode = ProtocolTreeNode("iq",{"id":idx,"to":"s.whatsapp.net","type":"set"},[mediaNode])
+		
+		
+		self._writeNode(iqNode)
 
 	def getMessageNode(self, jid, child):
 			requestNode = None;
@@ -1054,6 +1073,39 @@ class ReaderThread(threading.Thread):
 				pictureId = int(picNode.getAttributeValue("id"))
 				self.signalInterface.send("profile_setPictureSuccess", (pictureId,))
 	
+	
+	def parseRequestUpload(self, iqNode, _hash):
+
+		mediaNode = iqNode.getChild("media")
+		
+		
+		if mediaNode:
+
+			url = mediaNode.getAttributeValue("url")
+			
+			resumeFrom = mediaNode.getAttributeValue("resume")
+			
+			if not resumeFrom:
+				resumeFrom = 0
+	
+			if url:
+				self.signalInterface.send("media_uploadRequestSuccess", (_hash, url, resumeFrom))
+			else:
+				self.signalInterface.send("media_uploadRequestFailed", (_hash,))
+		else:
+			duplicateNode = iqNode.getChild("duplicate")
+			
+			if duplicateNode:
+				
+				url = duplicateNode.getAttributeValue("url")
+				
+				
+				self.signalInterface.send("media_uploadRequestDuplicate", (_hash, url))
+		
+			else:
+				self.signalInterface.send("media_uploadRequestFailed", (_hash,))
+				
+
 	def parseMessage(self,messageNode):
 
 
@@ -1326,7 +1378,12 @@ class ReaderThread(threading.Thread):
 					elif ProtocolTreeNode.tagEquals(childNode,"x"):
 						xmlns = childNode.getAttributeValue("xmlns");
 						if "jabber:x:event" == xmlns and msgId is not None:
-							self.signalInterface.send("receipt_messageSent", (fromAttribute, msgId))
+							
+							if fromAttribute == "broadcast":
+								self.signalInterface.send("receipt_broadcastSent", (msgId,))
+							else:
+								self.signalInterface.send("receipt_messageSent", (fromAttribute, msgId))
+
 						elif "jabber:x:delay" == xmlns:
 							continue; #@@TODO FORCED CONTINUE, WHAT SHOULD I DO HERE? #wtf?
 							stamp_str = childNode.getAttributeValue("stamp");

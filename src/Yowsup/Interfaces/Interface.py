@@ -40,6 +40,7 @@ class SignalInterfaceBase(object):
 			"receipt_messageSent", #k
 			"receipt_messageDelivered", #k
 			"receipt_visible", #k
+			"receipt_broadcastSent",
 			"status_dirty",
 
 			"presence_updated", #k
@@ -85,7 +86,11 @@ class SignalInterfaceBase(object):
 
 			"ping",
 			"pong",
-			"disconnected"
+			"disconnected",
+			
+			"media_uploadRequestSuccess",
+			"media_uploadRequestFailed",
+			"media_uploadRequestDuplicate"
 		]
 	
 	def __init__(self):#@@TODO unified naming pattern
@@ -199,7 +204,9 @@ class MethodInterfaceBase(object):
 			"ready",
 			"disconnect",
 			
-			"message_broadcast"
+			"message_broadcast",
+			
+			"media_requestUpload"
 			]
 	def __init__(self):
 		self.registeredMethods = {}

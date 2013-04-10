@@ -1,5 +1,5 @@
 from ..Common.Http.warequest import WARequest
-from ..Common.Http.waresponseparser import PListResponseParser
+from ..Common.Http.waresponseparser import JSONResponseParser
 import socket, ssl, mimetypes, os, hashlib, sys
 from time import sleep
 
@@ -7,7 +7,7 @@ class MediaUploader(WARequest):
     def __init__(self, jid, accountJid, successClbk = None, errorClbk = None, progressCallback = None):
         super(MediaUploader, self).__init__()
 
-        self.url = "mms.whatsapp.net"
+        #self.url = "mms819.whatsapp.net"
         
         self.jid = jid;
         self.accountJid = accountJid;
@@ -16,13 +16,19 @@ class MediaUploader(WARequest):
         self.errorCallback = errorClbk
         self.progressCallback = progressCallback
         
-        self.pvars = ["name", "type", "size", "url"]
+        self.pvars = ["name", "type", "size", "url", "error", "mimetype", "filehash", "width", "height"]
         
-        self.setParser(PListResponseParser())
+        self.setParser(JSONResponseParser())
         
         self.sock = socket.socket();
         
-    def upload(self, sourcePath):
+    def upload(self, sourcePath, uploadUrl):
+        
+        _host = uploadUrl.replace("https://","")
+
+        self.url = _host[:_host.index('/')]
+        
+        
         try:
             filename = os.path.basename(sourcePath)
             filetype = mimetypes.guess_type(filename)[0]
@@ -35,7 +41,7 @@ class MediaUploader(WARequest):
             m.update(filename.encode())
             crypto = m.hexdigest() + os.path.splitext(filename)[1]
     
-            boundary = "-------" + m.hexdigest() #"zzXXzzYYzzXXzzQQ"
+            boundary = "zzXXzzYYzzXXzzQQ"#"-------" + m.hexdigest() #"zzXXzzYYzzXXzzQQ"
             contentLength = 0
 
             hBAOS = "--" + boundary + "\r\n"
@@ -55,12 +61,14 @@ class MediaUploader(WARequest):
             contentLength += len(fBAOS)
             contentLength += filesize
     
-            POST = "POST https://mms.whatsapp.net/client/iphone/upload.php HTTP/1.1\r\n"
+            #POST = "POST https://mms.whatsapp.net/client/iphone/upload.php HTTP/1.1\r\n"
+            POST = "POST %s\r\n" % uploadUrl
             POST += "Content-Type: multipart/form-data; boundary=" + boundary + "\r\n"
             POST += "Host: %s\r\n" % self.url
             POST += "User-Agent: %s\r\n" % self.getUserAgent()
             POST += "Content-Length: " + str(contentLength) + "\r\n\r\n"
-    
+            
+            self._d(POST)
             self._d("sending REQUEST ")
             self._d(hBAOS)
             ssl_sock.write(bytearray(POST.encode()))
@@ -100,12 +108,20 @@ class MediaUploader(WARequest):
             if self.progressCallback:
                 self.progressCallback(100)
                 
+            
             lines = data.decode().splitlines()
+            
+            
             result = None
-            for i in range(0, len(lines)):
-                if "<plist" in str(lines[i]):
-                    result = self.parser.parse("".join(lines[i:lines.index("</plist>") + 1]), self.pvars)
-                    break;
+
+            for l in lines:
+                if l.startswith("{"):
+                    result = self.parser.parse(l, self.pvars)
+                    break
+            
+            if not result:
+                raise Exception("json data not found")
+            
 
             self._d(result)
             
