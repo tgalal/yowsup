@@ -274,7 +274,7 @@ else:
 					wc = WACodeRequestV2(countryCode, phoneNumber, identity, method)
 					
 				result = wc.send()
-				print(resultToString(result))
+				print(resultToString(result).replace('\u20ac', ''))
 				
 		elif args["register"]:
 			code = args["register"]
@@ -287,7 +287,7 @@ else:
 			
 			
 			result = wr.send()
-			print(resultToString(result))
+			print(resultToString(result).replace('\u20ac', ''))
 			
 		elif args["exists"]:
 
@@ -298,7 +298,7 @@ else:
 			else:
 				we = WAExistsRequestV2(countryCode, phoneNumber, identity)
 				result = we.send()
-				print(resultToString(result))
+				print(resultToString(result).replace('\u20ac', ''))
 
 				if result["pw"] is not None:
 					print("\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(countryCode, phoneNumber, result["pw"]))
