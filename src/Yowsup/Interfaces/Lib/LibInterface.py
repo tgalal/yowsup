@@ -8,7 +8,7 @@ from Interface import SignalInterfaceBase, MethodInterfaceBase
 class LibSignalInterface(SignalInterfaceBase):
 	def __init__(self):
 		super(LibSignalInterface,self).__init__();
-		
+
 class LibMethodInterface(MethodInterfaceBase):
 	def __init__(self):
 		super(LibMethodInterface,self).__init__();
