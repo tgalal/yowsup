@@ -32,7 +32,7 @@ class Debugger():
 	def attach(instance):
 		d = Debugger()
 		d.type = instance.__class__.__name__;
-		instance._d = d.d
+		instance._d = d.debug
 	
 	@staticmethod
 	def stdDebug(message,messageType="General"):
@@ -51,12 +51,9 @@ class Debugger():
 	def formatMessage(self,message):
 		#default = "{type}:{time}:\t{message}"
 		t = time.time()
-		message = "%s:\t%s"%(self.type,message)
+		message = "DEBUG %s: %s" % (self.type, message)
 		return message
 	
 	def debug(self,message):
 		if Debugger.enabled:
 			Debugger.stdDebug(self.formatMessage(message),self.type)
-		
-	def d(self,message):
-		self.debug(message)
