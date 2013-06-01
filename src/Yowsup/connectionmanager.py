@@ -204,6 +204,7 @@ class YowsupConnectionManager:
 		if self.state == 2:
 			try:
 				self.out.write(node)
+				self.readerThread.lastPongTime = int(time.time());
 				return True
 			except ConnectionClosedException:
 				self._d("CONNECTION DOWN")
@@ -779,8 +780,6 @@ class ReaderThread(threading.Thread):
 					#self.signalInterface.send("disconnected", ("closed",))
 					self.sendDisconnected("closed")
 					return
-
-				self.lastPongTime = int(time.time());
 
 				if node is not None:
 					if ProtocolTreeNode.tagEquals(node,"iq"):
