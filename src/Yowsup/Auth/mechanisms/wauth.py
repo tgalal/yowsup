@@ -107,22 +107,22 @@ class WAuth():
 		root = self.conn.reader.nextTree();
 
 		while root is not None:
-			if ProtocolTreeNode.tagEquals(root,"stream:features"):
-				self._d("GOT FEATURES !!!!");
+			if ProtocolTreeNode.tagEquals(root, "stream:features"):
+				self._d("Got features");
 				self.authObject.supportsReceiptAcks  = root.getChild("receipt_acks") is not None;
 				root = self.conn.reader.nextTree();
 
 				continue;
 
-			if ProtocolTreeNode.tagEquals(root,"challenge"):
-				self._d("GOT CHALLENGE !!!!");
+			if ProtocolTreeNode.tagEquals(root, "challenge"):
+				self._d("Got challenge");
 				#data = base64.b64decode(root.data);
 				return root.data;
+
 		raise Exception("fell out of loop in readFeaturesAndChallenge");
 
 
 	def sendResponse(self,challengeData):
-
 		authBlob = self.getAuthBlob(challengeData);
 		node = ProtocolTreeNode("response",{"xmlns":"urn:ietf:params:xml:ns:xmpp-sasl"}, None, authBlob);
 		self.conn.writer.write(node);
