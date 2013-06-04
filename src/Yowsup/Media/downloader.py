@@ -1,5 +1,7 @@
-from ..Common.Http.warequest import WARequest
-import tempfile, sys
+import tempfile
+import sys
+
+from Yowsup.Common.Http.warequest import WARequest
 
 if sys.version_info >= (3, 0):
     from urllib.request import urlopen
@@ -9,14 +11,13 @@ else:
     from urllib import urlencode
 
 class MediaDownloader(WARequest):
-    def __init__(self, successClbk = None, errorClbk = None, progressCallback = None):
 
+    def __init__(self, successClbk = None, errorClbk = None, progressCallback = None):
         super(MediaDownloader, self).__init__()
 
         self.successCallback = successClbk
         self.errorCallback = errorClbk
         self.progressCallback = progressCallback
-
 
     def download(self, url = ""):
         try:

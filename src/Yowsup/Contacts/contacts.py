@@ -19,16 +19,18 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
+import random
+import sys
+
+from hashlib import md5
+
 from Yowsup.Common.Http.warequest import WARequest
 from Yowsup.Common.Http.waresponseparser import JSONResponseParser
-from hashlib import md5
-import random, sys
 from Yowsup.Common.utilities import Utilities
 
 class WAContactsSyncRequest():
 
     def __init__(self, username, password, contacts):
-
         self.username = username
         self.password = password
 
@@ -74,15 +76,14 @@ class WAContactsSyncAuth(WARequest):
     digestUri = "WAWA/s.whatsapp.net"
     charSet = "utf-8"
     authMethod = "X-WAWA"
+    url = "sro.whatsapp.net/v2/sync/a"
+    type = "POST"
 
     authTemplate = '{auth_method}: username="{username}",realm="{realm}",nonce="{nonce}",cnonce="{cnonce}",nc="{nc}",qop="auth",\
 digest-uri="{digest_uri}",response="{response}",charset="utf-8"'
 
     def __init__(self, username, password, nonce = "0"):
-
         super(WAContactsSyncAuth, self).__init__();
-        self.url = "sro.whatsapp.net/v2/sync/a"
-        self.type = "POST"
         cnonce = Utilities.str(random.randint(100000000000000,1000000000000000), 36)
 
         credentials = bytearray((username+":s.whatsapp.net:").encode())
@@ -92,7 +93,6 @@ digest-uri="{digest_uri}",response="{response}",charset="utf-8"'
             buf = lambda x: bytes(x, 'iso-8859-1') if type(x) is str else bytes(x)
         else:
             buf = buffer
-
 
         response = self.encode(
                         self.md5(
@@ -155,15 +155,12 @@ digest-uri="{digest_uri}",response="{response}",charset="utf-8"'
 
 
 class WAContactsSyncQuery(WAContactsSyncAuth):
-    def __init__(self, username, password, nonce, contacts):
+    url = "sro.whatsapp.net/v2/sync/q"
 
+    def __init__(self, username, password, nonce, contacts):
         super(WAContactsSyncQuery, self).__init__(username, password, nonce)
 
-
-        self.url = "sro.whatsapp.net/v2/sync/q"
-
         self.pvars = ["c"]
-
 
         self.addParam("ut", "all")
         #self.addParam("ut", "wa")

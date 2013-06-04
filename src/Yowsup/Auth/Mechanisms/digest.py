@@ -19,21 +19,23 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
+from Yowsup.ConnectionIO.protocoltreenode import ProtocolTreeNode
 
-import base64, random;
-import os,binascii
+import base64
+import random;
+import os
+import binascii
 import socket
-from Tools.debugger import Debugger
 import hashlib
-from ConnectionIO.protocoltreenode import ProtocolTreeNode
+import logging
 
 class DigestAuth():
 
 	def __init__(self,conn):
-		Debugger.attach(self);
+		self.logger = logging.getLogger(self.__class__.__name__)
 
 		self.conn = conn
-		self._d("Yowsup DigestAuth INIT");
+		self.logger.debug("Yowsup DigestAuth INIT");
 
 	def setAuthObject(self, authObject):
 		self.authObject = authObject
@@ -41,25 +43,25 @@ class DigestAuth():
 	def login(self, username, password, domain, resource):
 
 		try:
-			self._d("Starting stream")
+			self.logger.debug("Starting stream")
 			self.conn.writer.streamStart(domain,resource);
 
-			self._d("Sending Features")
+			self.logger.debug("Sending Features")
 			self.sendFeatures();
 
-			self._d("Sending Auth");
+			self.logger.debug("Sending Auth");
 			self.sendAuth();
 
-			self._d("Read stream start");
+			self.logger.debug("Read stream start");
 			self.conn.reader.streamStart();
 
-			self._d("Read features and challenge");
+			self.logger.debug("Read features and challenge");
 			challengeData = self.readFeaturesAndChallenge();
 
-			self._d("Sending Response")
+			self.logger.debug("Sending Response")
 			self.sendResponse(challengeData);
 
-			self._d("Read success")
+			self.logger.debug("Read success")
 			self.readSuccess();
 
 			self.conn.jid = "%s@%s" % (username, domain)
@@ -74,7 +76,6 @@ class DigestAuth():
 		self.conn.writer.write(toWrite);
 
 	def sendAuth(self):
-		# "user":self.connection.user,
 		node = ProtocolTreeNode("auth",{"xmlns":"urn:ietf:params:xml:ns:xmpp-sasl","mechanism":"DIGEST-MD5-1"});
 		self.conn.writer.write(node);
 
@@ -84,14 +85,14 @@ class DigestAuth():
 
 		while root is not None:
 			if ProtocolTreeNode.tagEquals(root,"stream:features"):
-				self._d("GOT FEATURES !!!!");
+				self.logger.debug("GOT FEATURES !!!!");
 				self.authObject.supportsReceiptAcks  = root.getChild("receipt_acks") is not None;
 				root = self.conn.reader.nextTree();
 
 				continue;
 
 			if ProtocolTreeNode.tagEquals(root,"challenge"):
-				self._d("GOT CHALLENGE !!!!");
+				self.logger.debug("GOT CHALLENGE !!!!");
 				data = base64.b64decode(root.data);
 				return data;
 		raise Exception("fell out of loop in readFeaturesAndChallenge");
@@ -105,7 +106,7 @@ class DigestAuth():
 		self.conn.reader.inn.buf = [];
 
 	def getResponse(self,challenge):
-		self._d(str(challenge))
+		self.logger.debug(str(challenge))
 		nonce_key = "nonce=\""
 		i = challenge.index(nonce_key);
 
@@ -149,12 +150,12 @@ class DigestAuth():
 		bigger_response += "\",nc="
 		bigger_response += nc
 
-		self._d(str(bigger_response))
+		self.logger.debug(str(bigger_response))
 		return bigger_response;
 
 	def readSuccess(self):
 		node = self.conn.reader.nextTree();
-		self._d("Login Status: %s"%(node.tag));
+		self.logger.debug("Login Status: %s"%(node.tag));
 
 		if ProtocolTreeNode.tagEquals(node,"failure"):
 			self.authObject.authenticationFailed()
@@ -165,11 +166,11 @@ class DigestAuth():
 		expiration = node.getAttributeValue("expiration");
 
 		if expiration is not None:
-			self._d("Expires: "+str(expiration));
+			self.logger.debug("Expires: "+str(expiration));
 			self.authObject.expireDate = expiration;
 
 		kind = node.getAttributeValue("kind");
-		self._d("Account type: %s"%(kind))
+		self.logger.debug("Account type: %s"%(kind))
 
 		if kind == "paid":
 			self.authObject.accountKind = 1;
@@ -179,7 +180,7 @@ class DigestAuth():
 			self.authObject.accountKind = -1;
 
 		status = node.getAttributeValue("status");
-		self._d("Account status: %s"%(status));
+		self.logger.debug("Account status: %s"%(status));
 
 		if status == "expired":
 			self.loginFailed.emit()

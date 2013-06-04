@@ -19,18 +19,17 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-import socket;
+import socket
 import sys
-from .bintreenode import BinTreeNodeReader, BinTreeNodeWriter
+import logging
 
-from Yowsup.Common.debugger import Debugger
-
-from .ioexceptions import ConnectionClosedException
+from Yowsup.ConnectionIO.bintreenode import BinTreeNodeReader, BinTreeNodeWriter
+from Yowsup.ConnectionIO.ioexceptions import ConnectionClosedException
 
 class ConnectionEngine(socket.socket):
 
 	def __init__(self):
-		Debugger.attach(self)
+		self.logger = logging.getLogger(self.__class__.__name__)
 
 		self.reader = BinTreeNodeReader(self)
 		self.writer = BinTreeNodeWriter(self)
@@ -58,8 +57,6 @@ class ConnectionEngine(socket.socket):
 	def getBuffer(self):
 		return self.buffer;
 
-
-
 	def reset(self):
 		self.buffer = "";
 
@@ -69,7 +66,7 @@ class ConnectionEngine(socket.socket):
 			try:
 				self.sendall(chr(data)) if sys.version_info < (3, 0) else self.sendall(chr(data).encode('iso-8859-1'))
 			except:
-				self._d("socket 1 write crashed, reason: %s" % sys.exc_info()[1])
+				self.logger.debug("socket 1 write crashed, reason: %s" % sys.exc_info()[1])
 				raise ConnectionClosedException("socket 1 write crashed, reason: %s" % sys.exc_info()[1])
 		else:
 			tmp = "";
@@ -80,7 +77,7 @@ class ConnectionEngine(socket.socket):
 			try:
 				self.sendall(tmp) if sys.version_info < (3, 0) else self.sendall(tmp.encode('iso-8859-1'))
 			except:
-				self._d("socket 2 write crashed, reason: %s" % sys.exc_info()[1])
+				self.logger.debug("socket 2 write crashed, reason: %s" % sys.exc_info()[1])
 				raise ConnectionClosedException("socket 2 write crashed, reason: %s" % sys.exc_info()[1])
 
 
@@ -93,7 +90,7 @@ class ConnectionEngine(socket.socket):
 		try:
 			x = self.recv(self.readSize)#.decode('iso-8859-1');
 		except:
-			self._d("socket read crashed, reason %s " % sys.exc_info()[1])
+			self.logger.debug("socket read crashed, reason %s " % sys.exc_info()[1])
 			raise ConnectionClosedException("socket read crashed, reason %s " % sys.exc_info()[1])
 
 		#x= self.recvX(self.readSize);

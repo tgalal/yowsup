@@ -19,7 +19,9 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-import urllib,sys
+import urllib
+import sys
+import hashlib
 
 if sys.version_info < (3, 0):
 	import httplib
@@ -28,9 +30,7 @@ else:
 	from http import client as httplib
 	from urllib.parse import urlencode
 
-import hashlib
-from .waresponseparser import ResponseParser
-from Yowsup.Common.debugger import Debugger as WADebug
+from Yowsup.Common.Http.waresponseparser import ResponseParser
 
 class WARequest(object):
 
@@ -51,7 +51,7 @@ class WARequest(object):
 	OK = 200
 
 	def __init__(self):
-		WADebug.attach(self)
+		self.logger = logging.getLogger(self.__class__.__name__)
 
 		self.uaIndex = 3;
 		self.pvars = [];
@@ -63,7 +63,6 @@ class WARequest(object):
 
 		self.sent = False
 		self.response = None
-
 
 
 	def setParsableVariables(self, pvars):
@@ -104,7 +103,7 @@ class WARequest(object):
 		if isinstance(parser, ResponseParser):
 			self.parser = parser
 		else:
-			self._d("Invalid parser")
+			self.logger.debug("Invalid parser")
 
 	def getConnectionParameters(self):
 
@@ -138,11 +137,11 @@ class WARequest(object):
 		self.response = WARequest.sendRequest(host, port, path, headers, params, "GET")
 
 		if not self.response.status == WARequest.OK:
-			self._d("Request not success, status was %s"%self.response.status)
+			self.logger.debug("Request not success, status was %s"%self.response.status)
 			return {}
 
 		data = self.response.read()
-		self._d(data);
+		self.logger.debug(data);
 
 		self.sent = True
 		return parser.parse(data.decode(), self.pvars)
@@ -163,12 +162,12 @@ class WARequest(object):
 
 
 		if not self.response.status == WARequest.OK:
-			self._d("Request not success, status was %s"%self.response.status)
+			self.logger.debug("Request not success, status was %s"%self.response.status)
 			return {}
 
 		data = self.response.read()
 
-		self._d(data);
+		self.logger.debug(data);
 
 		self.sent = True
 		return parser.parse(data.decode(), self.pvars)
@@ -182,19 +181,17 @@ class WARequest(object):
 
 		path = path + "?"+ params if reqType == "GET" and params else path
 
-		WADebug.stdDebug(reqType)
-		WADebug.stdDebug(headers);
-		WADebug.stdDebug(params);
+		self.logger.debug(reqType)
+		self.logger.debug(headers);
+		self.logger.debug(params);
 
-		WADebug.stdDebug("Opening connection to %s" % host);
+		self.logger.debug("Opening connection to %s" % host);
 
 		conn = httplib.HTTPSConnection(host ,port) if port == 443 else httplib.HTTPConnection(host ,port)
 
-		WADebug.stdDebug("Requesting %s" % path)
+		self.logger.debug("Requesting %s" % path)
 		conn.request(reqType, path, params, headers);
 
 		response = conn.getresponse()
-
-		#WADebug.stdDebug(response)
 
 		return response

@@ -25,7 +25,6 @@ from Yowsup.ConnectionIO.connectionengine import ConnectionEngine
 from Yowsup.Interfaces.Lib.LibInterface import LibMethodInterface, LibSignalInterface
 from Yowsup.Common.constants import Constants
 from Yowsup.Common.watime import WATime
-from Yowsup.Common.debugger import Debugger
 from Yowsup.Auth.auth import YowsupAuth
 
 from random import randrange
@@ -38,12 +37,13 @@ import hashlib
 import base64
 import sys
 import traceback
+import logging
 
 class YowsupConnectionManager:
 	domain = "s.whatsapp.net"
 
 	def __init__(self):
-		Debugger.attach(self)
+		self.logger = logging.getLogger(self.__class__.__name__)
 		self.currKeyId = 1
 		self.iqId = 0
 
@@ -78,14 +78,14 @@ class YowsupConnectionManager:
 
 	def startReader(self):
 		if self.readerThread.isAlive():
-			self._d("Reader already started")
+			self.logger.debug("Reader already started")
 			return 0
 
 		try:
 			self.readerThread.start()
-			self._d("Reader started")
+			self.logger.debug("Reader started")
 		except RuntimeError:
-			self._d("Reader already started before")
+			self.logger.debug("Reader already started before")
 			self.readerThread.sendDisconnected()
 			return 0
 
@@ -164,17 +164,17 @@ class YowsupConnectionManager:
 
 
 	def disconnect(self, reason=""):
-		self._d("Disconnect sequence initiated")
-		self._d("Sending term signal to reader thread")
+		self.logger.debug("Disconnect sequence initiated")
+		self.logger.debug("Sending term signal to reader thread")
 
 		if self.readerThread.isAlive():
 			self.readerThread.terminate()
-			self._d("Shutting down socket")
+			self.logger.debug("Shutting down socket")
 			self.socket.close()
-			self._d("Waiting for readerThread to die")
+			self.logger.debug("Waiting for readerThread to die")
 			self.readerThread.join()
 
-		self._d("Disconnected: %s" % reason)
+		self.logger.debug("Disconnected: %s", reason)
 		self.state = 0
 		self.readerThread.sendDisconnected(reason)
 
@@ -190,17 +190,17 @@ class YowsupConnectionManager:
 				self.readerThread.lastPongTime = int(time.time());
 				return True
 			except ConnectionClosedException:
-				self._d("Connection closed!")
+				self.logger.debug("Connection closed!")
 				self.disconnect("closed")
 
 		return False
 
 	def onDisconnected(self):
-		self._d("Setting state to 0")
+		self.logger.debug("Setting state to 0")
 		self.state = 0
 
 	def auth(self, username, password):
-		self._d("Authentification initiated")
+		self.logger.debug("Authentification initiated")
 
 		username = str(username)
 
@@ -218,21 +218,21 @@ class YowsupConnectionManager:
 				self.state = 1
 				connection = auth.authenticate(username, password, Constants.domain, Constants.resource)
 			except socket.gaierror:
-				self._d("Connection failed: DNS error")
+				self.logger.debug("Connection failed: DNS error")
 				self.readerThread.sendDisconnected("dns")
 				self.lock.release()
 				self.state = 0
 				return 0
 
 			except socket.error:
-				self._d("Connection failed: timed out")
+				self.logger.debug("Connection failed: timed out")
 				self.readerThread.sendDisconnected("timeout")
 				self.lock.release()
 				self.state = 0
 				return 0
 
 			except ConnectionClosedException:
-				self._d("Connection failed: closed")
+				self.logger.debug("Connection failed: closed")
 				self.readerThread.sendDisconnected("closed")
 				self.lock.release()
 				self.state = 0
@@ -262,14 +262,14 @@ class YowsupConnectionManager:
 
 
 	def sendTyping(self, jid):
-		self._d("Send typing to %s" % (jid))
+		self.logger.debug("Send typing to %s", jid)
 		composing = ProtocolTreeNode("composing", {"xmlns": "http://jabber.org/protocol/chatstates"})
 		message = ProtocolTreeNode("message", {"to": jid, "type": "chat"}, [composing]);
 		self._writeNode(message);
 
 
 	def sendPaused(self, jid):
-		self._d("Send typing paused to %s" % (jid))
+		self.logger.debug("Send typing paused to %s", jid)
 		composing = ProtocolTreeNode("paused", {"xmlns": "http://jabber.org/protocol/chatstates"})
 		message = ProtocolTreeNode("message", {"to": jid, "type": "chat"},[composing]);
 		self._writeNode(message);
@@ -280,7 +280,7 @@ class YowsupConnectionManager:
 
 
 	def sendSubjectReceived(self, to, msg_id):
-		self._d("Sending subject recv receipt")
+		self.logger.debug("Sending subject recv receipt")
 		receivedNode = ProtocolTreeNode("received", {"xmlns": "urn:xmpp:receipts"});
 		messageNode = self.getSubjectMessage(to, msg_id, receivedNode);
 		self._writeNode(messageNode);
@@ -309,7 +309,7 @@ class YowsupConnectionManager:
 
 
 	def sendReceipt(self, jid, mtype, mid):
-		self._d("sending message received to %s (type=%s, id=%s)" % (jid, mtype, mid))
+		self.logger.debug("sending message received to %s (type=%s, id=%s)", jid, mtype, mid)
 		receivedNode = ProtocolTreeNode("received", {"xmlns": "urn:xmpp:receipts"})
 		messageNode = ProtocolTreeNode("message", {"to": jid, "type": mtype, "id": mid}, [receivedNode]);
 		self._writeNode(messageNode);
@@ -339,7 +339,7 @@ class YowsupConnectionManager:
 		if len(jid.split('-')) == 2 or jid == "Server@s.whatsapp.net": #SUPER CANCEL SUBSCRIBE TO GROUP AND SERVER
 			return
 
-		self._d("Presence request initiated for %s" % (jid))
+		self.logger.debug("Presence request initiated for %s", jid)
 
 		idx = self.makeId("last_")
 
@@ -407,7 +407,7 @@ class YowsupConnectionManager:
 
 
 	def sendChangeStatus(self, status):
-		self._d("Updating status to: %s" % (status))
+		self.logger.debug("Updating status to: %s", status)
 		bodyNode = ProtocolTreeNode("body", None, None, status);
 		messageNode = self.getMessageNode("s.us", bodyNode)
 		return messageNode.getAttributeValue("id")
@@ -438,7 +438,7 @@ class YowsupConnectionManager:
 
 	@sendMessage
 	def sendLocation(self, jid, latitude, longitude, preview):
-		self._d("Sending location (" + latitude + ": " + longitude + ")")
+		self.logger.debug("Sending location (%s:%s)", latitude, longitude)
 		return ProtocolTreeNode("media", {"xmlns": "urn:xmpp:whatsapp:mms", "type": "location", "latitude": latitude, "longitude": longitude}, None, preview)
 
 
@@ -463,7 +463,7 @@ class YowsupConnectionManager:
 
 
 	def sendGetGroups(self, gtype):
-		self._d("Getting groups: %s" % (gtype))
+		self.logger.debug("Getting groups: %s", gtype)
 		idx = self.makeId("get_groups_")
 		self.readerThread.requests[idx] = self.readerThread.parseGroups;
 
@@ -473,7 +473,7 @@ class YowsupConnectionManager:
 
 
 	def sendGetGroupInfo(self, jid):
-		self._d("Getting group info for: %s"%(jid))
+		self.logger.debug("Getting group info for: %s", jid)
 		idx = self.makeId("get_g_info_")
 		self.readerThread.requests[idx] = self.readerThread.parseGroupInfo;
 
@@ -483,7 +483,7 @@ class YowsupConnectionManager:
 
 
 	def sendCreateGroupChat(self, subject):
-		self._d("Creating group: %s" % (subject))
+		self.logger.debug("Creating group: %s", subject)
 		idx = self.makeId("create_group_")
 		self.readerThread.requests[idx] = self.readerThread.parseGroupCreated;
 
@@ -493,8 +493,8 @@ class YowsupConnectionManager:
 
 
 	def sendAddParticipants(self, gjid, participants):
-		self._d("Opening group: %s" % (gjid))
-		self._d("Adding participants: %s" % (participants))
+		self.logger.debug("Opening group: %s", gjid)
+		self.logger.debug("Adding participants: %s", participants)
 		idx = self.makeId("add_group_participants_")
 		self.readerThread.requests[idx] = self.readerThread.parseAddedParticipants;
 
@@ -509,8 +509,8 @@ class YowsupConnectionManager:
 
 
 	def sendRemoveParticipants(self, gjid, participants):
-		self._d("Opening group: %s" % (gjid))
-		self._d("Removing participants: %s" % (participants))
+		self.logger.debug("Opening group: %s", gjid)
+		self.logger.debug("Removing participants: %s", participants)
 		idx = self.makeId("remove_group_participants_")
 		self.readerThread.requests[idx] = self.readerThread.parseRemovedParticipants;
 
@@ -524,7 +524,7 @@ class YowsupConnectionManager:
 
 
 	def sendEndGroupChat(self,gjid):
-		self._d("removing group: %s"%(gjid))
+		self.logger.debug("removing group: %s", gjid)
 		idx = self.makeId("leave_group_")
 		self.readerThread.requests[idx] = self.readerThread.parseGroupEnded;
 
@@ -554,7 +554,7 @@ class YowsupConnectionManager:
 
 
 	def sendGetPicture(self, jid):	#@@TODO, ?!
-		self._d("Getting picture from: %s " % (jid))
+		self.logger.debug("Getting picture from: %s", jid)
 
 		idx = self.makeId("get_picture_")
 		self.readerThread.requests[idx] =  self.readerThread.parseGetPicture
@@ -644,7 +644,7 @@ class YowsupConnectionManager:
 class ReaderThread(threading.Thread):
 
 	def __init__(self):
-		Debugger.attach(self);
+		self.logger = logging.getLogger(self.__class__.__name__)
 
 		self.signalInterface = None
 		self.terminateRequested = False
@@ -672,12 +672,12 @@ class ReaderThread(threading.Thread):
 
 
 	def terminate(self):
-		self._d("Attempting to exit gracefully")
+		self.logger.debug("Attempting to exit gracefully")
 		self.terminateRequested = True
 
 
 	def sendDisconnected(self, reason="noreason"):
-		self._d("Sending disconnected because of %s" % reason)
+		self.logger.debug("Sending disconnected because of %s", reason)
 		self.lock.acquire()
 		if not self.disconnectedSent:
 			self.disconnectedSent = True
@@ -688,7 +688,7 @@ class ReaderThread(threading.Thread):
 
 
 	def run(self):
-		self._d("Read thread started");
+		self.logger.debug("Read thread started");
 
 		while True:
 			countdown = self.timeout - ((int(time.time()) - self.lastPongTime))
@@ -697,12 +697,12 @@ class ReaderThread(threading.Thread):
 			countdown = countdown - remainder
 
 			if countdown <= 0:
-				self._d("No hope, dying!")
+				self.logger.debug("No hope, dying!")
 				self.sendDisconnected("closed")
 				return
 			else:
 				if countdown % (self.selectTimeout*10) == 0 or countdown < 11:
-					self._d("Waiting, time to die: T-%i seconds" % countdown )
+					self.logger.debug("Waiting, time to die: T-%i seconds", countdown)
 
 				if self.timeout-countdown == 150 and self.ping and self.autoPong:
 					self.ping()
@@ -712,7 +712,7 @@ class ReaderThread(threading.Thread):
 			try:
 				ready = select.select([self.socket.reader.rawIn], [], [], self.selectTimeout)
 			except:
-				self._d("Error in ready")
+				self.logger.debug("Error in ready")
 				raise
 				return
 
@@ -724,7 +724,7 @@ class ReaderThread(threading.Thread):
 					node = self.socket.reader.nextTree()
 				except ConnectionClosedException:
 					#print traceback.format_exc()
-					self._d("Socket closed, got 0 bytes!")
+					self.logger.debug("Socket closed, got 0 bytes!")
 					#self.signalInterface.send("disconnected", ("closed",))
 					self.sendDisconnected("closed")
 					return
@@ -816,13 +816,13 @@ class ReaderThread(threading.Thread):
 
 							if status == "dirty":
 								#categories = self.parseCategories(node); #@@TODO, send along with signal
-								self._d("Will send dirty!")
+								self.logger.debug("Will send dirty!")
 								self.signalInterface.send("status_dirty")
 
 					elif ProtocolTreeNode.tagEquals(node,"message"):
 						self.parseMessage(node)
 
-		self._d("Reader thread terminating now!")
+		self.logger.debug("Reader thread terminating now!")
 
 	def parseOfflineMessageStamp(self,stamp):
 		watime = WATime();
@@ -854,7 +854,7 @@ class ReaderThread(threading.Thread):
 			if seconds is not None and jid is not None:
 				self.signalInterface.send("presence_updated", (jid, int(seconds)))
 		except:
-			self._d("Ignored exception in handleLastOnline "+ sys.exc_info()[1])
+			self.logger.debug("Ignored exception in handleLastOnline %s", sys.exc_info()[1])
 
 
 	def parseGroups(self, node):
@@ -897,7 +897,7 @@ class ReaderThread(threading.Thread):
 			if t == "success":
 				jids.append(a.getAttributeValue("participant"))
 			else:
-				self._d("Failed to add %s" % jids.append(a.getAttributeValue("participant")))
+				self.logger.debug("Failed to add %s", jids.append(a.getAttributeValue("participant")))
 
 		self.signalInterface.send("group_addParticipantsSuccess", (jid, jids))
 
@@ -913,8 +913,9 @@ class ReaderThread(threading.Thread):
 			if t == "success":
 				jids.append(a.getAttributeValue("participant"))
 			else:
-				self._d("Failed to add %s" % jids.append(a.getAttributeValue("participant")))
-		self._d("handleRemovedParticipants DONE!");
+				self.logger.debug("Failed to add %s", jids.append(a.getAttributeValue("participant")))
+
+		self.logger.debug("handleRemovedParticipants DONE!");
 
 		self.signalInterface.send("group_removeParticipantsSuccess", (jid, jids))
 
@@ -956,7 +957,6 @@ class ReaderThread(threading.Thread):
 
 	#@@TODO PICTURE STUFF
 
-
 	def createTmpFile(self, data, mode = "w"):
 		tmp = tempfile.mkstemp()[1]
 
@@ -986,7 +986,6 @@ class ReaderThread(threading.Thread):
 	def parseGetPictureIds(self, node):
 		jid = node.getAttributeValue("from");
 		groupNode = node.getChild("list")
-		#self._d(groupNode.toString())
 		children = groupNode.getAllChildren("user");
 		#pids = []
 		for c in children:
@@ -1046,7 +1045,7 @@ class ReaderThread(threading.Thread):
 
 		newSubject = "" if bodyNode is None else bodyNode.data;
 		if newSubject.find("New version of WhatsApp Messenger is now available") > -1:
-			self._d("Rejecting whatsapp server message")
+			self.logger.debug("Rejecting whatsapp server message")
 			return
 
 		msgData = None
@@ -1156,7 +1155,7 @@ class ReaderThread(threading.Thread):
 					self.signalInterface.send("contact_paused",(fromAttribute,))
 
 				elif ProtocolTreeNode.tagEquals(childNode,"media") and msgId is not None:
-					self._d("Receiving multimedia message");
+					self.logger.debug("Receiving multimedia message");
 
 					mediaUrl = messageNode.getChild("media").getAttributeValue("url");
 					mediaType = messageNode.getChild("media").getAttributeValue("type")
@@ -1230,7 +1229,7 @@ class ReaderThread(threading.Thread):
 								self.signalInterface.send("vcard_received", (msgId, fromAttribute, vcardName, vcardData, wantsReceipt, isBroadcast))
 
 					else:
-						self._d("Unknown media type")
+						self.logger.debug("Unknown media type")
 						return
 
 				elif ProtocolTreeNode.tagEquals(childNode,"body") and msgId is not None:

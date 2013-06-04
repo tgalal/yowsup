@@ -1,7 +1,14 @@
-from ..Common.Http.warequest import WARequest
-from ..Common.Http.waresponseparser import JSONResponseParser
-import socket, ssl, mimetypes, os, hashlib, sys
+import socket
+import ssl
+import mimetypes
+import os
+import hashlib
+import sys
+
 from time import sleep
+
+from Yowsup.Common.Http.warequest import WARequest
+from Yowsup.Common.Http.waresponseparser import JSONResponseParser
 
 class MediaUploader(WARequest):
     def __init__(self, jid, accountJid, successClbk = None, errorClbk = None, progressCallback = None):

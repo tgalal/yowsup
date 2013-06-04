@@ -19,19 +19,21 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-import socket, hashlib, hmac, sys
-from Yowsup.Common.debugger import Debugger
 from Yowsup.Common.watime import WATime
 from Yowsup.ConnectionIO.protocoltreenode import ProtocolTreeNode
+
+import socket
+import hashlib
+import hmac
+import sys
+import logging
 
 from struct import pack
 from operator import xor
 from itertools import starmap
 from hashlib import sha1
 
-
 def _bytearray(data):
-
 	if type(data) == str:
 		return data
 	elif type(data) == list:
@@ -49,10 +51,10 @@ def _bytearray(data):
 class WAuth():
 
 	def __init__(self,conn):
-		Debugger.attach(self);
+		self.logger = logging.getLogger(self.__class__.__name__)
 
 		self.conn = conn
-		self._d("Yowsup WAUTH-1 INIT");
+		self.logger.debug("Yowsup WAUTH-1 INIT");
 
 	def setAuthObject(self, authObject):
 		self.authObject = authObject
@@ -62,25 +64,25 @@ class WAuth():
 		self.username = username
 
 		try:
-			self._d("Starting stream")
+			self.logger.debug("Starting stream")
 			self.conn.writer.streamStart(domain,resource);
 
-			self._d("Sending Features")
+			self.logger.debug("Sending Features")
 			self.sendFeatures();
 
-			self._d("Sending Auth");
+			self.logger.debug("Sending Auth");
 			self.sendAuth();
 
-			self._d("Read stream start");
+			self.logger.debug("Read stream start");
 			self.conn.reader.streamStart();
 
-			self._d("Read features and challenge");
+			self.logger.debug("Read features and challenge");
 			challengeData = self.readFeaturesAndChallenge();
 
-			self._d("Sending Response")
+			self.logger.debug("Sending Response")
 			self.sendResponse(challengeData);
 
-			self._d("Read success")
+			self.logger.debug("Read success")
 
 			if not self.readSuccess(): return 0
 
@@ -108,14 +110,14 @@ class WAuth():
 
 		while root is not None:
 			if ProtocolTreeNode.tagEquals(root, "stream:features"):
-				self._d("Got features");
+				self.logger.debug("Got features");
 				self.authObject.supportsReceiptAcks  = root.getChild("receipt_acks") is not None;
 				root = self.conn.reader.nextTree();
 
 				continue;
 
 			if ProtocolTreeNode.tagEquals(root, "challenge"):
-				self._d("Got challenge");
+				self.logger.debug("Got challenge");
 				#data = base64.b64decode(root.data);
 				return root.data;
 
@@ -152,7 +154,7 @@ class WAuth():
 
 	def readSuccess(self):
 		node = self.conn.reader.nextTree();
-		self._d("Login Status: %s"%(node.tag));
+		self.logger.debug("Login Status: %s"%(node.tag));
 
 		if ProtocolTreeNode.tagEquals(node,"failure"):
 			self.authObject.authenticationFailed()
@@ -164,11 +166,11 @@ class WAuth():
 		expiration = node.getAttributeValue("expiration");
 
 		if expiration is not None:
-			self._d("Expires: "+str(expiration));
+			self.logger.debug("Expires: "+str(expiration));
 			self.authObject.expireDate = expiration;
 
 		kind = node.getAttributeValue("kind");
-		self._d("Account type: %s"%(kind))
+		self.logger.debug("Account type: %s"%(kind))
 
 		if kind == "paid":
 			self.authObject.accountKind = 1;
@@ -178,7 +180,7 @@ class WAuth():
 			self.authObject.accountKind = -1;
 
 		status = node.getAttributeValue("status");
-		self._d("Account status: %s"%(status));
+		self.logger.debug("Account status: %s"%(status));
 
 		if status == "expired":
 			self.loginFailed.emit()

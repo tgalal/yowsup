@@ -19,15 +19,9 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-from Yowsup.Common.debugger import Debugger
-
-
 class ProtocolTreeNode():
 
 	def __init__(self,tag,attributes,children=None,data=None):
-
-		Debugger.attach(self)
-
 		self.tag = tag;
 		self.attributes = attributes;
 		self.children = children;
@@ -53,7 +47,6 @@ class ProtocolTreeNode():
 			print("ignored toString call, probably encountered byte")
 		except UnicodeDecodeError:
 			print("ingnored toString call, encountered unicode error")
-
 
 
 	@staticmethod

@@ -19,22 +19,20 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-from Yowsup.Common.debugger import Debugger
+import logging
+
 from Yowsup.Common.datastructures import ByteArray
 from Yowsup.Common.constants import Constants
-
-
-from .protocoltreenode import ProtocolTreeNode
-from .ioexceptions import InvalidReadException
+from Yowsup.ConnectionIO.protocoltreenode import ProtocolTreeNode
+from Yowsup.ConnectionIO.ioexceptions import InvalidReadException
 
 class BinTreeNodeReader():
     def __init__(self,inputstream):
-
-        Debugger.attach(self)
+	self.logger = logging.getLogger(self.__class__.__name__)
 
         self.inputKey = None
 
-        self._d('Reader init');
+        self.logger.debug('Reader init');
         self.tokenMap = Constants.dictionary;
         self.rawIn = inputstream;
         self.inn = ByteArray();
@@ -44,11 +42,10 @@ class BinTreeNodeReader():
 
 
     def readStanza(self):
-
         num = self.readInt8(self.rawIn)
         stanzaSize = self.readInt16(self.rawIn,1);
 
-        header = (num << 16) + stanzaSize#self.readInt24(self.rawIn)
+        header = (num << 16) + stanzaSize
 
         flags = (header >> 20);
         #stanzaSize =  ((header & 0xF0000) >> 16) | ((header & 0xFF00) >> 8) | (header & 0xFF);
@@ -75,10 +72,10 @@ class BinTreeNodeReader():
     def readInt8(self,i):
         return i.read();
 
+
     def readInt16(self,i,socketOnly=0):
         intTop = i.read(socketOnly);
         intBot = i.read(socketOnly);
-        #Utilities.debug(str(intTop)+"------------"+str(intBot));
         value = (intTop << 8) + intBot;
         if value is not None:
             return value;
@@ -92,7 +89,6 @@ class BinTreeNodeReader():
         int3 = i.read();
         value = (int1 << 16) + (int2 << 8) + (int3 << 0);
         return value;
-
 
 
     def readListSize(self,token):
@@ -176,12 +172,12 @@ class BinTreeNodeReader():
         self.readStanza();
 
         ret = self.nextTreeInternal();
-        self._d("Incoming")
-        if ret is not None:
-            if '<picture type="' in ret.toString():
-                self._d("<Picture!!!>");
-            else:
-                self._d("\n%s"%ret.toString());
+#        self.logger.debug("Incoming")
+#        if ret is not None:
+#            if '<picture type="' in ret.toString():
+#                self.logger.debug("<Picture!!!>");
+#            else:
+#                self.logger.debug("\n%s"%ret.toString());
         return ret;
 
     def fillBuffer(self,stanzaSize):
@@ -257,7 +253,7 @@ class BinTreeNodeWriter():
     tokenMap={}
 
     def __init__(self,o):
-        Debugger.attach(self)
+	self.logger = logging.getLogger(self.__class__.__name__)
 
         self.outputKey = None
 
@@ -298,8 +294,8 @@ class BinTreeNodeWriter():
         if node is None:
             self.out.write(0);
         else:
-            self._d("Outgoing");
-            self._d("\n%s" % node.toString());
+#            self.logger.debug("Outgoing");
+#            self.logger.debug("\n%s" % node.toString());
             self.writeInternal(node);
 
         self.flushBuffer(needsFlush);

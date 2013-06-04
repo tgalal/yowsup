@@ -19,14 +19,14 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-from .mechanisms.wauth import WAuth
-
+from Yowsup.Auth.Mechanisms.wauth import WAuth
 from Yowsup.Common.constants import Constants
-from Yowsup.Common.debugger import Debugger
+
+import logging
 
 class YowsupAuth:
 	def __init__(self, connection):
-		Debugger.attach(self);
+		self.logger = logging.getLogger(self.__class__.__name__)
 
 		self.connection = connection
 		self.mechanism = WAuth
@@ -54,10 +54,10 @@ class YowsupAuth:
 		#should process callbacks
 
 	def authenticationFailed(self):
-		self._d("Authentification failed")
+		self.logger.debug("Authentification failed")
 
 	def authenticate(self, username, password, domain, resource):
-		self._d("Connecting to " + Constants.host)
+		self.logger.debug("Connecting to " + Constants.host)
 		self.connection.connect((Constants.host, Constants.port));
 
 		self.mechanism = WAuth(self.connection)
