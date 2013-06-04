@@ -19,7 +19,6 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-
 class ByteArray():
 	def __init__(self,size=0):
 		self.size = size;
@@ -55,13 +54,11 @@ class ByteArray():
 		count = 0;
 
 		while count < length:
-
 			#self.read();
 			#print "OKIIIIIIIIIIII";
 			#exit();
 			b[off+count]=self.read();
 			count= count+1;
-
 
 		return count;
 

@@ -19,12 +19,11 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-
 import threading
+
 class SignalInterfaceBase(object):
 
 	signals = [
-
 			"auth_success",
 			"auth_fail",
 
@@ -107,7 +106,6 @@ class SignalInterfaceBase(object):
 				self.registeredSignals[signalName] = [callback]
 
 	def _sendAsync(self, signalName, args=()):
-		#print "Sending signal %s" % signalName
 		listeners = self.getListeners(signalName)
 		for l in listeners:
 			threading.Thread(target = l, args = args).start()
@@ -117,8 +115,6 @@ class SignalInterfaceBase(object):
 
 	def getListeners(self, signalName):
 		if self.hasSignal(signalName):
-
-
 			try:
 				self.registeredSignals[signalName]
 				return self.registeredSignals[signalName]
@@ -211,10 +207,7 @@ class MethodInterfaceBase(object):
 	def __init__(self):
 		self.registeredMethods = {}
 
-
 	def call(self, methodName, params=()):
-		#print "SHOULD CALL"
-		#print methodName
 		callback = self.getCallback(methodName)
 		if callback:
 			return callback(*params)

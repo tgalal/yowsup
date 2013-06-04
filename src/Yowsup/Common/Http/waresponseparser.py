@@ -19,11 +19,14 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-import json, sys
-from xml.dom import minidom
+import json
+import sys
 import plistlib
 
+from xml.dom import minidom
+
 class ResponseParser(object):
+
 	def __init__(self):
 		self.meta = "*"
 
@@ -51,7 +54,6 @@ class ResponseParser(object):
 class XMLResponseParser(ResponseParser):
 
 	def __init__(self):
-
 		try:
 			import libxml2
 		except ImportError:
@@ -70,12 +72,7 @@ class XMLResponseParser(ResponseParser):
 			res = doc.xpathEval(v)
 			vals[k] = []
 			for r in res:
-
-				#if not vals.has_key(r.name):
-				#	vals[r.name] = []
-
 				if r.type == 'element':
-					#vals[r.name].append(self.xmlToDict(minidom.parseString(str(r)))[r.name])
 					vals[k].append(self.xmlToDict(minidom.parseString(str(r)))[r.name])
 				elif r.type == 'attribute':
 					vals[k].append(r.content)
@@ -164,13 +161,11 @@ class JSONResponseParser(ResponseParser):
 				return None
 
 class PListResponseParser(ResponseParser):
+
 	def __init__(self):
 		self.meta = "text/xml"
 
 	def parse(self, xml, pvars):
-
-		#tmp = minidom.parseString(xml)
-
 		if sys.version_info >= (3, 0):
 			pl = plistlib.readPlistFromBytes(xml.encode());
 		else:

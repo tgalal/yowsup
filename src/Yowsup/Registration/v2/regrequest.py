@@ -34,8 +34,9 @@ class WARegRequest(WARequest):
 
 		self.url = "v.whatsapp.net/v2/register"
 
-		self.pvars = ["status", "login", "pw", "type", "expiration", "kind", "price", "cost", "currency", "price_expiration",
-					  "reason","retry_after"]
+		self.pvars = ["status", "login", "pw", "type", "expiration", "kind", "price",
+			"cost", "currency", "price_expiration", "reason","retry_after"
+		]
 
 		self.setParser(JSONResponseParser())
 

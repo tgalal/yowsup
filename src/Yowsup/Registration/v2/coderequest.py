@@ -21,6 +21,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from Yowsup.Common.Http.warequest import WARequest
 from Yowsup.Common.Http.waresponseparser import JSONResponseParser
+
 class WACodeRequest(WARequest):
 
 	def __init__(self,cc, p_in, idx, method="sms"):

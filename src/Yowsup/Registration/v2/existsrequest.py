@@ -34,7 +34,7 @@ class WAExistsRequest(WARequest):
 		self.url = "v.whatsapp.net/v2/exist"
 
 		self.pvars = ["status", "reason", "sms_length", "voice_length", "result","param", "pw", "login", "type", "expiration", "kind",
-					"price", "cost", "currency", "price_expiration"
-					]
+			"price", "cost", "currency", "price_expiration"
+		]
 
 		self.setParser(JSONResponseParser())

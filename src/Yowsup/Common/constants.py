@@ -48,9 +48,11 @@ class Constants:
 
 	host = "c2.whatsapp.net"
 	port = 443
+
 	resource = "S40-2.4.22"
 	#resource = "Symbian-2.9.6-443"
 	#resource = "Android-2.8.5732"
+
 	domain = "s.whatsapp.net"
 
 	v="0.6"
