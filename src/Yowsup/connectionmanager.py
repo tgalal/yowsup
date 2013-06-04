@@ -22,48 +22,42 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from Yowsup.ConnectionIO.protocoltreenode import ProtocolTreeNode
 from Yowsup.ConnectionIO.ioexceptions import ConnectionClosedException
 from Yowsup.ConnectionIO.connectionengine import ConnectionEngine
-
-from Yowsup.Common.debugger import Debugger
-import threading, select, time
-from Yowsup.Common.watime import WATime
-from .Auth.auth import YowsupAuth
-from Yowsup.Common.constants import Constants
 from Yowsup.Interfaces.Lib.LibInterface import LibMethodInterface, LibSignalInterface
-import tempfile
+from Yowsup.Common.constants import Constants
+from Yowsup.Common.watime import WATime
+from Yowsup.Common.debugger import Debugger
+from Yowsup.Auth.auth import YowsupAuth
+
 from random import randrange
+import threading
+import select
+import time
+import tempfile
 import socket
 import hashlib
 import base64
 import sys
-
-
-
 import traceback
+
 class YowsupConnectionManager:
+	domain = "s.whatsapp.net"
 
 	def __init__(self):
 		Debugger.attach(self)
 		self.currKeyId = 1
 		self.iqId = 0
-		self.verbose = True
+
+		# 0 disconnected
+		# 1 authentification pending
+		# 2 connected
 		self.state = 0
-		self.lock = threading.Lock()
+
 		self.autoPong = True
+		self.lock = threading.Lock()
 
-		self.domain = "s.whatsapp.net"
-
-		#self.methodInterface = MethodInterface(authenticatedSocketConnection.getId())
-		#self.signalInterface = SignalInterface(authenticatedSocketConnection.getId())
-		self.readerThread = None
-
-		self.methodInterface = LibMethodInterface()
-		self.signalInterface = LibSignalInterface()
 		self.readerThread = ReaderThread()
-		self.readerThread.setSignalInterface(self.signalInterface)
 
-
-		self.bindMethods()
-
+		self.setInterfaces(LibSignalInterface(), LibMethodInterface())
 
 	def setInterfaces(self, signalInterface, methodInterface):
 		self.methodInterface = methodInterface
@@ -87,17 +81,15 @@ class YowsupConnectionManager:
 			self._d("Reader already started")
 			return 0
 
-		self._d("starting reader")
 		try:
 			self.readerThread.start()
-			self._d("started")
+			self._d("Reader started")
 		except RuntimeError:
 			self._d("Reader already started before")
 			self.readerThread.sendDisconnected()
 			return 0
 
 		return 1
-
 
 	def block(self):
 		self.readerThread.join()
@@ -167,7 +159,6 @@ class YowsupConnectionManager:
 		self.methodInterface.registerCallback("ready", self.startReader)
 
 		self.methodInterface.registerCallback("auth_login", self.auth )
-		#self.methodInterface.registerCallback("auth_login", self.auth)
 
 		self.methodInterface.registerCallback("media_requestUpload", self.sendRequestUpload)
 
@@ -175,14 +166,15 @@ class YowsupConnectionManager:
 	def disconnect(self, reason=""):
 		self._d("Disconnect sequence initiated")
 		self._d("Sending term signal to reader thread")
+
 		if self.readerThread.isAlive():
 			self.readerThread.terminate()
 			self._d("Shutting down socket")
 			self.socket.close()
 			self._d("Waiting for readerThread to die")
 			self.readerThread.join()
-		self._d("Disconnected!")
-		self._d(reason)
+
+		self._d("Disconnected: %s" % reason)
 		self.state = 0
 		self.readerThread.sendDisconnected(reason)
 
@@ -190,15 +182,6 @@ class YowsupConnectionManager:
 	def getConnection(self):
 		return self.socket
 
-	def triggerEvent(self, eventName, stanza):
-		if eventName in self.events and self.events[eventName] is not None:
-			self.events[eventName](stanza)
-
-	def bindEvent(self, eventName, callback):
-		if eventName in self.events:
-			self.events[eventName] = callback
-
-	##########################################################
 
 	def _writeNode(self, node):
 		if self.state == 2:
@@ -207,12 +190,8 @@ class YowsupConnectionManager:
 				self.readerThread.lastPongTime = int(time.time());
 				return True
 			except ConnectionClosedException:
-				self._d("CONNECTION DOWN")
-				#self.disconnect("closed")
-				if self.readerThread.isAlive():
-					self.readerThread.terminate()
-					self.readerThread.join()
-					self.readerThread.sendDisconnected("closed")
+				self._d("Connection closed!")
+				self.disconnect("closed")
 
 		return False
 
@@ -221,48 +200,42 @@ class YowsupConnectionManager:
 		self.state = 0
 
 	def auth(self, username, password):
-		self._d(">>>>>>>>                         AUTH CALLED")
+		self._d("Authentification initiated")
+
 		username = str(username)
-		#password = str(password)
-		#traceback.print_stack()
 
 		self.lock.acquire()
 		if self.state == 0 :
-
-
 			if self.readerThread.isAlive():
-				raise Exception("TWO READER THREADS ON BOARD!!")
+				raise Exception("Two readers onboard")
 
 			self.readerThread = ReaderThread()
 			self.readerThread.autoPong = self.autoPong
 			self.readerThread.setSignalInterface(self.signalInterface)
-			yAuth = YowsupAuth(ConnectionEngine())
+			auth = YowsupAuth(ConnectionEngine())
+
 			try:
 				self.state = 1
-				connection = yAuth.authenticate(username, password, Constants.domain, Constants.resource)
+				connection = auth.authenticate(username, password, Constants.domain, Constants.resource)
 			except socket.gaierror:
-				self._d("DNS ERROR")
+				self._d("Connection failed: DNS error")
 				self.readerThread.sendDisconnected("dns")
-				#self.signalInterface.send("disconnected", ("dns",))
 				self.lock.release()
 				self.state = 0
-
 				return 0
+
 			except socket.error:
-				self._d("Socket error, connection timed out")
-				self.readerThread.sendDisconnected("closed")
-				#self.signalInterface.send("disconnected", ("closed",))
+				self._d("Connection failed: timed out")
+				self.readerThread.sendDisconnected("timeout")
 				self.lock.release()
 				self.state = 0
-
 				return 0
+
 			except ConnectionClosedException:
-				self._d("Conn closed Exception")
+				self._d("Connection failed: closed")
 				self.readerThread.sendDisconnected("closed")
-				#self.signalInterface.send("disconnected", ("closed",))
 				self.lock.release()
 				self.state = 0
-
 				return 0
 
 			if not connection:
@@ -272,11 +245,9 @@ class YowsupConnectionManager:
 				return 0
 
 			self.state = 2
-
-
-
 			self.socket = connection
 			self.jid = self.socket.jid
+
 			#@@TODO REPLACE PROPERLY
 			self.out = self.socket.writer
 
@@ -285,132 +256,126 @@ class YowsupConnectionManager:
 			self.readerThread.onPing = self.sendPong
 			self.readerThread.ping = self.sendPing
 
-
 			self.signalInterface.send("auth_success", (username,))
+
 		self.lock.release()
 
 
-
-
-	def sendTyping(self,jid):
-		self._d("SEND TYPING TO JID")
-		composing = ProtocolTreeNode("composing",{"xmlns":"http://jabber.org/protocol/chatstates"})
-		message = ProtocolTreeNode("message",{"to":jid,"type":"chat"},[composing]);
+	def sendTyping(self, jid):
+		self._d("Send typing to %s" % (jid))
+		composing = ProtocolTreeNode("composing", {"xmlns": "http://jabber.org/protocol/chatstates"})
+		message = ProtocolTreeNode("message", {"to": jid, "type": "chat"}, [composing]);
 		self._writeNode(message);
 
 
-
-	def sendPaused(self,jid):
-		self._d("SEND PAUSED TO JID")
-		composing = ProtocolTreeNode("paused",{"xmlns":"http://jabber.org/protocol/chatstates"})
-		message = ProtocolTreeNode("message",{"to":jid,"type":"chat"},[composing]);
+	def sendPaused(self, jid):
+		self._d("Send typing paused to %s" % (jid))
+		composing = ProtocolTreeNode("paused", {"xmlns": "http://jabber.org/protocol/chatstates"})
+		message = ProtocolTreeNode("message", {"to": jid, "type": "chat"},[composing]);
 		self._writeNode(message);
 
 
+	def getSubjectMessage(self, to, msg_id, child):
+		return ProtocolTreeNode("message", {"to": to, "type": "subject", "id": msg_id}, [child]);
 
-	def getSubjectMessage(self,to,msg_id,child):
-		messageNode = ProtocolTreeNode("message",{"to":to,"type":"subject","id":msg_id},[child]);
 
-		return messageNode
-
-	def sendSubjectReceived(self,to,msg_id):
+	def sendSubjectReceived(self, to, msg_id):
 		self._d("Sending subject recv receipt")
-		receivedNode = ProtocolTreeNode("received",{"xmlns": "urn:xmpp:receipts"});
-		messageNode = self.getSubjectMessage(to,msg_id,receivedNode);
+		receivedNode = ProtocolTreeNode("received", {"xmlns": "urn:xmpp:receipts"});
+		messageNode = self.getSubjectMessage(to, msg_id, receivedNode);
 		self._writeNode(messageNode);
-
 
 
 	def sendMessageReceipt(self, jid, msgId):
 		self.sendReceipt(jid, "chat", msgId)
 
+
 	def sendNotificationReceipt(self, jid, notificationId):
 		self.sendReceipt(jid, "notification", notificationId)
 
-	def sendReceipt(self,jid,mtype,mid):
-		self._d("sending message received to "+jid+" - type:"+mtype+" - id:"+mid)
-		receivedNode = ProtocolTreeNode("received",{"xmlns": "urn:xmpp:receipts"})
-		messageNode = ProtocolTreeNode("message",{"to":jid,"type":mtype,"id":mid},[receivedNode]);
+
+	def sendDeliveredReceiptAck(self, to, msg_id):
+		self._writeNode(self.getReceiptAck(to, msg_id, "delivered"));
+
+
+	def sendVisibleReceiptAck(self, to, msg_id):
+		self._writeNode(self.getReceiptAck(to, msg_id, "visible"));
+
+
+	def getReceiptAck(self, to, msg_id, receiptType):
+		ackNode = ProtocolTreeNode("ack", {"xmlns": "urn:xmpp:receipts", "type": receiptType})
+		messageNode = ProtocolTreeNode("message", {"to":to, "type": "chat", "id": msg_id}, [ackNode]);
+		return messageNode;
+
+
+	def sendReceipt(self, jid, mtype, mid):
+		self._d("sending message received to %s (type=%s, id=%s)" % (jid, mtype, mid))
+		receivedNode = ProtocolTreeNode("received", {"xmlns": "urn:xmpp:receipts"})
+		messageNode = ProtocolTreeNode("message", {"to": jid, "type": mtype, "id": mid}, [receivedNode]);
 		self._writeNode(messageNode);
 
 
-	def sendDeliveredReceiptAck(self,to,msg_id):
-		self._writeNode(self.getReceiptAck(to,msg_id,"delivered"));
-
-	def sendVisibleReceiptAck(self,to,msg_id):
-		self._writeNode(self.getReceiptAck(to,msg_id,"visible"));
-
-	def getReceiptAck(self,to,msg_id,receiptType):
-		ackNode = ProtocolTreeNode("ack",{"xmlns":"urn:xmpp:receipts","type":receiptType})
-		messageNode = ProtocolTreeNode("message",{"to":to,"type":"chat","id":msg_id},[ackNode]);
-		return messageNode;
-
-	def makeId(self,prefix):
+	def makeId(self, prefix):
 		self.iqId += 1
-		idx = ""
-		if self.verbose:
-			idx += prefix + str(self.iqId);
-		else:
-			idx = "%x" % self.iqId
+		return prefix + str(self.iqId);
 
-		return idx
 
 	def sendPing(self):
-
 		idx = self.makeId("ping_")
-
 		self.readerThread.requests[idx] = self.readerThread.parsePingResponse;
 
-		pingNode = ProtocolTreeNode("ping",{"xmlns":"w:p"});
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":self.domain},[pingNode]);
+		pingNode = ProtocolTreeNode("ping", {"xmlns": "w:p"});
+		iqNode = ProtocolTreeNode("iq", {"id": idx, "type": "get", "to": self.domain}, [pingNode]);
 		self._writeNode(iqNode);
 		return idx
 
 
-	def sendPong(self,idx):
-		iqNode = ProtocolTreeNode("iq",{"type":"result","to":self.domain,"id":idx})
+	def sendPong(self, idx):
+		iqNode = ProtocolTreeNode("iq", {"type": "result", "to": self.domain, "id": idx})
 		self._writeNode(iqNode);
 
-	def getLastOnline(self,jid):
 
+	def getLastOnline(self, jid):
 		if len(jid.split('-')) == 2 or jid == "Server@s.whatsapp.net": #SUPER CANCEL SUBSCRIBE TO GROUP AND SERVER
 			return
 
-		self.sendSubscribe(jid);
+		self._d("Presence request initiated for %s" % (jid))
 
-		self._d("presence request Initiated for %s"%(jid))
 		idx = self.makeId("last_")
+
+		self.sendSubscribe(jid);
 		self.readerThread.requests[idx] = self.readerThread.parseLastOnline;
 
-		query = ProtocolTreeNode("query",{"xmlns":"jabber:iq:last"});
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":jid},[query]);
+		query = ProtocolTreeNode("query", {"xmlns": "jabber:iq:last"});
+		iqNode = ProtocolTreeNode("iq", {"id": idx, "type": "get", "to": jid}, [query]);
 		self._writeNode(iqNode)
 
 
 	def sendIq(self):
-		node = ProtocolTreeNode("iq",{"to":"g.us","type":"get","id":str(int(time.time()))+"-0"},None,'expired');
+		node = ProtocolTreeNode("iq", {"to": "g.us", "type": "get", "id": str(int(time.time()))+"-0"}, None, 'expired');
 		self._writeNode(node);
 
-		node = ProtocolTreeNode("iq",{"to":"s.whatsapp.net","type":"set","id":str(int(time.time()))+"-1"},None,'expired');
+		node = ProtocolTreeNode("iq", {"to": "s.whatsapp.net", "type": "set", "id": str(int(time.time()))+"-1"}, None, 'expired');
 		self._writeNode(node);
+
 
 	def sendAvailableForChat(self, pushname):
-		presenceNode = ProtocolTreeNode("presence",{"name":pushname})
+		presenceNode = ProtocolTreeNode("presence", {"name": pushname})
 		self._writeNode(presenceNode);
 
+
 	def sendAvailable(self):
-		presenceNode = ProtocolTreeNode("presence",{"type":"available"})
+		presenceNode = ProtocolTreeNode("presence", {"type": "available"})
 		self._writeNode(presenceNode);
 
 
 	def sendUnavailable(self):
-		presenceNode = ProtocolTreeNode("presence",{"type":"unavailable"})
+		presenceNode = ProtocolTreeNode("presence", {"type": "unavailable"})
 		self._writeNode(presenceNode);
 
 
-	def sendSubscribe(self,to):
-		presenceNode = ProtocolTreeNode("presence",{"type":"subscribe","to":to});
-
+	def sendSubscribe(self, to):
+		presenceNode = ProtocolTreeNode("presence", {"type": "subscribe", "to": to});
 		self._writeNode(presenceNode);
 
 
@@ -418,15 +383,15 @@ class YowsupConnectionManager:
 		def wrapped(self, *args):
 				mediaType = fn(self, *args)
 
-
 				url = args[1]
 				name = args[2]
 				size = args[3]
 
-				mmNode = ProtocolTreeNode("media", {"xmlns":"urn:xmpp:whatsapp:mms","type":mediaType,"file":name,"size":size,"url":url},None, args[4:][0] if args[4:] else None);
+				mmNode = ProtocolTreeNode("media", {"xmlns": "urn:xmpp:whatsapp:mms", "type": mediaType, "file": name,"size": size,"url": url}, None, args[4:][0] if args[4:] else None);
 				return mmNode
 
 		return wrapped
+
 
 	def sendMessage(fn):
 			def wrapped(self, *args):
@@ -440,128 +405,121 @@ class YowsupConnectionManager:
 
 			return wrapped
 
-	def sendChangeStatus(self,status):
-		self._d("updating status to: %s"%(status))
 
-		bodyNode = ProtocolTreeNode("body",None,None,status);
-		messageNode = self.getMessageNode("s.us",bodyNode)
-		self._writeNode(messageNode);
-
+	def sendChangeStatus(self, status):
+		self._d("Updating status to: %s" % (status))
+		bodyNode = ProtocolTreeNode("body", None, None, status);
+		messageNode = self.getMessageNode("s.us", bodyNode)
 		return messageNode.getAttributeValue("id")
 
 
-
 	@sendMessage
-	def sendText(self,jid, content):
-		return ProtocolTreeNode("body",None,None,content);
+	def sendText(self, jid, content):
+		return ProtocolTreeNode("body", None, None, content);
+
 
 	@sendMessage
 	@mediaNode
 	def sendImage(self, jid, url, name, size, preview):
 		return "image"
 
+
 	@sendMessage
 	@mediaNode
 	def sendVideo(self, jid, url, name, size, preview):
 		return "video"
+
 
 	@sendMessage
 	@mediaNode
 	def sendAudio(self, jid, url, name, size):
 		return "audio"
 
+
 	@sendMessage
 	def sendLocation(self, jid, latitude, longitude, preview):
-		self._d("sending location (" + latitude + ":" + longitude + ")")
+		self._d("Sending location (" + latitude + ": " + longitude + ")")
+		return ProtocolTreeNode("media", {"xmlns": "urn:xmpp:whatsapp:mms", "type": "location", "latitude": latitude, "longitude": longitude}, None, preview)
 
-		return ProtocolTreeNode("media", {"xmlns":"urn:xmpp:whatsapp:mms","type":"location","latitude":latitude,"longitude":longitude},None,preview)
 
 	@sendMessage
 	def sendVCard(self, jid, data, name):
+		cardNode = ProtocolTreeNode("vcard", {"name": name}, None, data);
+		return ProtocolTreeNode("media", {"xmlns": "urn:xmpp:whatsapp:mms", "type": "vcard"}, [cardNode])
 
-		cardNode = ProtocolTreeNode("vcard",{"name":name},None,data);
-		return ProtocolTreeNode("media", {"xmlns":"urn:xmpp:whatsapp:mms","type":"vcard"},[cardNode])
 
 	@sendMessage
 	def sendBroadcast(self, jids, content):
-
 		broadcastNode = ProtocolTreeNode("broadcast", None, [ProtocolTreeNode("to", {"jid": jid}) for jid in jids])
-
 		messageNode = ProtocolTreeNode("body",None,None,content);
-
 		return [broadcastNode, messageNode]
 
-	def sendClientConfig(self,sound,pushID,preview,platform):
-		idx = self.makeId("config_");
-		configNode = ProtocolTreeNode("config",{"xmlns":"urn:xmpp:whatsapp:push","sound":sound,"id":pushID,"preview":"1" if preview else "0","platform":platform})
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":self.domain},[configNode]);
 
+	def sendClientConfig(self, sound, pushID, preview, platform):
+		idx = self.makeId("config_");
+		configNode = ProtocolTreeNode("config", {"xmlns": "urn:xmpp:whatsapp:push", "sound": sound, "id": pushID, "preview": "1" if preview else "0", "platform": platform})
+		iqNode = ProtocolTreeNode("iq", {"id": idx, "type": "set", "to": self.domain}, [configNode]);
 		self._writeNode(iqNode);
 
 
-	def sendGetGroups(self,gtype):
-		self._d("getting groups %s"%(gtype))
+	def sendGetGroups(self, gtype):
+		self._d("Getting groups: %s" % (gtype))
 		idx = self.makeId("get_groups_")
 		self.readerThread.requests[idx] = self.readerThread.parseGroups;
 
-		queryNode = ProtocolTreeNode("list",{"xmlns":"w:g","type":gtype})
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":"g.us"},[queryNode])
-
+		queryNode = ProtocolTreeNode("list", {"xmlns": "w:g", "type": gtype})
+		iqNode = ProtocolTreeNode("iq", {"id":idx, "type": "get", "to": "g.us"}, [queryNode])
 		self._writeNode(iqNode)
 
 
-	def sendGetGroupInfo(self,jid):
-		self._d("getting group info for %s"%(jid))
+	def sendGetGroupInfo(self, jid):
+		self._d("Getting group info for: %s"%(jid))
 		idx = self.makeId("get_g_info_")
 		self.readerThread.requests[idx] = self.readerThread.parseGroupInfo;
 
-		queryNode = ProtocolTreeNode("query",{"xmlns":"w:g"})
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":jid},[queryNode])
-
+		queryNode = ProtocolTreeNode("query", {"xmlns": "w:g"})
+		iqNode = ProtocolTreeNode("iq", {"id": idx, "type": "get", "to": jid}, [queryNode])
 		self._writeNode(iqNode)
 
 
-	def sendCreateGroupChat(self,subject):
-		self._d("creating group: %s"%(subject))
+	def sendCreateGroupChat(self, subject):
+		self._d("Creating group: %s" % (subject))
 		idx = self.makeId("create_group_")
 		self.readerThread.requests[idx] = self.readerThread.parseGroupCreated;
 
-		queryNode = ProtocolTreeNode("group",{"xmlns":"w:g","action":"create","subject":subject})
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":"g.us"},[queryNode])
-
+		queryNode = ProtocolTreeNode("group", {"xmlns": "w:g", "action": "create", "subject": subject})
+		iqNode = ProtocolTreeNode("iq", {"id": idx, "type": "set", "to": "g.us"}, [queryNode])
 		self._writeNode(iqNode)
 
 
 	def sendAddParticipants(self, gjid, participants):
-		self._d("opening group: %s"%(gjid))
-		self._d("adding participants: %s"%(participants))
+		self._d("Opening group: %s" % (gjid))
+		self._d("Adding participants: %s" % (participants))
 		idx = self.makeId("add_group_participants_")
 		self.readerThread.requests[idx] = self.readerThread.parseAddedParticipants;
 
 		innerNodeChildren = []
 
 		for part in participants:
-			innerNodeChildren.append( ProtocolTreeNode("participant",{"jid":part}) )
+			innerNodeChildren.append( ProtocolTreeNode("participant", {"jid":part}) )
 
-		queryNode = ProtocolTreeNode("add",{"xmlns":"w:g"},innerNodeChildren)
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid},[queryNode])
-
+		queryNode = ProtocolTreeNode("add", {"xmlns": "w:g"},innerNodeChildren)
+		iqNode = ProtocolTreeNode("iq", {"id":idx,"type": "set","to":gjid},[queryNode])
 		self._writeNode(iqNode)
 
 
-	def sendRemoveParticipants(self,gjid, participants):
-		self._d("opening group: %s"%(gjid))
-		self._d("removing participants: %s"%(participants))
+	def sendRemoveParticipants(self, gjid, participants):
+		self._d("Opening group: %s" % (gjid))
+		self._d("Removing participants: %s" % (participants))
 		idx = self.makeId("remove_group_participants_")
 		self.readerThread.requests[idx] = self.readerThread.parseRemovedParticipants;
 
 		innerNodeChildren = []
 		for part in participants:
-			innerNodeChildren.append( ProtocolTreeNode("participant",{"jid":part}) )
+			innerNodeChildren.append( ProtocolTreeNode("participant", {"jid":part}) )
 
-		queryNode = ProtocolTreeNode("remove",{"xmlns":"w:g"},innerNodeChildren)
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid},[queryNode])
-
+		queryNode = ProtocolTreeNode("remove", {"xmlns": "w:g"},innerNodeChildren)
+		iqNode = ProtocolTreeNode("iq", {"id":idx,"type": "set","to":gjid},[queryNode])
 		self._writeNode(iqNode)
 
 
@@ -571,71 +529,63 @@ class YowsupConnectionManager:
 		self.readerThread.requests[idx] = self.readerThread.parseGroupEnded;
 
 		innerNodeChildren = []
-		innerNodeChildren.append( ProtocolTreeNode("group",{"id":gjid}) )
+		innerNodeChildren.append( ProtocolTreeNode("group", {"id":gjid}) )
 
-		queryNode = ProtocolTreeNode("leave",{"xmlns":"w:g"},innerNodeChildren)
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":"g.us"},[queryNode])
-
+		queryNode = ProtocolTreeNode("leave", {"xmlns": "w:g"},innerNodeChildren)
+		iqNode = ProtocolTreeNode("iq", {"id":idx,"type": "set","to": "g.us"},[queryNode])
 		self._writeNode(iqNode)
 
-	def sendSetGroupSubject(self,gjid,subject):
-		#subject = subject.encode('utf-8')
-		#self._d("setting group subject of " + gjid + " to " + subject)
+	def sendSetGroupSubject(self, gjid, subject):
 		idx = self.makeId("set_group_subject_")
 		self.readerThread.requests[idx] = self.readerThread.parseGroupSubject
 
-		queryNode = ProtocolTreeNode("subject",{"xmlns":"w:g","value":subject})
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid},[queryNode]);
-
+		queryNode = ProtocolTreeNode("subject", {"xmlns": "w:g","value":subject})
+		iqNode = ProtocolTreeNode("iq", {"id":idx,"type": "set","to":gjid},[queryNode]);
 		self._writeNode(iqNode)
 
 
-	def sendGetParticipants(self,jid):
+	def sendGetParticipants(self, jid):
 		idx = self.makeId("get_participants_")
 		self.readerThread.requests[idx] = self.readerThread.parseParticipants
 
-		listNode = ProtocolTreeNode("list",{"xmlns":"w:g"})
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":jid},[listNode]);
-
+		listNode = ProtocolTreeNode("list", {"xmlns": "w:g"})
+		iqNode = ProtocolTreeNode("iq", {"id":idx,"type": "get","to":jid},[listNode]);
 		self._writeNode(iqNode)
 
 
-	def sendGetPicture(self,jid):
-		self._d("GETTING PICTURE FROM " + jid)
-		idx = self.makeId("get_picture_")
+	def sendGetPicture(self, jid):	#@@TODO, ?!
+		self._d("Getting picture from: %s " % (jid))
 
-		#@@TODO, ?!
+		idx = self.makeId("get_picture_")
 		self.readerThread.requests[idx] =  self.readerThread.parseGetPicture
 
-		listNode = ProtocolTreeNode("picture",{"xmlns":"w:profile:picture","type":"image"})
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"to":jid,"type":"get"},[listNode]);
-
+		listNode = ProtocolTreeNode("picture", {"xmlns": "w:profile:picture", "type": "image"})
+		iqNode = ProtocolTreeNode("iq", {"id":idx, "to": jid, "type": "get"}, [listNode]);
 		self._writeNode(iqNode)
 
 
-
-	def sendGetPictureIds(self,jids):
+	def sendGetPictureIds(self, jids):
 		idx = self.makeId("get_picture_ids_")
 		self.readerThread.requests[idx] = self.readerThread.parseGetPictureIds
 
 		innerNodeChildren = []
 		for jid in jids:
-			innerNodeChildren.append( ProtocolTreeNode("user",{"jid": jid}) )
+			innerNodeChildren.append( ProtocolTreeNode("user", {"jid": jid}) )
 
-		queryNode = ProtocolTreeNode("list",{"xmlns":"w:profile:picture"},innerNodeChildren)
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get"},[queryNode])
-
+		queryNode = ProtocolTreeNode("list", {"xmlns": "w:profile:picture"},innerNodeChildren)
+		iqNode = ProtocolTreeNode("iq", {"id":idx,"type": "get"},[queryNode])
 		self._writeNode(iqNode)
 
 
 	def sendGetProfilePicture(self):
 		return self.sendGetPicture(self.jid)
 
+
 	def sendSetProfilePicture(self, filepath):
 		return self.sendSetPicture(self.jid, filepath)
 
-	def sendSetPicture(self, jid, imagePath):
 
+	def sendSetPicture(self, jid, imagePath):
 		f = open(imagePath, 'rb')
 		imageData = f.read()
 		imageData = bytearray(imageData)
@@ -644,10 +594,8 @@ class YowsupConnectionManager:
 		idx = self.makeId("set_picture_")
 		self.readerThread.requests[idx] = self.readerThread.parseSetPicture
 
-		listNode = ProtocolTreeNode("picture",{"xmlns":"w:profile:picture","type":"image"}, None, imageData)
-
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"to":jid,"type":"set"},[listNode])
-
+		listNode = ProtocolTreeNode("picture", {"xmlns": "w:profile:picture","type": "image"}, None, imageData)
+		iqNode = ProtocolTreeNode("iq", {"id":idx,"to":jid,"type": "set"},[listNode])
 		self._writeNode(iqNode)
 
 
@@ -659,21 +607,20 @@ class YowsupConnectionManager:
 		if type(size) is not str:
 			size = str(size)
 
-		attribs = {"xmlns":"w:m","hash":b64Hash, "type":t, "size":size}
+		attribs = {"xmlns": "w:m","hash":b64Hash, "type":t, "size":size}
 
 		if b64OrigHash:
 			attribs["orighash"] = b64OrigHash
 
 		mediaNode = ProtocolTreeNode("media", attribs)
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"to":"s.whatsapp.net","type":"set"},[mediaNode])
-
-
+		iqNode = ProtocolTreeNode("iq", {"id":idx,"to": "s.whatsapp.net","type": "set"},[mediaNode])
 		self._writeNode(iqNode)
+
 
 	def getMessageNode(self, jid, child):
 			requestNode = None;
 			serverNode = ProtocolTreeNode("server",None);
-			xNode = ProtocolTreeNode("x",{"xmlns":"jabber:x:event"},[serverNode]);
+			xNode = ProtocolTreeNode("x", {"xmlns": "jabber:x:event"},[serverNode]);
 			childCount = (0 if requestNode is None else 1) +2;
 			messageChildren = []#[None]*childCount;
 			if requestNode is not None:
@@ -688,42 +635,44 @@ class YowsupConnectionManager:
 
 			msgId = str(int(time.time()))+"-"+ str(self.currKeyId)
 
-			messageNode = ProtocolTreeNode("message",{"to":jid,"type":"chat","id":msgId},messageChildren)
+			messageNode = ProtocolTreeNode("message", {"to":jid,"type": "chat","id": msgId},messageChildren)
 
 			self.currKeyId += 1
-
-
 			return messageNode;
 
 
 class ReaderThread(threading.Thread):
+
 	def __init__(self):
 		Debugger.attach(self);
 
 		self.signalInterface = None
-		#self.socket = connection
 		self.terminateRequested = False
 		self.disconnectedSent = False
 		self.timeout = 180
 		self.selectTimeout = 3
-		self.requests = {};
 		self.lock = threading.Lock()
 		self.disconnectedCallback = None
 		self.autoPong = True
 		self.onPing = self.ping = None
+		self.requests = {};
 
 		self.lastPongTime = int(time.time())
 		super(ReaderThread,self).__init__();
 
 		self.daemon = True
+
+
 	def setSocket(self, connection):
 		self.socket = connection
+
 
 	def setSignalInterface(self, signalInterface):
 		self.signalInterface = signalInterface
 
+
 	def terminate(self):
-		self._d("attempting to exit gracefully")
+		self._d("Attempting to exit gracefully")
 		self.terminateRequested = True
 
 
@@ -737,11 +686,11 @@ class ReaderThread(threading.Thread):
 			self.lock.release()
 			self.signalInterface.send("disconnected", (reason,))
 
+
 	def run(self):
-		self._d("Read thread startedX");
+		self._d("Read thread started");
+
 		while True:
-
-
 			countdown = self.timeout - ((int(time.time()) - self.lastPongTime))
 
 			remainder = countdown % self.selectTimeout
@@ -759,7 +708,6 @@ class ReaderThread(threading.Thread):
 					self.ping()
 
 				self.selectTimeout = 1 if countdown < 11 else 3
-
 
 			try:
 				ready = select.select([self.socket.reader.rawIn], [], [], self.selectTimeout)
@@ -782,7 +730,7 @@ class ReaderThread(threading.Thread):
 					return
 
 				if node is not None:
-					if ProtocolTreeNode.tagEquals(node,"iq"):
+					if ProtocolTreeNode.tagEquals(node, "iq"):
 						iqType = node.getAttributeValue("type")
 						idx = node.getAttributeValue("id")
 
@@ -852,7 +800,7 @@ class ReaderThread(threading.Thread):
 						else:
 							raise Exception("Unkown iq type %s"%(iqType))
 
-					elif ProtocolTreeNode.tagEquals(node,"presence"):
+					elif ProtocolTreeNode.tagEquals(node, "presence"):
 						xmlns = node.getAttributeValue("xmlns")
 						jid = node.getAttributeValue("from")
 
@@ -868,18 +816,15 @@ class ReaderThread(threading.Thread):
 
 							if status == "dirty":
 								#categories = self.parseCategories(node); #@@TODO, send along with signal
-								self._d("WILL SEND DIRTY")
+								self._d("Will send dirty!")
 								self.signalInterface.send("status_dirty")
-								self._d("SENT DIRTY")
 
 					elif ProtocolTreeNode.tagEquals(node,"message"):
 						self.parseMessage(node)
 
-
 		self._d("Reader thread terminating now!")
 
 	def parseOfflineMessageStamp(self,stamp):
-
 		watime = WATime();
 		parsed = watime.parseIso(stamp)
 		local = watime.utcToLocal(parsed)
@@ -893,8 +838,7 @@ class ReaderThread(threading.Thread):
 		self.lastPongTime = int(time.time())
 
 
-
-	def parseLastOnline(self,node):
+	def parseLastOnline(self, node):
 		jid = node.getAttributeValue("from");
 		firstChild = node.getChild(0);
 
@@ -913,7 +857,7 @@ class ReaderThread(threading.Thread):
 			self._d("Ignored exception in handleLastOnline "+ sys.exc_info()[1])
 
 
-	def parseGroups(self,node):
+	def parseGroups(self, node):
 		children = node.getAllChildren("group");
 		for groupNode in children:
 			jid = groupNode.getAttributeValue("id") + "@g.us"
@@ -926,7 +870,7 @@ class ReaderThread(threading.Thread):
 			self.signalInterface.send("group_gotInfo",(jid, owner, subject, subjectOwner, int(subjectT),int(creation)))
 
 
-	def parseGroupInfo(self,node):
+	def parseGroupInfo(self, node):
 		jid = node.getAttributeValue("from");
 		groupNode = node.getChild(0)
 		if "error code" in groupNode.toString():
@@ -958,7 +902,7 @@ class ReaderThread(threading.Thread):
 		self.signalInterface.send("group_addParticipantsSuccess", (jid, jids))
 
 
-	def parseRemovedParticipants(self,node): #fromm, successVector=None,failTable=None
+	def parseRemovedParticipants(self, node): #fromm, successVector=None,failTable=None
 		jid = node.getAttributeValue("from");
 		jids = []
 
@@ -974,7 +918,7 @@ class ReaderThread(threading.Thread):
 
 		self.signalInterface.send("group_removeParticipantsSuccess", (jid, jids))
 
-	def parseGroupCreated(self,node):
+	def parseGroupCreated(self, node):
 		jid = node.getAttributeValue("from");
 		groupNode = node.getChild(0)
 
@@ -987,7 +931,7 @@ class ReaderThread(threading.Thread):
 		group_id = groupNode.getAttributeValue("id")
 		self.signalInterface.send("group_createSuccess", (group_id + "@g.us",))
 
-	def parseGroupEnded(self,node):
+	def parseGroupEnded(self, node):
 		#jid = node.getAttributeValue("from");
 
 		leaveNode = node.getChild(0)
@@ -997,11 +941,11 @@ class ReaderThread(threading.Thread):
 
 		self.signalInterface.send("group_endSuccess", (jid,))
 
-	def parseGroupSubject(self,node):
+	def parseGroupSubject(self, node):
 		jid = node.getAttributeValue("from");
 		self.signalInterface.send("group_setSubjectSuccess", (jid,))
 
-	def parseParticipants(self,node):
+	def parseParticipants(self, node):
 		jid = node.getAttributeValue("from");
 		children = node.getAllChildren("participant");
 		jids = []
@@ -1014,7 +958,6 @@ class ReaderThread(threading.Thread):
 
 
 	def createTmpFile(self, data, mode = "w"):
-
 		tmp = tempfile.mkstemp()[1]
 
 		tmpfile = open(tmp, mode)
@@ -1023,7 +966,7 @@ class ReaderThread(threading.Thread):
 
 		return tmp
 
-	def parseGetPicture(self,node):
+	def parseGetPicture(self, node):
 		jid = node.getAttributeValue("from");
 		if "error code" in node.toString():
 			return;
@@ -1040,7 +983,7 @@ class ReaderThread(threading.Thread):
 				self.signalInterface.send("contact_gotProfilePicture", (jid, pictureId, tmp))
 
 
-	def parseGetPictureIds(self,node):
+	def parseGetPictureIds(self, node):
 		jid = node.getAttributeValue("from");
 		groupNode = node.getChild("list")
 		#self._d(groupNode.toString())
@@ -1053,7 +996,7 @@ class ReaderThread(threading.Thread):
 		#self.signalInterface.send("contact_gotProfilePictureIds", (pids,))
 
 
-	def parseSetPicture(self,node):
+	def parseSetPicture(self, node):
 		jid = node.getAttributeValue("from");
 		picNode = node.getChild("picture")
 
@@ -1074,14 +1017,10 @@ class ReaderThread(threading.Thread):
 
 
 	def parseRequestUpload(self, iqNode, _hash):
-
 		mediaNode = iqNode.getChild("media")
 
-
 		if mediaNode:
-
 			url = mediaNode.getAttributeValue("url")
-
 			resumeFrom = mediaNode.getAttributeValue("resume")
 
 			if not resumeFrom:
@@ -1095,65 +1034,36 @@ class ReaderThread(threading.Thread):
 			duplicateNode = iqNode.getChild("duplicate")
 
 			if duplicateNode:
-
 				url = duplicateNode.getAttributeValue("url")
-
-
 				self.signalInterface.send("media_uploadRequestDuplicate", (_hash, url))
-
 			else:
 				self.signalInterface.send("media_uploadRequestFailed", (_hash,))
 
 
 	def parseMessage(self,messageNode):
-
-
 		bodyNode = messageNode.getChild("body");
 #		offlineNode = messageNode.getChild("offline")
 
-
 		newSubject = "" if bodyNode is None else bodyNode.data;
-		msgData = None
-#		timestamp =long(time.time()*1000) if not offlineNode else int(messageNode.getAttributeValue("t"))*1000;
-		timestamp =int(messageNode.getAttributeValue("t"))
-		isGroup = False
-		isBroadcast = False
-
-		if newSubject.find("New version of WhatsApp Messenger is now available")>-1:
+		if newSubject.find("New version of WhatsApp Messenger is now available") > -1:
 			self._d("Rejecting whatsapp server message")
-			return #REJECT THIS FUCKING MESSAGE!
+			return
 
-
+		msgData = None
+		isBroadcast = False
+		author = messageNode.getAttributeValue("author");
+		msgId = messageNode.getAttributeValue("id");
+		timestamp = int(messageNode.getAttributeValue("t"))
+		typeAttribute = messageNode.getAttributeValue("type");
 		fromAttribute = messageNode.getAttributeValue("from");
 
-		try:
-			fromAttribute.index('-')
-			isGroup = True
-		except:
-			pass
-
-		author = messageNode.getAttributeValue("author");
-		#@@TODO reactivate blocked contacts check from client
-		'''if fromAttribute is not None and fromAttribute in self.eventHandler.blockedContacts:
-			self._d("CONTACT BLOCKED!")
-			return
-
-		if author is not None and author in self.eventHandler.blockedContacts:
-			self._d("CONTACT BLOCKED!")
-			return
-		'''
+		isGroup = "-" in fromAttribute
 
 		pushName = None
-		notifNode = messageNode.getChild("notify")
-		if notifNode is not None:
-			pushName = notifNode.getAttributeValue("name");
-			#pushName = pushName.decode("utf8")
+		notifyNode = messageNode.getChild("notify")
 
-
-		msgId = messageNode.getAttributeValue("id");
-		attribute_t = messageNode.getAttributeValue("t");
-
-		typeAttribute = messageNode.getAttributeValue("type");
+		if notifyNode is not None:
+			pushName = notifyNode.getAttributeValue("name");
 
 		if typeAttribute == "error":
 			errorCode = 0;
@@ -1163,26 +1073,20 @@ class ReaderThread(threading.Thread):
 				try:
 					errorCode = int(codeString);
 				except ValueError:
-					'''catch value error'''
+					pass # TODO catch value error
 				self.signalInterface.send("message_error", (msgId, fromAttribute, errorCode))
 
 		elif typeAttribute == "notification":
-
 			receiptRequested = False;
-			pictureUpdated = None
-
 			pictureUpdated = messageNode.getChild("notification").getAttributeValue("type");
-
-			wr = None
 			wr = messageNode.getChild("request").getAttributeValue("xmlns");
+
 			if wr == "urn:xmpp:receipts":
 				receiptRequested = True
 
 			if pictureUpdated == "picture":
-				notifNode = messageNode.getChild("notification");
-				#bodyNode = messageNode.getChild("notification").getChild("set") or messageNode.getChild("notification").getChild("delete")
-
-				bodyNode = notifNode.getChild("set")
+				notifyNode = messageNode.getChild("notification");
+				bodyNode = notifyNode.getChild("set")
 
 				if bodyNode:
 					pictureId = int(bodyNode.getAttributeValue("id"))
@@ -1192,19 +1096,13 @@ class ReaderThread(threading.Thread):
 						self.signalInterface.send("notification_contactProfilePictureUpdated",(bodyNode.getAttributeValue("jid"), timestamp, msgId, pictureId, receiptRequested))
 
 				else:
-					bodyNode = notifNode.getChild("delete")
+					bodyNode = notifyNode.getChild("delete")
 
 					if bodyNode:
 						if isGroup:
 							self.signalInterface.send("notification_groupPictureRemoved",(bodyNode.getAttributeValue("jid"), bodyNode.getAttributeValue("author"), timestamp, msgId, receiptRequested))
 						else:
 							self.signalInterface.send("notification_contactProfilePictureRemoved",(bodyNode.getAttributeValue("jid"), timestamp, msgId, receiptRequested))
-
-				#if isGroup:
-				#
-				#	self.signalInterface.send("notification_groupPictureUpdated",(bodyNode.getAttributeValue("jid"), bodyNode.getAttributeValue("author"), timestamp, msgId, receiptRequested))
-				#else:
-				#	self.signalInterface.send("notification_contactProfilePictureUpdated",(bodyNode.getAttributeValue("jid"), timestamp, msgId, receiptRequested))
 
 			else:
 				addSubject = None
@@ -1222,12 +1120,10 @@ class ReaderThread(threading.Thread):
 					author = bodyNode.getAttributeValue("author") or removeSubject
 
 				if addSubject is not None:
-
 					self.signalInterface.send("notification_groupParticipantAdded", (fromAttribute, addSubject, author, timestamp, msgId, receiptRequested))
 
 				if removeSubject is not None:
 					self.signalInterface.send("notification_groupParticipantRemoved", (fromAttribute, removeSubject, author, timestamp, msgId, receiptRequested))
-
 
 		elif typeAttribute == "subject":
 			receiptRequested = False;
@@ -1240,7 +1136,7 @@ class ReaderThread(threading.Thread):
 			newSubject = None if bodyNode is None else (bodyNode.data if sys.version_info < (3, 0) else bodyNode.data.encode('latin-1').decode());
 
 			if newSubject is not None:
-				self.signalInterface.send("group_subjectReceived",(msgId, fromAttribute, author, newSubject, int(attribute_t),  receiptRequested))
+				self.signalInterface.send("group_subjectReceived", (msgId, fromAttribute, author, newSubject, timestamp,  receiptRequested))
 
 		elif typeAttribute == "chat":
 			wantsReceipt = False;
@@ -1252,21 +1148,21 @@ class ReaderThread(threading.Thread):
 
 				if ProtocolTreeNode.tagEquals(childNode,"broadcast"):
 					isBroadcast = True
+
 				elif ProtocolTreeNode.tagEquals(childNode,"composing"):
-						self.signalInterface.send("contact_typing", (fromAttribute,))
+					self.signalInterface.send("contact_typing", (fromAttribute,))
+
 				elif ProtocolTreeNode.tagEquals(childNode,"paused"):
-						self.signalInterface.send("contact_paused",(fromAttribute,))
+					self.signalInterface.send("contact_paused",(fromAttribute,))
 
 				elif ProtocolTreeNode.tagEquals(childNode,"media") and msgId is not None:
-
-					self._d("MULTIMEDIA MESSAGE!");
+					self._d("Receiving multimedia message");
 
 					mediaUrl = messageNode.getChild("media").getAttributeValue("url");
 					mediaType = messageNode.getChild("media").getAttributeValue("type")
 					mediaSize = messageNode.getChild("media").getAttributeValue("size")
 					encoding = messageNode.getChild("media").getAttributeValue("encoding")
 					mediaPreview = None
-
 
 					if mediaType == "image":
 						mediaPreview = messageNode.getChild("media").data
@@ -1317,8 +1213,6 @@ class ReaderThread(threading.Thread):
 							self.signalInterface.send("location_received", (msgId, fromAttribute, name or "", mediaPreview, mlatitude, mlongitude, wantsReceipt, isBroadcast))
 
 					elif mediaType =="vcard":
-						#return
-						#mediaItem.preview = messageNode.getChild("media").data
 						vcardData = messageNode.getChild("media").getChild("vcard").toString()
 						vcardName = messageNode.getChild("media").getChild("vcard").getAttributeValue("name")
 
@@ -1342,19 +1236,13 @@ class ReaderThread(threading.Thread):
 				elif ProtocolTreeNode.tagEquals(childNode,"body") and msgId is not None:
 					msgData = childNode.data;
 
-					#fmsg.setData({"status":0,"key":key.toString(),"content":msgdata,"type":WAXMPP.message_store.store.Message.TYPE_RECEIVED});
-
 				elif ProtocolTreeNode.tagEquals(childNode,"received") and fromAttribute is not None and msgId is not None:
 
 					if fromAttribute == "s.us":
 						self.signalInterface.send("profile_setStatusSuccess", ("s.us", msgId,))
 						return;
 
-					#@@TODO autosend ack from client
-					#print "NEW MESSAGE RECEIVED NOTIFICATION!!!"
-					#self.connection.sendDeliveredReceiptAck(fromAttribute,msg_id);
 					self.signalInterface.send("receipt_messageDelivered", (fromAttribute, msgId))
-
 					return
 
 
@@ -1364,7 +1252,6 @@ class ReaderThread(threading.Thread):
 
 					elif ProtocolTreeNode.tagEquals(childNode,"notify"):
 						notify_name = childNode.getAttributeValue("name");
-
 
 					elif ProtocolTreeNode.tagEquals(childNode,"delay"):
 						xmlns = childNode.getAttributeValue("xmlns");
@@ -1393,43 +1280,16 @@ class ReaderThread(threading.Thread):
 						if ProtocolTreeNode.tagEquals(childNode,"delay") or not ProtocolTreeNode.tagEquals(childNode,"received") or msgId is None:
 							continue;
 
-
 							receipt_type = childNode.getAttributeValue("type");
 							if receipt_type is None or receipt_type == "delivered":
 								self.signalInterface.send("receipt_messageDelivered", (fromAttribute, msgId))
 							elif receipt_type == "visible":
 								self.signalInterface.send("receipt_visible", (fromAttribute, msgId))
 
-
-
-
-
 			if msgData:
 				msgData = msgData if sys.version_info < (3, 0) else msgData.encode('latin-1').decode()
 				if isGroup:
 					self.signalInterface.send("group_messageReceived", (msgId, fromAttribute, author, msgData, timestamp, wantsReceipt, pushName))
-
 				else:
 					self.signalInterface.send("message_received", (msgId, fromAttribute, msgData, timestamp, wantsReceipt, pushName, isBroadcast))
-
-				##@@TODO FROM CLIENT
-				'''if conversation.type == "group":
-					if conversation.subject is None:
-						signal = False
-						self._d("GETTING GROUP INFO")
-						self.connection.sendGetGroupInfo(fromAttribute)
-				'''
-					#if not len(conversation.getContacts()):
-					#	self._d("GETTING GROUP CONTACTS")
-					#	self.connection.sendGetParticipants(fromAttribute)
-
-				'''@@TODO FROM CLIENT
-				if ret is None:
-					conversation.incrementNew();
-					WAXMPP.message_store.pushMessage(fromAttribute,fmsg)
-					fmsg.key = key
-				else:
-					fmsg.key = eval(ret.key)
-					duplicate = True;
-				'''
 
