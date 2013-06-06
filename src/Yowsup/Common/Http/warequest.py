@@ -45,7 +45,10 @@ class WARequest(object):
 				"PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk" + "1359594496554{phone}"),
 				
 			("WhatsApp/2.4.22 S40Version/14.26 Device/Nokia302",
-				"PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk" + "1366850357035{phone}")
+				"PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk" + "1366850357035{phone}"),
+
+			("WhatsApp/2.9.4 WP7/7.10.8858 Device/HTC-HTC-H0002", 
+        "Od52pFozHNWF9XbTN5lrqDtnsiZGL2G3l9yw1GiQ"+"21a31a2d9dbdc9a8ce324ef2df918064fd26e30a{phone}")
 		]
 	
 	OK = 200
@@ -53,7 +56,7 @@ class WARequest(object):
 	def __init__(self):
 		WADebug.attach(self)
 		
-		self.uaIndex = 3;
+		self.uaIndex = 4;
 		self.pvars = [];
 		self.port = 443;
 		self.type = "GET"
