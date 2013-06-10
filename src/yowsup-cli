@@ -40,7 +40,10 @@ from Yowsup.Registration.v2.coderequest import WACodeRequest as WACodeRequestV2
 from Yowsup.Registration.v2.regrequest import WARegRequest as WARegRequestV2
 from Yowsup.Contacts.contacts import WAContactsSyncRequest
 
-import threading,time, base64
+import threading
+import time
+import base64
+import logging
 
 DEFAULT_CONFIG = os.path.expanduser("~")+"/.yowsup/auth"
 COUNTRIES_CSV = "countries.csv"
@@ -311,9 +314,12 @@ else:
 			wsync = WAContactsSyncRequest(login, password, contacts)
 			
 			print("Syncing %s contacts" % len(contacts))
+
 			result = wsync.send()
+			result = filter(lambda c: c['w'], result['c'])
 			
-			print(resultToString(result))
+			for row in result:
+				print "%s\t%s\t%d" % (row['n'], row['s'], row['t'])
 
 	elif args["dbus"]:
             startDbusInterface()
