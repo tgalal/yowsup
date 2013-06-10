@@ -22,6 +22,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import urllib
 import sys
 import hashlib
+import logging
 
 if sys.version_info < (3, 0):
 	import httplib
@@ -184,15 +185,15 @@ class WARequest(object):
 
 		path = path + "?"+ params if reqType == "GET" and params else path
 
-		self.logger.debug(reqType)
-		self.logger.debug(headers);
-		self.logger.debug(params);
+		logging.debug(reqType)
+		logging.debug(headers);
+		logging.debug(params);
 
-		self.logger.debug("Opening connection to %s" % host);
+		logging.debug("Opening connection to %s" % host);
 
 		conn = httplib.HTTPSConnection(host ,port) if port == 443 else httplib.HTTPConnection(host ,port)
 
-		self.logger.debug("Requesting %s" % path)
+		logging.debug("Requesting %s" % path)
 		conn.request(reqType, path, params, headers);
 
 		response = conn.getresponse()

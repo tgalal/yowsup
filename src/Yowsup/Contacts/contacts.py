@@ -55,7 +55,7 @@ class WAContactsSyncRequest():
 
 		respH = response.getheader("www-authenticate")
 
-		self.authReq._d(respH)
+		self.authReq.logger.debug(respH)
 
 		tmp = respH[respH.index('nonce="') + len('nonce="'):]
 		nonce = tmp[:tmp.index('"')]
@@ -65,7 +65,6 @@ class WAContactsSyncRequest():
 		resp = q.send()
 
 		return resp
-
 
 
 class WAContactsSyncAuth(WARequest):

@@ -28,7 +28,6 @@ __license__ = "MIT"
 
 import argparse, sys, os, csv
 from Yowsup.Common.utilities import Utilities
-from Yowsup.Common.debugger import Debugger
 from Yowsup.Common.constants import Constants
 from Examples.CmdClient import WhatsappCmdClient
 from Examples.EchoClient import WhatsappEchoClient
@@ -237,8 +236,11 @@ else:
 			if not dissected:
 					sys.exit("ERROR. Couldn't detect cc, you have to manually place it your config")
 			countryCode, phoneNumber = dissected
-				
-		Debugger.enabled = args['debug']
+
+		logging.basicConfig( \
+			format = "%(asctime)-15s %(levelname)s %(name)s: %(message)s", \
+			level = logging.DEBUG if args['debug'] else logging.INFO \
+		)
 
 		if args["interactive"]:
 			val = args["interactive"]
