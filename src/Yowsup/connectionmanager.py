@@ -701,10 +701,10 @@ class ReaderThread(threading.Thread):
 				self.sendDisconnected("closed")
 				return
 			else:
-				if countdown % (self.selectTimeout*10) == 0 or countdown < 11:
+				if countdown < 11 or (countdown != self.timeout and countdown % (self.selectTimeout*10) == 0):
 					self.logger.debug("Waiting, time to die: T-%i seconds", countdown)
 
-				if self.timeout-countdown == 150 and self.ping and self.autoPong:
+				if self.timeout - countdown == 150 and self.ping and self.autoPong:
 					self.ping()
 
 				self.selectTimeout = 1 if countdown < 11 else 3
