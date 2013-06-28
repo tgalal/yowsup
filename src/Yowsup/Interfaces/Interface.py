@@ -1,40 +1,39 @@
 '''
 Copyright (c) <2012> Tarek Galal <tare2.galal@gmail.com>
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this 
-software and associated documentation files (the "Software"), to deal in the Software 
-without restriction, including without limitation the rights to use, copy, modify, 
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and to 
-permit persons to whom the Software is furnished to do so, subject to the following 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this
+software and associated documentation files (the "Software"), to deal in the Software
+without restriction, including without limitation the rights to use, copy, modify,
+merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to the following
 conditions:
 
-The above copyright notice and this permission notice shall be included in all 
+The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR 
-A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
-CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-
 import threading
+
 class SignalInterfaceBase(object):
 
-	signals = [	
-			
+	signals = [
 			"auth_success",
 			"auth_fail",
-			
+
 			"message_received", #k
 			"image_received",
 			"vcard_received",
 			"video_received",
 			"audio_received",
 			"location_received",
-			
+
 			"message_error",
 
 			"receipt_messageSent", #k
@@ -46,7 +45,7 @@ class SignalInterfaceBase(object):
 			"presence_updated", #k
 			"presence_available", #k
 			"presence_unavailable", #k
-			
+
 			"group_subjectReceived",
 			"group_createSuccess",
 			"group_createFail",
@@ -66,8 +65,8 @@ class SignalInterfaceBase(object):
 			"group_setPictureSuccess",
 			"group_setPictureError",
 			"group_gotPicture",
-			"group_gotGroups",			
-			
+			"group_gotGroups",
+
 			"notification_contactProfilePictureUpdated",
 			"notification_contactProfilePictureRemoved",
 			"notification_groupPictureUpdated",
@@ -79,7 +78,7 @@ class SignalInterfaceBase(object):
 			"contact_gotProfilePicture",
 			"contact_typing",
 			"contact_paused",
-			
+
 			"profile_setPictureSuccess",
 			"profile_setPictureError",
 			"profile_setStatusSuccess",
@@ -87,15 +86,15 @@ class SignalInterfaceBase(object):
 			"ping",
 			"pong",
 			"disconnected",
-			
+
 			"media_uploadRequestSuccess",
 			"media_uploadRequestFailed",
 			"media_uploadRequestDuplicate"
 		]
-	
+
 	def __init__(self):#@@TODO unified naming pattern
 		self.registeredSignals = {}
-	
+
 	def getSignals(self):
 		return self.signals
 
@@ -105,20 +104,17 @@ class SignalInterfaceBase(object):
 				self.registeredSignals[signalName].append(callback)
 			else:
 				self.registeredSignals[signalName] = [callback]
-				
+
 	def _sendAsync(self, signalName, args=()):
-		#print "Sending signal %s" % signalName
 		listeners = self.getListeners(signalName)
 		for l in listeners:
 			threading.Thread(target = l, args = args).start()
 
 	def send(self, signalName, args = ()):
 		self._sendAsync(signalName, args)
-	
+
 	def getListeners(self, signalName):
 		if self.hasSignal(signalName):
-			
-			
 			try:
 				self.registeredSignals[signalName]
 				return self.registeredSignals[signalName]
@@ -133,7 +129,7 @@ class SignalInterfaceBase(object):
 			return True
 		except KeyError:
 			return False
-	
+
 	def hasSignal(self, signalName):
 		try:
 			self.signals.index(signalName)
@@ -144,7 +140,7 @@ class SignalInterfaceBase(object):
 
 class MethodInterfaceBase(object):
 
-	methods = [	
+	methods = [
 			"getVersion",
 
 			"auth_login",
@@ -195,26 +191,23 @@ class MethodInterfaceBase(object):
 			"presence_sendAvailableForChat", #B
 			"presence_sendAvailable", #B
 			"presence_sendUnavailable", #B
-			
+
 			"profile_getPicture",
 			"profile_setPicture",
 			"profile_setStatus",
 
-			
+
 			"ready",
 			"disconnect",
-			
+
 			"message_broadcast",
-			
+
 			"media_requestUpload"
 			]
 	def __init__(self):
 		self.registeredMethods = {}
 
-
 	def call(self, methodName, params=()):
-		#print "SHOULD CALL"
-		#print methodName
 		callback = self.getCallback(methodName)
 		if callback:
 			return callback(*params)
@@ -236,7 +229,7 @@ class MethodInterfaceBase(object):
 			return True
 		except KeyError:
 			return False
-	
+
 	def registerCallback(self, methodName, callback):
 		if self.hasMethod(methodName):
 			self.registeredMethods[methodName] = callback
