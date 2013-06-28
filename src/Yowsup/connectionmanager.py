@@ -143,7 +143,7 @@ class YowsupConnectionManager:
 		self.methodInterface.registerCallback("status_update",self.sendChangeStatus)
 
 		self.methodInterface.registerCallback("presence_request",self.getLastOnline)
-		#self.methodInterface.registerCallback("presence_unsubscribe",self.sendUnsubscribe)#@@TODO implement method
+		self.methodInterface.registerCallback("presence_unsubscribe",self.sendUnsubscribe)
 		self.methodInterface.registerCallback("presence_subscribe",self.sendSubscribe)
 		self.methodInterface.registerCallback("presence_sendAvailableForChat",self.sendAvailableForChat)
 		self.methodInterface.registerCallback("presence_sendAvailable",self.sendAvailable)
@@ -376,6 +376,11 @@ class YowsupConnectionManager:
 
 	def sendSubscribe(self, to):
 		presenceNode = ProtocolTreeNode("presence", {"type": "subscribe", "to": to});
+		self._writeNode(presenceNode);
+
+
+	def sendUnsubscribe(self, to):
+		presenceNode = ProtocolTreeNode("presence", {"type": "unsubscribe", "to": to});
 		self._writeNode(presenceNode);
 
 
