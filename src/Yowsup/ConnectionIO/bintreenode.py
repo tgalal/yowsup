@@ -171,12 +171,12 @@ class BinTreeNodeReader():
 		self.readStanza();
 
 		ret = self.nextTreeInternal();
-#		self.logger.debug("Incoming")
-#		if ret is not None:
-#			if '<picture type="' in ret.toString():
-#				self.logger.debug("<Picture!!!>");
-#			else:
-#				self.logger.debug("\n%s"%ret.toString());
+		self.logger.debug("Incoming")
+		if ret is not None:
+			if '<picture type="' in ret.toString():
+				self.logger.debug("<Picture!!!>");
+			else:
+				self.logger.debug("\n%s"%ret.toString());
 		return ret;
 
 	def fillBuffer(self,stanzaSize):
@@ -276,8 +276,8 @@ class BinTreeNodeWriter():
 		if node is None:
 			self.out.write(0);
 		else:
-#			self.logger.debug("Outgoing");
-#			self.logger.debug("\n%s" % node.toString());
+			self.logger.debug("Outgoing");
+			self.logger.debug("\n%s" % node.toString());
 			self.writeInternal(node);
 
 		self.flushBuffer(needsFlush);
@@ -315,7 +315,6 @@ class BinTreeNodeWriter():
 			self.out.buf = prep
 
 	def flushBuffer(self, flushNetwork):
-		'''define flush buffer here '''
 		self.processBuffer()
 
 		size = len(self.out.getBuffer());
@@ -333,8 +332,6 @@ class BinTreeNodeWriter():
 			self.realOut.flush();
 
 	def writeInternal(self,node):
-		'''define write internal here'''
-
 		x = 1 + (0 if node.attributes is None else len(node.attributes) * 2) + (0 if node.children is None else 1) + (0 if node.data is None else 1);
 
 		self.writeListStart(1 + (0 if node.attributes is None else len(node.attributes) * 2) + (0 if node.children is None else 1) + (0 if node.data is None else 1));
@@ -395,7 +392,6 @@ class BinTreeNodeWriter():
 
 
 	def writeListStart(self,i):
-		#Utilities.debug("list start "+str(i));
 		if i == 0:
 			self.out.write(0)
 		elif i < 256:
