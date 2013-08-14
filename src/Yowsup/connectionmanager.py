@@ -1031,7 +1031,7 @@ class ReaderThread(threading.Thread):
 
 		pictureNode = node.getChild("picture")
 		if pictureNode.data is not None:
-			tmp = self.createTmpFile(pictureNode.data.encode('latin-1'), "wb")
+			tmp = self.createTmpFile(pictureNode.data if sys.version_info < (3, 0) else pictureNode.data.encode('latin-1'), "wb")
 
 			pictureId = int(pictureNode.getAttributeValue('id'))
 			try:
