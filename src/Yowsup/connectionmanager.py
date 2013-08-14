@@ -498,6 +498,7 @@ class YowsupConnectionManager:
 		self._writeNode(iqNode);
 
 
+	# gtype should be either "participating" or "owning"
 	def sendGetGroups(self,gtype):
 		self._d("getting groups %s"%(gtype))
 		idx = self.makeId("get_groups_")
@@ -1031,7 +1032,7 @@ class ReaderThread(threading.Thread):
 
 		pictureNode = node.getChild("picture")
 		if pictureNode.data is not None:
-			tmp = self.createTmpFile(pictureNode.data.encode('latin-1'), "wb")
+			tmp = self.createTmpFile(pictureNode.data if sys.version_info < (3, 0) else pictureNode.data.encode('latin-1'), "wb")
 
 			pictureId = int(pictureNode.getAttributeValue('id'))
 			try:
