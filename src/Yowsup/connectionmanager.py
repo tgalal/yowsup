@@ -498,6 +498,7 @@ class YowsupConnectionManager:
 		self._writeNode(iqNode);
 
 
+	# gtype should be either "participating" or "owning"
 	def sendGetGroups(self,gtype):
 		self._d("getting groups %s"%(gtype))
 		idx = self.makeId("get_groups_")
