@@ -704,7 +704,7 @@ class ReaderThread(threading.Thread):
 		#self.socket = connection
 		self.terminateRequested = False
 		self.disconnectedSent = False
-		self.timeout = 180
+		self.timeout = 50
 		self.selectTimeout = 3
 		self.requests = {};
 		self.lock = threading.Lock()
@@ -755,7 +755,7 @@ class ReaderThread(threading.Thread):
 				if countdown % (self.selectTimeout*10) == 0 or countdown < 11:
 					self._d("Waiting, time to die: T-%i seconds" % countdown )
 					
-				if self.timeout-countdown == 150 and self.ping and self.autoPong:
+				if countdown < 20 and self.autoPong:
 					self.ping()
 
 				self.selectTimeout = 1 if countdown < 11 else 3
