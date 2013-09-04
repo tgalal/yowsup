@@ -177,6 +177,7 @@ class MethodInterfaceBase(object):
 			"group_getInfo",
 			"group_create",
 			"group_addParticipants",
+                        "group_addParticipant",
 			"group_removeParticipants",
 			"group_end",
 			"group_setSubject",
@@ -213,8 +214,8 @@ class MethodInterfaceBase(object):
 
 
 	def call(self, methodName, params=()):
-		#print "SHOULD CALL"
-		#print methodName
+		print "SHOULD CALL"
+		print methodName
 		callback = self.getCallback(methodName)
 		if callback:
 			return callback(*params)
