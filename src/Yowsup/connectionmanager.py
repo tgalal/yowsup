@@ -135,6 +135,7 @@ class YowsupConnectionManager:
 		self.methodInterface.registerCallback("group_getInfo",self.sendGetGroupInfo)
 		self.methodInterface.registerCallback("group_create",self.sendCreateGroupChat)
 		self.methodInterface.registerCallback("group_addParticipants",self.sendAddParticipants)
+                self.methodInterface.registerCallback("group_addParticipant",self.sendAddParticipant)
 		self.methodInterface.registerCallback("group_removeParticipants",self.sendRemoveParticipants)
 		self.methodInterface.registerCallback("group_end",self.sendEndGroupChat)
 		self.methodInterface.registerCallback("group_setSubject",self.sendSetGroupSubject)
@@ -548,6 +549,19 @@ class YowsupConnectionManager:
 
 		self._writeNode(iqNode)
 
+        def sendAddParticipant(self, gjid, participants):
+                self._d("opening group: %s"%(gjid))
+                self._d("adding participants: %s"%(participants))
+                idx = self.makeId("add_group_participants_")
+                self.readerThread.requests[idx] = self.readerThread.parseAddedParticipants;
+                innerNodeChildren = []
+                
+                innerNodeChildren.append( ProtocolTreeNode("participant",{"jid":participants}) )
+                
+                queryNode = ProtocolTreeNode("add",{"xmlns":"w:g"},innerNodeChildren)
+                iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid},[queryNode])
+
+                self._writeNode(iqNode)
 
 	def sendRemoveParticipants(self,gjid, participants):
 		self._d("opening group: %s"%(gjid))
@@ -704,7 +718,7 @@ class ReaderThread(threading.Thread):
 		#self.socket = connection
 		self.terminateRequested = False
 		self.disconnectedSent = False
-		self.timeout = 180
+		self.timeout = 50
 		self.selectTimeout = 3
 		self.requests = {};
 		self.lock = threading.Lock()
@@ -755,7 +769,7 @@ class ReaderThread(threading.Thread):
 				if countdown % (self.selectTimeout*10) == 0 or countdown < 11:
 					self._d("Waiting, time to die: T-%i seconds" % countdown )
 					
-				if self.timeout-countdown == 150 and self.ping and self.autoPong:
+				if countdown < 20 and self.autoPong:
 					self.ping()
 
 				self.selectTimeout = 1 if countdown < 11 else 3
