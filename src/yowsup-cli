@@ -98,11 +98,12 @@ def startDbusInterface():
 
 
 def resultToString(result):
+	unistr = str if sys.version_info >= (3, 0) else unicode
 	out = []
 	for k, v in result.items():
 		if v is None:
 			continue
-		out.append("%s: %s" %(k, v))
+		out.append("%s: %s" %(k, v.encode("utf-8") if type(v) is unistr else v))
 		
 	return "\n".join(out)
 
