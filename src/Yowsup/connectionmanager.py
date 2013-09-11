@@ -22,6 +22,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from Yowsup.ConnectionIO.protocoltreenode import ProtocolTreeNode
 from Yowsup.ConnectionIO.ioexceptions import ConnectionClosedException
 from Yowsup.ConnectionIO.connectionengine import ConnectionEngine
+from Yowsup.Common.utilities import Utilities
 
 from Yowsup.Common.debugger import Debugger
 import threading, select, time
@@ -238,7 +239,9 @@ class YowsupConnectionManager:
 			yAuth = YowsupAuth(ConnectionEngine())
 			try:
 				self.state = 1
-				connection = yAuth.authenticate(username, password, Constants.domain, Constants.resource)
+				tokenData = Utilities.readToken()
+				resource = tokenData["r"] if tokenData else Constants.tokenData["r"]
+				connection = yAuth.authenticate(username, password, Constants.domain, resource)
 			except socket.gaierror:
 				self._d("DNS ERROR")
 				self.readerThread.sendDisconnected("dns")
