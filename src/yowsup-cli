@@ -22,7 +22,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 __author__ = "Tarek Galal"
-__version__ = "0.4"
+__version__ = "0.41"
 __email__ = "tare2.galal@gmail.com"
 __license__ = "MIT"
 
