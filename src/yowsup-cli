@@ -33,6 +33,7 @@ from Yowsup.Common.constants import Constants
 from Examples.CmdClient import WhatsappCmdClient
 from Examples.EchoClient import WhatsappEchoClient
 from Examples.ListenerClient import WhatsappListenerClient
+from Examples.GtkClient import WhatsappGtkClient
 from Yowsup.Registration.v2.existsrequest import WAExistsRequest as WAExistsRequestV2
 from Yowsup.Registration.v2.coderequest import WACodeRequest as WACodeRequestV2
 from Yowsup.Registration.v2.regrequest import WARegRequest as WARegRequestV2
@@ -171,6 +172,7 @@ modes = clientsGroup.add_mutually_exclusive_group()
 modes.add_argument('-l','--listen', help='Listen to messages', action="store_true", required=False, default=False)
 modes.add_argument('-s','--send', help="Send message to phone number and close connection. Phone is full number including country code, without '+' or '00'", action="store",  nargs=2, metavar=('<phone>','<message>'), required=False)
 modes.add_argument('-i','--interactive', help="Start an interactive conversation with a contact. Phone is full number including country code, without '+' or '00'", action="store", metavar='<phone>', required=False)
+modes.add_argument('-g','--gtk', help='Start an interactive conversation with a contact like --interactive but using GTK interface', action="store", metavar='<phone>', required=False)
 modes.add_argument('-b','--broadcast', help="Broadcast message to multiple recepients, comma seperated", action="store", nargs=2, metavar=('<jids>', '<message>'), required=False)
 
 #modes.add_argument('-b','--bot', help='Bot', action="store_true", required=False, default=False)
@@ -245,6 +247,11 @@ else:
 			val = args["interactive"]
 			wa = WhatsappCmdClient(val, args['keepalive'] ,args['autoack'])
 			wa.login(login, password)
+		elif args['gtk']:
+			val = args["gtk"]
+			wa = WhatsappGtkClient(val, args['keepalive'], args['autoack'])
+			Debugger.cb = wa.write_to_debug_buffer
+			wa.login(login, password)
 		elif args['send']:
 			phone = args["send"][0]
 			message = args["send"][1]
@@ -303,11 +310,11 @@ else:
 			
 			print(resultToString(result))
 
-	elif args["dbus"]:
-            startDbusInterface()
-	elif args["generatepassword"]:
-		print(Utilities.processIdentity(args["generatepassword"]));
-	elif args["decodestring"]:
-		print(Utilities.decodeString(map(int, "".join(args["decodestring"].split(' ')).split(','))))
-	else:
-		print("Error: config file is invalid")
+		elif args["dbus"]:
+			startDbusInterface()
+		elif args["generatepassword"]:
+			print(Utilities.processIdentity(args["generatepassword"]));
+		elif args["decodestring"]:
+			print(Utilities.decodeString(map(int, "".join(args["decodestring"].split(' ')).split(','))))
+		else:
+			print("Error: config file is invalid")

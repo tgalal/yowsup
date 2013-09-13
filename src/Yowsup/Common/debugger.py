@@ -23,6 +23,7 @@ import time
 
 class Debugger():
 	enabled = True
+	cb = None
 	def __init__(self):
 		
 		cname = self.__class__.__name__
@@ -56,7 +57,10 @@ class Debugger():
 	
 	def debug(self,message):
 		if Debugger.enabled:
-			Debugger.stdDebug(self.formatMessage(message),self.type)
+			if self.cb:
+				self.cb(message, self.type)
+			else:
+				Debugger.stdDebug(self.formatMessage(message),self.type)
 		
 	def d(self,message):
 		self.debug(message)
