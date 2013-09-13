@@ -250,6 +250,7 @@ else:
 		elif args['gtk']:
 			val = args["gtk"]
 			wa = WhatsappGtkClient(val, args['keepalive'], args['autoack'])
+			Debugger.enabled = True
 			Debugger.cb = wa.write_to_debug_buffer
 			wa.login(login, password)
 		elif args['send']:
