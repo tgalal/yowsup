@@ -49,12 +49,17 @@ class WhatsappCmdClient:
 		
 		self.commandMappings = {"lastseen":lambda: self.methodsInterface.call("presence_request", ( self.jid,)),
 								"available": lambda: self.methodsInterface.call("presence_sendAvailable"),
-								"unavailable": lambda: self.methodsInterface.call("presence_sendUnavailable")
+								"unavailable": lambda: self.methodsInterface.call("presence_sendUnavailable"),
+								"quit": lambda: self.stop_loop()
 								 }
 		
 		self.done = False
+		self.run_loop = True
 		#signalsInterface.registerListener("receipt_messageDelivered", lambda jid, messageId: methodsInterface.call("delivered_ack", (jid, messageId)))
 	
+	def stop_loop(self):
+		self.run_loop = False
+
 	def login(self, username, password):
 		self.username = username
 		self.methodsInterface.call("auth_login", (username, password))
@@ -108,7 +113,7 @@ class WhatsappCmdClient:
 		print("Starting Interactive chat with %s" % jid)
 		jid = "%s@s.whatsapp.net" % jid
 		print(self.getPrompt())
-		while True:
+		while self.run_loop:
 			message = raw_input()
 			message = message.strip()
 			if not len(message):
