@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 '''
 Copyright (c) <2012> Tarek Galal <tare2.galal@gmail.com>
@@ -303,8 +303,8 @@ else:
 			
 			print(resultToString(result))
 
-	elif args["dbus"]:
-            startDbusInterface()
+	#elif args["dbus"]:
+    #        startDbusInterface()
 	elif args["generatepassword"]:
 		print(Utilities.processIdentity(args["generatepassword"]));
 	elif args["decodestring"]:
