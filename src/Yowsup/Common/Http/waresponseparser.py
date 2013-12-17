@@ -21,6 +21,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import json, sys
 from xml.dom import minidom
+import plistlib
 
 class ResponseParser(object):
 	def __init__(self):
@@ -54,7 +55,7 @@ class XMLResponseParser(ResponseParser):
 		try:
 			import libxml2
 		except ImportError:
-			print "libxml2 XMLResponseParser requires libxml2"
+			print("libxml2 XMLResponseParser requires libxml2")
 			sys.exit(1)
 
 		self.meta = "text/xml";
@@ -79,7 +80,7 @@ class XMLResponseParser(ResponseParser):
 				elif r.type == 'attribute':
 					vals[k].append(r.content)
 				else:
-					print "UNKNOWN TYPE"
+					print("UNKNOWN TYPE")
 			
 			if len(vals[k]) == 1:
 				vals[k] = vals[k][0]
@@ -109,7 +110,7 @@ class XMLResponseParser(ResponseParser):
 				curr["__TEXT__"] = n.data
 				continue
 			
-			if not curr.has_key(n.nodeName):
+			if not n.nodeName in curr:
 				curr[n.nodeName] = []
 
 			if len(xmlNode.getElementsByTagName(n.nodeName)) > 1:
@@ -143,7 +144,7 @@ class JSONResponseParser(ResponseParser):
 			
 		currKey = keys[0]
 		
-		if(d.has_key(currKey)):
+		if(currKey in d):
 			item = d[currKey]
 			
 			if len(keys) == 1:
@@ -161,4 +162,25 @@ class JSONResponseParser(ResponseParser):
 			
 			else:
 				return None
+
+class PListResponseParser(ResponseParser):
+	def __init__(self):
+		self.meta = "text/xml"
 	
+	def parse(self, xml, pvars):
+		
+		#tmp = minidom.parseString(xml)
+		
+		if sys.version_info >= (3, 0):
+			pl = plistlib.readPlistFromBytes(xml.encode());
+		else:
+			pl = plistlib.readPlistFromString(xml);
+		
+		parsed= {}
+		pvars = self.getVars(pvars)
+		
+		for k,v in pvars.items():
+			parsed[k] = pl[k] if  k in pl else None
+		
+		return parsed;
+		

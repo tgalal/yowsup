@@ -28,12 +28,14 @@ from Yowsup.connectionmanager import YowsupConnectionManager
 
 class WhatsappEchoClient:
 	
-	def __init__(self, phoneNumber, message, waitForReceipt=False):
+	def __init__(self, target, message, waitForReceipt=False):
 		
-		if '-' in phoneNumber:
-			self.jid = "%s@g.us" % phoneNumber
+		self.jids = []
+		
+		if '-' in target:
+			self.jids = ["%s@g.us" % target]
 		else:
-			self.jid = "%s@s.whatsapp.net" % phoneNumber
+			self.jids = ["%s@s.whatsapp.net" % t for t in target.split(',')]
 
 		self.message = message
 		self.waitForReceipt = waitForReceipt
@@ -59,13 +61,17 @@ class WhatsappEchoClient:
 			time.sleep(0.5)
 
 	def onAuthSuccess(self, username):
-		print "Authed %s" % username
+		print("Authed %s" % username)
 
 		if self.waitForReceipt:
 			self.methodsInterface.call("ready")
-
-		self.methodsInterface.call("message_send", (self.jid, self.message))
-		print "Sent message"
+		
+		
+		if len(self.jids) > 1:
+			self.methodsInterface.call("message_broadcast", (self.jids, self.message))
+		else:
+			self.methodsInterface.call("message_send", (self.jids[0], self.message))
+		print("Sent message")
 		if self.waitForReceipt:
 			timeout = 5
 			t = 0;
@@ -74,17 +80,17 @@ class WhatsappEchoClient:
 				t+=1
 
 			if not self.gotReceipt:
-				print "print timedout!"
+				print("print timedout!")
 			else:
-				print "Got sent receipt"
+				print("Got sent receipt")
 
 		self.done = True
 
 	def onAuthFailed(self, username, err):
-		print "Auth Failed!"
+		print("Auth Failed!")
 
 	def onDisconnected(self, reason):
-		print "Disconnected because %s" %reason
+		print("Disconnected because %s" %reason)
 
 	def onMessageSent(self, jid, messageId):
 		self.gotReceipt = True

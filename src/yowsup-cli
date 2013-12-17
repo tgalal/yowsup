@@ -22,7 +22,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 __author__ = "Tarek Galal"
-__version__ = "0.3.3"
+__version__ = "0.41"
 __email__ = "tare2.galal@gmail.com"
 __license__ = "MIT"
 
@@ -33,9 +33,6 @@ from Yowsup.Common.constants import Constants
 from Examples.CmdClient import WhatsappCmdClient
 from Examples.EchoClient import WhatsappEchoClient
 from Examples.ListenerClient import WhatsappListenerClient
-from Yowsup.Registration.v1.coderequest import WACodeRequest
-from Yowsup.Registration.v1.regrequest import WARegRequest
-from Yowsup.Registration.v1.existsrequest import WAExistsRequest
 from Yowsup.Registration.v2.existsrequest import WAExistsRequest as WAExistsRequestV2
 from Yowsup.Registration.v2.coderequest import WACodeRequest as WACodeRequestV2
 from Yowsup.Registration.v2.regrequest import WARegRequest as WARegRequestV2
@@ -57,12 +54,12 @@ If not set, it will be autodetected from phonenumber
 	
 	id:		This field is used in registration calls (-r|-R|-e), and for login if you are trying to use an existing account that is setup \
 on a physical device. Whatsapp has recently deprecated using IMEI/MAC to generate the account's password in updated versions\
-of their clients. Use --v1 switch to try it anyway. Typically this field should contain the phone's IMEI if your account is setup on \
+of their clients. Typically this field should contain the phone's IMEI if your account is setup on \
 a Nokia or an Android device, or the phone's WLAN's MAC Address for iOS devices. If you are not trying to use existing credentials\
 or want to register, you can leave this field blank or set it to some random text.\
 Do not change this field after registering using Yowsup
 
-	password:	Password to use for login. You obtain this password when you register using Yowsup. The field will be ignored if you are using  --v1
+	password:	Password to use for login. You obtain this password when you register using Yowsup.
 
 You can specify those variables using -c argument, as a path to a file containing this configuration.
 
@@ -93,18 +90,17 @@ def startDbusInterface():
 	mainloop = gobject.MainLoop()
 	
 	gobject.threads_init()
-	print "starting"
+	print("starting")
 	mainloop.run()
 
 
 def resultToString(result):
+	unistr = str if sys.version_info >= (3, 0) else unicode
 	out = []
 	for k, v in result.items():
 		if v is None:
 			continue
-		if type(v) is str:
-			v = v.encode('utf-8')
-		out.append("%s: %s" %(k, v))
+		out.append("%s: %s" %(k, v.encode("utf-8") if type(v) is unistr else v))
 		
 	return "\n".join(out)
 
@@ -132,7 +128,7 @@ def getCredentials(config = DEFAULT_CONFIG):
 					elif varname == "id":
 						idx = val
 					elif varname =="password":
-						pw = val
+						pw =val
 					elif varname == "cc":
 						cc = val
 
@@ -144,7 +140,7 @@ def getCredentials(config = DEFAULT_CONFIG):
 
 def dissectPhoneNumber(phoneNumber):
 	try:
-		with open(COUNTRIES_CSV, 'rb') as csvfile:
+		with open(COUNTRIES_CSV, 'r') as csvfile:
 			reader = csv.reader(csvfile, delimiter=',')
 			for row in reader:
 				if len(row) == 3:
@@ -162,7 +158,6 @@ def dissectPhoneNumber(phoneNumber):
 				
 	except:
 		pass
-	
 	return False
 
 parser = argparse.ArgumentParser(description='yowsup-cli Command line options')
@@ -176,6 +171,8 @@ modes = clientsGroup.add_mutually_exclusive_group()
 modes.add_argument('-l','--listen', help='Listen to messages', action="store_true", required=False, default=False)
 modes.add_argument('-s','--send', help="Send message to phone number and close connection. Phone is full number including country code, without '+' or '00'", action="store",  nargs=2, metavar=('<phone>','<message>'), required=False)
 modes.add_argument('-i','--interactive', help="Start an interactive conversation with a contact. Phone is full number including country code, without '+' or '00'", action="store", metavar='<phone>', required=False)
+modes.add_argument('-b','--broadcast', help="Broadcast message to multiple recepients, comma seperated", action="store", nargs=2, metavar=('<jids>', '<message>'), required=False)
+
 #modes.add_argument('-b','--bot', help='Bot', action="store_true", required=False, default=False)
 
 
@@ -206,9 +203,9 @@ debugTools.add_argument('--decodestring', help="Decode byte arrays found in deco
 
 
 parser.add_argument("--help-config", help="Display info about configuration format", action="store_true")
-parser.add_argument("--v1", help="If specified, it will force usage of old API in registration calls. Also password field in config will be ignored and will attempt to generate password from specified identity (IMEI/MAC)", action="store_true")
 parser.add_argument('-c','--config', help="Path to config file containing authentication info. For more info about config format use --help-config", action="store", metavar="file", required=False, default=False)
-parser.add_argument('-D','--dbus', help='Start DBUS interface', action="store_true", required=False, default=False)
+#parser.add_argument('-D','--dbus', help='Start DBUS interface', action="store_true", required=False, default=False)
+parser.add_argument("--ignorecached", help="Don't use cached token if exists", action="store_true", required=False, default=False)
 parser.add_argument('-d','--debug', help='Enable debug messages', action="store_true", required=False, default=False)
 parser.add_argument('-v', '--version', help="Print version info and exit", action='store_true', required=False, default=False)
 
@@ -218,9 +215,9 @@ if len(sys.argv) == 1:
 	parser.print_help()
 
 elif args["help_config"]:
-	print CONFIG_HELP
+	print(CONFIG_HELP)
 elif args["version"]:
-	print "yowsup-cli %s, using Yowsup %s"%(__version__, Constants.v)
+	print("yowsup-cli %s, using Yowsup %s"%(__version__, Constants.v))
 else:
 	credentials = getCredentials(args["config"] or DEFAULT_CONFIG)
 	
@@ -229,8 +226,8 @@ else:
 		countryCode, login, identity, password = credentials
 
 		identity = Utilities.processIdentity(identity)
-		password = identity or password if args["v1"] else base64.b64decode(password)
-		
+		password = base64.b64decode(bytes(password.encode('utf-8')))
+
 		if countryCode:
 			phoneNumber = login[len(countryCode):]
 		else:
@@ -240,6 +237,9 @@ else:
 			countryCode, phoneNumber = dissected
 				
 		Debugger.enabled = args['debug']
+
+		if args["ignorecached"]:
+			Utilities.tokenCacheEnabled = False
 
 		if args["interactive"]:
 			val = args["interactive"]
@@ -254,48 +254,45 @@ else:
 			wa = WhatsappListenerClient(args['keepalive'], args['autoack'])
 
 			wa.login(login, password)
+			
+		elif args['broadcast']:
+			
+			phones = args["broadcast"][0]
+			message = args["broadcast"][1]
+			
+			wa = WhatsappEchoClient(phones, message, args['wait'])
+			wa.login(login, password)
 
 		elif args["requestcode"]:
 
 			method = args["requestcode"]
 			if method not in ("sms","voice"):
-				print "coderequest accepts only sms or voice as a value"
+				print("coderequest accepts only sms or voice as a value")
 			else:
-				if(args["v1"]):
-					wc = WACodeRequest(countryCode, phoneNumber, method)
-				else:
-					wc = WACodeRequestV2(countryCode, phoneNumber, identity, method)
+
+				wc = WACodeRequestV2(countryCode, phoneNumber, identity, method)
 					
 				result = wc.send()
-				print resultToString(result)
+				print(resultToString(result))
 				
 		elif args["register"]:
 			code = args["register"]
-
-			if(args["v1"]):
-				wr = WARegRequest(countryCode, phoneNumber, code, identity)
-			else:
-				code = "".join(code.split('-'))
-				wr = WARegRequestV2(countryCode, phoneNumber, code, identity)
+			code = "".join(code.split('-'))
+			wr = WARegRequestV2(countryCode, phoneNumber, code, identity)
 			
 			
 			result = wr.send()
-			print resultToString(result)
+			print(resultToString(result))
 			
 		elif args["exists"]:
 
-			if(args["v1"]):
-				we = WAExistsRequest(countryCode, phoneNumber, identity)
-				result = we.send()
-				print resultToString(result)
-			else:
-				we = WAExistsRequestV2(countryCode, phoneNumber, identity)
-				result = we.send()
-				print resultToString(result)
+			we = WAExistsRequestV2(countryCode, phoneNumber, identity)
+			result = we.send()
+			print(resultToString(result))
 
-				if result["pw"] is not None:
-					print "\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(countryCode, phoneNumber, result["pw"])
-		
+			if result["pw"] is not None:
+				print("\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(countryCode, phoneNumber, result["pw"]))
+	
 		elif args["sync"]:
 
 			contacts = args["sync"].split(',')
@@ -304,13 +301,13 @@ else:
 			print("Syncing %s contacts" % len(contacts))
 			result = wsync.send()
 			
-			print resultToString(result)
-		
+			print(resultToString(result))
+
 	elif args["dbus"]:
             startDbusInterface()
 	elif args["generatepassword"]:
-		print Utilities.processIdentity(args["generatepassword"]);
+		print(Utilities.processIdentity(args["generatepassword"]));
 	elif args["decodestring"]:
-		print Utilities.decodeString(map(int, "".join(args["decodestring"].split(' ')).split(',')))
+		print(Utilities.decodeString(map(int, "".join(args["decodestring"].split(' ')).split(','))))
 	else:
-		print "Error: config file is invalid"
+		print("Error: config file is invalid")

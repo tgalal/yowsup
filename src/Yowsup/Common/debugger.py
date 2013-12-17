@@ -22,7 +22,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import time
 
 class Debugger():
-	enabled = False
+	enabled = True
 	def __init__(self):
 		
 		cname = self.__class__.__name__
@@ -43,7 +43,10 @@ class Debugger():
 		
 		disabledTypes = ["sql"]
 		if messageType.lower() not in disabledTypes:
-			print message;
+			try:
+				print(message)
+			except UnicodeEncodeError:
+				print ("Skipped debug message because of UnicodeDecodeError")
 	
 	def formatMessage(self,message):
 		#default = "{type}:{time}:\t{message}"

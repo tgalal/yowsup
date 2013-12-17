@@ -22,7 +22,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from Yowsup.Common.Http.warequest import WARequest
 from Yowsup.Common.Http.waresponseparser import JSONResponseParser
 from hashlib import md5
-import random
+import random, sys
 from Yowsup.Common.utilities import Utilities
 
 class WAContactsSyncRequest():
@@ -33,7 +33,11 @@ class WAContactsSyncRequest():
         self.password = password
         
         self.contacts = contacts
+        self.authReq = WAContactsSyncAuth(username, password)
         
+    def setCredentials(self, username, password):
+        self.username = username
+        self.password = password
         self.authReq = WAContactsSyncAuth(username, password)
         
     def setContacts(self, contacts):
@@ -81,12 +85,27 @@ digest-uri="{digest_uri}",response="{response}",charset="utf-8"'
         self.type = "POST"
         cnonce = Utilities.str(random.randint(100000000000000,1000000000000000), 36)
         
-        credentials = bytearray(username+":s.whatsapp.net:")
+        credentials = bytearray((username+":s.whatsapp.net:").encode())
         credentials.extend(password)
 
-        response = self.encode(self.md5(self.encode(self.md5(self.md5(buffer(credentials))+":" + nonce +":" + cnonce  ))
-                                        +":"+nonce+":" + WAContactsSyncAuth.nc+":" + cnonce + ":auth:"
-                                        + self.encode(self.md5("AUTHENTICATE:"+WAContactsSyncAuth.digestUri))))
+        if sys.version_info >= (3, 0):
+            buf = lambda x: bytes(x, 'iso-8859-1') if type(x) is str else bytes(x)
+        else:
+            buf = buffer
+        
+
+        response = self.encode(
+                        self.md5(
+                            self.encode(
+                                self.md5(
+                                    self.md5( buf ( credentials ) ) 
+                                        + (":" + nonce + ":" + cnonce).encode()  
+                                    )
+                                )
+                                 + (":"+nonce+":" + WAContactsSyncAuth.nc+":" + cnonce + ":auth:").encode()
+                                + self.encode(
+                                        self.md5(("AUTHENTICATE:"+WAContactsSyncAuth.digestUri).encode())
+                                ))).decode()
         
         
         
@@ -132,7 +151,7 @@ digest-uri="{digest_uri}",response="{response}",charset="utf-8"'
             res.append(_enc(c % 16))
         
         
-        return "".join(map(chr, res));
+        return "".join(map(chr, res)).encode();
     
     
 class WAContactsSyncQuery(WAContactsSyncAuth):

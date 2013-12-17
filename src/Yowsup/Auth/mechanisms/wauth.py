@@ -19,15 +19,14 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
-import socket, hashlib, hmac
+import socket, hashlib, hmac, sys
 from Yowsup.Common.debugger import Debugger
 from Yowsup.Common.watime import WATime
 from Yowsup.ConnectionIO.protocoltreenode import ProtocolTreeNode
-from Yowsup.Common.datastructures import ByteArray
 
 from struct import pack
 from operator import xor
-from itertools import izip, starmap
+from itertools import starmap
 from hashlib import sha1
 
 
@@ -233,7 +232,7 @@ class RC4:
 			
 			num2 = offset
 			offset = num2 + 1
-
+			
 			data[num2] = ord(data[num2]) if type(data[num2]) == str else data[num2]
 			data[num2] = (data[num2] ^ self.s[(self.s[self.i] + self.s[self.j]) % 256])
 	
@@ -244,20 +243,25 @@ class RC4:
 		arr[j] = tmp
 
 
+if sys.version_info >= (3, 0):
+	buffer = lambda x: bytes(x, 'iso-8859-1') if type(x) is str else bytes(x)
+	_bytearray = lambda x: [0]*x if type(x) is int else x
+
 
 class KeyStream:
 
 	def __init__(self, key):
-		self.key = key
+		self.key = key if sys.version_info < (3, 0) else bytes(key, 'iso-8859-1')
 		self.rc4 = RC4(key, 256)
 
 	def decodeMessage(self, bufdata, macOffset, offset, length):
 
 		buf = bufdata[:]
-		hashed = hmac.new(buffer(self.key), buffer(_bytearray(buf[offset:])), sha1)
+		#hashed = hmac.new(buffer(self.key), buffer(_bytearray(buf[offset:])), sha1)
+		hashed = hmac.new(self.key, bytes(buf[offset:]), sha1)
 		numArray = hashed.digest()
 
-		numArray = [ord(x) for x in numArray];
+		numArray = [ord(x) for x in numArray.decode('iso-8859-1')];
 
 		rest2 = bufdata[0:offset]
 		rest2.extend(numArray)
@@ -277,9 +281,15 @@ class KeyStream:
 		#buf = _bytearray(buf)
 		self.rc4.cipher(buf, offset, length)
 
-		hashed = hmac.new(buffer(self.key), buffer(_bytearray(buf[offset:length+offset])), sha1)
+		#hashed = hmac.new(buffer(self.key), buffer(_bytearray(buf[offset:length+offset])), sha1)
+
+		hashed = hmac.new(self.key, buffer("".join(map(chr, buf[offset:length+offset]))), sha1)
+		#hashed = hmac.new(self.key, bytes(buf[offset:length+offset]), sha1)
+		
+		
+		
 		numArray = hashed.digest()#binascii.b2a_base64(hashed.digest())[:-1]
-		numArray = [ord(x) for x in numArray]
+		numArray = [ord(x) for x in numArray.decode('iso-8859-1')]
 		
 		for i in range(0,4):
 			buf[macOffset + i] = numArray[i]
@@ -288,7 +298,14 @@ class KeyStream:
 
 	@staticmethod
 	def keyFromPasswordAndNonce(password, nonce):
-		return KeyStream.pbkdf2(password, nonce, 16, 20)
+		
+		if sys.version_info < (3, 0):
+			k = KeyStream.pbkdf2(password, nonce, 16, 20)
+		else:
+
+			k = KeyStream.pbkdf2(password, nonce.encode('iso-8859-1'), 16, 20)
+
+		return k
 
 	@staticmethod
 	def pbkdf2( password, salt, itercount, keylen, hashfn = hashlib.sha1 ):
@@ -298,19 +315,27 @@ class KeyStream:
 			def prf( h, data ):
 				hm = h.copy()
 				hm.update( buffer(_bytearray(data)) )
-				return map(ord, hm.digest())
+				#hm.update(bytes(data))
+				d = hm.digest()
+				
+				#return map(ord, d)
+				#print (hm.digest())
+				
+				#if sys.version_info < (3, 0):
+				return [ord(i) for i in d.decode('iso-8859-1')]
 	
+			
 			U = prf( h, salt + pack('>i',blocknum ) )
 			T = U
 	
 			for i in range(2, itercount+1):
 				U = prf( h, U )
-				T = starmap(xor, izip(T, U))
+				T = starmap(xor, zip(T, U))
 	
 			return T
 	
 		digest_size = hashfn().digest_size
-		l = keylen / digest_size
+		l = int(keylen / digest_size)
 		if keylen % digest_size != 0:
 			l += 1
 	
@@ -318,49 +343,15 @@ class KeyStream:
 	
 		T = []
 		for i in range(1, l+1):
-			T.extend(pbkdf2_F( h, salt, itercount, i ))
-	
+			tmp = pbkdf2_F( h, salt, itercount, i )
+			#tmp = map(chr, tmp)
+			#print(tmp)
+			#for item in tmp:
+			#	print(item)
+			#sys.exit(1)
+			T.extend(tmp)
+			
+		#print(T)
+		#sys.exit()
 		T = [chr(i) for i in T]
 		return "".join(T[0: keylen])
-
-
-if __name__ == "__main__":
-
-
-	print [ord(i) for i in KeyStream.pbkdf2("tarek", "galal", 16, 20)]
-	
-	#test1 = KeyStream.keyFromPasswordAndNonce("hamada", bytearray([116,97,116,97,116,97,116,97]))
-	#for r in test1:
-	#    print ord(r)
-	'''
-	key = bytearray([116,97,116,97,116,97,116,97])
-	#toenc = bytearray([0,0,0,0,114,101,107, 114,101,107])
-	toenc = bytearray([0, 0, 0, 248, 3, 144, 203, 18, 0, 0, 0, 0])
-
-
-
-
-	
-	hashed = hmac.new(key, toenc[3:], sha1)
-	numArray = hashed.digest()#binascii.b2a_base64(hashed.digest())[:-1]
-	numArray = [ord(x) for x in numArray]
-	print "NARRAY"
-	print numArray
-	
-
-	
-	#r = RC4(key, 256)
-	#r.cipher(toenc, 3, 3)
-	#res = r.encrypt("".join(map(chr, [114,101,107])), "".join(map(chr,[116,97,116,97,116,97,116,97])))
-	#print [x for x in toenc]
-
-	k = KeyStream(key)
-
-	#res = self.outputKey.encodeMessage(prep, len(prep) - 4 , 3, len(prep)-4-3)
-	res = k.encodeMessage(toenc, len(toenc) - 4, 3, len(toenc) - 4 -3)
-	#res = k.encodeMessage(toenc, 0, 4, len(toenc) - 4)
-	print [t for t in toenc]
-	print res
-	#dec = k.decodeMessage(bytearray(res), 0, 4, len(bytearray(res))-4)
-	
-	#print dec'''

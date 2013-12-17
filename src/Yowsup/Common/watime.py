@@ -20,7 +20,10 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 import time,datetime,re
-from dateutil import tz
+try:
+	from dateutil import tz
+except ImportError:
+	from .dateutil import tz
 
 class WATime():
 	def parseIso(self,iso):
@@ -41,21 +44,4 @@ class WATime():
 	
 	def datetimeToTimestamp(self,dt):
 		return time.mktime(dt.timetuple());
-		
-
-if __name__=="__main__":
-	ds = "2012-06-16T15:24:36Z"
-	watime = WATime();
-	
-	print ds
-	
-	parsed = watime.parseIso(ds)
-	print parsed
-	
-	local = watime.utcToLocal(parsed)
-	print local
-	
-	stamp = watime.datetimeToTimestamp(local)
-	print stamp
-	
 	

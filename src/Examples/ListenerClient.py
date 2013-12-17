@@ -22,7 +22,10 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.sys.path.insert(0,parentdir)
-import time, datetime
+import datetime, sys
+
+if sys.version_info >= (3, 0):
+	raw_input = input
 
 from Yowsup.connectionmanager import YowsupConnectionManager
 
@@ -53,18 +56,18 @@ class WhatsappListenerClient:
 			raw_input()	
 
 	def onAuthSuccess(self, username):
-		print "Authed %s" % username
+		print("Authed %s" % username)
 		self.methodsInterface.call("ready")
 
 	def onAuthFailed(self, username, err):
-		print "Auth Failed!"
+		print("Auth Failed!")
 
 	def onDisconnected(self, reason):
-		print "Disconnected because %s" %reason
+		print("Disconnected because %s" %reason)
 
-	def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName):
+	def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName, isBroadCast):
 		formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
-		print "%s [%s]:%s"%(jid, formattedDate, messageContent)
+		print("%s [%s]:%s"%(jid, formattedDate, messageContent))
 
 		if wantsReceipt and self.sendReceipts:
 			self.methodsInterface.call("message_ack", (jid, messageId))

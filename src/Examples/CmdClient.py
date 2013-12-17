@@ -19,7 +19,11 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 from Yowsup.connectionmanager import YowsupConnectionManager
-import time, datetime
+import time, datetime, sys
+
+
+if sys.version_info >= (3, 0):
+	raw_input = input
 
 class WhatsappCmdClient:
 	
@@ -59,24 +63,24 @@ class WhatsappCmdClient:
 			time.sleep(0.5)
 
 	def onAuthSuccess(self, username):
-		print "Authed %s" % username
+		print("Authed %s" % username)
 		self.methodsInterface.call("ready")
 		self.goInteractive(self.phoneNumber)
 
 	def onAuthFailed(self, username, err):
-		print "Auth Failed!"
+		print("Auth Failed!")
 
 	def onDisconnected(self, reason):
-		print "Disconnected because %s" %reason
+		print("Disconnected because %s" %reason)
 		
 	def onPresenceUpdated(self, jid, lastSeen):
 		formattedDate = datetime.datetime.fromtimestamp(long(time.time()) - lastSeen).strftime('%d-%m-%Y %H:%M')
-		self.onMessageReceived(0, jid, "LAST SEEN RESULT: %s"%formattedDate, long(time.time()), False)
+		self.onMessageReceived(0, jid, "LAST SEEN RESULT: %s"%formattedDate, long(time.time()), False, None, False)
 
 	def onMessageSent(self, jid, messageId):
 		formattedDate = datetime.datetime.fromtimestamp(self.sentCache[messageId][0]).strftime('%d-%m-%Y %H:%M')
-		print "%s [%s]:%s"%(self.username, formattedDate, self.sentCache[messageId][1])
-		print self.getPrompt()
+		print("%s [%s]:%s"%(self.username, formattedDate, self.sentCache[messageId][1]))
+		print(self.getPrompt())
 
 	def runCommand(self, command):
 		if command[0] == "/":
@@ -89,21 +93,21 @@ class WhatsappCmdClient:
 		
 		return 0
 			
-	def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName=None):
+	def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName, isBroadcast):
 		if jid[:jid.index('@')] != self.phoneNumber:
 			return
 		formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
-		print "%s [%s]:%s"%(jid, formattedDate, messageContent)
+		print("%s [%s]:%s"%(jid, formattedDate, messageContent))
 		
 		if wantsReceipt and self.sendReceipts:
 			self.methodsInterface.call("message_ack", (jid, messageId))
 
-		print self.getPrompt()
+		print(self.getPrompt())
 	
 	def goInteractive(self, jid):
-		print "Starting Interactive chat with %s" % jid
+		print("Starting Interactive chat with %s" % jid)
 		jid = "%s@s.whatsapp.net" % jid
-		print self.getPrompt()
+		print(self.getPrompt())
 		while True:
 			message = raw_input()
 			message = message.strip()
