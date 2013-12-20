@@ -27,7 +27,7 @@ from Yowsup.Common.utilities import Utilities
 from Yowsup.Common.debugger import Debugger
 import threading, select, time
 from Yowsup.Common.watime import WATime
-from .Auth.auth import YowsupAuth
+from Yowsup.Auth.auth import YowsupAuth
 from Yowsup.Common.constants import Constants
 from Yowsup.Interfaces.Lib.LibInterface import LibMethodInterface, LibSignalInterface
 import tempfile
