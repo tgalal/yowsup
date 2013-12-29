@@ -22,18 +22,15 @@ class MediaUploader(WARequest):
         
         self.sock = socket.socket();
         
-    def upload(self, sourcePath, uploadUrl):
+    def uploadstream(self, stream, uploadUrl,filename,filetype):
         
         _host = uploadUrl.replace("https://","")
 
         self.url = _host[:_host.index('/')]
         
         
+        filesize=len(stream)
         try:
-            filename = os.path.basename(sourcePath)
-            filetype = mimetypes.guess_type(filename)[0]
-            filesize = os.path.getsize(sourcePath)
-    
             self.sock.connect((self.url, self.port));
             ssl_sock = ssl.wrap_socket(self.sock)
     
@@ -76,9 +73,6 @@ class MediaUploader(WARequest):
     
             totalsent = 0
             buf = 1024
-            f = open(sourcePath, 'rb')
-            stream = f.read()
-            f.close()
             status = 0
             lastEmit = 0
     
@@ -135,3 +129,21 @@ class MediaUploader(WARequest):
             print("Error occured at transfer %s"%sys.exc_info()[1])
             if self.errorCallback:
                 self.errorCallback();
+
+    def uploadfile(self, sourcePath, uploadUrl):
+        try:
+            filename = os.path.basename(sourcePath)
+            filetype = mimetypes.guess_type(filename)[0]
+            filesize = os.path.getsize(sourcePath)
+            f = open(sourcePath, 'rb')
+            stream = f.read()
+            f.close()
+        except:
+            print("Error occured at transfer %s"%sys.exc_info()[1])
+            if self.errorCallback:
+                self.errorCallback();
+            else:
+                return self.uploadstream(stream, uploadUrl,filename,filetype)
+
+    def upload(self, sourcePath, uploadUrl):
+       return self.uploadfile(sourcePath, uploadUrl)
