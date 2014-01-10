@@ -50,14 +50,14 @@ class Constants:
 	port = 443
 	domain = "s.whatsapp.net"
 
-	v="0.8"
+	v="0.81"
 
 	tokenData = {
-		"v": "2.11.1",
-		"r": "S40-2.11.1",
-		"u": "WhatsApp/2.11.1 S40Version/14.26 Device/Nokia302",
-		"t": "PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk1377032097395{phone}",
-		"d": "Nokia302x"
+		"v": "2.12.10",
+		"r": "S40-2.12.10",
+		"u": "WhatsApp/2.12.10 S40Version/14.26 Device/Nokia302",
+		"t": "PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk1386883946914{phone}",
+		"d": "Nokia302"
 	}
 
 	tokenStorage = "~/.yowsup/t_%s"%(v.replace(".", "_"))
