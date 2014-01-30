@@ -1,71 +1,7 @@
-class TokenMapper:
+class TokenDictionary:
 
   def __init__(self):
-    self.dictionaries = []
-
-  def addDictionary(self, dictionary, offset):
-    self.dictionaries.append((offset, dictionary))
-
-  def getToken(self, index):
-    for d in self.dictionaries:
-      offset, dictionary = d
-
-      if index > offset and index < dictionary.count() + offset:
-        return dictionary.get(index - offset)
-
-    raise Exception("Token index does not exist: %s" % index)
-
-  def getIndex(self, token):
-    for i in range(0, len(self.dictionaries)):
-      offset, dictionary = self.dictionaries[i]
-
-      index = dictionary.getIndex(token)
-
-      if index >= 0:
-        return index + (i * 256) #not sure of nonsense, keep for now
-
-    raise KeyError("No index for given token %s" % token)
-
-
-
-class TokenIndexOutOfBoundsException:
-  pass
-
-class InvalidTokenException:
-  pass
-
-class TokenDictionary:
-  def __init__(self, tokens = []):
-    self.tokens = tokens
-
-
-  def count(self):
-    return len(self.tokens)
-
-  def get(self, index):
-    if index < len(self.tokens) and index >= 0:
-      return self.tokens[index]
-    raise TokenIndexOutOfBoundsException()
-
-  def getIndex(self, token):
-    for i in range(0, len(self.tokens)):
-      if token == self.tokens[i]:
-        return i
-
-    return -1
-
-
-class TokenMapInitializer:
-
-  tokenMapper = None
-
-  @staticmethod
-  def getTokenMapper():
-
-    if TokenMapInitializer.tokenMapper is not None:
-      return TokenMapInitializer.tokenMapper
-
-    primaryDict = ["", "", "", "account", "ack", "action", "active", "add", "after", "all", "allow", "apple",
+    self.dictionary = ["", "", "", "account", "ack", "action", "active", "add", "after", "all", "allow", "apple",
         "auth", "author", "available", "bad-protocol", "bad-request", "before", "body", "broadcast",
         "cancel", "category", "challenge", "chat", "clean", "code", "composing", "config", "contacts",
         "count", "create", "creation", "debug", "default", "delete", "delivery", "delta", "deny",
@@ -92,9 +28,9 @@ class TokenMapInitializer:
         "urn:xmpp:whatsapp:push", "urn:xmpp:whatsapp", "user", "user-not-found", "value",
         "version", "w:g", "w:p:r", "w:p", "w:profile:picture", "w", "wait", "WAUTH-2",
         "x", "xmlns:stream", "xmlns", "1", "chatstate", "crypto", "enc", "class", "off_cnt",
-        "w:g2", "promote", "demote", "creator"]
-
-    secondaryDict = ["Bell.caf", "Boing.caf", "Glass.caf", "Harp.caf", "TimePassing.caf", "Tri-tone.caf",
+        "w:g2", "promote", "demote", "creator", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+        "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
+		"Bell.caf", "Boing.caf", "Glass.caf", "Harp.caf", "TimePassing.caf", "Tri-tone.caf",
         "Xylophone.caf", "background", "backoff", "chunked", "context", "full", "in", "interactive",
         "out", "registration", "sid", "urn:xmpp:whatsapp:sync", "flt", "s16", "u8", "adpcm",
         "amrnb", "amrwb", "mp3", "pcm", "qcelp", "wma", "h263", "h264", "jpeg", "mpeg4", "wmv",
@@ -120,13 +56,15 @@ class TokenMapInitializer:
         "hello.m4r", "input.m4r", "keys.m4r", "note.m4r", "popcorn.m4r", "pulse.m4r", "synth.m4r",
         "filehash"]
 
-    primary = TokenDictionary(primaryDict)
-    secondary = TokenDictionary(secondaryDict)
+  def getToken(self, index):
+    if index >= 0 and index < len(self.dictionary):
+        return self.dictionary[index]
 
-    TokenMapInitializer.tokenMapper = TokenMapper()
-    TokenMapInitializer.tokenMapper.addDictionary(primary, 0)
-    TokenMapInitializer.tokenMapper.addDictionary(secondary, 236)
+    raise Exception("Token index does not exist: %s" % index)
 
-    return TokenMapInitializer.tokenMapper
+  def getIndex(self, token):
+    for i in range(0, len(self.dictionary)):
+      if token == self.dictionary[i]:
+        return i
 
-
+    raise KeyError("No index for given token %s" % token)
