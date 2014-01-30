@@ -134,10 +134,7 @@ class WAuth2():
     #numArray = _bytearray(KeyStream.keyFromPasswordAndNonce(self.authObject.password, nonce))
     keys = KeyStream.generateKeys(self.authObject.password, nonce)
 
-
-
-
-    self.conn.reader.inputKey = self.inputKey = KeyStream(keys[2], key[3])
+    self.conn.reader.inputKey = self.inputKey = KeyStream(keys[2], keys[3])
     self.outputKey = KeyStream(keys[0], keys[1])
 
     nums = [0] * 4
@@ -256,73 +253,44 @@ class KeyStream:
 
   def __init__(self, key, macKey):
     self.key = key if sys.version_info < (3, 0) else bytes(key, 'iso-8859-1')
-    self.rc4 = RC4(key, 768)
-    self.mac = hmac.new(key = self.macKey, digestmod = sha1)
+    self.rc4 = RC4(self.key, 768)
+    self.macKey = macKey if sys.version_info < (3, 0) else bytes(macKey, 'iso-8859-1')
     self.seq = 0
 
   def computeMac(self, bytes_buffer, int_offset, int_length):
-    key = str(uuid.uuid4()).replace('-', '') #random
-
-    mac = hmac.new(key = key, digestmod = sha1)
-
-    mac.update(bytes_buffer[int_offset:])
+    mac = hmac.new(self.macKey, None, sha1)
+    mac.update(buffer(_bytearray(bytes_buffer[int_offset:])))
 
     numArray = "%s%s%s%s" % (chr(self.seq >> 24), chr(self.seq >> 16), chr(self.seq >> 8), chr(self.seq))
 
-    mac.update(numArray)
+    mac.update(buffer(_bytearray(numArray)))
 
-    #KeyStream keyStream = this;
-    #keyStream.seq = keyStream.seq + 1;
     self.seq += 1
     return mac.digest()
 
 
   def decodeMessage(self, bufdata, macOffset, offset, length):
-
-
-#     buf = bufdata[:]
-#     hashed = self.computeMac(buf, offset, length)
-
-#     for i in range(0, 4):
-#       if buf[macOffset + i] != hashed[i]:
-#         raise Exception("MAC mismatch")
-
-#     self.rc4.cipher(buf, offset, length)
-
-    #############
-    key = str(uuid.uuid4()).replace('-', '') #random
-    buf = bufdata[:]
-    #hashed = hmac.new(buffer(self.key), buffer(_bytearray(buf[offset:])), sha1)
-    #hashed = hmac.new(key = key, bytes(buf[offset:]), sha1)
-    numArray = self.computeMac(buf, offset, length)
+    buf = bufdata[:-4]
+    hashed = bufdata[-4:]
+    numArray = self.computeMac(buf, 0, len(buf))
 
     numArray = [ord(x) for x in numArray.decode('iso-8859-1')];
 
-    rest2 = bufdata[0:offset]
-    rest2.extend(numArray)
-
     num = 0
     while num < 4:
-      if buf[macOffset + num] == rest2[num]:
+      if numArray[macOffset + num] == hashed[num]:
         num += 1
       else:
         raise Exception("INVALID MAC")
 
-    self.rc4.cipher(buf, offset, length)
+    self.rc4.cipher(buf, 0, len(buf))
 
     return [x for x in buf]
 
   def encodeMessage(self, buf, macOffset, offset, length):
-    #buf = _bytearray(buf)
     self.rc4.cipher(buf, offset, length)
 
-    #hashed = hmac.new(buffer(self.key), buffer(_bytearray(buf[offset:length+offset])), sha1)
-
-    hashed = self.computeMac(map(chr, buf[offset:length+offset]), offset, length)
-    #hashed = hmac.new(self.key, buffer("".join(map(chr, buf[offset:length+offset]))), sha1)
-    #hashed = hmac.new(self.key, bytes(buf[offset:length+offset]), sha1)
-
-
+    hashed = self.computeMac(buf, offset, length)
 
     numArray = hashed#.digest()#binascii.b2a_base64(hashed.digest())[:-1]
     numArray = [ord(x) for x in numArray.decode('iso-8859-1')]
@@ -334,22 +302,22 @@ class KeyStream:
 
   @staticmethod
   def generateKeys(password, nonce):
-
-
-    bytes = [0] * 4
+    _bytes = [0] * 4
     numArray = [1,2,3,4]
-    nonce = byte_nonce + [0]
 
     if sys.version >= (3, 0):
       nonce = nonce.encode('iso-8859-1')
 
     for j in range(0, len(numArray)):
-      nonce[-1] = numArray[j]
-      _bytes[j] = pbkdf2(byte_arr_to_str(byte_password), byte_arr_to_str(nonce), 16, 20)
+      noncex = nonce + chr(numArray[j])
+      _bytes[j] = KeyStream.pbkdf2(password, noncex, 2, 20)
 
+    for key in _bytes:
+      print(key.encode("hex"))
 
     return _bytes
 
+  @staticmethod
   def pbkdf2( password, salt, itercount, keylen, hashfn = hashlib.sha1 ):
 
     def pbkdf2_F( h, salt, itercount, blocknum ):

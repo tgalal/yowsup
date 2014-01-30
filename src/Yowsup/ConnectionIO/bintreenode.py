@@ -22,7 +22,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from Yowsup.Common.debugger import Debugger
 from Yowsup.Common.datastructures import ByteArray
 from Yowsup.Common.constants import Constants
-from .tokenmap import TokenMapInitializer
+from .tokenmap import TokenDictionary
 
 
 from .protocoltreenode import ProtocolTreeNode
@@ -41,7 +41,7 @@ class BinTreeNodeReader():
         self.bufSize = 0;
         self.readSize = 1;
 
-        self.tokenMapper = TokenMapInitializer.getTokenMapper()
+        self.tokenDictionary = TokenDictionary()
 
 
     def readStanza(self):
@@ -72,10 +72,10 @@ class BinTreeNodeReader():
 
 
         if tag != 1:
+            if tag == 236:
+                tag = self.inn.read + 237
 
-            #read error
-
-            token = self.tokenMapper.getToken(tag)
+            token = self.tokenDictionary.getToken(tag)
 
             raise Exception("expecting STREAM_START in streamStart, instead got token: %s" % token);
         attribCount = (size - 2 + size % 2) / 2;
@@ -137,9 +137,9 @@ class BinTreeNodeReader():
             raise Exception("-1 token in readString");
 
         if token > 2 and token < 245:
-            if token >= 236:
-              token = token + self.inn.read()
-            return self.tokenMapper.getToken(token)
+            if token == 236:
+              token = 237 + self.inn.read()
+            return self.tokenDictionary.getToken(token)
 
         if token == 0:
             return None;
@@ -259,7 +259,6 @@ class BinTreeNodeWriter():
     TOKEN_8 = 254;
     #socket out; #FunXMPP.WAByteArrayOutputStream
     #socket realOut;
-    tokenMap={}
 
     def __init__(self,o):
         Debugger.attach(self)
@@ -271,12 +270,7 @@ class BinTreeNodeWriter():
         self.tokenMap = {}
         self.out = ByteArray();
 
-        #Utilities.debug(self.tokenMap);
-        '''
-        for (int i = 0; i < dictionary.length; i++)
-            if (dictionary[i] != null)
-                this.tokenMap.put(dictionary[i], new Integer(i));
-        '''
+        self.tokenDictionary = TokenDictionary()
 
     def streamStart(self,domain,resource):
 
@@ -437,8 +431,12 @@ class BinTreeNodeWriter():
 
     def writeString(self,tag):
         try:
-            key = TokenMapInitializer.getTokenMapper().getIndex(tag);
-            self.writeToken(key);
+            key = self.tokenDictionary.getIndex(tag);
+            if key > 235:
+                self.writeToken(236);
+                self.writeToken(key - 237);
+            else:
+                self.writeToken(key);
         except KeyError:
             try:
                 at = '@'.encode() if type(tag) == bytes else '@'
