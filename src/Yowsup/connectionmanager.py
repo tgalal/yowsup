@@ -683,6 +683,7 @@ class YowsupConnectionManager:
 				messageChildren.append(requestNode);
 			#System.currentTimeMillis() / 1000L + "-"+1
 			messageChildren.append(xNode)
+			messageChildren.append(ProtocolTreeNode("offline", None))
 			
 			if type(child) == list:
 				messageChildren.extend(child)
@@ -691,7 +692,7 @@ class YowsupConnectionManager:
 				
 			msgId = str(int(time.time()))+"-"+ str(self.currKeyId)
 			
-			messageNode = ProtocolTreeNode("message",{"to":jid,"type":"chat","id":msgId},messageChildren)
+			messageNode = ProtocolTreeNode("message",{"to":jid,"type":"text","id":msgId},messageChildren)
 			
 			self.currKeyId += 1
 

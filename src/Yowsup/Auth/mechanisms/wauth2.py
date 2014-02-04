@@ -101,7 +101,7 @@ class WAuth2():
   def sendAuth(self):
     # "user":self.connection.user,
     blob = []
-    node = ProtocolTreeNode("auth", {"passive": "true", "mechanism": "WAUTH-2", "user": self.username})
+    node = ProtocolTreeNode("auth", {"passive": "false", "mechanism": "WAUTH-2", "user": self.username})
     #node = ProtocolTreeNode("auth",{"user":self.username,"xmlns":"urn:ietf:params:xml:ns:xmpp-sasl","mechanism":"WAUTH-1"}, None, ''.join(map(chr, blob)));
     self.conn.writer.write(node);
 

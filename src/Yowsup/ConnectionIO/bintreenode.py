@@ -59,7 +59,7 @@ class BinTreeNodeReader():
 
         if self.inputKey is not None and isEncrypted:
             #self.inn.buf = bytearray(self.inn.buf)
-            self.inn.buf = self.inputKey.decodeMessage(self.inn.buf, 0, 4, len(self.inn.buf)-4)[4:]
+            self.inn.buf = self.inputKey.decodeMessage(self.inn.buf, 0, 4, len(self.inn.buf)-4)
 
     def streamStart(self):
         #self.nextTree()
