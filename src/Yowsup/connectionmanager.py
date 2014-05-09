@@ -870,12 +870,23 @@ class ReaderThread(threading.Thread):
 
 						elif xmlns == "w" and jid is not None:
 							status = node.getAttributeValue("status")
+							remove = node.getAttributeValue("remove")
 
 							if status == "dirty":
 								#categories = self.parseCategories(node); #@@TODO, send along with signal
 								self._d("WILL SEND DIRTY")
 								self.signalInterface.send("status_dirty")
 								self._d("SENT DIRTY")
+							elif jid.endswith("@g.us"):
+								remove = node.getAttributeValue("remove")
+							 	add    = node.getAttributeValue("add")
+
+							 	if remove is not None:
+									self.signalInterface.send("presence_participantLeftGroup", (jid, remove))
+
+								if add is not None:
+									self.signalInterface.send("presence_participantJoinedGroup", (jid, add))
+
 
 					elif ProtocolTreeNode.tagEquals(node,"message"):
 						self.parseMessage(node)
