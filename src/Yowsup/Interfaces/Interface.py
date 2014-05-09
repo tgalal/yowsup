@@ -46,6 +46,8 @@ class SignalInterfaceBase(object):
 			"presence_updated", #k
 			"presence_available", #k
 			"presence_unavailable", #k
+			"presence_participantLeftGroup",
+			"presence_participantJoinedGroup",
 			
 			"group_subjectReceived",
 			"group_createSuccess",

@@ -24,3 +24,6 @@ class InvalidReadException(Exception):
 
 class ConnectionClosedException(Exception):
     pass
+
+class FatalStreamErrorException(Exception):
+	pass

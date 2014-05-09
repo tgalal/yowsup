@@ -870,19 +870,47 @@ class ReaderThread(threading.Thread):
 
 						elif xmlns == "w" and jid is not None:
 							status = node.getAttributeValue("status")
+							remove = node.getAttributeValue("remove")
 
 							if status == "dirty":
 								#categories = self.parseCategories(node); #@@TODO, send along with signal
 								self._d("WILL SEND DIRTY")
 								self.signalInterface.send("status_dirty")
 								self._d("SENT DIRTY")
+							elif jid.endswith("@g.us"):
+								remove = node.getAttributeValue("remove")
+							 	add    = node.getAttributeValue("add")
+
+							 	if remove is not None:
+									self.signalInterface.send("presence_participantLeftGroup", (jid, remove))
+
+								if add is not None:
+									self.signalInterface.send("presence_participantJoinedGroup", (jid, add))
+
 
 					elif ProtocolTreeNode.tagEquals(node,"message"):
 						self.parseMessage(node)
-					
+					elif ProtocolTreeNode.tagEquals(node, "stream:error"):
+						try:
+							self.parseStreamError(node)
+						except FatalStreamErrorException, e:
+							self.socket.close()
+							self._d("Socket is being closed because of a stream error!")
+
+							self.sendDisconnected(e)
+							return
 
 		self._d("Reader thread terminating now!")
 					
+	def parseStreamError(self, node):
+
+		if node.getChild("conflict") is not None:
+			raise FatalStreamErrorException("conflict")
+
+		if node.getChild("ack") is not None:
+			raise FatalStreamErrorException("ack")
+
+
 	def parseOfflineMessageStamp(self,stamp):
 
 		watime = WATime();
