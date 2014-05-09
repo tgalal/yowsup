@@ -879,10 +879,27 @@ class ReaderThread(threading.Thread):
 
 					elif ProtocolTreeNode.tagEquals(node,"message"):
 						self.parseMessage(node)
-					
+					elif ProtocolTreeNode.tagEquals(node, "stream:error"):
+						try:
+							self.parseStreamError(node)
+						except FatalStreamErrorException, e:
+							self.socket.close()
+							self._d("Socket is being closed because of a stream error!")
+
+							self.sendDisconnected(e)
+							return
 
 		self._d("Reader thread terminating now!")
 					
+	def parseStreamError(self, node):
+
+		if node.getChild("conflict") is not None:
+			raise FatalStreamErrorException("conflict")
+
+		if node.getChild("ack") is not None:
+			raise FatalStreamErrorException("ack")
+
+
 	def parseOfflineMessageStamp(self,stamp):
 
 		watime = WATime();
