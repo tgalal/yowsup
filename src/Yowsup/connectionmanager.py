@@ -1043,6 +1043,8 @@ class ReaderThread(threading.Thread):
 				self.signalInterface.send("group_gotPicture", (jid, pictureId, tmp))
 			except ValueError:
 				self.signalInterface.send("contact_gotProfilePicture", (jid, pictureId, tmp))
+		else:
+			self.signalInterface.send("contact_gotProfilePictureError", (jid, pictureId, tmp))
 
 
 	def parseGetPictureIds(self,node):
