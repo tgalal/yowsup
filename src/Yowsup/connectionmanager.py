@@ -42,8 +42,9 @@ import sys
 import traceback
 class YowsupConnectionManager:
 	
-	def __init__(self):
+	def __init__(self, debug=True):
 		Debugger.attach(self)
+		Debugger.enabled = debug
 		self.currKeyId = 1
 		self.iqId = 0
 		self.verbose = True
