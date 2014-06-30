@@ -293,7 +293,7 @@ class BinTreeNodeWriter():
             self.out.write(0);
         else:
             self._d("Outgoing");
-            self._d("\n %s" % node.toString());
+            self._d("\n%s" % node.toString());
             self.writeInternal(node);
 
         self.flushBuffer(needsFlush);
