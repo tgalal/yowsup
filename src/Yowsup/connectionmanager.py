@@ -517,9 +517,9 @@ class YowsupConnectionManager:
 		
 		return [broadcastNode, messageNode]
 
-	def sendClientConfig(self,sound,pushID,preview,platform):
+	def sendClientConfig(self):
 		idx = self.makeId("config_");
-		configNode = ProtocolTreeNode("config",{"xmlns":"urn:xmpp:whatsapp:push","sound":sound,"id":pushID,"preview":"1" if preview else "0","platform":platform})
+		configNode = ProtocolTreeNode("config",{"xmlns":"urn:xmpp:whatsapp:push","id":"none","preview":"1","platform":"none"})
 		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":self.domain},[configNode]);
 
 		self._writeNode(iqNode);

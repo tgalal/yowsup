@@ -69,6 +69,7 @@ class WhatsappTestClient:
 	def onAuthSuccess(self, username):
 		print("Authed %s" % username)
 		self.methodsInterface.call("ready")
+		self.methodsInterface.call("clientconfig_send")
 		self.goInteractive(self.phoneNumber)
 
 	def onAuthFailed(self, username, err):
