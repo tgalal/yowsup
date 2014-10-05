@@ -519,8 +519,9 @@ class YowsupConnectionManager:
 
 	def sendClientConfig(self):
 		idx = self.makeId("config_");
-		configNode = ProtocolTreeNode("config",{"xmlns":"urn:xmpp:whatsapp:push","id":"none","preview":"1","platform":"none"})
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":self.domain},[configNode]);
+		configNode = ProtocolTreeNode("config",{"platform":"none"})
+		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":self.domain,"xmlns":"urn:xmpp:whatsapp:push"},[configNode]);
+		self.readerThread.requests[idx] = self.readerThread.parseResultNode;
 
 		self._writeNode(iqNode);
 
@@ -889,29 +890,8 @@ class ReaderThread(threading.Thread):
 							if idx in self.requests:
 								self.requests[idx](node)
 								del self.requests[idx]
-							elif idx.startswith(self.connection.user):
-								accountNode = node.getChild(0)
-								ProtocolTreeNode.require(accountNode,"account")
-								kind = accountNode.getAttributeValue("kind")
-
-								if kind == "paid":
-									self.connection.account_kind = 1
-								elif kind == "free":
-									self.connection.account_kind = 0
-								else:
-									self.connection.account_kind = -1
-
-								expiration = accountNode.getAttributeValue("expiration")
-
-								if expiration is None:
-									raise Exception("no expiration")
-
-								try:
-									self.connection.expire_date = long(expiration)
-								except ValueError:
-									raise IOError("invalid expire date %s"%(expiration))
-
-								self.eventHandler.onAccountChanged(self.connection.account_kind,self.connection.expire_date)
+							else:
+								self._d("unexpected result id: " + idx)
 
 						elif iqType == "error":
 							if idx in self.requests:
@@ -1089,10 +1069,16 @@ class ReaderThread(threading.Thread):
 
 					elif ProtocolTreeNode.tagEquals(node,"message"):
 						self.parseMessage(node)
-					
+
 
 		self._d("Reader thread terminating now!")
-					
+
+	def parseResultNode(self,node):
+		typeval = node.getAttributeValue("type");
+		if typeval != "result":
+			idx = node.getAttributeValue("id")
+			self._d("error response: " + idx)
+
 	def parseOfflineMessageStamp(self,stamp):
 
 		watime = WATime();
@@ -1105,8 +1091,7 @@ class ReaderThread(threading.Thread):
 
 	def parsePingResponse(self, node):
 		idx = node.getAttributeValue("id")
-		
-		
+
 
 	def parseLastOnline(self,node):
 		jid = node.getAttributeValue("from");
