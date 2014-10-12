@@ -1373,10 +1373,10 @@ class ReaderThread(threading.Thread):
 		timestamp = int(messageNode.getAttributeValue("t"))
 		fromAttribute = messageNode.getAttributeValue("from");
 		author = messageNode.getAttributeValue("participant");
-		isBroadcast = false;
+		isBroadcast = False;
 		if fromAttribute.find("@broadcast") >= 0:
 			fromAttribute = author;
-			isBroadcast = true;
+			isBroadcast = True;
 		
 		offline = messageNode.getAttributeValue("offline") is not None
 		retry = messageNode.getAttributeValue("retry");
