@@ -106,6 +106,7 @@ def resultToString(result):
 
 def getCredentials(config = DEFAULT_CONFIG):
 	if os.path.isfile(config):
+		#print(config)
 		f = open(config)
 		
 		phone = ""
@@ -132,6 +133,7 @@ def getCredentials(config = DEFAULT_CONFIG):
 					elif varname == "cc":
 						cc = val
 
+			#print(cc, phone, idx, pw)
 			return (cc, phone, idx, pw);
 		except:
 			pass
@@ -186,10 +188,6 @@ regSteps.add_argument("-r", '--requestcode', help='Request the 3 digit registrat
 regSteps.add_argument("-R", '--register', help='Register account on Whatsapp using the provided 3 digit code', action="store", required=False, metavar="code")
 regSteps.add_argument("-e", '--exists', help='Check if account credentials are valid. WARNING: Whatsapp now changes your password everytime you use this. Make sure you update your config file if the output informs about a password change', action="store_true", required=False)
 
-
-
-
-
 contactOptions = parser.add_argument_group("Contacts options").add_mutually_exclusive_group();
 
 contactOptions.add_argument('--sync', help='Sync provided numbers. Numbers should be comma-separated. If a number is not in international format, Whatsapp will assume your own country code for it. Returned data indicate which numbers are whatsapp users and which are not. For Whatsapp users, it will return some info about each user, like user status.', metavar="numbers", action="store", required=False)
@@ -204,13 +202,15 @@ debugTools.add_argument('--decodestring', help="Decode byte arrays found in deco
 
 parser.add_argument("--help-config", help="Display info about configuration format", action="store_true")
 parser.add_argument('-c','--config', help="Path to config file containing authentication info. For more info about config format use --help-config", action="store", metavar="file", required=False, default=False)
-#parser.add_argument('-D','--dbus', help='Start DBUS interface', action="store_true", required=False, default=False)
+parser.add_argument('-D','--dbus', help='Start DBUS interface', action="store_true", required=False, default=False)
 parser.add_argument("--ignorecached", help="Don't use cached token if exists", action="store_true", required=False, default=False)
 parser.add_argument('-d','--debug', help='Enable debug messages', action="store_true", required=False, default=False)
 parser.add_argument('-v', '--version', help="Print version info and exit", action='store_true', required=False, default=False)
 
 
 args = vars(parser.parse_args())
+#print(args)
+
 if len(sys.argv) == 1:
 	parser.print_help()
 
@@ -220,11 +220,10 @@ elif args["version"]:
 	print("yowsup-cli %s, using Yowsup %s"%(__version__, Constants.v))
 else:
 	credentials = getCredentials(args["config"] or DEFAULT_CONFIG)
-	
+
 	if credentials:
 
 		countryCode, login, identity, password = credentials
-
 		identity = Utilities.processIdentity(identity)
 		password = base64.b64decode(bytes(password.encode('utf-8')))
 
@@ -304,10 +303,11 @@ else:
 			print(resultToString(result))
 
 	elif args["dbus"]:
-            startDbusInterface()
+			startDbusInterface()
 	elif args["generatepassword"]:
 		print(Utilities.processIdentity(args["generatepassword"]));
 	elif args["decodestring"]:
 		print(Utilities.decodeString(map(int, "".join(args["decodestring"].split(' ')).split(','))))
 	else:
+		#print(credentials)
 		print("Error: config file is invalid")
