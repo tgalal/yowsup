@@ -164,6 +164,8 @@ class YowsupConnectionManager:
 		
 		self.methodInterface.registerCallback("profile_setStatus", self.sendChangeStatus)
 
+		self.methodInterface.registerCallback("sync_sendSync", self.sendSync)
+		
 		self.methodInterface.registerCallback("disconnect", self.disconnect)
 		self.methodInterface.registerCallback("ready", self.startReader)
 		
@@ -1076,7 +1078,7 @@ class ReaderThread(threading.Thread):
 		# _in = [item.getAttributeValue("jid") for item in node_in]
 		# _out = [item.getAttributeValue("jid") for item in node_out]
 		
-		return {'in': _in, 'out': _out}
+		self.signalInterface.send("sync_gotSyncResult", (_in, _out))
 		
 	
 	def parseGetPicture(self,node):
