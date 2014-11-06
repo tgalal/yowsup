@@ -83,6 +83,8 @@ class SignalInterfaceBase(object):
 			"profile_setPictureSuccess",
 			"profile_setPictureError",
 			"profile_setStatusSuccess",
+			
+			"sync_gotSyncResult",
 
 			"ping",
 			"pong",
@@ -200,6 +202,7 @@ class MethodInterfaceBase(object):
 			"profile_setPicture",
 			"profile_setStatus",
 
+			"sync_sendSync",
 			
 			"ready",
 			"disconnect",
