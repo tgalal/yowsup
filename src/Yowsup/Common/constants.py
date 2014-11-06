@@ -1,3 +1,4 @@
+
 '''
 Copyright (c) <2012> Tarek Galal <tare2.galal@gmail.com>
 
@@ -50,7 +51,7 @@ class Constants:
 	port = 443
 	domain = "s.whatsapp.net"
 
-	v="0.82"
+	v="0.90"
 
 	tokenData = {
 		"v": "2.12.15",

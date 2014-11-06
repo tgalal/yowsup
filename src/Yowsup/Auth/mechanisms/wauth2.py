@@ -253,7 +253,7 @@ class KeyStream:
 
   def __init__(self, key, macKey):
     self.key = key if sys.version_info < (3, 0) else bytes(key, 'iso-8859-1')
-    self.rc4 = RC4(self.key, 768)
+    self.rc4 = RC4(self.key, 0x300)
     self.macKey = macKey if sys.version_info < (3, 0) else bytes(macKey, 'iso-8859-1')
     self.seq = 0
 
@@ -292,13 +292,11 @@ class KeyStream:
 
     hashed = self.computeMac(buf, offset, length)
 
-    numArray = hashed#.digest()#binascii.b2a_base64(hashed.digest())[:-1]
-    numArray = [ord(x) for x in numArray.decode('iso-8859-1')]
+    numArray = [ord(x) for x in hashed.decode('iso-8859-1')]
 
-    for i in range(0,4):
-      buf[macOffset + i] = numArray[i]
+    output = buf[0:macOffset] + numArray[0:4] + buf[macOffset+4:]
 
-    return [x for x in buf]
+    return [x for x in output]
 
   @staticmethod
   def generateKeys(password, nonce):
@@ -311,9 +309,6 @@ class KeyStream:
     for j in range(0, len(numArray)):
       noncex = nonce + chr(numArray[j])
       _bytes[j] = KeyStream.pbkdf2(password, noncex, 2, 20)
-
-    for key in _bytes:
-      print(key.encode("hex"))
 
     return _bytes
 

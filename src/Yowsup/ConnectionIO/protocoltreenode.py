@@ -27,27 +27,27 @@ class ProtocolTreeNode():
 	def __init__(self,tag,attributes,children=None,data=None):
 
 		Debugger.attach(self)
-		
+
 		self.tag = tag;
 		self.attributes = attributes;
 		self.children = children;
 		self.data = data
-		
-	def toString(self):
+
+	def toString(self, depth = 0):
 		try:
-			out = "<"+self.tag;
+			out = (" " * depth) + "<"+self.tag;
 			if self.attributes is not None:
 				for key,val in self.attributes.items():
 					out+= " "+key+'="'+val+'"'
 			out+= ">\n";
 			if self.data is not None:
-				out += self.data;
-			
+				out += (" " * (depth + 4)) + self.data.encode("hex") + "\n"
+
 			if self.children is not None:
 				for c in self.children:
-					out+=c.toString();
+					out+=c.toString(depth + 4);
 			#print sel
-			out+= "</"+self.tag+">\n"
+			out+= (" " * depth) + "</"+self.tag+">\n"
 			return out
 		except TypeError:
 			print("ignored toString call, probably encountered byte")

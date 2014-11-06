@@ -46,14 +46,11 @@ class BinTreeNodeReader():
 
     def readStanza(self):
 
-        num = self.readInt8(self.rawIn)
-        stanzaSize = self.readInt16(self.rawIn,1);
+        firstByte = self.readInt8(self.rawIn)
+        stanzaFlag = (firstByte & 0xF0) >> 4
+        stanzaSize = self.readInt16(self.rawIn) | ((firstByte & 0x0F) << 16)
 
-        header = (num << 16) + stanzaSize#self.readInt24(self.rawIn)
-
-        flags = (header >> 20);
-        #stanzaSize =  ((header & 0xF0000) >> 16) | ((header & 0xFF00) >> 8) | (header & 0xFF);
-        isEncrypted = ((flags & 8) != 0)
+        isEncrypted = ((stanzaFlag & 8) != 0)
 
         self.fillBuffer(stanzaSize);
 
@@ -293,7 +290,7 @@ class BinTreeNodeWriter():
             self.out.write(0);
         else:
             self._d("Outgoing");
-            self._d("\n %s" % node.toString());
+            self._d("\n%s"%node.toString());
             self.writeInternal(node);
 
         self.flushBuffer(needsFlush);
@@ -303,21 +300,17 @@ class BinTreeNodeWriter():
     def processBuffer(self):
         buf = self.out.getBuffer()
 
-        prep = [0,0,0]
-        prep.extend(buf)
-
         length1 = len(self.out.buf)
-        num = 0
 
         if self.outputKey is not None:
-            num = 1
-            prep.extend([0,0,0,0])
             length1 += 4
 
             #prep = bytearray(prep)
-            res = self.outputKey.encodeMessage(prep, len(prep) - 4 , 3, len(prep)-4-3)
+            buf = self.outputKey.encodeMessage(buf, len(buf), 0, len(buf))
 
-            res[0] = ((num << 4) | (length1 & 16711680) >> 16) % 256
+            res = [0,0,0]
+            res.extend(buf)
+            res[0] = ((8 << 4) | (length1 & 16711680) >> 16) % 256
             res[1] = ((length1 & 65280) >> 8) % 256
             res[2] = (length1 & 255) % 256
 
@@ -325,7 +318,9 @@ class BinTreeNodeWriter():
 
             return
         else:
-            prep[0] = ((num << 4) | (length1 & 16711680) >> 16) % 256
+            prep = [0,0,0]
+            prep.extend(buf)
+            prep[0] = ((0 << 4) | (length1 & 16711680) >> 16) % 256
             prep[1] = ((length1 & 65280) >> 8) % 256
             prep[2] = (length1 & 255) % 256
             self.out.buf = prep
