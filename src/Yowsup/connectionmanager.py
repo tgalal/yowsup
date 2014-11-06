@@ -725,19 +725,19 @@ class YowsupConnectionManager:
 			"iq", 
 			{
 				"type" : "get",
-				"id" : idx
+				"id" : idx,
+				"xmlns" : "urn:xmpp:whatsapp:sync"
 			}, 
 			[
 				(
 				ProtocolTreeNode(
 				"sync", 
 				{
-					"mode" : 'delta',
-					"context" : 'background',
+					"mode" : 'full',
+					"context" : 'registration',
 					"sid" : str((time.time() + 11644477200) * 10000000),
 					"index" : '0',
-					"request" : "all",
-					"xmlns" : "urn:xmpp:whatsapp:sync"
+					"last" : "true",
 				}, 
 				users, 
 				None)
