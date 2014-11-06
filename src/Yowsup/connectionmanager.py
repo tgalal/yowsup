@@ -164,6 +164,8 @@ class YowsupConnectionManager:
 		
 		self.methodInterface.registerCallback("profile_setStatus", self.sendChangeStatus)
 
+		self.methodInterface.registerCallback("sync_sendSync", self.sendSync)
+		
 		self.methodInterface.registerCallback("disconnect", self.disconnect)
 		self.methodInterface.registerCallback("ready", self.startReader)
 		
@@ -673,6 +675,42 @@ class YowsupConnectionManager:
 		
 		self._writeNode(iqNode)
 
+
+	def sendSync(self, contacts):
+		idx = self.makeId("sendsync_")
+		self.readerThread.requests[idx] = self.readerThread.parseSync
+		
+		users = []
+		
+		for c in contacts:
+			users.append(ProtocolTreeNode("user",None,None,'+' + c.replace('+', '')))
+
+		node = ProtocolTreeNode(
+			"iq", 
+			{
+				"type" : "get",
+				"id" : idx
+			}, 
+			[
+				(
+				ProtocolTreeNode(
+				"sync", 
+				{
+					"mode" : 'delta',
+					"context" : 'background',
+					"sid" : str((time.time() + 11644477200) * 10000000),
+					"index" : '0',
+					"request" : "all",
+					"xmlns" : "urn:xmpp:whatsapp:sync"
+				}, 
+				users, 
+				None)
+			  ),
+		]
+		, None)
+		self._writeNode(node)
+
+
 	def getMessageNode(self, jid, child):
 			requestNode = None;
 			serverNode = ProtocolTreeNode("server",None);
@@ -1027,6 +1065,21 @@ class ReaderThread(threading.Thread):
 		tmpfile.close()
 
 		return tmp
+	
+	def parseSync(self, node):
+		node_in = node.getChild("sync").getChild("in").getAllChildren("user")
+		node_out = node.getChild("sync").getChild("out").getAllChildren("user")
+		
+		_in = [item.data for item in node_in]
+		_out = [item.data for item in node_out]
+		
+		# Uncomment the following lines if you would rather return the jid
+		# instead of the (international) phone number.
+		# _in = [item.getAttributeValue("jid") for item in node_in]
+		# _out = [item.getAttributeValue("jid") for item in node_out]
+		
+		self.signalInterface.send("sync_gotSyncResult", (_in, _out))
+		
 	
 	def parseGetPicture(self,node):
 		jid = node.getAttributeValue("from");
