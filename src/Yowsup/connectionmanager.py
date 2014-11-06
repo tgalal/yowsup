@@ -967,7 +967,8 @@ class ReaderThread(threading.Thread):
 						dirtyNode = node.getChild("dirty")
 						if dirtyNode is not None:
 							dirtyType = dirtyNode.getAttributeValue("type")
-							sendCleanDirty(dirtyType)
+							self.signalInterface.send("ib_dirty", (dirtyType,))
+                            ##sendCleanDirty(dirtyType)
 
 					elif ProtocolTreeNode.tagEquals(node,"presence"):
 						jid = node.getAttributeValue("from")
