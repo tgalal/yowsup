@@ -15,6 +15,7 @@ class YowCoderLayer(YowLayer):
                 self.__class__.getProp("domain"),
                 self.__class__.getProp("resource")
             )
+            self.readStreamStarted = False
             return
 
     def send(self, data):
