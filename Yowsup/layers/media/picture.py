@@ -3,9 +3,6 @@ from Yowsup import ProtocolTreeNode
 from mediadownloader import MediaDownloader
 import shutil, os
 class YowMediaPictureLayer(YowLayer):
-    def init(self):
-        self.initUpper()
-
     def send(self, data):
         self.toLower(data)
 

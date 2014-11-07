@@ -23,8 +23,9 @@ class YowStackInit:
         YowCoderLayer.setProp("resource", "S40-2.12.15")
 
         stack = YowBasicStack()
-        stack.construct()
-        stack.sendInitSignal()
+
+        interfaceLayer = stack.getLayer(-1)
+        interfaceLayer.connect()
 
         try:
             asyncore.loop()
@@ -37,4 +38,5 @@ class YowStackInit:
         except KeyboardInterrupt, e:
             print("\nYowsdown")
             sys.exit(0)
+            
 

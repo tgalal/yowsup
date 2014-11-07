@@ -5,20 +5,21 @@ from Yowsup.layers.network            import YowNetworkLayer, NetworkError
 from Yowsup.layers.protocol           import YowProtocolLayer
 from Yowsup.layers.packetregulator    import YowPacketRegulator
 from Yowsup.layers.media              import YowMediaPictureLayer
+from Yowsup.layers.interface          import YowInterfaceLayer
+
 
 from yowstack import YowStack
 
 class YowBasicStack(YowStack):
     def __init__(self):
-        YowStack.__init__(self,
-            [ 
-                YowNetworkLayer,
-                YowPacketRegulator,
-                YowCryptLayer,
-                YowCoderLayer,
-                YowAuthenticatorLayer,
-                YowMediaPictureLayer,
-                YowProtocolLayer,
-                
-            ]
-        )
+        super(YowBasicStack, self).__init__(
+                (
+                    YowInterfaceLayer,
+                    (YowAuthenticatorLayer, YowProtocolLayer),
+                    YowLoggerLayer,
+                    YowCoderLayer,
+                    YowCryptLayer,
+                    YowPacketRegulator,
+                    YowNetworkLayer
+                )
+            )

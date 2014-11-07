@@ -1,9 +1,9 @@
 from Yowsup.layers import YowLayer
 class YowPacketRegulator(YowLayer):
-    def init(self):
-        self.initUpper()
+
+    def __init__(self):
+        super(YowLayer, self).__init__()
         self.buf = []
-        return True
 
     def send(self, data):
         self.toLower(data)
@@ -32,7 +32,8 @@ class YowPacketRegulator(YowLayer):
         if len(self.buf) > 3: #min required if has processable data yet
             self.processReceived()
 
-
+    def __str__(self):
+        return "Packet Regulator Layer"
 
 
 

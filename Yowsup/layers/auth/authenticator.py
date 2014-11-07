@@ -1,53 +1,61 @@
-from Yowsup.layers import YowLayer
+from Yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from Yowsup import ProtocolTreeNode
 from keystream import KeyStream
 from watime import WATime
 from crypt import YowCryptLayer
 from autherror import AuthError
-class YowAuthenticatorLayer(YowLayer):
+from protocolentities import *
+class YowAuthenticatorLayer(YowProtocolLayer):
     STATE_AUTHED    = 0
     STATE_NOAUTH    = 1
     def __init__(self):
-        YowLayer.__init__(self)
+        handleMap = {
+            "stream:features": self.handleStreamFeatures,
+            "failure": self.handleFailure,
+            "success": self.handleSuccess,
+            "challenge": self.handleChallenge
+        }
+        super(YowAuthenticatorLayer, self).__init__(handleMap)
         self.supportsReceiptAcks = False
         self.state = YowAuthenticatorLayer.STATE_NOAUTH 
 
-    def init(self):
-        self.sendFeatures()
-        self.sendAuth();
-        self.initUpper()
-        return True
+    # def init(self):
+    #     self.sendFeatures()
+    #     self.sendAuth();
+    #     self.initUpper()
+    #     return True
 
 
-    def toLower(self, data):
-        YowLayer.toLower(self, ProtocolTreeNode(data[0], *data[1:]))
-
+    def onEvent(self, event):
+        if event.getName() == "network.state.connected":
+            self.sendFeatures()
+            self.sendAuth();
 
     def sendFeatures(self):
-        self.toLower(("stream:features", None))
+        self.entityToLower(StreamFeaturesProtocolEntity())
 
+    def entityToLower(self, protocolentity):
+        self.toLower(protocolentity.toProtocolTreeNode())
 
     def sendAuth(self):
-        self.toLower(("auth", {"passive": "false", "mechanism": "WAUTH-2", "user": YowAuthenticatorLayer.getProp("credentials")[0]}))
+        self.entityToLower(AuthProtocolEntity(YowAuthenticatorLayer.getProp("credentials")[0]))
 
     def send(self, data):
-        self.toLower(data)
+        self.entityToLower(data)
 
-    def receive(self, node):
+    def handleStreamFeatures(self, node):
+        nodeEntity = StreamFeaturesProtocolEntity.fromProtocolTreeNode(node)
+        self.supportsReceiptAcks  = nodeEntity.supportsReceiptAcks()
 
-        if ProtocolTreeNode.tagEquals(node, "stream:features"):
-            self.supportsReceiptAcks  = node.getChild("receipt_acks") is not None
-        elif ProtocolTreeNode.tagEquals(node, "challenge"):
-            challenge = node.data
-            self.sendResponse(challenge)
-        elif ProtocolTreeNode.tagEquals(node, "failure"):
-            raise AuthError("Authentication failed")
-        elif ProtocolTreeNode.tagEquals(node, "success"):
-            self.processSuccessNode(node)
-        elif self.state == YowAuthenticatorLayer.STATE_NOAUTH:
-            raise AuthError("Failed to receive initial auth data")
-        else:
-            self.toUpper(node)
+    def handleSuccess(self, node):
+        self.state = YowAuthenticatorLayer.STATE_AUTHED
+
+    def handleFailure(self, node):
+        raise AuthError("Authentication failed")
+
+    def handleChallenge(self, node):
+        nodeEntity = ChallengeProtocolEntity.fromProtocolTreeNode(node)
+        self.sendResponse(nodeEntity.getNonce())
 
     def processSuccessNode(self, node):
         self.state = YowAuthenticatorLayer.STATE_AUTHED
@@ -72,8 +80,12 @@ class YowAuthenticatorLayer(YowLayer):
         encoded = outputKey.encodeMessage(nums, 0, 4, len(nums) - 4)
         authBlob = "".join(map(chr, encoded))
 
-        node = ProtocolTreeNode("response",{"xmlns":"urn:ietf:params:xml:ns:xmpp-sasl"}, None, authBlob);
-        self.toLower(("response", {"xmlns":"urn:ietf:params:xml:ns:xmpp-sasl"}, None, authBlob))
+
+        responseEntity = ResponseProtocolEntity(authBlob)
+        self.entityToLower(responseEntity)
         YowCryptLayer.setProp("outputKey", outputKey)
+
+    def __str__(self):
+        return "Autheticator Layer"
 
 

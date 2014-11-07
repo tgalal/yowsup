@@ -1,4 +1,4 @@
-from Yowsup.layers import YowLayer
+from Yowsup.layers import YowLayer, YowLayerEvent
 from writer import Writer
 from reader import Reader
 class YowCoderLayer(YowLayer):
@@ -8,13 +8,14 @@ class YowCoderLayer(YowLayer):
         self.reader = Reader(self)
         self.readBuf = []
         self.readStreamStarted = False
-    def init(self):
-        self.writer.streamStart(
-            self.__class__.getProp("domain"),
-            self.__class__.getProp("resource")
-        )
-        self.initUpper()
-        return True
+
+    def onEvent(self, event):
+        if event.getName() == "network.state.connected":
+            self.writer.streamStart(
+                self.__class__.getProp("domain"),
+                self.__class__.getProp("resource")
+            )
+            return
 
     def send(self, data):
         self.writer.write(data)
@@ -42,3 +43,6 @@ class YowCoderLayer(YowLayer):
 
     def read(self, _ = None):
         return self.readBuf.pop(0)
+
+    def __str__(self):
+        return "Coder Layer"

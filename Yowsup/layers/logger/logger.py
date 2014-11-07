@@ -12,3 +12,7 @@ class YowLoggerLayer(YowLayer):
         print(data)
         print("----\n")
         self.toUpper(data)
+
+
+    def __str__(self):
+        return "Logger Layer"

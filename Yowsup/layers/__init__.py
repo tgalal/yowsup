@@ -6,8 +6,16 @@
 # import protocol
 # import packetregulator
 
+class YowLayerEvent:
+    def __init__(self, name, **kwargs):
+        self.name = name
+        self.args = kwargs
 
-class YowLayer:
+    def getName(self):
+        return self.name
+
+
+class YowLayer(object):
     __upper = None
     __lower = None
     _props = {}
@@ -21,15 +29,11 @@ class YowLayer:
         self.__upper = upper
         self.__lower = lower
 
-    def init(self):
-        self.initUpper()
-        return True
-
     def send(self, data):
-        pass
+        self.toLower(data)
 
     def receive(self, data):
-        pass
+        self.toUpper(data)
 
     def toUpper(self, data):
         if self.__upper:
@@ -39,6 +43,20 @@ class YowLayer:
         if self.__lower:
             self.__lower.send(data)
 
+    def emitEvent(self, yowLayerEvent):
+        if self.__upper and not self.__upper.onEvent(yowLayerEvent):
+            self.__upper.emitEvent(yowLayerEvent)
+
+    def broadcastEvent(self, yowLayerEvent):
+        print "BORADCAST EVN"
+        if self.__lower and not self.__lower.onEvent(yowLayerEvent):
+            self.__lower.broadcastEvent(yowLayerEvent)
+
+    '''return true to stop propagating the event'''
+    def onEvent(self, yowLayerEvent):
+        return False
+
+
     @classmethod
     def setProp(cls, key, value):
         cls._props[key] = value
@@ -47,21 +65,43 @@ class YowLayer:
     def getProp(cls, key, default = None):
         return cls._props[key] if key in cls._props else default
 
-    def initUpper(self):
-        if self.__upper:
-            self.__upper.init()
+
+class YowProtocolLayer(YowLayer):
+    def __init__(self, recvHandleMap = {}):
+        super(YowProtocolLayer, self).__init__()
+        self.recvHandleMap = recvHandleMap
+
+    def receive(self, node):
+        if node.tag in self.recvHandleMap:
+            self.recvHandleMap[node.tag](node)
+        else:
+            self.toUpper(node)
 
 class YowParallelLayer(YowLayer):
-    def __init__(self, parallerLayers):
-        self.parallerLayers = []
-        for p in  parallerLayers:
-            pInst = p()
-            pInst.setLayers(self, self)
-            self.parallerLayers.append(p)
-
-
-    def send(self, data):
+    def __init__(self, sublayers = []):
+        super(YowParallelLayer, self).__init__()
+        self.sublayers = tuple([sublayer() for sublayer in sublayers])
+        for s in self.sublayers:
+            #s.setLayers(self, self)
+            s.toLower = self.toLower
+            s.toUpper = self.toUpper
 
 
     def receive(self, data):
-        
+        for s in self.sublayers:
+            s.receive(data)
+
+    def send(self, data):
+        for s in self.sublayers:
+            s.send(data)
+
+
+    def onEvent(self, yowLayerEvent):
+        stopEvent = False
+        for s in self.sublayers:
+            stopEvent = stopEvent or s.onEvent(yowLayerEvent)
+
+        return stopEvent
+
+    def __str__(self):
+        return " - ".join([l.__str__() for l in self.sublayers])

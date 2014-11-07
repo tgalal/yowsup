@@ -1,9 +1,11 @@
-class YowStack:
+from Yowsup.layers import YowParallelLayer
+class YowStack(object):
     __stack = []
     __stackInstances = []
-    def __init__(self, stackClassesArr = []):
-        self.__stack = stackClassesArr or []
+    def __init__(self, stackClassesArr = ()):
+        self.__stack = stackClassesArr[::-1] or []
         self.__stackInstances = []
+        self._construct()
 
     def addLayer(self, layerClass):
         self.__stack.push(layerClass)
@@ -13,17 +15,21 @@ class YowStack:
         layer.setLayers(None, self.__stackInstances[-1])
         self.__stackInstances.append(layer)
 
-    def construct(self):
+    def _construct(self):
         print("Initialzing stack")
         for s in self.__stack:
-            print("Constructing %s" %s)
-            self.__stackInstances.append(s())
+            if type(s) is tuple:
+                inst = YowParallelLayer(s)
+            else:
+                inst = s()
+            print("Constructed %s" % inst)
+            self.__stackInstances.append(inst)
 
         for i in range(0, len(self.__stackInstances)):
             upperLayer = self.__stackInstances[i + 1] if (i + 1) < len(self.__stackInstances) else None
             lowerLayer = self.__stackInstances[i - 1] if i > 0 else None
             self.__stackInstances[i].setLayers(upperLayer, lowerLayer)
 
-    def sendInitSignal(self):
-        print("Initialzing layers")
-        self.__stackInstances[0].init()
+    def getLayer(self, layerIndex):
+        return self.__stackInstances[layerIndex]
+

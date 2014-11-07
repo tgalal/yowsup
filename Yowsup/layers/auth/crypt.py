@@ -1,8 +1,5 @@
 from Yowsup.layers import YowLayer
 class YowCryptLayer(YowLayer):
-    def init(self):
-        self.initUpper()
-        return True
 
     def send(self, data):
         outputKey = self.__class__.getProp("outputKey")
@@ -47,3 +44,6 @@ class YowCryptLayer(YowLayer):
             payload = inputKey.decodeMessage(payload, 0, 4, len(payload) - 4)
 
         self.toUpper(payload)
+
+    def __str__(self):
+        return "Crypt Layer"

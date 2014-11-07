@@ -4,6 +4,9 @@ from textmessage import YowTextMessage
 class YowProtocolLayer(YowLayer):
     TYPE_MESSAGE_TEXT = 1;
 
+    def __str__(self):
+        return "Protocol Layer"
+
     def init(self):
         self.currKeyId = 0;
         self.initUpper()
@@ -23,6 +26,7 @@ class YowProtocolLayer(YowLayer):
         if ProtocolTreeNode.tagEquals(node, "ib"):
             self.handleIbNode(node)
         elif ProtocolTreeNode.tagEquals(node, "message"):
+            print "GOT MESSAGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEe"
             self.handleMessageNode(node)
         #else:
         #    self.toUpper(node)
