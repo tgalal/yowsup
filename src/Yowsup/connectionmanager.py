@@ -293,6 +293,7 @@ class YowsupConnectionManager:
 			
 			self.readerThread.setSocket(self.socket)
 			self.readerThread.disconnectedCallback = self.onDisconnected
+			self.readerThread.sendReceiptAck = self.sendReceiptAck
 			self.readerThread.onPing = self.sendPong
 			self.readerThread.ping = self.sendPing
 			
@@ -1081,7 +1082,7 @@ class ReaderThread(threading.Thread):
 						msg_id = node.getAttributeValue("id")
 						participant = node.getAttributeValue("participant")
 						if receiptType == "delivered" or receiptType == "played" or receiptType != "":
-							sendReceiptAck(msg_id, receiptType)
+							self.sendReceiptAck(msg_id, receiptType)
 						if fromJid[-9:] == "broadcast":
 							self.signalInterface.send("receipt_messageDelivered", (participant, msg_id))
 						else:
