@@ -8,8 +8,13 @@ class YowInterfaceLayer(YowLayer):
     def send(self, data):
         self.toLower(data)
 
-    def receive(self, data):
-        self.toUpper(data)
+    def receive(self, entity):
+        if entity.isType("success"):
+            print "AUTH SUCCESS"
+            print entity.status
+            print entity.kind
+            print entity.expiration
+
 
     def __str__(self):
         return "Interface Layer"

@@ -74,8 +74,6 @@ class YowProtocolLayer(YowLayer):
     def receive(self, node):
         if node.tag in self.recvHandleMap:
             self.recvHandleMap[node.tag](node)
-        else:
-            self.toUpper(node)
 
 class YowParallelLayer(YowLayer):
     def __init__(self, sublayers = []):

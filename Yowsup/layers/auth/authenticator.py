@@ -45,6 +45,8 @@ class YowAuthenticatorLayer(YowProtocolLayer):
 
     def handleSuccess(self, node):
         self.state = YowAuthenticatorLayer.STATE_AUTHED
+        nodeEntity = SuccessProtocolEntity.fromProtocolTreeNode(node)
+        self.toUpper(nodeEntity)
 
     def handleFailure(self, node):
         raise AuthError("Authentication failed")

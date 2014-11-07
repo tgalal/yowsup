@@ -5,6 +5,9 @@ class ProtocolEntity(object):
 
     def getTag(self):
         return self.tag
+
+    def isType(self,  typ):
+        return self.tag == typ
     
     def _createProtocolTreeNode(self, attributes, children = None, data = None):
         return ProtocolTreeNode(self.getTag(), attributes, children, data)

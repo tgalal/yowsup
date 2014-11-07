@@ -30,8 +30,6 @@ class YowCryptLayer(YowLayer):
 
     def receive(self, data):
         inputKey = self.__class__.getProp("inputKey")
-        print "DECODING"
-        print data
         metaData = data[:3]
         payload = data[3:]
 
