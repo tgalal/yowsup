@@ -15,12 +15,16 @@ class ProtocolTreeNode():
                 for key,val in self.attributes.items():
                     out+= " "+key+'="'+val+'"'
             out+= ">\n";
+
             if self.data is not None:
-                out += self.data;
+                if type(self.data) is bytearray:
+                    out += self.data.decode()
+                else:
+                    out += self.data;
             
             if self.children is not None:
                 for c in self.children:
-                    out+=c.toString();
+                    out += c.toString();
             #print sel
             out+= "</"+self.tag+">\n"
             return out
@@ -28,6 +32,7 @@ class ProtocolTreeNode():
             print("ignored toString call, probably encountered byte")
         except UnicodeDecodeError:
             print("ingnored toString call, encountered unicode error")
+
     
     def __str__(self):
         return self.toString() 
