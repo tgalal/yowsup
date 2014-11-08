@@ -805,7 +805,7 @@ class YowsupConnectionManager:
 			order += 1
 		if len(privacyNodes) > 0:
 			idx = self.makeId("privacy_setlist_")
-			listNode = ProtocolTreeNode("list", {"name", "default"}, privacyNodes)
+			listNode = ProtocolTreeNode("list", {"name": "default"}, privacyNodes)
 			queryNode = ProtocolTreeNode("query", None, [listNode])
 			iqNode = ProtocolTreeNode("iq", {"id": idx, "type": "set", "xmlns": "jabber:iq:privacy"}, [queryNode])
 			self._writeNode(iqNode)
