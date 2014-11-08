@@ -1,5 +1,9 @@
 from Yowsup.layers import YowLayer
 class YowCryptLayer(YowLayer):
+    '''
+        send:       bytearray -> bytearray
+        receive:    bytearray -> bytearray
+    '''
 
     def send(self, data):
         outputKey = self.__class__.getProp("outputKey")
@@ -25,13 +29,12 @@ class YowCryptLayer(YowLayer):
                 prep[2] = (length1 & 255) % 256
                 data = prep
 
-
-        self.toLower(data)
+        self.toLower(bytearray(data))
 
     def receive(self, data):
         inputKey = self.__class__.getProp("inputKey")
         metaData = data[:3]
-        payload = data[3:]
+        payload = bytearray(data[3:])
 
         firstByte = metaData[0]
         stanzaFlag = (firstByte & 0xF0) >> 4

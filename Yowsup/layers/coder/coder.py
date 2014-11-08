@@ -32,9 +32,9 @@ class YowCoderLayer(YowLayer):
 
     def write(self, i):
         if(type(i) in(list, tuple)):
-            self.toLower(i)
+            self.toLower(bytearray(i))
         else:
-            self.toLower((i,))
+            self.toLower(bytearray([i]))
 
 
     def readAll(self):

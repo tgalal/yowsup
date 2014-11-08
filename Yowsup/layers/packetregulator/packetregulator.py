@@ -1,5 +1,9 @@
 from Yowsup.layers import YowLayer
 class YowPacketRegulator(YowLayer):
+    '''
+        send:       bytearray -> bytearray
+        receive:    bytearray -> bytearray
+    '''
 
     def __init__(self):
         super(YowLayer, self).__init__()
