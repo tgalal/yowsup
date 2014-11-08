@@ -1,1 +1,1 @@
-from packetregulator import YowPacketRegulator
+from .packetregulator import YowPacketRegulator

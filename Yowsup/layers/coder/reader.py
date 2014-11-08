@@ -1,5 +1,5 @@
-from tokendictionary import TokenDictionary
-from barray import ByteArray
+from .tokendictionary import TokenDictionary
+from .barray import ByteArray
 from Yowsup import ProtocolTreeNode
 import traceback
 class Reader:

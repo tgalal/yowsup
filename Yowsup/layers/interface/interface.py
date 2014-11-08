@@ -10,10 +10,9 @@ class YowInterfaceLayer(YowLayer):
 
     def receive(self, entity):
         if entity.isType("success"):
-            print "AUTH SUCCESS"
-            print entity.status
-            print entity.kind
-            print entity.expiration
+            print(entity.status)
+            print(entity.kind)
+            print(entity.expiration)
 
 
     def __str__(self):

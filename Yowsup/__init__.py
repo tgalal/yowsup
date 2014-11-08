@@ -1,1 +1,1 @@
-from common import ProtocolTreeNode
+from .structs import ProtocolTreeNode

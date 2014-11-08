@@ -1,6 +1,6 @@
 from Yowsup.layers import YowLayer
 from Yowsup import ProtocolTreeNode
-from mediadownloader import MediaDownloader
+from .mediadownloader import MediaDownloader
 import shutil, os
 class YowMediaPictureLayer(YowLayer):
     def send(self, data):
@@ -13,7 +13,7 @@ class YowMediaPictureLayer(YowLayer):
             self.toUpper(node)
 
     def downloadMedia(self, url):
-        print "Downloading %s" % url
+        print("Downloading %s" % url)
         downloader = MediaDownloader(self.onSuccess, self.onError, self.onProgress)
         downloader.download(url)
 

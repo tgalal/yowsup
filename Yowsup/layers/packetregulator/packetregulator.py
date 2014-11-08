@@ -3,7 +3,7 @@ class YowPacketRegulator(YowLayer):
 
     def __init__(self):
         super(YowLayer, self).__init__()
-        self.buf = []
+        self.buf = bytearray()
 
     def send(self, data):
         self.toLower(data)

@@ -1,2 +1,2 @@
-from protocolentity import ProtocolEntity
-from protocoltreenode import ProtocolTreeNode
+from .protocolentity import ProtocolEntity
+from .protocoltreenode import ProtocolTreeNode

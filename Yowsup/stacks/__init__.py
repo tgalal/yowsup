@@ -1,1 +1,1 @@
-from yowbasicstack import YowBasicStack 
+from .yowbasicstack import YowBasicStack 

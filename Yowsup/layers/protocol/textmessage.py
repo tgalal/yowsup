@@ -1,4 +1,4 @@
-from message import YowMessage
+from .message import YowMessage
 
 class YowTextMessage(YowMessage):
     def __init__(self, *args):

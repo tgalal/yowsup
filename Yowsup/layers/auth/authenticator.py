@@ -1,10 +1,10 @@
 from Yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from Yowsup import ProtocolTreeNode
-from keystream import KeyStream
-from watime import WATime
-from crypt import YowCryptLayer
-from autherror import AuthError
-from protocolentities import *
+from .keystream import KeyStream
+from .watime import WATime
+from .crypt import YowCryptLayer
+from .autherror import AuthError
+from .protocolentities import *
 class YowAuthenticatorLayer(YowProtocolLayer):
     STATE_AUTHED    = 0
     STATE_NOAUTH    = 1
@@ -35,8 +35,8 @@ class YowAuthenticatorLayer(YowProtocolLayer):
 
     ## general methods
     def login(self):
-        self.__sendFeatures()
-        self.__sendAuth();
+        self._sendFeatures()
+        self._sendAuth();
 
     ###recieved node handlers handlers
     def handleStreamFeatures(self, node):
@@ -53,16 +53,16 @@ class YowAuthenticatorLayer(YowProtocolLayer):
 
     def handleChallenge(self, node):
         nodeEntity = ChallengeProtocolEntity.fromProtocolTreeNode(node)
-        self.__sendResponse(nodeEntity.getNonce())
+        self._sendResponse(nodeEntity.getNonce())
 
     ##senders
-    def __sendFeatures(self):
+    def _sendFeatures(self):
         self.entityToLower(StreamFeaturesProtocolEntity())
 
-    def __sendAuth(self):
+    def _sendAuth(self):
         self.entityToLower(AuthProtocolEntity(YowAuthenticatorLayer.getProp("credentials")[0]))
 
-    def __sendResponse(self,nonce):
+    def _sendResponse(self,nonce):
         keys = KeyStream.generateKeys(YowAuthenticatorLayer.getProp("credentials")[1], nonce)
 
         inputKey = KeyStream(keys[2], keys[3])
@@ -70,14 +70,23 @@ class YowAuthenticatorLayer(YowProtocolLayer):
 
         YowCryptLayer.setProp("inputKey", inputKey)
 
-        nums = [0] * 4
+        nums = bytearray(4)
 
-        nums.extend(YowAuthenticatorLayer.getProp("credentials")[0])
+        #nums = [0] * 4
+
+
+        username_bytes = list(map(ord, YowAuthenticatorLayer.getProp("credentials")[0]))
+        nums.extend(username_bytes)
+        #nums.extend(bytearray(YowAuthenticatorLayer.getProp("credentials")[0], "latin-1"))
         nums.extend(nonce)
 
         wt = WATime()
-        utcNow = int(wt.utcTimestamp())
-        nums.extend(str(utcNow))
+        utcNow = str(int(wt.utcTimestamp()))
+
+        time_bytes =  list(map(ord, utcNow))
+
+        #nums.extend(bytearray(str(utcNow), "latin-1"))
+        nums.extend(time_bytes)
 
         encoded = outputKey.encodeMessage(nums, 0, 4, len(nums) - 4)
         authBlob = "".join(map(chr, encoded))

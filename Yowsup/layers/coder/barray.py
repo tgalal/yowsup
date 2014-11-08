@@ -52,6 +52,8 @@ class ByteArray():
             self.writeString(data);
         elif type(data) is list:
             self.writeByteArray(data);
+        elif type(data) is bytearray:
+            self.writeByteArray(data)
         else:
             raise Exception("Unsupported datatype "+str(type(data)));
 

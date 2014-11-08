@@ -1,4 +1,4 @@
-from protocoltreenode import ProtocolTreeNode
+from .protocoltreenode import ProtocolTreeNode
 class ProtocolEntity(object):
     def __init__(self, tag):
         self.tag = tag

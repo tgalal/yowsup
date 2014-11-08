@@ -1,6 +1,6 @@
 from Yowsup.layers import YowLayer
 from Yowsup import ProtocolTreeNode
-from textmessage import YowTextMessage
+from .textmessage import YowTextMessage
 class YowProtocolLayer(YowLayer):
     TYPE_MESSAGE_TEXT = 1;
 
@@ -16,7 +16,6 @@ class YowProtocolLayer(YowLayer):
         if args[0] == YowProtocolLayer.TYPE_MESSAGE:
             node = self.getTextNode(*args[1:])
         else:
-            print args[0]
             node = ProtocolTreeNode(args[0], *args[1:])
 
         self.toLower(node)
@@ -26,7 +25,6 @@ class YowProtocolLayer(YowLayer):
         if ProtocolTreeNode.tagEquals(node, "ib"):
             self.handleIbNode(node)
         elif ProtocolTreeNode.tagEquals(node, "message"):
-            print "GOT MESSAGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEe"
             self.handleMessageNode(node)
         #else:
         #    self.toUpper(node)

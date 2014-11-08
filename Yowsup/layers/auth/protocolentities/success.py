@@ -4,11 +4,11 @@ class SuccessProtocolEntity(ProtocolEntity):
         super(SuccessProtocolEntity, self).__init__("success")
         self.status = status
         self.kind = kind
-        self.creation = long(creation)
-        self.expiration = long(expiration)
+        self.creation = int(creation)
+        self.expiration = int(expiration)
         self.props = props
         self.nonce = nonce
-        self.t = long(t) ##whatever that is !
+        self.t = int(t) ##whatever that is !
 
     def toProtocolTreeNode(self):
         attributes = {

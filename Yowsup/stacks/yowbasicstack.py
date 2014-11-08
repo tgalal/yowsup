@@ -8,7 +8,7 @@ from Yowsup.layers.media              import YowMediaPictureLayer
 from Yowsup.layers.interface          import YowInterfaceLayer
 
 
-from yowstack import YowStack
+from .yowstack import YowStack
 
 class YowBasicStack(YowStack):
     def __init__(self):
@@ -18,6 +18,7 @@ class YowBasicStack(YowStack):
                     (YowAuthenticatorLayer, YowProtocolLayer),
                     YowLoggerLayer,
                     YowCoderLayer,
+                    YowLoggerLayer,
                     YowCryptLayer,
                     YowPacketRegulator,
                     YowNetworkLayer

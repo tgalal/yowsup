@@ -12,4 +12,13 @@ class ChallengeProtocolEntity(ProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        return ChallengeProtocolEntity(node.getData())
+
+        nonce = list(map(ord,node.getData()))
+        #entity = ChallengeProtocolEntity(bytearray(node.getData().decode("latin-1"), "latin-1"))
+        entity = ChallengeProtocolEntity(bytearray(nonce))
+        return entity
+        # try:
+        #     entity = ChallengeProtocolEntity(bytearray(node.getData().decode("latin-1"), "latin-1"))
+        # except TypeError
+
+        #return ChallengeProtocolEntity(node.getData())

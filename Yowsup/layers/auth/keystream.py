@@ -3,21 +3,6 @@ from struct import pack
 from operator import xor
 from itertools import starmap
 
-
-
-def _bytearray(data):
-
-      if type(data) == str:
-            return data
-      elif type(data) == list:
-            tmp = [chr(x) if type(x) == int else x for x in data]
-            return "".join(tmp)
-      elif type(data) == int:
-            tmp = ""
-            return [0] * data
-
-      return ""
-
 class RC4:
     def __init__(self, key, drop):
         self.s = []
@@ -30,10 +15,11 @@ class RC4:
             self.s[i] = i
 
         for i in range(0, len(self.s)):
-            self.j = (self.j + self.s[i] + ord(key[i % len(key)])) % 256
+            self.j = (self.j + self.s[i] + key[i % len(key)]) % 256
             RC4.swap(self.s, i, self.j)
+
         self.j = 0;
-        self.cipher(_bytearray(drop), 0, drop)
+        self.cipher(bytearray(drop), 0, drop)
 
 
     def cipher(self, data, offset, length):
@@ -51,7 +37,6 @@ class RC4:
             num2 = offset
             offset = num2 + 1
 
-            data[num2] = ord(data[num2]) if type(data[num2]) == str else data[num2]
             data[num2] = (data[num2] ^ self.s[(self.s[self.i] + self.s[self.j]) % 256])
 
     @staticmethod
@@ -61,35 +46,30 @@ class RC4:
         arr[j] = tmp
 
 
-if sys.version_info >= (3, 0):
-  buffer = lambda x: bytes(x, 'iso-8859-1') if type(x) is str else bytes(x)
-  _bytearray = lambda x: [0]*x if type(x) is int else x
-
 class KeyStream:
 
     def __init__(self, key, macKey):
-        self.key = key if sys.version_info < (3, 0) else bytes(key, 'iso-8859-1')
+        self.key = key if sys.version_info < (3, 0) else bytes(key)
         self.rc4 = RC4(self.key, 0x300)
-        self.macKey = macKey if sys.version_info < (3, 0) else bytes(macKey, 'iso-8859-1')
+        self.macKey = macKey if sys.version_info < (3, 0) else bytes(macKey)
         self.seq = 0
 
     def computeMac(self, bytes_buffer, int_offset, int_length):
         mac = hmac.new(self.macKey, None, hashlib.sha1)
-        mac.update(buffer(_bytearray(bytes_buffer[int_offset:])))
+        updateData = bytes_buffer[int_offset:] + bytearray([self.seq >> 24, self.seq >> 16, self.seq >> 8, self.seq])
 
-        numArray = "%s%s%s%s" % (chr(self.seq >> 24), chr(self.seq >> 16), chr(self.seq >> 8), chr(self.seq))
-
-        mac.update(buffer(_bytearray(numArray)))
+        try:
+            mac.update(updateData)
+        except TypeError: #python3 support
+            mac.update(bytes(updateData))
 
         self.seq += 1
-        return mac.digest()
+        return bytearray(mac.digest())
 
     def decodeMessage(self, bufdata, macOffset, offset, length):
         buf = bufdata[:-4]
         hashed = bufdata[-4:]
         numArray = self.computeMac(buf, 0, len(buf))
-
-        numArray = [ord(x) for x in numArray.decode('iso-8859-1')];
 
         num = 0
         while num < 4:
@@ -100,40 +80,36 @@ class KeyStream:
 
         self.rc4.cipher(buf, 0, len(buf))
 
-        return [x for x in buf]
+        return buf
 
     def encodeMessage(self, buf, macOffset, offset, length):
         self.rc4.cipher(buf, offset, length)
-        hashed = self.computeMac(buf, offset, length)
-
-        numArray = [ord(x) for x in hashed.decode('iso-8859-1')]
-
-        output = buf[0:macOffset] + numArray[0:4] + buf[macOffset+4:]
-
-        return [x for x in output]
+        mac = self.computeMac(buf, offset, length)
+        output = buf[0:macOffset] + mac[0:4] + buf[macOffset+4:]
+        return output
 
     @staticmethod
     def generateKeys(password, nonce):
-        _bytes = [0] * 4
-        numArray = [1,2,3,4]
+        resultBytes = []
 
-        if sys.version >= (3, 0):
-            nonce = nonce.encode('iso-8859-1')
+        for i in range(1, 5):
+            currNonce = nonce + bytearray([i])
+            resultBytes.append(KeyStream.pbkdf2(password, currNonce, 2, 20))
 
-        for j in range(0, len(numArray)):
-            noncex = nonce + chr(numArray[j])
-            _bytes[j] = KeyStream.pbkdf2(password, noncex, 2, 20)
-
-        return _bytes
+        return resultBytes
 
     @staticmethod
     def pbkdf2( password, salt, itercount, keylen, hashfn = hashlib.sha1 ):
         def pbkdf2_F( h, salt, itercount, blocknum ):
             def prf( h, data ):
                 hm = h.copy()
-                hm.update( buffer(_bytearray(data)) )
+                try:
+                    hm.update(bytearray(data))
+                except TypeError: #python 3 support
+                    hm.update(bytes(data))
+
                 d = hm.digest()
-                return [ord(i) for i in d.decode('iso-8859-1')]
+                return bytearray(d)
 
             U = prf( h, salt + pack('>i',blocknum ) )
             T = U
@@ -147,12 +123,12 @@ class KeyStream:
         l = int(keylen / digest_size)
         if keylen % digest_size != 0:
             l += 1
+        
+        h = hmac.new(bytes(password), None, hashfn )
 
-        h = hmac.new( password, None, hashfn )
-
-        T = []
+        T = bytearray()
         for i in range(1, l+1):
             tmp = pbkdf2_F( h, salt, itercount, i )
             T.extend(tmp)
-        T = [chr(i) for i in T]
-        return "".join(T[0: keylen])
+        
+        return T[0: keylen]

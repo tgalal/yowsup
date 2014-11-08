@@ -1,12 +1,12 @@
 from Yowsup.layers import YowLayer, YowLayerEvent
-from writer import Writer
-from reader import Reader
+from .writer import Writer
+from .reader import Reader
 class YowCoderLayer(YowLayer):
     def __init__(self):
         YowLayer.__init__(self)
         self.writer = Writer(self)
         self.reader = Reader(self)
-        self.readBuf = []
+        self.readBuf = bytearray()
         self.readStreamStarted = False
 
     def onEvent(self, event):
@@ -39,7 +39,7 @@ class YowCoderLayer(YowLayer):
 
     def readAll(self):
         result = self.readBuf
-        self.readBuf = []
+        self.readBuf = bytearray()
         return result
 
     def read(self, _ = None):

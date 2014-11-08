@@ -5,6 +5,7 @@
 # import network
 # import protocol
 # import packetregulator
+import unittest
 
 class YowLayerEvent:
     def __init__(self, name, **kwargs):
@@ -48,7 +49,6 @@ class YowLayer(object):
             self.__upper.emitEvent(yowLayerEvent)
 
     def broadcastEvent(self, yowLayerEvent):
-        print "BORADCAST EVN"
         if self.__lower and not self.__lower.onEvent(yowLayerEvent):
             self.__lower.broadcastEvent(yowLayerEvent)
 
@@ -103,3 +103,29 @@ class YowParallelLayer(YowLayer):
 
     def __str__(self):
         return " - ".join([l.__str__() for l in self.sublayers])
+
+
+class YowLayerTest(unittest.TestCase):
+    def __init__(self, *args):
+        super(YowLayerTest, self).__init__(*args)
+        self.dataSink = None
+        self.toUpper = self.receiveOverrider
+        self.toLower = self.sendOverrider
+
+    def receiveOverrider(self, data):
+        self.dataSink = data
+
+    def sendOverrider(self, data):
+        self.dataSink = data
+
+    def targetReceive(self, data):
+        self.targetLayer.receive(data)
+
+    def targetSend(self, data):
+        self.targetLayer.send(data)
+
+
+    def setTargetLayer(self, targetLayer):
+        self.targetLayer = targetLayer
+        self.targetLayer.setLayers(self.sinkLayer, self.sinkLayer)
+        self.sinkLayer.setLayers(self.targetLayer, self.targetLayer)

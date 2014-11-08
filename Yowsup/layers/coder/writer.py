@@ -1,5 +1,5 @@
-from tokendictionary import TokenDictionary
-from barray import ByteArray
+from .tokendictionary import TokenDictionary
+from .barray import ByteArray
 class Writer:
     STREAM_START = 1;
     STREAM_END = 2;

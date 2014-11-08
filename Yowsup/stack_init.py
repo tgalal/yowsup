@@ -1,7 +1,7 @@
-from layers.auth               import YowCryptLayer, YowAuthenticatorLayer, AuthError
-from layers.coder              import YowCoderLayer
-from layers.network            import YowNetworkLayer, NetworkError
-from stacks import YowBasicStack
+from .layers.auth               import YowCryptLayer, YowAuthenticatorLayer, AuthError
+from .layers.coder              import YowCoderLayer
+from .layers.network            import YowNetworkLayer, NetworkError
+from .stacks import YowBasicStack
 import asyncore, sys, traceback, base64
 
 
@@ -11,8 +11,9 @@ ENDPOINT_LOCAL = ("127.0.0.1", 9002)
 AUTH_CREDENTIALS = ("491632092557", "7pTomcW7GgC9zDt4FKZCMukzs1w=")
 
 def getCredentials():
-     password = base64.b64decode(bytes(AUTH_CREDENTIALS[1].encode('utf-8')))
-     return (AUTH_CREDENTIALS[0], password)
+     #password = base64.b64decode(bytes(AUTH_CREDENTIALS[1].encode('utf-8')))
+     password = base64.b64decode(AUTH_CREDENTIALS[1])
+     return (AUTH_CREDENTIALS[0], bytearray(password))
 
 class YowStackInit:
     def __init__(self):
@@ -29,13 +30,13 @@ class YowStackInit:
 
         try:
             asyncore.loop()
-        except NetworkError, e:
+        except NetworkError as e:
             print("NetworkError, reason: %s, exiting" % e)
             sys.exit(1)
-        except AuthError, e:
+        except AuthError as e:
             print("Auth Error, reason %s" % e)
             sys.exit(1)
-        except KeyboardInterrupt, e:
+        except KeyboardInterrupt:
             print("\nYowsdown")
             sys.exit(0)
             
