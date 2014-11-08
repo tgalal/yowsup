@@ -9,7 +9,7 @@ import base64
 class AuthenticatorLayerTest(YowLayerTest, YowAuthenticatorLayer):
     def setUp(self):
         YowAuthenticatorLayer.__init__(self)
-        self.credentials =  ("dummyusername", bytearray("passwordpassword", "latin-1"))
+        self.credentials =  ("dummyusername", bytearray("password", "latin-1"))
         YowAuthenticatorLayer.setProp("credentials", self.credentials)
 
     def test_streamfeatures(self):

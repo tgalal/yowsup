@@ -1,7 +1,7 @@
 from Yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from Yowsup import ProtocolTreeNode
 from .keystream import KeyStream
-from .watime import WATime
+from Yowsup.common.tools import TimeTools
 from .crypt import YowCryptLayer
 from .autherror import AuthError
 from .protocolentities import *
@@ -77,15 +77,12 @@ class YowAuthenticatorLayer(YowProtocolLayer):
 
         username_bytes = list(map(ord, YowAuthenticatorLayer.getProp("credentials")[0]))
         nums.extend(username_bytes)
-        #nums.extend(bytearray(YowAuthenticatorLayer.getProp("credentials")[0], "latin-1"))
         nums.extend(nonce)
 
-        wt = WATime()
-        utcNow = str(int(wt.utcTimestamp()))
+        utcNow = str(int(TimeTools.utcTimestamp()))
 
         time_bytes =  list(map(ord, utcNow))
 
-        #nums.extend(bytearray(str(utcNow), "latin-1"))
         nums.extend(time_bytes)
 
         encoded = outputKey.encodeMessage(nums, 0, 4, len(nums) - 4)
