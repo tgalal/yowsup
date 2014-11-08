@@ -1,4 +1,5 @@
 from .protocoltreenode import ProtocolTreeNode
+import unittest
 class ProtocolEntity(object):
     def __init__(self, tag):
         self.tag = tag
@@ -18,3 +19,12 @@ class ProtocolEntity(object):
 
     def fromProtocolTreeNode(self, protocolTreeNode):
         pass
+
+
+class ProtocolEntityTest(unittest.TestCase):
+    def setUp(self):
+        self.skipTest("override in child classes")
+
+    def test_generation(self):
+        entity = self.ProtocolEntity.fromProtocolTreeNode(self.node)
+        self.assertEqual(entity.toProtocolTreeNode().toString(), self.node.toString())
