@@ -9,9 +9,14 @@ class TextMessageProtocolEntity(MessageProtocolEntity):
             </body>
     </message>
     '''
-    def __init__(self, _id, _from, timestamp, notify, body, offline, retry = None):
+    def __init__(self, _id, _from, timestamp, notify, body, offline = False, retry = None):
         super(TextMessageProtocolEntity, self).__init__("text", _id, _from, timestamp, notify, offline, retry)
         self.setBody(body)
+
+    def __str__(self):
+        out  = super(TextMessageProtocolEntity, self).__str__()
+        out += "body: %s\n" % self.body
+        return out
 
     def setBody(self, body):
         self.body = body

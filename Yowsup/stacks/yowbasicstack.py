@@ -2,7 +2,9 @@ from Yowsup.layers.auth               import YowCryptLayer, YowAuthenticatorLaye
 from Yowsup.layers.coder              import YowCoderLayer
 from Yowsup.layers.logger             import YowLoggerLayer
 from Yowsup.layers.network            import YowNetworkLayer, NetworkError
-from Yowsup.layers.protocol           import YowProtocolLayer
+#from Yowsup.layers.protocol           import YowProtocolLayer
+from Yowsup.layers.messages           import YowMessagesProtocolLayer
+from Yowsup.layers.groupmessages      import YowGroupMessagesProtocolLayer
 from Yowsup.layers.packetregulator    import YowPacketRegulator
 from Yowsup.layers.media              import YowMediaPictureLayer
 from Yowsup.layers.interface          import YowInterfaceLayer
@@ -15,7 +17,7 @@ class YowBasicStack(YowStack):
         super(YowBasicStack, self).__init__(
                 (
                     YowInterfaceLayer,
-                    (YowAuthenticatorLayer, YowProtocolLayer),
+                    (YowAuthenticatorLayer, YowMessagesProtocolLayer, YowGroupMessagesProtocolLayer),
                     YowLoggerLayer,
                     YowCoderLayer,
                     YowLoggerLayer,

@@ -75,6 +75,12 @@ class YowProtocolLayer(YowLayer):
         if node.tag in self.recvHandleMap:
             self.recvHandleMap[node.tag](node)
 
+    def toLower(self, entity):
+        super(YowProtocolLayer, self).toLower(entity.toProtocolTreeNode())
+
+    def isGroupJid(self, jid):
+        return "-" in jid
+
 class YowParallelLayer(YowLayer):
     def __init__(self, sublayers = []):
         super(YowParallelLayer, self).__init__()

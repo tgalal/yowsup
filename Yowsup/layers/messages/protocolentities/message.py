@@ -23,6 +23,12 @@ class MessageProtocolEntity(ProtocolEntity):
             attribs["retry"] = str(self.retry)
         return self._createProtocolTreeNode(attribs, children = None, data = None)
 
+    def __str__(self):
+        out  = "Message:\n"
+        out += "From: %s\n" % self._from
+        out += "Type:  %s\n" % self._type
+        return out
+
     @staticmethod
     def fromProtocolTreeNode(node):
         return MessageProtocolEntity(
