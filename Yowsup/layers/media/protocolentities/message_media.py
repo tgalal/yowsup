@@ -89,10 +89,16 @@ class MediaMessageProtocolEntity(MessageProtocolEntity):
 
     </message>
     '''
-    def __init__(self, _id, _from, mediaType, timestamp, notify, preview = None, offline = False, retry = None):
-        super(MediaMessageProtocolEntity, self).__init__("media", _id, _from, timestamp, notify, offline, retry)
+    def __init__(self, _id, _from, mediaType, timestamp, notify, participant = None, preview = None, offline = False, retry = None):
+        super(MediaMessageProtocolEntity, self).__init__("media", _id, _from, timestamp, notify, participant, offline, retry)
         self.setMediaType(mediaType)
         self.setPreview(preview)
+
+    def __str__(self):
+        out  = super(MediaMessageProtocolEntity, self).__str__()
+        out += "Media Type: %s\n" % self.mediaType
+        out += "Has Preview: %s\n" % (self.preview is not None)
+        return out
 
     def setPreview(self, preview):
         self.preview = preview
@@ -114,7 +120,6 @@ class MediaMessageProtocolEntity(MessageProtocolEntity):
         entity = MessageProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = MediaMessageProtocolEntity
         entity.setMediaType(node.getChild("media").getAttributeValue("type"))
-        preview = node.getData()
-        if preview:
-            entity.setPreview(preview)
+        preview = node.getChild("media").getData()
+        entity.setPreview(preview)
         return entity

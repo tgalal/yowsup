@@ -1,1 +1,0 @@
-from .groupmessage_text import TextGroupMessageProtocolEntity

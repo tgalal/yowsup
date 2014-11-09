@@ -15,8 +15,7 @@ class YowMessagesProtocolLayer(YowProtocolLayer):
 
     ###recieved node handlers handlers
     def handleMessageStanza(self, node):
-        if not self.isGroupJid(node.getAttributeValue("from")):
-            if node.getAttributeValue("type") == "text":
-                entity = TextMessageProtocolEntity.fromProtocolTreeNode(node)
-                print(entity)
+        if node.getAttributeValue("type") == "text":
+            entity = TextMessageProtocolEntity.fromProtocolTreeNode(node)
+            self.toUpper(entity) 
 

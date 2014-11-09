@@ -16,9 +16,24 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         </media>
     </message>
     '''
-    def __init__(self, _id, _from, mediaType, mimeType, fileHash, url, ip, size, fileName, timestamp, notify, preview = None, offline = False, retry = None):
-        super(MediaMessageProtocolEntity, self).__init__(_id, _from, mediaType, timestamp, notify, preview, offline, retry)
+    def __init__(self, _id, _from, mediaType,
+            mimeType, fileHash, url, ip, size, fileName, 
+            timestamp, notify, participant = None,
+            preview = None, offline = False, retry = None):
+
+        super(MediaMessageProtocolEntity, self).__init__(_id, _from, mediaType, timestamp, notify, participant, preview, offline, retry)
         self.setDownloadableMediaProps(mimeType, fileHash, url, ip, size, fileName)
+
+    def __str__(self):
+        out  = super(DownloadableMediaMessageProtocolEntity, self).__str__()
+        out += "MimeType: %s\n" % self.mimeType
+        out += "File Hash: %s\n" % self.fileHash
+        out += "URL: %s\n" % self.url
+        out += "IP: %s\n" % self.ip
+        out += "File Size: %s\n" % self.size
+        out += "File name: %s\n" % self.fileName
+        return out
+
 
     def setDownloadableMediaProps(self, mimeType, fileHash, url, ip, size, fileName):
         self.mimeType   = mimeType
@@ -44,12 +59,13 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     def fromProtocolTreeNode(node):
         entity = MediaMessageProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = DownloadableMediaMessageProtocolEntity
+        mediaNode = node.getChild("media")
         entity.setDownloadableMediaProps(
-            node.getAtttributeValue("mimetype"),
-            node.getAtttributeValue("filehash"),
-            node.getAtttributeValue("url"),
-            node.getAtttributeValue("ip"),
-            node.getAtttributeValue("size"),
-            node.getAtttributeValue("file")
+            mediaNode.getAttributeValue("mimetype"),
+            mediaNode.getAttributeValue("filehash"),
+            mediaNode.getAttributeValue("url"),
+            mediaNode.getAttributeValue("ip"),
+            mediaNode.getAttributeValue("size"),
+            mediaNode.getAttributeValue("file")
             )
         return entity
