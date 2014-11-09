@@ -40,6 +40,7 @@ class YowCryptLayer(YowLayer):
         stanzaFlag = (firstByte & 0xF0) >> 4
         stanzaSize =  ((metaData[1] << 8) + metaData[2])  | ((firstByte & 0x0F) << 16)
         isEncrypted = ((stanzaFlag & 8) != 0)
+
         if inputKey and isEncrypted:
             toDecode = data[3:]
             payload = inputKey.decodeMessage(payload, 0, 4, len(payload) - 4)

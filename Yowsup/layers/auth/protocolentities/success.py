@@ -17,7 +17,7 @@ class SuccessProtocolEntity(ProtocolEntity):
             "creation"    :    str(self.creation),
             "expiration"  :    str(self.expiration),
             "props"       :    self.props,
-            "t"           :    self.t
+            "t"           :    str(self.t)
         }
         return self._createProtocolTreeNode(attributes, children = None, data = self.nonce)
 

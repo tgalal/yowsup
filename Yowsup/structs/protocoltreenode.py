@@ -1,10 +1,16 @@
+try:
+    from collections import OrderedDict #ordered to pass tests in python 3+
+    AttribDict = lambda normalDict: OrderedDict(normalDict)
+except ImportError:
+    AttribDict = lambda normalDict: normalDict
+
 class ProtocolTreeNode():
     
     def __init__(self, tag, attributes, children = None, data = None):
 
         
         self.tag = tag;
-        self.attributes = attributes;
+        self.attributes = AttribDict(attributes);
         self.children = children;
         self.data = data
         
@@ -67,6 +73,11 @@ class ProtocolTreeNode():
                 return c;
 
         return None;
+
+    def addChild(self, childNode):
+        self.children = [] if self.children is None else self.children
+        self.children.append(childNode)
+
         
     def getAttributeValue(self,string):
         
@@ -78,6 +89,10 @@ class ProtocolTreeNode():
             return val;
         except KeyError:
             return None;
+
+    def setAttribute(self, key, value):
+        self.attributes = AttribDict({}) if self.attributes is None else self.attributes
+        self.attributes[key] = value
 
     def getAllChildren(self,tag = None):
         ret = [];

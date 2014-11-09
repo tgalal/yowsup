@@ -20,6 +20,7 @@ class YowBasicStack(YowStack):
                     YowCoderLayer,
                     YowLoggerLayer,
                     YowCryptLayer,
+                    YowLoggerLayer,
                     YowPacketRegulator,
                     YowNetworkLayer
                 )
