@@ -1,6 +1,6 @@
 from Yowsup.structs import ProtocolEntity, ProtocolTreeNode
 class MessageProtocolEntity(ProtocolEntity):
-    def __init__(self, _type, _id, _from, timestamp, notify, offline = False):
+    def __init__(self, _type, _id, _from, timestamp, notify, offline, retry = None):
         super(MessageProtocolEntity, self).__init__("message")
         self._type      = _type
         self._id        = _id
@@ -8,6 +8,7 @@ class MessageProtocolEntity(ProtocolEntity):
         self.timestmap  = int(timestamp)
         self.notify     = notify
         self.offline    = offline == "1"
+        self.retry      = int(retry) if retry else None
     
     def toProtocolTreeNode(self):
         attribs = {
@@ -18,6 +19,8 @@ class MessageProtocolEntity(ProtocolEntity):
             "id"        : self._id,
             "notify"    : self.notify
         }
+        if self.retry:
+            attribs["retry"] = str(self.retry)
         return self._createProtocolTreeNode(attribs, children = None, data = None)
 
     @staticmethod
@@ -28,5 +31,6 @@ class MessageProtocolEntity(ProtocolEntity):
             node.getAttributeValue("from"),
             node.getAttributeValue("t"),
             node.getAttributeValue("notify"),
-            node.getAttributeValue("offline")
+            node.getAttributeValue("offline"),
+            node.getAttributeValue("retry")
             )

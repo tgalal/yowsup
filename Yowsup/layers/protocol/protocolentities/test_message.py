@@ -9,7 +9,7 @@ class MessageProtocolEntityTest(ProtocolEntityTest):
             "t": "12345",
             "from": "from_jid",
             "offline": "0",
-            "type": "text",
+            "type": "message_type",
             "id": "message-id",
             "notify": "notify_name"
         }
