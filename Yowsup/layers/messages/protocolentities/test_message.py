@@ -5,12 +5,14 @@ from Yowsup.structs.protocolentity import ProtocolEntityTest
 class MessageProtocolEntityTest(ProtocolEntityTest):
     def setUp(self):
         self.ProtocolEntity = MessageProtocolEntity
+        # ORDER_MATTERS for node.toString() to output return attribs in same order
         attribs = {
-            "t": "12345",
-            "from": "from_jid",
-            "offline": "0",
             "type": "message_type",
             "id": "message-id",
+            "t": "12345",
+            "offline": "0",
+            "from": "from_jid",
             "notify": "notify_name"
         }
         self.node = ProtocolTreeNode("message", attribs)
+

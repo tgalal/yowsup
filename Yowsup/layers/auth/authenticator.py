@@ -11,10 +11,10 @@ class YowAuthenticatorLayer(YowProtocolLayer):
 
     def __init__(self):
         handleMap = {
-            "stream:features": self.handleStreamFeatures,
-            "failure": self.handleFailure,
-            "success": self.handleSuccess,
-            "challenge": self.handleChallenge
+            "stream:features": (self.handleStreamFeatures, None),
+            "failure": (self.handleFailure, None),
+            "success": (self.handleSuccess, None),
+            "challenge": (self.handleChallenge, None)
         }
         super(YowAuthenticatorLayer, self).__init__(handleMap)
         self.supportsReceiptAcks = False
@@ -22,12 +22,6 @@ class YowAuthenticatorLayer(YowProtocolLayer):
 
     def __str__(self):
         return "Autheticator Layer"
-
-    def send(self, data):
-        self.entityToLower(data)
-
-    def entityToLower(self, protocolentity):
-        self.toLower(protocolentity.toProtocolTreeNode())
 
     def onEvent(self, event):
         if event.getName() == "network.state.connected":

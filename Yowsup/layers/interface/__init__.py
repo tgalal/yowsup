@@ -1,1 +1,1 @@
-from .interface import YowInterfaceLayer
+from .interface import YowInterfaceLayer, ProtocolEntityCallback

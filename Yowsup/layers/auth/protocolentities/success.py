@@ -10,6 +10,16 @@ class SuccessProtocolEntity(ProtocolEntity):
         self.nonce = nonce
         self.t = int(t) ##whatever that is !
 
+    def __str__(self):
+        out  = "Account:\n"
+        out += "Status: %s\n" % self.status
+        out += "Kind: %s\n" % self.kind
+        out += "Creation: %s\n" % self.creation
+        out += "Expiration: %s\n" % self.expiration
+        out += "Props: %s\n" % self.props
+        out += "t: %s\n" % self.t
+        return out
+
     def toProtocolTreeNode(self):
         attributes = {
             "status"      :    self.status,

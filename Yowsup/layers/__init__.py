@@ -6,6 +6,7 @@
 # import protocol
 # import packetregulator
 import unittest
+import sys
 
 class YowLayerEvent:
     def __init__(self, name, **kwargs):
@@ -24,6 +25,7 @@ class YowLayer(object):
     #     self.setLayers(upperLayer, lowerLayer)
 
     def __init__(self):
+        super(YowLayer, self).__init__()
         self.setLayers(None, None)
 
     def setLayers(self, upper, lower):
@@ -67,16 +69,25 @@ class YowLayer(object):
 
 
 class YowProtocolLayer(YowLayer):
-    def __init__(self, recvHandleMap = {}):
+    def __init__(self, handleMap = {}):
         super(YowProtocolLayer, self).__init__()
-        self.recvHandleMap = recvHandleMap
+        self.handleMap = handleMap
 
     def receive(self, node):
-        if node.tag in self.recvHandleMap:
-            self.recvHandleMap[node.tag](node)
+        if node.tag in self.handleMap:
+            recv, _ = self.handleMap[node.tag]
+            if recv:
+                recv(node)
 
-    def toLower(self, entity):
-        super(YowProtocolLayer, self).toLower(entity.toProtocolTreeNode())
+    def send(self, entity):
+        if entity.getTag() in self.handleMap:
+            _, send = self.handleMap[entity.getTag()]
+            if send:
+                send(entity)
+
+    def entityToLower(self, entity):
+        #super(YowProtocolLayer, self).toLower(entity.toProtocolTreeNode())
+        self.toLower(entity.toProtocolTreeNode())
 
     def isGroupJid(self, jid):
         return "-" in jid

@@ -89,8 +89,8 @@ class MediaMessageProtocolEntity(MessageProtocolEntity):
 
     </message>
     '''
-    def __init__(self, _id, _from, mediaType, timestamp, notify, participant = None, preview = None, offline = False, retry = None):
-        super(MediaMessageProtocolEntity, self).__init__("media", _id, _from, timestamp, notify, participant, offline, retry)
+    def __init__(self, mediaType, _id = None, _from = None, to = None, notify = None, timestamp = None, participant = None, preview = None, offline = None, retry = None):
+        super(MediaMessageProtocolEntity, self).__init__("media", _id, _from, to, notify, timestamp, participant, offline, retry)
         self.setMediaType(mediaType)
         self.setPreview(preview)
 

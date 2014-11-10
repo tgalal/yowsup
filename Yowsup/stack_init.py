@@ -29,7 +29,7 @@ class YowStackInit:
         interfaceLayer.connect()
 
         try:
-            asyncore.loop()
+            asyncore.loop(timeout = 0.5)
         except NetworkError as e:
             print("NetworkError, reason: %s, exiting" % e)
             sys.exit(1)

@@ -21,6 +21,10 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
             self.out_buffer = bytearray()
             self.connect(self.__class__.getProp("endpoint"))
             return True
+        elif ev.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
+            self.disconnect()
+            return True
+
 
     def handle_connect(self):
         self.emitEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECTED))
