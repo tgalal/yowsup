@@ -8,9 +8,7 @@ class OutgoingAckProtocolEntity(AckProtocolEntity):
     '''
 
     def __init__(self, _id, _class, _type):
-        super(OutgoingAckProtocolEntity, self).__init__(_id, clas)
-        self._id = _id
-        self._class = _class
+        super(OutgoingAckProtocolEntity, self).__init__(_id, _class)
         self.setOutgoingData(_type)
 
     def setOutgoingData(self, _type):

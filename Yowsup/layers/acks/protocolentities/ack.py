@@ -21,7 +21,7 @@ class AckProtocolEntity(ProtocolEntity):
 
     def __str__(self):
         out  = "ACK:\n"
-        out += "ID: %s\n" % self._class
+        out += "ID: %s\n" % self._id
         out += "Class: %s\n" % self._class
         return out
 

@@ -15,14 +15,3 @@ class YowAckProtocolLayer(YowProtocolLayer):
 
     def recvAckNode(self, node):
         self.toUpper(IncomingAckProtocolEntity.fromProtocolTreeNode(node))
-
-    def sendMessageEntity(self, entity):
-        if entity.getType() == "text":
-            self.entityToLower(entity)
-
-    ###recieved node handlers handlers
-    def recvMessageNode(self, node):
-        if node.getAttributeValue("type") == "text":
-            entity = TextMessageProtocolEntity.fromProtocolTreeNode(node)
-            self.toUpper(entity) 
-
