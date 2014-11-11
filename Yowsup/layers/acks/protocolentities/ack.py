@@ -10,6 +10,9 @@ class AckProtocolEntity(ProtocolEntity):
         super(AckProtocolEntity, self).__init__("ack")
         self._id = _id
         self._class = _class
+
+    def getId(self):
+        return self._id
     
     def toProtocolTreeNode(self):
         attribs = {

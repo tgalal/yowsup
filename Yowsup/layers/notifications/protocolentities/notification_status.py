@@ -8,6 +8,7 @@ class StatusNotificationProtocolEntity(NotificationProtocolEntity):
             {{STATUS}}
         </set>
     </notification>
+    
     '''
 
     def __init__(self, _type, _id,  _from, status, timestamp, notify, offline = False):

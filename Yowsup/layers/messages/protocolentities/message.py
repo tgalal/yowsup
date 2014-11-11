@@ -15,7 +15,7 @@ class MessageProtocolEntity(ProtocolEntity):
 
         super(MessageProtocolEntity, self).__init__("message")
         self._type          = _type
-        self._id            = self.generateId() if _id is None else _id
+        self._id            = self.__generateId() if _id is None else _id
         self._from          =_from
         self.to             = to
         self.timestamp      = int(timestamp) if timestamp else int(time.time())
@@ -27,7 +27,16 @@ class MessageProtocolEntity(ProtocolEntity):
     def getType(self):
         return self._type
 
-    def generateId(self):
+    def getId(self):
+        return self._id
+
+    def getTimestamp(self):
+        return self.timestamp
+
+    def getFrom(self):
+        return self._from
+
+    def __generateId(self):
         MessageProtocolEntity._ID_GEN += 1
         return str(int(time.time())) + "-" + str(MessageProtocolEntity._ID_GEN)
     

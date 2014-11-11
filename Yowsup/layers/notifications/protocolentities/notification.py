@@ -4,6 +4,8 @@ class NotificationProtocolEntity(ProtocolEntity):
     <notification offline="0" id="{{NOTIFICATION_ID}}" notify="{{NOTIFY_NAME}}" type="{{NOTIFICATION_TYPE}}" 
             t="{{TIMESTAMP}}" from="{{SENDER_JID}}">
     </notification>
+
+    
     '''
     def __init__(self, _type, _id, _from, timestamp, notify, offline):
         super(NotificationProtocolEntity, self).__init__("notification")

@@ -2,6 +2,7 @@ from Yowsup.layers.auth import YowAuthenticatorLayer
 from Yowsup.layers import YowLayerEvent, YowLayerTest
 from Yowsup.layers.auth.protocolentities import StreamFeaturesProtocolEntity,AuthProtocolEntity, ChallengeProtocolEntity
 from Yowsup.structs import ProtocolTreeNode
+from Yowsup.stacks import YowStack
 import base64
 # from unittest.mock import MagicMock
 
@@ -10,8 +11,12 @@ class AuthenticatorLayerTest(YowLayerTest, YowAuthenticatorLayer):
     def setUp(self):
         #YowAuthenticatorLayer.__init__(self)
         super(YowAuthenticatorLayer, self).__init__()
+        dummyStack = YowStack()
+        self.setStack(dummyStack)
+
         self.credentials =  ("dummyusername", bytearray("password", "latin-1"))
-        YowAuthenticatorLayer.setProp("credentials", self.credentials)
+        dummyStack.setProp(YowAuthenticatorLayer.PROP_CREDENTIALS, self.credentials)
+        #ticatorLayer.setProp("credentials", self.credentials)
 
     def test_streamfeatures(self):
         self._sendFeatures()

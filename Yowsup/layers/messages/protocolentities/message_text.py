@@ -22,6 +22,9 @@ class TextMessageProtocolEntity(MessageProtocolEntity):
     def setBody(self, body):
         self.body = body
 
+    def getBody(self):
+        return self.body
+
     def toProtocolTreeNode(self):
         node = super(TextMessageProtocolEntity, self).toProtocolTreeNode()
         bodyNode = ProtocolTreeNode("body", {}, None, self.body)

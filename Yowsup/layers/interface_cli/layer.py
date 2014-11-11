@@ -37,21 +37,6 @@ class YowCliInterfaceLayer(YowInterfaceLayer):
         
         return 0
 
-
-    def goInteractive(self, jid):
-        print("Starting Interactive chat with %s" % jid)
-        jid = "%s@s.whatsapp.net" % jid
-        print(self.getPrompt())
-        while True:
-            message = raw_input()
-            message = message.strip()
-            if not len(message):
-                continue
-            if not self.runCommand(message.strip()):
-                msgId = self.methodsInterface.call("message_send", (jid, message))
-                self.sentCache[msgId] = [int(time.time()), message]
-        self.done = True
-
     def send(self, data):
         self.toLower(data)
 

@@ -1,7 +1,12 @@
 from Yowsup.layers import YowLayer, YowLayerEvent
+from Yowsup.layers.network import YowNetworkLayer
 from .writer import Writer
 from .reader import Reader
 class YowCoderLayer(YowLayer):
+
+    PROP_DOMAIN =   "org.openwhatsapp.yowsup.prop.domain"
+    PROP_RESOURCE = "org.openwhatsapp.yowsup.prop.resource"
+
     def __init__(self):
         YowLayer.__init__(self)
         self.writer = Writer(self)
@@ -10,10 +15,10 @@ class YowCoderLayer(YowLayer):
         self.readStreamStarted = False
 
     def onEvent(self, event):
-        if event.getName() == "network.state.connected":
+        if event.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
             self.writer.streamStart(
-                self.__class__.getProp("domain"),
-                self.__class__.getProp("resource")
+                self.getProp(self.__class__.PROP_DOMAIN),
+                self.getProp(self.__class__.PROP_RESOURCE)
             )
             self.readStreamStarted = False
             return

@@ -15,12 +15,16 @@ class ReceiptProtocolEntity(ProtocolEntity):
     def __init__(self, _id):
         super(ReceiptProtocolEntity, self).__init__("receipt")
         self._id = _id
+
+    def getId(self):
+        return self._id
     
     def toProtocolTreeNode(self):
         attribs = {
             "id"           : self._id
         }
         return self._createProtocolTreeNode(attribs, None, data = None)
+
 
     def __str__(self):
         out  = "Receipt:\n"

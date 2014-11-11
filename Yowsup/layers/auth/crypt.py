@@ -1,12 +1,26 @@
 from Yowsup.layers import YowLayer
+from Yowsup.layers.network import YowNetworkLayer
 class YowCryptLayer(YowLayer):
     '''
         send:       bytearray -> bytearray
         receive:    bytearray -> bytearray
     '''
 
+    EVENT_KEYS_READY = "org.openwhatsapp.yowsup.crypt.keys"
+
+    def __init__(self):
+        super(YowCryptLayer, self).__init__()
+        self.keys = (None,None)
+
+    def onEvent(self, yowLayerEvent):
+        if yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
+            self.keys = None
+        elif yowLayerEvent.getName() == YowCryptLayer.EVENT_KEYS_READY:
+            self.keys = yowLayerEvent.getArg("keys")
+            return True
+
     def send(self, data):
-        outputKey = self.__class__.getProp("outputKey")
+        outputKey = self.keys[1]
         length1 = len(data)
         if length1 > 1:
             if outputKey:
@@ -32,7 +46,7 @@ class YowCryptLayer(YowLayer):
         self.toLower(bytearray(data))
 
     def receive(self, data):
-        inputKey = self.__class__.getProp("inputKey")
+        inputKey = self.keys[0]
         metaData = data[:3]
         payload = bytearray(data[3:])
 
@@ -40,6 +54,7 @@ class YowCryptLayer(YowLayer):
         stanzaFlag = (firstByte & 0xF0) >> 4
         stanzaSize =  ((metaData[1] << 8) + metaData[2])  | ((firstByte & 0x0F) << 16)
         isEncrypted = ((stanzaFlag & 8) != 0)
+
 
         if inputKey and isEncrypted:
             toDecode = data[3:]

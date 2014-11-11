@@ -16,6 +16,9 @@ class YowLayerEvent:
     def getName(self):
         return self.name
 
+    def getArg(self, name):
+        return self.args[name] if name in self.args else None
+
 
 class YowLayer(object):
     __upper = None
@@ -27,6 +30,12 @@ class YowLayer(object):
     def __init__(self):
         super(YowLayer, self).__init__()
         self.setLayers(None, None)
+
+    def setStack(self, stack):
+        self.__stack = stack
+
+    def getStack(self):
+        return self.__stack
 
     def setLayers(self, upper, lower):
         self.__upper = upper
@@ -58,14 +67,11 @@ class YowLayer(object):
     def onEvent(self, yowLayerEvent):
         return False
 
+    def getProp(self, key, default = None):
+        return self.getStack().getProp(key, default)
 
-    @classmethod
-    def setProp(cls, key, value):
-        cls._props[key] = value
-
-    @classmethod
-    def getProp(cls, key, default = None):
-        return cls._props[key] if key in cls._props else default
+    def setProp(self, key, val):
+        return self.getStack().setProp(key, val)
 
 
 class YowProtocolLayer(YowLayer):
@@ -100,6 +106,14 @@ class YowParallelLayer(YowLayer):
             #s.setLayers(self, self)
             s.toLower = self.toLower
             s.toUpper = self.toUpper
+            s.broadcastEvent = self.broadcastEvent
+            s.emitEvent = self.emitEvent
+
+
+    def setStack(self, stack):
+        super(YowParallelLayer, self).setStack(stack)
+        for s in self.sublayers:
+            s.setStack(self.getStack())
 
 
     def receive(self, data):
@@ -121,6 +135,10 @@ class YowParallelLayer(YowLayer):
     def __str__(self):
         return " - ".join([l.__str__() for l in self.sublayers])
 
+
+class YowLayerTest(unittest.TestCase):
+    def __init__(self, *args):
+        super(YowLayerTest, self).__init__(*args)
 
 class YowLayerTest(unittest.TestCase):
     def __init__(self, *args):

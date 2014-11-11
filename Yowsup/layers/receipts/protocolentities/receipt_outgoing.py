@@ -4,6 +4,8 @@ class OutgoingReceiptProtocolEntity(ReceiptProtocolEntity):
 
     '''
     delivered:
+    If we send the following without "to" specified, whatsapp will consider the message delivered,
+    but will not notify the sender.
     <receipt to="xxxxxxxxxxx@s.whatsapp.net" id="1415389947-15"></receipt>
 
     read
@@ -25,6 +27,9 @@ class OutgoingReceiptProtocolEntity(ReceiptProtocolEntity):
         node = super(OutgoingReceiptProtocolEntity, self).toProtocolTreeNode()
         if self._type:
             node.setAttribute("type", self._type)
+
+        node.setAttribute("to", self.to)
+
         return node
 
     def __str__(self):

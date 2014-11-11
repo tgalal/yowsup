@@ -3,11 +3,12 @@ from Yowsup import ProtocolTreeNode
 from .keystream import KeyStream
 from Yowsup.common.tools import TimeTools
 from .crypt import YowCryptLayer
+from Yowsup.layers.network import YowNetworkLayer
 from .autherror import AuthError
 from .protocolentities import *
 class YowAuthenticatorLayer(YowProtocolLayer):
-    STATE_AUTHED    = 0
-    STATE_NOAUTH    = 1
+    EVENT_LOGIN      = "org.openwhatsapp.yowsup.event.auth.login"
+    PROP_CREDENTIALS = "org.openwhatsapp.yowsup.prop.auth.credentials"
 
     def __init__(self):
         handleMap = {
@@ -18,17 +19,22 @@ class YowAuthenticatorLayer(YowProtocolLayer):
         }
         super(YowAuthenticatorLayer, self).__init__(handleMap)
         self.supportsReceiptAcks = False
-        self.state = YowAuthenticatorLayer.STATE_NOAUTH
+        self.credentials = None
 
     def __str__(self):
-        return "Autheticator Layer"
+        return "Authenticator Layer"
 
     def onEvent(self, event):
-        if event.getName() == "network.state.connected":
+        if event.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
             self.login()
+        elif event.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
+            self.credentials = self.getProp(YowAuthenticatorLayer.PROP_CREDENTIALS)
+            if not self.credentials:
+                raise AuthError("Auth stopped connection signal as no credentials have been set")
 
     ## general methods
     def login(self):
+        
         self._sendFeatures()
         self._sendAuth();
 
@@ -38,7 +44,6 @@ class YowAuthenticatorLayer(YowProtocolLayer):
         self.supportsReceiptAcks  = nodeEntity.supportsReceiptAcks()
 
     def handleSuccess(self, node):
-        self.state = YowAuthenticatorLayer.STATE_AUTHED
         nodeEntity = SuccessProtocolEntity.fromProtocolTreeNode(node)
         self.toUpper(nodeEntity)
 
@@ -54,22 +59,23 @@ class YowAuthenticatorLayer(YowProtocolLayer):
         self.entityToLower(StreamFeaturesProtocolEntity())
 
     def _sendAuth(self):
-        self.entityToLower(AuthProtocolEntity(YowAuthenticatorLayer.getProp("credentials")[0]))
+        self.entityToLower(AuthProtocolEntity(self.credentials[0]))
 
     def _sendResponse(self,nonce):
-        keys = KeyStream.generateKeys(YowAuthenticatorLayer.getProp("credentials")[1], nonce)
+        keys = KeyStream.generateKeys(self.credentials[1], nonce)
 
         inputKey = KeyStream(keys[2], keys[3])
         outputKey = KeyStream(keys[0], keys[1])
 
-        YowCryptLayer.setProp("inputKey", inputKey)
+        #YowCryptLayer.setProp("inputKey", inputKey)
+
 
         nums = bytearray(4)
 
         #nums = [0] * 4
 
 
-        username_bytes = list(map(ord, YowAuthenticatorLayer.getProp("credentials")[0]))
+        username_bytes = list(map(ord, self.credentials[0]))
         nums.extend(username_bytes)
         nums.extend(nonce)
 
@@ -83,7 +89,11 @@ class YowAuthenticatorLayer(YowProtocolLayer):
         authBlob = "".join(map(chr, encoded))
 
         responseEntity = ResponseProtocolEntity(authBlob)
+
+        #to prevent enr whole response
+        self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, None))) 
         self.entityToLower(responseEntity)
-        YowCryptLayer.setProp("outputKey", outputKey)
+        self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, outputKey)))
+        #YowCryptLayer.setProp("outputKey", outputKey)
 
 

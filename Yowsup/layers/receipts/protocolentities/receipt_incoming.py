@@ -45,8 +45,7 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
     def fromProtocolTreeNode(node):
         return IncomingReceiptProtocolEntity(
             node.getAttributeValue("id"),
-            node.getAttributeValue("to"),
             node.getAttributeValue("from"),
             node.getAttributeValue("timestamp"),
-            node.getAttributeValue("offline")
+            node.getAttributeValue("offline"    )
             )

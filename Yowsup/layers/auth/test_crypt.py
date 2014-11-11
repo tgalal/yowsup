@@ -20,8 +20,7 @@ class CryptLayerTest(YowLayerTest, YowCryptLayer):
         inputKey = KeyStream(keys[2], keys[3])
         outputKey = KeyStream(keys[0], keys[1])
 
-        YowCryptLayer.setProp("inputKey", inputKey)
-        YowCryptLayer.setProp("outputKey", outputKey)
+        self.onEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, outputKey)))
 
     def test_00send(self):
         self.send(self.inputMessage)

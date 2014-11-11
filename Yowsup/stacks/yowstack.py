@@ -6,6 +6,7 @@ class YowStack(object):
         self.__stack = stackClassesArr[::-1] or []
         self.__stackInstances = []
         self._construct()
+        self._props = {}
 
     def addLayer(self, layerClass):
         self.__stack.push(layerClass)
@@ -15,6 +16,18 @@ class YowStack(object):
         layer.setLayers(None, self.__stackInstances[-1])
         self.__stackInstances.append(layer)
 
+    def setProp(self, key, value):
+        self._props[key] = value
+
+    def getProp(self, key, default = None):
+        return self._props[key] if key in self._props else default
+
+    def emitEvent(self, yowLayerEvent):
+       self.__stackInstances[0].emitEvent(yowLayerEvent)
+
+    def broadcastEvent(self, yowLayerEvent):
+        self.__stackInstances[-1].broadcastEvent(yowLayerEvent)
+
     def _construct(self):
         print("Initialzing stack")
         for s in self.__stack:
@@ -23,6 +36,7 @@ class YowStack(object):
             else:
                 inst = s()
             print("Constructed %s" % inst)
+            inst.setStack(self)
             self.__stackInstances.append(inst)
 
         for i in range(0, len(self.__stackInstances)):
