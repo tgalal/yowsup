@@ -10,7 +10,8 @@ from Yowsup.layers.protocol_media              import YowMediaProtocolLayer
 from Yowsup.layers.protocol_acks               import YowAckProtocolLayer
 from Yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
 
-YOWSUP_FULL_STACK =  (
+
+YOWSUP_FULL_STACK_DEBUG =  (
     (YowAuthenticatorLayer, YowMessagesProtocolLayer, YowMediaProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
     YowLoggerLayer,
     YowCoderLayer,
@@ -19,9 +20,28 @@ YOWSUP_FULL_STACK =  (
     YowNetworkLayer
 )
 
-YOWSUP_TEXT_STACK =  (
+
+YOWSUP_FULL_STACK =  (
+    (YowAuthenticatorLayer, YowMessagesProtocolLayer, YowMediaProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
+    YowCoderLayer,
+    YowCryptLayer,
+    YowPacketRegulator,
+    YowNetworkLayer
+)
+
+YOWSUP_TEXT_STACK_DEBUG =  (
     (YowAuthenticatorLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
     YowLoggerLayer,
+    YowCoderLayer,
+    #YowLoggerLayer,
+    YowCryptLayer,
+    #YowLoggerLayer,
+    YowPacketRegulator,
+    YowNetworkLayer
+)
+
+YOWSUP_TEXT_STACK =  (
+    (YowAuthenticatorLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
     YowCoderLayer,
     #YowLoggerLayer,
     YowCryptLayer,
