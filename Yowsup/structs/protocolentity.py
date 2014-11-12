@@ -1,6 +1,8 @@
 from .protocoltreenode import ProtocolTreeNode
 import unittest, time
 class ProtocolEntity(object):
+    __ID_GEN = -1
+
     def __init__(self, tag):
         self.tag = tag
 
@@ -18,8 +20,8 @@ class ProtocolEntity(object):
         return int(time.time())
 
     def _generateId(self):
-        ProtocolEntity._ID_GEN += 1
-        return str(int(time.time())) + "-" + str(ProtocolEntity._ID_GEN)
+        ProtocolEntity.__ID_GEN += 1
+        return str(int(time.time())) + "-" + str(ProtocolEntity.__ID_GEN)
         
     
     def toProtocolTreeNode(self):

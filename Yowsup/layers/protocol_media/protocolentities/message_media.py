@@ -1,5 +1,5 @@
 from Yowsup.structs import ProtocolEntity, ProtocolTreeNode
-from Yowsup.layers.messages.protocolentities import MessageProtocolEntity
+from Yowsup.layers.protocol_messages.protocolentities import MessageProtocolEntity
 class MediaMessageProtocolEntity(MessageProtocolEntity):
     '''
     <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 

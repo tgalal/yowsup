@@ -1,5 +1,5 @@
 from Yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback
-from Yowsup.layers.messages.protocolentities import TextMessageProtocolEntity
+from Yowsup.layers.protocol_messages.protocolentities import TextMessageProtocolEntity
 import threading, sys
 class YowCliInterfaceLayer(YowInterfaceLayer):
 
