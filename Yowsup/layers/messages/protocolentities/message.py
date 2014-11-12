@@ -1,8 +1,5 @@
 from Yowsup.structs import ProtocolEntity, ProtocolTreeNode
-import time
 class MessageProtocolEntity(ProtocolEntity):
-
-    _ID_GEN = -1
 
     def __init__(self, _type, _id = None,  _from = None, to = None, notify = None, timestamp = None, 
         participant = None, offline = None, retry = None):
@@ -15,10 +12,10 @@ class MessageProtocolEntity(ProtocolEntity):
 
         super(MessageProtocolEntity, self).__init__("message")
         self._type          = _type
-        self._id            = self.__generateId() if _id is None else _id
+        self._id            = self._generateId() if _id is None else _id
         self._from          =_from
         self.to             = to
-        self.timestamp      = int(timestamp) if timestamp else int(time.time())
+        self.timestamp      = int(timestamp) if timestamp else self._getCurrentTimestamp()
         self.notify         = notify
         self.offline        = offline == "1" if offline is not None else offline
         self.retry          = int(retry) if retry else None
@@ -35,10 +32,6 @@ class MessageProtocolEntity(ProtocolEntity):
 
     def getFrom(self):
         return self._from
-
-    def __generateId(self):
-        MessageProtocolEntity._ID_GEN += 1
-        return str(int(time.time())) + "-" + str(MessageProtocolEntity._ID_GEN)
     
     def toProtocolTreeNode(self):
         attribs = {
@@ -93,11 +86,12 @@ class MessageProtocolEntity(ProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
+
         return MessageProtocolEntity(
             node.getAttributeValue("type"), 
             node.getAttributeValue("id"),
             node.getAttributeValue("from"),
-            None,
+            node.getAttributeValue("to"),
             node.getAttributeValue("notify"),
             node.getAttributeValue("t"),
             node.getAttributeValue("participant"),
