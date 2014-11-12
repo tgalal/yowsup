@@ -4,11 +4,9 @@ class MessageProtocolEntity(ProtocolEntity):
     def __init__(self, _type, _id = None,  _from = None, to = None, notify = None, timestamp = None, 
         participant = None, offline = None, retry = None):
 
-        if to is None and _from is None:
-            raise ValueError("Must specify either to or _from jids to create the message")
+        assert (to or _from), "Must specify either to or _from jids to create the message"
+        assert not(to and _from), "Can't set both attributes to message at same time (to, _from)"
 
-        if to is not None and _from is not None:
-            raise ValueError("Can't set both attributes to message at same time (to, _from)")
 
         super(MessageProtocolEntity, self).__init__("message")
         self._type          = _type

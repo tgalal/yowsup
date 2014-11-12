@@ -9,8 +9,7 @@ class IqProtocolEntity(ProtocolEntity):
     def __init__(self, xmlns, _id = None, _type = None):
         super(IqProtocolEntity, self).__init__("iq")
 
-        if _type not in ("set", "get"):
-            raise ValueError("Iq of type %s is not implemented, can accept only (set | get)" % _type)
+        assert _type in ("set", "get"), "Iq of type %s is not implemented, can accept only (set | get)" % _type
 
         self._id = self._generateId() if _id is None else _id
         self._type = _type
