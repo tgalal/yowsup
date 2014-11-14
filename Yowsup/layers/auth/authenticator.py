@@ -6,6 +6,7 @@ from .crypt import YowCryptLayer
 from Yowsup.layers.network import YowNetworkLayer
 from .autherror import AuthError
 from .protocolentities import *
+import base64
 class YowAuthenticatorLayer(YowProtocolLayer):
     EVENT_LOGIN      = "org.openwhatsapp.yowsup.event.auth.login"
     PROP_CREDENTIALS = "org.openwhatsapp.yowsup.prop.auth.credentials"
@@ -24,11 +25,16 @@ class YowAuthenticatorLayer(YowProtocolLayer):
     def __str__(self):
         return "Authenticator Layer"
 
+    def __getCredentials(self):
+        u, pb64 = self.getProp(YowAuthenticatorLayer.PROP_CREDENTIALS)
+        password = base64.b64decode(pb64)
+        return (u, bytearray(password))
+
     def onEvent(self, event):
         if event.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
             self.login()
         elif event.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
-            self.credentials = self.getProp(YowAuthenticatorLayer.PROP_CREDENTIALS)
+            self.credentials = self.__getCredentials()
             if not self.credentials:
                 raise AuthError("Auth stopped connection signal as no credentials have been set")
 
@@ -48,7 +54,8 @@ class YowAuthenticatorLayer(YowProtocolLayer):
         self.toUpper(nodeEntity)
 
     def handleFailure(self, node):
-        raise AuthError("Authentication failed")
+        nodeEntity = FailureProtocolEntity.fromProtocolTreeNode(node)
+        self.toUpper(nodeEntity)
 
     def handleChallenge(self, node):
         nodeEntity = ChallengeProtocolEntity.fromProtocolTreeNode(node)

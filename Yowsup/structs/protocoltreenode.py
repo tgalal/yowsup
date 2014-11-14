@@ -13,6 +13,8 @@ class ProtocolTreeNode():
         self.attributes = AttribDict(attributes);
         self.children = children;
         self.data = data
+
+        assert children is None or type(self.children) is list, "Children must be a list"
         
     def toString(self):
         out = "<"+self.tag;

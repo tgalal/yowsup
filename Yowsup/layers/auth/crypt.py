@@ -14,7 +14,7 @@ class YowCryptLayer(YowLayer):
 
     def onEvent(self, yowLayerEvent):
         if yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
-            self.keys = None
+            self.keys = (None,None)
         elif yowLayerEvent.getName() == YowCryptLayer.EVENT_KEYS_READY:
             self.keys = yowLayerEvent.getArg("keys")
             return True

@@ -26,7 +26,8 @@ class YowStack(object):
        self.__stackInstances[0].emitEvent(yowLayerEvent)
 
     def broadcastEvent(self, yowLayerEvent):
-        self.__stackInstances[-1].broadcastEvent(yowLayerEvent)
+        if not self.__stackInstances[-1].onEvent(yowLayerEvent):
+            self.__stackInstances[-1].broadcastEvent(yowLayerEvent)
 
     def _construct(self):
         print("Initialzing stack")

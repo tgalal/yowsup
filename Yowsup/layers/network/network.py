@@ -34,7 +34,7 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
         self.emitEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECTED))
 
     def handle_close(self):
-        self.emitEvent(YowLayerEvent(self.__class__.EVENT_STATE_DISCONNECTED))
+        self.emitEvent(YowLayerEvent(self.__class__.EVENT_STATE_DISCONNECTED, reason = "Connection Closed"))
         self.close()
         raise NetworkError("Connection Closed")
 
