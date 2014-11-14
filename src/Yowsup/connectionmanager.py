@@ -328,9 +328,11 @@ class YowsupConnectionManager:
 
 	def sendReceipt(self,jid,mtype,mid):
 		self._d("sending message received to "+jid+" - type:"+mtype+" - id:"+mid)
-		receivedNode = ProtocolTreeNode("received",{"xmlns": "urn:xmpp:receipts"})
-		messageNode = ProtocolTreeNode("message",{"to":jid,"type":mtype,"id":mid},[receivedNode]);
-		self._writeNode(messageNode);
+		attr = {"to": jid, "id": mid}
+		if mtype == "read":
+		  attr["type"] = "read"
+		receiptNode = ProtocolTreeNode("receipt", attr)
+		self._writeNode(receiptNode)
 
 
 	def sendDeliveredReceiptAck(self,to,msg_id):
@@ -925,7 +927,7 @@ class ReaderThread(threading.Thread):
 							raise Exception("iq doesn't have type")
 
 						if iqxmlns == "urn:xmpp:ping":
-							this.sendPong(idx)	
+							self.sendPong(idx)	
 						elif iqType == "result":
 							if idx in self.requests:
 								self.requests[idx](node)
