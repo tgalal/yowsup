@@ -927,7 +927,7 @@ class ReaderThread(threading.Thread):
 							raise Exception("iq doesn't have type")
 
 						if iqxmlns == "urn:xmpp:ping":
-							this.sendPong(idx)	
+							self.sendPong(idx)	
 						elif iqType == "result":
 							if idx in self.requests:
 								self.requests[idx](node)
