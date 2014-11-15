@@ -8,7 +8,7 @@ class CreateGroupIqProtocolEntity(GroupIqProtocolEntity):
     '''
 
     def __init__(self, subject, _id = None):
-        super(CreateGroupIqProtocolEntity, self).__init__("g.us", _id, "set")
+        super(CreateGroupIqProtocolEntity, self).__init__(to = "g.us", _id = _id, _type = "set")
         self.setProps(subject)
 
     def setProps(self, subject):

@@ -10,7 +10,7 @@ class LeaveGroupIqProtocolEntity(GroupIqProtocolEntity):
     '''
 
     def __init__(self, jids, _id = None):
-        super(LeaveGroupIqProtocolEntity, self).__init__("g.us", _id, "set")
+        super(LeaveGroupIqProtocolEntity, self).__init__(_to = "g.us", _id = _id, _type = "set")
         self.setProps(jids)
 
     def setProps(self, jids):

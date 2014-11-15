@@ -7,7 +7,7 @@ class SubjectGroupIqProtocolEntity(GroupIqProtocolEntity):
     </iq>
     '''
     def __init__(self, jid, subject, _id = None):
-        super(SubjectGroupIqProtocolEntity, self).__init__(jid, _id "set")
+        super(SubjectGroupIqProtocolEntity, self).__init__(_to = jid, _id = _id, _type = "set")
         self.setProps(subject)
 
     def setProps(self, subject):

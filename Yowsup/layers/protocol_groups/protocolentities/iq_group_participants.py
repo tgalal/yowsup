@@ -7,7 +7,7 @@ class ParticipantsGroupIqProtocolEntity(GroupIqProtocolEntity):
     </iq>
     '''
     def __init__(self, jid, _id = None):
-        super(ParticipantsGroupIqProtocolEntity, self).__init__(jid, _id "get")
+        super(ParticipantsGroupIqProtocolEntity, self).__init__(_to = jid, _id = _id, _type = "get")
 
     def toProtocolTreeNode(self):
         node = super(ParticipantsGroupIqProtocolEntity, self).toProtocolTreeNode()
