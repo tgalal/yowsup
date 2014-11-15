@@ -34,6 +34,14 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         out += "File name: %s\n" % self.fileName
         return out
 
+    def getMediaSize(self):
+        return self.size
+
+    def getMediaUrl(self):
+        return self.url
+
+    def getMimeType(self):
+        return self.mimeType
 
     def setDownloadableMediaProps(self, mimeType, fileHash, url, ip, size, fileName):
         self.mimeType   = mimeType

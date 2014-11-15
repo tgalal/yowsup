@@ -106,6 +106,9 @@ class MediaMessageProtocolEntity(MessageProtocolEntity):
     def setMediaType(self, mediaType):
         self.mediaType = mediaType
 
+    def getMediaType(self):
+        return self.mediaType
+
 
     def toProtocolTreeNode(self):
         node = super(MediaMessageProtocolEntity, self).toProtocolTreeNode()
