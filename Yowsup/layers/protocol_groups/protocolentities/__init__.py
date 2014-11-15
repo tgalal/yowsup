@@ -1,1 +1,1 @@
-from .iq_group_create import CreateGroupIqProtocolEntity
+from .iq_groups_create import CreateGroupsIqProtocolEntity

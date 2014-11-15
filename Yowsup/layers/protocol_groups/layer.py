@@ -1,5 +1,5 @@
 from Yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
-from .protocolentities import CreateGroupIqProtocolEntity
+from .protocolentities import CreateGroupsIqProtocolEntity
 class YowGroupsProtocolLayer(YowProtocolLayer):
     def __init__(self):
         handleMap = {
@@ -11,7 +11,7 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
         return "Groups Iq Layer"
 
     def sendIq(self, entity):
-        if entity.__class__ == CreateGroupIqProtocolEntity:
+        if entity.__class__ == CreateGroupsIqProtocolEntity:
             self.entityToLower(entity)
 
     def recvIq(self, node):

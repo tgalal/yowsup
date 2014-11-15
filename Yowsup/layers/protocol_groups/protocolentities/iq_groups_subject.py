@@ -1,6 +1,6 @@
 from Yowsup.structs import ProtocolEntity, ProtocolTreeNode
-from .iq_group import GroupIqProtocolEntity
-class SubjectGroupIqProtocolEntity(GroupIqProtocolEntity):
+from .iq_group import GroupsIqProtocolEntity
+class SubjectGroupsIqProtocolEntity(GroupIqProtocolEntity):
     '''
     <iq type="set" id="{{id}}" xmlns="w:g", to={{group_jid}}">
         <subject value="{{NEW_VAL}}"></subject>
@@ -14,11 +14,11 @@ class SubjectGroupIqProtocolEntity(GroupIqProtocolEntity):
         self.subject = subject
 
     def toProtocolTreeNode(self):
-        node = super(SubjectGroupIqProtocolEntity, self).toProtocolTreeNode()
+        node = super(SubjectGroupsIqProtocolEntity, self).toProtocolTreeNode()
         node.addChild(ProtocolTreeNode("subject",{"value": self.subject}))
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = GroupIqProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = SubjectGroupIqProtocolEntity
+        entity = GroupsIqProtocolEntity.fromProtocolTreeNode(node)
+        entity.__class__ = SubjectGroupsIqProtocolEntity
         entity.setProps(node.getChild("subject").getAttributeValue("value"))
