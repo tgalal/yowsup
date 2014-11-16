@@ -6,7 +6,7 @@ except ImportError:
 
 class ProtocolTreeNode():
     
-    def __init__(self, tag, attributes, children = None, data = None):
+    def __init__(self, tag, attributes = {}, children = None, data = None):
 
         
         self.tag = tag;
