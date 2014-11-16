@@ -13,6 +13,9 @@ class AckProtocolEntity(ProtocolEntity):
 
     def getId(self):
         return self._id
+
+    def getClass(self):
+        return self._class
     
     def toProtocolTreeNode(self):
         attribs = {
