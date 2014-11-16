@@ -6,7 +6,7 @@ class IqProtocolEntity(ProtocolEntity):
     </iq>
     '''
 
-    TYPES = ("set", "get")
+    TYPES = ("set", "get", "result")
 
     def __init__(self, xmlns, _id = None, _type = None, to = None, _from = None):
         super(IqProtocolEntity, self).__init__("iq")

@@ -54,7 +54,13 @@ class ProtocolTreeNode():
         if not ProtocolTreeNode.tagEquals(node,string):
             raise Exception("failed require. string: "+string);
     
-    
+
+    def __getitem__(self, key):
+        return self.getAttributeValue(key)
+
+    def __setitem__(self, key, val):
+        self.setAttribute(key, val)
+
     def getChild(self,identifier):
 
         if self.children is None or len(self.children) == 0:
@@ -75,6 +81,9 @@ class ProtocolTreeNode():
         self.children = [] if self.children is None else self.children
         self.children.append(childNode)
 
+    def addChildren(self, children):
+        for c in children:
+            self.addChild(c)
         
     def getAttributeValue(self,string):
         
