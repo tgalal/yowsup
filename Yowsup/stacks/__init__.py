@@ -10,6 +10,7 @@ from Yowsup.layers.protocol_media              import YowMediaProtocolLayer
 from Yowsup.layers.protocol_acks               import YowAckProtocolLayer
 from Yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
 from Yowsup.layers.protocol_groups             import YowGroupsProtocolLayer
+from Yowsup.layers.protocol_presence           import YowPresenceProtocolLayer
 
 
 YOWSUP_FULL_STACK_DEBUG =  (
@@ -18,7 +19,9 @@ YOWSUP_FULL_STACK_DEBUG =  (
         YowMediaProtocolLayer,
         YowReceiptProtocolLayer,
         YowAckProtocolLayer,
-        YowGroupsProtocolLayer),
+        YowGroupsProtocolLayer,
+        YowPresenceProtocolLayer
+        ),
     YowLoggerLayer,
     YowCoderLayer,
     YowCryptLayer,
@@ -32,7 +35,9 @@ YOWSUP_FULL_STACK =  (
         YowMediaProtocolLayer,
         YowReceiptProtocolLayer,
         YowAckProtocolLayer,
-        YowGroupsProtocolLayer),
+        YowGroupsProtocolLayer,
+        YowPresenceProtocolLayer
+        ),
     YowCoderLayer,
     YowCryptLayer,
     YowPacketRegulator,
@@ -40,7 +45,7 @@ YOWSUP_FULL_STACK =  (
 )
 
 YOWSUP_TEXT_STACK_DEBUG =  (
-    (YowAuthenticatorLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
+    (YowAuthenticatorLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowPresenceProtocolLayer),
     YowLoggerLayer,
     YowCoderLayer,
     #YowLoggerLayer,
@@ -51,7 +56,7 @@ YOWSUP_TEXT_STACK_DEBUG =  (
 )
 
 YOWSUP_TEXT_STACK =  (
-    (YowAuthenticatorLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
+    (YowAuthenticatorLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowPresenceProtocolLayer),
     YowCoderLayer,
     #YowLoggerLayer,
     YowCryptLayer,
