@@ -1,8 +1,8 @@
 from .iq_groups_create import CreateGroupsIqProtocolEntity
+from .test_iq_groups import GroupsIqProtocolEntityTest
 from Yowsup.structs import ProtocolTreeNode
-from Yowsup.layers.protocol_iq.protocolentities.test_iq import IqProtocolEntityTest
 
-class CreateGroupsIqProtocolEntityTest(IqProtocolEntityTest):
+class CreateGroupsIqProtocolEntityTest(GroupsIqProtocolEntityTest):
     def setUp(self):
         super(CreateGroupsIqProtocolEntityTest, self).setUp()
         self.ProtocolEntity = CreateGroupsIqProtocolEntity

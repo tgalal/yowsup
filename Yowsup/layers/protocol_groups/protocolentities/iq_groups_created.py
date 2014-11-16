@@ -1,6 +1,6 @@
 from Yowsup.structs import ProtocolEntity, ProtocolTreeNode
-from .iq_group import GroupsIqProtocolEntity
-class CreatedGroupsIqProtocolEntity(GroupIqProtocolEntity):
+from .iq_groups import GroupsIqProtocolEntity
+class CreatedGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     '''
     <iq type="result" id="{{id}}" xmlns="w:g", to="g.us">
         <group id="{group_id}"></group>
@@ -8,7 +8,7 @@ class CreatedGroupsIqProtocolEntity(GroupIqProtocolEntity):
     '''
 
     def __init__(self, subject, _id = None):
-        super(CreateGroupIqProtocolEntity, self).__init__(to = "g.us", _id = _id, _type = "set")
+        super(CreateGroupsIqProtocolEntity, self).__init__(to = "g.us", _id = _id, _type = "set")
         self.setProps(subject)
 
     def setProps(self, subject):

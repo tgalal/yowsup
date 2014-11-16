@@ -1,6 +1,6 @@
 from Yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .iq_group import GroupsIqProtocolEntity
-class ParticipantsGroupsIqProtocolEntity(GroupIqProtocolEntity):
+class ParticipantsGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     '''
     <iq type="get" id="{{id}}" xmlns="w:g", to={{group_jid}}">
         <list></list>

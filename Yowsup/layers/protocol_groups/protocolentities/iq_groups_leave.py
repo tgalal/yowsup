@@ -1,6 +1,6 @@
 from Yowsup.structs import ProtocolEntity, ProtocolTreeNode
-from .iq_group import GroupsIqProtocolEntity
-class LeaveGroupsIqProtocolEntity(GroupIqProtocolEntity):
+from .iq_groups import GroupsIqProtocolEntity
+class LeaveGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     '''
     <iq type="set" id="{{id}}" xmlns="w:g", to="g.us">
         <leave>

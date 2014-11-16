@@ -1,21 +1,32 @@
 from Yowsup.structs import ProtocolEntity, ProtocolTreeNode
-from .iq_group import GroupIqsProtocolEntity
-class ListGroupsIqProtocolEntity(GroupIqProtocolEntity):
+from .iq_groups import GroupsIqProtocolEntity
+class ListGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     '''
     <iq id="{{id}}"" type="get" to="g.us" xmlns="w:g">
         <list type="{{participating | owning}}"></list>
     </iq>
+    
+    result:
+    <iq type="result" from="g.us" id="{{IQ_ID}}">
+        <group s_t="{{SUBJECT_TIME}}" creation="{{CREATING_TIME}}" owner="{{OWNER_JID}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
+        </group>
+        <group s_t="{{SUBJECT_TIME}}" creation="{{CREATING_TIME}}" owner="{{OWNER_JID}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
+        </group>
+    </iq>
     '''
 
-    GROUPS_TYPES = ("participating", "owning")
+    GROUP_TYPE_PARTICIPATING = "participating"
+    GROUP_TYPE_OWNING        = "owning"
 
-    def __init__(self, groupsType):
-        super(ListGroupsIqProtocolEntity, self).__init__(to = "g.us", _id = _id, _type = "get")
+    GROUPS_TYPES = (GROUP_TYPE_PARTICIPATING, GROUP_TYPE_OWNING)
+
+    def __init__(self, groupsType = GROUP_TYPE_PARTICIPATING):
+        super(ListGroupsIqProtocolEntity, self).__init__(to = "g.us", _type = "get")
         self.setProps(groupsType)
 
     def setProps(self, groupsType):
-        assert groupsType in self.__class__.GROUPS_TYPES,
-            "Groups type must be %s" % (" or ".join(self.__class__.GROUPS_TYPES))
+        assert groupsType in self.__class__.GROUPS_TYPES,\
+            "Groups type must be %s, not %s" % (" or ".join(self.__class__.GROUPS_TYPES), groupsType)
         self.groupsType = groupsType
 
     def toProtocolTreeNode(self):
