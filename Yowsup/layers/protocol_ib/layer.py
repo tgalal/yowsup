@@ -4,19 +4,23 @@ class YowIbProtocolLayer(YowProtocolLayer):
 
     def __init__(self):
         handleMap = {
-            "ib": (self.recvIb, self.sendIb)
+            "ib": (self.recvIb, self.sendIb),
+            "iq": (None, self.sendIb)
         }
-        super(YowGroupsProtocolLayer, self).__init__(handleMap)
+        super(YowIbProtocolLayer, self).__init__(handleMap)
 
     def __str__(self):
-        return "Groups Ib Layer"
+        return "Ib Layer"
 
     def sendIb(self, entity):
-        return
+        if entity.__class__ == CleanIqProtocolEntity:
+            self.toLower(entity.toProtocolTreeNode())
 
     def recvIb(self, node):
         if node.getChild("dirty"):
             self.toUpper(DirtyIbProtocolEntity.fromProtocolTreeNode(node))
+        elif node.getChild("offline"):
+            self.toUpper(OfflineIbProtocolEntity.fromProtocolTreeNode(node))
         else:
             raise ValueError("Unkown ib node %s" % node)
 

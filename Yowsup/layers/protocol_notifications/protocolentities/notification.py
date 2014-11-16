@@ -15,7 +15,17 @@ class NotificationProtocolEntity(ProtocolEntity):
         self.timestmap  = int(timestamp)
         self.notify     = notify
         self.offline    = offline == "1"
+   
     
+    def getFrom(self):
+        return self._from
+
+    def getType(self):
+        return self._type
+
+    def getId(self):
+        return self._id
+
     def toProtocolTreeNode(self):
         attribs = {
             "t"         : str(self.timestmap),

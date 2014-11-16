@@ -7,7 +7,7 @@ class CleanIqProtocolEntity(IqProtocolEntity):
     </iq>
     '''
     def __init__(self, cleanType, to, _id = None):
-        super(GroupsIqProtocolEntity, self).__init__(
+        super(CleanIqProtocolEntity, self).__init__(
             "urn:xmpp:whatsapp:dirty",
             _id = _id,
             _type = "set",
