@@ -322,6 +322,7 @@ class YowsupConnectionManager:
 
 	def sendMessageReceipt(self, jid, msgId):
 		self.sendReceipt(jid, "chat", msgId)
+		self.sendReceipt(jid, "read", msgId)
 
 	def sendNotificationReceipt(self, jid, notificationId):
 		self.sendReceipt(jid, "notification", notificationId)
@@ -404,7 +405,7 @@ class YowsupConnectionManager:
 		idx = self.makeId("last_")
 		self.readerThread.requests[idx] = self.readerThread.parseLastOnline;
 
-		query = ProtocolTreeNode("query");
+		query = ProtocolTreeNode("query", {});
 		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":jid,"xmlns":"jabber:iq:last"},[query]);
 		self._writeNode(iqNode)
 
