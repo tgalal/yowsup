@@ -13,60 +13,32 @@ from Yowsup.layers.protocol_groups             import YowGroupsProtocolLayer
 from Yowsup.layers.protocol_presence           import YowPresenceProtocolLayer
 from Yowsup.layers.protocol_ib                 import YowIbProtocolLayer
 from Yowsup.layers.protocol_notifications      import YowNotificationsProtocolLayer
+from Yowsup.layers.protocol_iq                 import YowIqProtocolLayer
 
 
-YOWSUP_FULL_STACK_DEBUG =  (
-    (YowAuthenticatorLayer,
-        YowMessagesProtocolLayer,
-        YowMediaProtocolLayer,
-        YowReceiptProtocolLayer,
-        YowAckProtocolLayer,
-        YowGroupsProtocolLayer,
-        YowPresenceProtocolLayer,
-        YowIbProtocolLayer,
-        YowNotificationsProtocolLayer
-        ),
-    YowLoggerLayer,
+
+YOWSUP_CORE_LAYERS = (
     YowCoderLayer,
     YowCryptLayer,
     YowPacketRegulator,
     YowNetworkLayer
 )
 
-YOWSUP_FULL_STACK =  (
-    (YowAuthenticatorLayer,
-        YowMessagesProtocolLayer,
-        YowMediaProtocolLayer,
-        YowReceiptProtocolLayer,
-        YowAckProtocolLayer,
-        YowGroupsProtocolLayer,
-        YowPresenceProtocolLayer,
-        YowIbProtocolLayer,
-        YowNotificationsProtocolLayer
-        ),
-    YowCoderLayer,
-    YowCryptLayer,
-    YowPacketRegulator,
-    YowNetworkLayer
+
+YOWSUP_PROTOCOL_LAYERS_BASIC = (
+    YowAuthenticatorLayer, YowMessagesProtocolLayer,
+    YowReceiptProtocolLayer, YowAckProtocolLayer, YowPresenceProtocolLayer,
+    YowIbProtocolLayer, YowIqProtocolLayer, YowNotificationsProtocolLayer
 )
 
-YOWSUP_TEXT_STACK_DEBUG =  (
-    (YowAuthenticatorLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowPresenceProtocolLayer, YowIbProtocolLayer, YowNotificationsProtocolLayer),
-    YowLoggerLayer,
-    YowCoderLayer,
-    #YowLoggerLayer,
-    YowCryptLayer,
-    #YowLoggerLayer,
-    YowPacketRegulator,
-    YowNetworkLayer
-)
+YOWSUP_PROTOCOL_LAYERS_GROUPS = (YowGroupsProtocolLayer,) + YOWSUP_PROTOCOL_LAYERS_BASIC
+YOWSUP_PROTOCOL_LAYERS_MEDIA  = (YowMediaProtocolLayer,) + YOWSUP_PROTOCOL_LAYERS_BASIC
+YOWSUP_PROTOCOL_LAYERS_FULL = (YowGroupsProtocolLayer, YowMediaProtocolLayer) + YOWSUP_PROTOCOL_LAYERS_BASIC
 
-YOWSUP_TEXT_STACK =  (
-    (YowAuthenticatorLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowPresenceProtocolLayer, YowIbProtocolLayer, YowNotificationsProtocolLayer),
-    YowCoderLayer,
-    #YowLoggerLayer,
-    YowCryptLayer,
-    #YowLoggerLayer,
-    YowPacketRegulator,
-    YowNetworkLayer
-)
+
+YOWSUP_FULL_STACK_DEBUG = (YOWSUP_PROTOCOL_LAYERS_FULL,) +\
+                           (YowLoggerLayer,) +\
+                           YOWSUP_CORE_LAYERS
+
+YOWSUIP_FULL_STACK = (YOWSUP_PROTOCOL_LAYERS_FULL) +\
+                     YOWSUP_CORE_LAYERS

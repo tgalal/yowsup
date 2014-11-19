@@ -21,6 +21,9 @@ class IqProtocolEntity(ProtocolEntity):
 
     def getId(self):
         return self._id
+
+    def getXmlns(self):
+        return self.xmlns
     
     def toProtocolTreeNode(self):
         attribs = {

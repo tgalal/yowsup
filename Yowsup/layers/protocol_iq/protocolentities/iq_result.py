@@ -8,5 +8,5 @@ class ResultIqProtocolEntity(IqProtocolEntity):
     '''
 
     def __init__(self, xmlns, _id = None, to = None, _from = None):
-        super(IqProtocolEntity, self).__init__(xmlns, _id = _id, _type = "result", to = ro, _from = _from)
+        super(ResultIqProtocolEntity, self).__init__(xmlns, _id = _id, _type = "result", to = to, _from = _from)
 
