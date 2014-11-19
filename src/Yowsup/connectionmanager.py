@@ -306,17 +306,19 @@ class YowsupConnectionManager:
 		
 		
 	def sendTyping(self,jid):
+		# Example: self.methodsInterface.call("typing_send", ([jid]))
 		self._d("SEND TYPING TO JID")
-		composing = ProtocolTreeNode("composing")
-		message = ProtocolTreeNode("chatstate",{"to":jid},[composing]);
+		composing = ProtocolTreeNode("composing", {"xmlns": "http://jabber.org/protocol/chatstates"})
+		message = ProtocolTreeNode("chatstate",{"to":jid,  "type": "chat"},[composing]);
 		self._writeNode(message);
 
 
 
 	def sendPaused(self,jid):
+		# Example: self.methodsInterface.call("typing_paused", ([jid]))
 		self._d("SEND PAUSED TO JID")
-		composing = ProtocolTreeNode("paused")
-		message = ProtocolTreeNode("chatstate",{"to":jid},[composing]);
+		composing = ProtocolTreeNode("paused", {"xmlns": "http://jabber.org/protocol/chatstates"})
+		message = ProtocolTreeNode("chatstate",{"to":jid,  "type": "chat"},[composing]);
 		self._writeNode(message);
 
 
