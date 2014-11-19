@@ -1456,11 +1456,10 @@ class ReaderThread(threading.Thread):
 		except:
 			pass
 
-		pushName = None
+		pushName = messageNode.getAttributeValue("notify")
 		notifNode = messageNode.getChild("notify")
-		if notifNode is not None:
+		if pushName is None and notifNode is not None:
 			pushName = notifNode.getAttributeValue("name");
-
 
 		msgId = messageNode.getAttributeValue("id");
 
@@ -1501,9 +1500,9 @@ class ReaderThread(threading.Thread):
 							mediaPreview = base64.b64encode(mediaPreview) if sys.version_info < (3, 0) else base64.b64encode(mediaPreview.encode('latin-1')).decode()
 
 						if isGroup:
-							self.signalInterface.send("group_imageReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, wantsReceipt))
+							self.signalInterface.send("group_imageReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, timestamp, wantsReceipt, pushName))
 						else:
-							self.signalInterface.send("image_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize,  wantsReceipt, isBroadcast))
+							self.signalInterface.send("image_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize, timestamp, wantsReceipt, pushName, isBroadcast))
 
 					elif mediaType == "video":
 						mediaPreview = messageNode.getChild("media").data
@@ -1512,17 +1511,17 @@ class ReaderThread(threading.Thread):
 							mediaPreview = base64.b64encode(mediaPreview) if sys.version_info < (3, 0) else base64.b64encode(mediaPreview.encode('latin-1')).decode()
 
 						if isGroup:
-							self.signalInterface.send("group_videoReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, wantsReceipt))
+							self.signalInterface.send("group_videoReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, timestamp, wantsReceipt, pushName))
 						else:
-							self.signalInterface.send("video_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize, wantsReceipt, isBroadcast))
+							self.signalInterface.send("video_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize, timestamp, wantsReceipt, pushName, isBroadcast))
 
 					elif mediaType == "audio":
 						mediaPreview = messageNode.getChild("media").data
 
 						if isGroup:
-							self.signalInterface.send("group_audioReceived", (msgId, fromAttribute, author, mediaUrl, mediaSize, wantsReceipt))
+							self.signalInterface.send("group_audioReceived", (msgId, fromAttribute, author, mediaUrl, mediaSize, timestamp, wantsReceipt, pushName))
 						else:
-							self.signalInterface.send("audio_received", (msgId, fromAttribute, mediaUrl, mediaSize, wantsReceipt, isBroadcast))
+							self.signalInterface.send("audio_received", (msgId, fromAttribute, mediaUrl, mediaSize, timestamp, wantsReceipt, pushName, isBroadcast))
 
 					elif mediaType == "location":
 						mlatitude = messageNode.getChild("media").getAttributeValue("latitude")
@@ -1538,9 +1537,9 @@ class ReaderThread(threading.Thread):
 							mediaPreview = base64.b64encode(mediaPreview) if sys.version_info < (3, 0) else base64.b64encode(mediaPreview.encode('latin-1')).decode()
 
 						if isGroup:
-							self.signalInterface.send("group_locationReceived", (msgId, fromAttribute, author, name or "", mediaPreview, mlatitude, mlongitude, wantsReceipt))
+							self.signalInterface.send("group_locationReceived", (msgId, fromAttribute, author, name or "", mediaPreview, mlatitude, mlongitude, timestamp, wantsReceipt, pushName))
 						else:
-							self.signalInterface.send("location_received", (msgId, fromAttribute, name or "", mediaPreview, mlatitude, mlongitude, wantsReceipt, isBroadcast))
+							self.signalInterface.send("location_received", (msgId, fromAttribute, name or "", mediaPreview, mlatitude, mlongitude, timestamp, wantsReceipt, pushName, isBroadcast))
 		
 					elif mediaType =="vcard":
 						#return
@@ -1557,9 +1556,9 @@ class ReaderThread(threading.Thread):
 							vcardData = vcardData.replace("</vcard>","")
 
 							if isGroup:
-								self.signalInterface.send("group_vcardReceived", (msgId, fromAttribute, author, vcardName, vcardData, wantsReceipt))
+								self.signalInterface.send("group_vcardReceived", (msgId, fromAttribute, author, vcardName, vcardData, timestamp, wantsReceipt, pushName))
 							else:
-								self.signalInterface.send("vcard_received", (msgId, fromAttribute, vcardName, vcardData, wantsReceipt, isBroadcast))
+								self.signalInterface.send("vcard_received", (msgId, fromAttribute, vcardName, vcardData, timestamp, wantsReceipt, pushName, isBroadcast))
 							
 					else:
 						self._d("Unknown media type")
@@ -1630,7 +1629,6 @@ class ReaderThread(threading.Thread):
 				msgData = msgData if sys.version_info < (3, 0) else msgData.encode('latin-1').decode()
 				if isGroup:
 					self.signalInterface.send("group_messageReceived", (msgId, fromAttribute, author, msgData, timestamp, wantsReceipt, pushName))
-
 				else:
 					self.signalInterface.send("message_received", (msgId, fromAttribute, msgData, timestamp, wantsReceipt, pushName, isBroadcast))
 
