@@ -328,10 +328,11 @@ class YowsupConnectionManager:
 
 	def sendReceipt(self,jid,mtype,mid):
 		self._d("sending message received to "+jid+" - type:"+mtype+" - id:"+mid)
-		receivedNode = ProtocolTreeNode("received",{"xmlns": "urn:xmpp:receipts"})
-		messageNode = ProtocolTreeNode("message",{"to":jid,"type":mtype,"id":mid},[receivedNode]);
-		self._writeNode(messageNode);
-
+		attr = {"to": jid, "id": mid}
+		if mtype == "read":
+			attr["type"] = "read"
+		receiptNode = ProtocolTreeNode("receipt", attr)
+		self._writeNode(receiptNode)
 
 	def sendDeliveredReceiptAck(self,to,msg_id):
 		self._writeNode(self.getReceiptAck(to,msg_id,"delivered"));
@@ -1454,11 +1455,13 @@ class ReaderThread(threading.Thread):
 		except:
 			pass
 
-		pushName = None
-		notifNode = messageNode.getChild("notify")
-		if notifNode is not None:
-			pushName = notifNode.getAttributeValue("name");
-
+		pushName = messageNode.getAttributeValue("notify")
+	   	if pushName is None:
+			notifNode = messageNode.getChild("notify")
+			if notifNode is not None:
+				pushName = notifNode.getAttributeValue("name");
+		if pushName:
+			self._d("pushName:"+pushName)
 
 		msgId = messageNode.getAttributeValue("id");
 
@@ -1489,6 +1492,7 @@ class ReaderThread(threading.Thread):
 					mediaType = messageNode.getChild("media").getAttributeValue("type")
 					mediaSize = messageNode.getChild("media").getAttributeValue("size")
 					encoding = messageNode.getChild("media").getAttributeValue("encoding")
+					caption = messageNode.getChild("media").getAttributeValue("caption")
 					mediaPreview = None
 
 
@@ -1499,9 +1503,9 @@ class ReaderThread(threading.Thread):
 							mediaPreview = base64.b64encode(mediaPreview) if sys.version_info < (3, 0) else base64.b64encode(mediaPreview.encode('latin-1')).decode()
 
 						if isGroup:
-							self.signalInterface.send("group_imageReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, wantsReceipt))
+							self.signalInterface.send("group_imageReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, caption, wantsReceipt, pushName, timestamp))
 						else:
-							self.signalInterface.send("image_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize,  wantsReceipt, isBroadcast))
+							self.signalInterface.send("image_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize, caption, wantsReceipt, pushName, timestamp, isBroadcast))
 
 					elif mediaType == "video":
 						mediaPreview = messageNode.getChild("media").data

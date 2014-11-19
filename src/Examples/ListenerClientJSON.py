@@ -77,19 +77,18 @@ class WhatsappListenerClientJSON:
 		print("Disconnected because %s" %reason)
 		self.connected = False
 
-	def onImageReceived(self, messageId, jid, preview, url, size, wantsReceipt, isBroadcast):
+	def onImageReceived(self, messageId, jid, preview, url, size, caption, wantsReceipt, pushName, timestamp, isBroadcast):
 		#print("Image received: Id:%s Jid:%s Url:%s size:%s" %(messageId, jid, url, size))
 		
 		paramdict = {}
 		wtype = "IMAGE"
-		messageContent = ""
-		pushName = ""
-		timestamp = ""
+		messageContent = caption
 		for i in ('messageId', 'jid', 'pushName', 'timestamp', 'messageContent', 'url', 'size', 'wtype'):
 			paramdict[i] = locals()[i]
 		sys.stdout.write(json.dumps(paramdict))
 		
-		if wantsReceipt and self.sendReceipts:
+		#if wantsReceipt and self.sendReceipts:
+		if self.sendReceipts:
 			self.methodsInterface.call("message_ack", (jid, messageId))
 		
 	def onMessageReceived(self, messageId, jid, messageContent, timestamp, wantsReceipt, pushName, isBroadCast):
@@ -97,12 +96,13 @@ class WhatsappListenerClientJSON:
 		#print("{} {} {} {} {}".format(messageId, jid, pushName, timestamp, formattedDate, messageContent))
 
 		paramdict = {} 
-		wtype = "MESSAGE"
+		wtype = "TEXT"
 		url = ""
 		size = ""
 		for i in ('messageId', 'jid', 'pushName', 'timestamp', 'messageContent', 'url', 'size', 'wtype'):
 			paramdict[i] = locals()[i]
 		sys.stdout.write(json.dumps(paramdict))
 		
-		if wantsReceipt and self.sendReceipts:
+		#if wantsReceipt and self.sendReceipts:
+		if self.sendReceipts:
 			self.methodsInterface.call("message_ack", (jid, messageId))

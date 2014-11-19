@@ -69,6 +69,6 @@ class WhatsappListenerClient:
 		formattedDate = datetime.datetime.fromtimestamp(timestamp).strftime('%d-%m-%Y %H:%M')
 		print("%s [%s]:%s"%(jid, formattedDate, messageContent))
 
-		if wantsReceipt and self.sendReceipts:
+		#if wantsReceipt and self.sendReceipts:
+		if self.sendReceipts:
 			self.methodsInterface.call("message_ack", (jid, messageId))
-	
