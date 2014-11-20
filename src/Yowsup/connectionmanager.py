@@ -1007,7 +1007,7 @@ class ReaderThread(threading.Thread):
 									self.signalInterface.send("notification_contactProfilePictureUpdated",(bodyNode.getAttributeValue("jid"), timestamp, msgId, pictureId, receiptRequested))
 
 							else:
-								bodyNode = notifNode.getChild("delete")
+								bodyNode = node.getChild("delete")
 
 								if bodyNode:
 									if "-" in bodyNode.getAttributeValue("jid"):
