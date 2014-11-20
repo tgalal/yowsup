@@ -17,9 +17,21 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
 
     def recvNotification(self, node):
         if node["type"] == "picture":
-            self.toUpper(PictureNotificationProtocolEntity.fromProtocolTreeNode(node))
+            if node.getChild("set"):
+                self.toUpper(PictureNotificationProtocolEntity.fromProtocolTreeNode(node))
+            else:
+                self.raiseErrorForNode(node)
         elif node["type"] == "status":
             self.toUpper(StatusNotificationProtocolEntity.fromProtocolTreeNode(node))
+        elif node["type"] == "contacts":
+            if node.getChild("remove"):
+                self.toUpper(RemoveContactNotificationProtocolEntity.fromProtocolTreeNode(node))
+            else:
+                self.raiseErrorForNode(node)
+
         else:
-            raise ValueError("Unimplemented notification type %s " % node)
+            self.raiseErrorForNode(node)
+
+    def raiseErrorForNode(self, node):
+        raise ValueError("Unimplemented notification type %s " % node)
 
