@@ -30,6 +30,15 @@ class MessageProtocolEntity(ProtocolEntity):
 
     def getFrom(self):
         return self._from
+
+    def isBroadcast(self):
+        return False
+
+    def getPariticipant(self):
+        return self.participant
+
+    def getNotify(self):
+        return self.notify
     
     def toProtocolTreeNode(self):
         attribs = {
