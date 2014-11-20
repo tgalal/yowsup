@@ -25,18 +25,17 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
             self.out_buffer = bytearray()
             self.connect(self.getProp(self.__class__.PROP_ENDPOINT))
             return True
-        elif ev.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
-            self.disconnect()
+        elif ev.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECT:
+            self.handle_close("Requested")
             return True
-
 
     def handle_connect(self):
         self.emitEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECTED))
 
-    def handle_close(self):
-        self.emitEvent(YowLayerEvent(self.__class__.EVENT_STATE_DISCONNECTED, reason = "Connection Closed"))
+    def handle_close(self, reason = "Connection Closed"):
+        self.emitEvent(YowLayerEvent(self.__class__.EVENT_STATE_DISCONNECTED, reason = reason))
         self.close()
-        raise NetworkError("Connection Closed")
+        #raise NetworkError("Connection Closed")
 
     def handle_error(self):
         raise
