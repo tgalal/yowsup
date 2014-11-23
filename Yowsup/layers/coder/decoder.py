@@ -1,10 +1,8 @@
-from .tokendictionary import TokenDictionary
-from .barray import ByteArray
 from Yowsup import ProtocolTreeNode
-class Reader:
-    def __init__(self):
+class ReadDecoder:
+    def __init__(self, tokenDictionary):
         self.streamStarted = False;
-        self.tokenDictionary = TokenDictionary()
+        self.tokenDictionary = tokenDictionary
 
     def reset(self):
         self.streamStarted = False

@@ -1,8 +1,7 @@
-from .tokendictionary import TokenDictionary
-class Writer:
+class WriteEncoder:
 
-    def __init__(self):
-        self.tokenDictionary = TokenDictionary()
+    def __init__(self, tokenDictionary):
+        self.tokenDictionary = tokenDictionary
         self.streamStarted = False
 
     def reset(self):

@@ -1,7 +1,8 @@
 from Yowsup.layers import YowLayer, YowLayerEvent
 from Yowsup.layers.network import YowNetworkLayer
-from .writer import Writer
-from .reader import Reader
+from .encoder import WriteEncoder
+from .decoder import ReadDecoder
+from .tokendictionary import TokenDictionary
 class YowCoderLayer(YowLayer):
 
     PROP_DOMAIN =   "org.openwhatsapp.yowsup.prop.domain"
@@ -9,8 +10,9 @@ class YowCoderLayer(YowLayer):
 
     def __init__(self):
         YowLayer.__init__(self)
-        self.writer = Writer()
-        self.reader = Reader()
+        tokenDictionary = TokenDictionary()
+        self.writer = WriteEncoder(tokenDictionary)
+        self.reader = ReadDecoder(tokenDictionary)
 
     def onEvent(self, event):
         if event.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
