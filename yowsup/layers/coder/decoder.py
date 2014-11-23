@@ -1,4 +1,4 @@
-from yowsup import ProtocolTreeNode
+from yowsup.structs import ProtocolTreeNode
 class ReadDecoder:
     def __init__(self, tokenDictionary):
         self.streamStarted = False;

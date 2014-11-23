@@ -1,1 +1,2 @@
-from .structs import ProtocolTreeNode
+__version__ = 2.0
+__author__ = "Tarek Galal"

@@ -1,5 +1,4 @@
 from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
-from yowsup import ProtocolTreeNode
 from .keystream import KeyStream
 from yowsup.common.tools import TimeTools
 from .layer_crypt import YowCryptLayer
