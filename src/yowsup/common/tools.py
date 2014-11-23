@@ -1,8 +1,5 @@
 import time,datetime,re, hashlib
-try:
-    from dateutil import tz
-except ImportError:
-    from yowsup.libs.dateutil import tz
+from dateutil import tz
 
 class WATools:
     @staticmethod
