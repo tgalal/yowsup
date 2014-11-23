@@ -1,13 +1,12 @@
-from yowsup.stacks import YowStack, YOWSUP_FULL_STACK_DEBUG  as YOWSUP_FULL_STACK
+from yowsup.stacks import YowStack
 from layer import EchoLayer
 from yowsup.layers import YowLayerEvent
-from yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer
+from yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer, AuthError
 from yowsup.layers.coder                       import YowCoderLayer
 from yowsup.layers.network                     import YowNetworkLayer
 from yowsup.layers.protocol_messages           import YowMessagesProtocolLayer
 from yowsup.layers.stanzaregulator             import YowStanzaRegulator
 from yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
-from yowsup.layers.logger                      import YowLoggerLayer
 from yowsup.layers.protocol_acks               import YowAckProtocolLayer
 from yowsup.common import YowConstants
 import asyncore
@@ -31,4 +30,7 @@ class YowsupEchoStack(object):
 
     def start(self):
         self.stack.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))
-        self.stack.loop()
+        try:
+            self.stack.loop()
+        except AuthError as e:
+            print("Authentication Error: %s" % e.message)

@@ -55,6 +55,8 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
     def handleFailure(self, node):
         nodeEntity = FailureProtocolEntity.fromProtocolTreeNode(node)
         self.toUpper(nodeEntity)
+        self.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT, reason = "Authentication Failure"))
+        raise AuthError(nodeEntity.getReason())
 
     def handleChallenge(self, node):
         nodeEntity = ChallengeProtocolEntity.fromProtocolTreeNode(node)

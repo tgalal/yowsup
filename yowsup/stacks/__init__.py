@@ -3,7 +3,7 @@ from .yowstack import YowStack
 from yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer, AuthError
 from yowsup.layers.coder                       import YowCoderLayer
 from yowsup.layers.logger                      import YowLoggerLayer
-from yowsup.layers.network                     import YowNetworkLayer, NetworkError
+from yowsup.layers.network                     import YowNetworkLayer
 from yowsup.layers.protocol_messages           import YowMessagesProtocolLayer
 from yowsup.layers.stanzaregulator             import YowStanzaRegulator
 from yowsup.layers.protocol_media              import YowMediaProtocolLayer
