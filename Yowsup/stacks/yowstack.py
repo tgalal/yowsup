@@ -1,4 +1,5 @@
 from Yowsup.layers import YowParallelLayer
+import asyncore, time
 class YowStack(object):
     __stack = []
     __stackInstances = []
@@ -28,6 +29,16 @@ class YowStack(object):
     def broadcastEvent(self, yowLayerEvent):
         if not self.__stackInstances[-1].onEvent(yowLayerEvent):
             self.__stackInstances[-1].broadcastEvent(yowLayerEvent)
+
+    def loop(self, *args, **kwargs):
+        if "discrete" in kwargs:
+            discreteVal = kwargs["discrete"]
+            del kwargs["discrete"]
+            while True:
+                asyncore.loop(*args, **kwargs)
+                time.sleep(discreteVal)
+        else:
+            asyncore.loop(*args, **kwargs)
 
     def _construct(self):
         print("Initialzing stack")
