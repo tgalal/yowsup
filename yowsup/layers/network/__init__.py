@@ -1,1 +1,1 @@
-from .network import YowNetworkLayer
+from .layer import YowNetworkLayer

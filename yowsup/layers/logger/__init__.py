@@ -1,1 +1,1 @@
-from .logger import YowLoggerLayer 
+from .layer import YowLoggerLayer
