@@ -1,8 +1,23 @@
-import time,datetime,re
+import time,datetime,re, hashlib
 try:
     from dateutil import tz
 except ImportError:
     from Yowsup.libs.dateutil import tz
+
+class WATools:
+    @staticmethod
+    def processIdentity(identifier):
+        try:
+            identifier.index(":")
+            identifier = identifier.upper()
+            identifier = identifier + identifier
+
+        except:
+            identifier = identifier[::-1]
+
+        digest = hashlib.md5(identifier.encode("utf-8"))
+        return digest.hexdigest()
+
 
 class TimeTools:
     @staticmethod
