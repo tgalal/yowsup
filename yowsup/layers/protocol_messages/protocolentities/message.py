@@ -31,8 +31,8 @@ class MessageProtocolEntity(ProtocolEntity):
     def getTimestamp(self):
         return self.timestamp
 
-    def getFrom(self):
-        return self._from
+    def getFrom(self, full = True):
+        return self._from if full else self._from.split('@')[0]
 
     def isBroadcast(self):
         return False
