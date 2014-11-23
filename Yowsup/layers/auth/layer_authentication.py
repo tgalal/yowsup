@@ -2,12 +2,12 @@ from Yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from Yowsup import ProtocolTreeNode
 from .keystream import KeyStream
 from Yowsup.common.tools import TimeTools
-from .crypt import YowCryptLayer
+from .layer_crypt import YowCryptLayer
 from Yowsup.layers.network import YowNetworkLayer
 from .autherror import AuthError
 from .protocolentities import *
 import base64
-class YowAuthenticatorLayer(YowProtocolLayer):
+class YowAuthenticationProtocolLayer(YowProtocolLayer):
     EVENT_LOGIN      = "org.openwhatsapp.yowsup.event.auth.login"
     PROP_CREDENTIALS = "org.openwhatsapp.yowsup.prop.auth.credentials"
 
@@ -18,15 +18,15 @@ class YowAuthenticatorLayer(YowProtocolLayer):
             "success": (self.handleSuccess, None),
             "challenge": (self.handleChallenge, None)
         }
-        super(YowAuthenticatorLayer, self).__init__(handleMap)
+        super(YowAuthenticationProtocolLayer, self).__init__(handleMap)
         self.supportsReceiptAcks = False
         self.credentials = None
 
     def __str__(self):
-        return "Authenticator Layer"
+        return "Authentication Layer"
 
     def __getCredentials(self):
-        u, pb64 = self.getProp(YowAuthenticatorLayer.PROP_CREDENTIALS)
+        u, pb64 = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)
         password = base64.b64decode(pb64)
         return (u, bytearray(password))
 

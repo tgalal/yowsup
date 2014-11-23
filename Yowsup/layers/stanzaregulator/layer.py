@@ -1,5 +1,5 @@
 from Yowsup.layers import YowLayer
-class YowPacketRegulator(YowLayer):
+class YowStanzaRegulator(YowLayer):
     '''
         send:       bytearray -> bytearray
         receive:    bytearray -> bytearray
@@ -37,7 +37,7 @@ class YowPacketRegulator(YowLayer):
             self.processReceived()
 
     def __str__(self):
-        return "Packet Regulator Layer"
+        return "Stanza Regulator Layer"
 
 
 

@@ -1,11 +1,11 @@
 from .yowstack import YowStack
 
-from Yowsup.layers.auth                        import YowCryptLayer, YowAuthenticatorLayer, AuthError
+from Yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer, AuthError
 from Yowsup.layers.coder                       import YowCoderLayer
 from Yowsup.layers.logger                      import YowLoggerLayer
 from Yowsup.layers.network                     import YowNetworkLayer, NetworkError
 from Yowsup.layers.protocol_messages           import YowMessagesProtocolLayer
-from Yowsup.layers.packetregulator             import YowPacketRegulator
+from Yowsup.layers.stanzaregulator             import YowStanzaRegulator
 from Yowsup.layers.protocol_media              import YowMediaProtocolLayer
 from Yowsup.layers.protocol_acks               import YowAckProtocolLayer
 from Yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
@@ -20,13 +20,13 @@ from Yowsup.layers.protocol_iq                 import YowIqProtocolLayer
 YOWSUP_CORE_LAYERS = (
     YowCoderLayer,
     YowCryptLayer,
-    YowPacketRegulator,
+    YowStanzaRegulator,
     YowNetworkLayer
 )
 
 
 YOWSUP_PROTOCOL_LAYERS_BASIC = (
-    YowAuthenticatorLayer, YowMessagesProtocolLayer,
+    YowAuthenticationProtocolLayer, YowMessagesProtocolLayer,
     YowReceiptProtocolLayer, YowAckProtocolLayer, YowPresenceProtocolLayer,
     YowIbProtocolLayer, YowIqProtocolLayer, YowNotificationsProtocolLayer
 )
