@@ -10,9 +10,7 @@ class YowCoderLayer(YowLayer):
     def __init__(self):
         YowLayer.__init__(self)
         self.writer = Writer(self)
-        self.reader = Reader(self)
-        self.readBuf = bytearray()
-        self.readStreamStarted = False
+        self.reader = Reader()
 
     def onEvent(self, event):
         if event.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
@@ -20,35 +18,21 @@ class YowCoderLayer(YowLayer):
                 self.getProp(self.__class__.PROP_DOMAIN),
                 self.getProp(self.__class__.PROP_RESOURCE)
             )
-            self.readStreamStarted = False
-            return
+            self.reader.reset()
 
     def send(self, data):
         self.writer.write(data)
 
     def receive(self, data):
-        self.readBuf = self.readBuf + data
-        if not self.readStreamStarted:
-            self.readStreamStarted = True
-            self.reader.streamStart()
-            #self.toUpper(self.reader.nextTree())
-        else:
-            self.toUpper(self.reader.nextTree())
+        node = self.reader.getProtocolTreeNode(data)
+        if node:
+            self.toUpper(node)
 
     def write(self, i):
         if(type(i) in(list, tuple)):
             self.toLower(bytearray(i))
         else:
             self.toLower(bytearray([i]))
-
-
-    def readAll(self):
-        result = self.readBuf
-        self.readBuf = bytearray()
-        return result
-
-    def read(self, _ = None):
-        return self.readBuf.pop(0)
 
     def __str__(self):
         return "Coder Layer"
