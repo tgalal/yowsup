@@ -99,8 +99,8 @@ class ReadDecoder:
             token = data.pop(0)
             return self.tokenMapper.getToken(245 + token);
         if token == 250:
-            user = self.readString(data.pop(0));
-            server = self.readString(data.pop(0));
+            user = self.readString(data.pop(0), data);
+            server = self.readString(data.pop(0), data);
             if user is not None and server is not None:
                 return user + "@" + server;
             if server is not None:
