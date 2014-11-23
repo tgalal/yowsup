@@ -1,180 +1,129 @@
 from .tokendictionary import TokenDictionary
-from .barray import ByteArray
 class Writer:
-    STREAM_START = 1;
-    STREAM_END = 2;
-    LIST_EMPTY = 0;
-    LIST_8 = 248;
-    LIST_16 = 249;
-    JID_PAIR = 250;
-    BINARY_8 = 252;
-    BINARY_24 = 253;
-    TOKEN_8 = 254;
 
-    def __init__(self, o):
-        self.outputKey = None
-
-        self.realOut = o;
-        #self.out = o;
-        self.tokenMap = {}
-        self.out = ByteArray();
-
+    def __init__(self):
         self.tokenDictionary = TokenDictionary()
+        self.streamStarted = False
 
-    def streamStart(self,domain,resource):
+    def reset(self):
+        self.streamStarted = False
 
-        self.realOut.write(87);
-        self.realOut.write(65);
-        self.realOut.write(1);
-        self.realOut.write(4);
+    def getStreamStartBytes(self, domain, resource):
+        data = []
+        self.streamStarted = True
+        data.append(87)
+        data.append(65)
+        data.append(1)
+        data.append(4)
 
-        streamOpenAttributes  = {"to":domain,"resource":resource};
-        self.writeListStart(len(streamOpenAttributes )*2+1);
+        streamOpenAttributes = {"to": domain, "resource": resource}
+        self.writeListStart(len(streamOpenAttributes) * 2 + 1, data)
+        data.append(1);
+        self.writeAttributes(streamOpenAttributes, data)
+        return data
 
-        self.out.write(1);
+    def protocolTreeNodeToBytes(self, node):
+        outBytes = []
+        self.writeInternal(node, outBytes)
 
-        self.writeAttributes(streamOpenAttributes);
-        self.flushBuffer(False);
-
-
-    def write(self, node,needsFlush = 0):
-        if node is None:
-            self.out.write(0);
-        else:
-            self.writeInternal(node);
-
-        self.flushBuffer(needsFlush);
-        self.out.buf = [];
-
-
-    def processBuffer(self):
-        self.out.buf = self.out.getBuffer()
-
-    def flushBuffer(self, flushNetwork):
-        '''define flush buffer here '''
-        self.processBuffer()
-
-        size = len(self.out.getBuffer());
-        if (size & 0xFFFFF) != size:
-            raise Exception("Buffer too large: "+str(size));
-
-        #self.realOut.write(0)
-        #self.writeInt16(size,self.realOut);
+        return outBytes
 
 
-        self.realOut.write(self.out.getBuffer());
-        self.out.reset();
+    def writeInternal(self, node, data):
 
-        if flushNetwork:
-            self.realOut.flush();
+        x = 1 + (0 if node.attributes is None else len(node.attributes) * 2) + (0 if node.children is None else 1) + (0 if node.data is None else 1)
 
-    def writeInternal(self,node):
-        '''define write internal here'''
+        self.writeListStart(1 + (0 if node.attributes is None else len(node.attributes) * 2) + (0 if node.children is None else 1) + (0 if node.data is None else 1), data)
 
-        x = 1 + (0 if node.attributes is None else len(node.attributes) * 2) + (0 if node.children is None else 1) + (0 if node.data is None else 1);
-
-        self.writeListStart(1 + (0 if node.attributes is None else len(node.attributes) * 2) + (0 if node.children is None else 1) + (0 if node.data is None else 1));
-
-        self.writeString(node.tag);
-        self.writeAttributes(node.attributes);
+        self.writeString(node.tag, data)
+        self.writeAttributes(node.attributes, data);
 
         if node.data is not None:
-            self.writeBytes(node.data)
-            '''if type(node.data) == bytearray:
-                self.writeBytes(node.data);
-            else:
-                self.writeBytes(bytearray(node.data));
-            '''
+            self.writeBytes(node.data, data)
 
         if node.children is not None:
-            self.writeListStart(len(node.children));
+            self.writeListStart(len(node.children), data);
             for c in node.children:
-                self.writeInternal(c);
+                self.writeInternal(c, data);
 
 
-    def writeAttributes(self,attributes):
+    def writeAttributes(self, attributes, data):
         if attributes is not None:
             for key, value in attributes.items():
-                self.writeString(key);
-                self.writeString(value);
+                self.writeString(key, data);
+                self.writeString(value, data);
 
 
-    def writeBytes(self,bytes):
+    def writeBytes(self, bytes, data):
 
-        length = len(bytes);
+        length = len(bytes)
         if length >= 256:
-            self.out.write(253);
-            self.writeInt24(length);
+            data.append(253)
+            self.writeInt24(length, data)
         else:
-            self.out.write(252);
-            self.writeInt8(length);
+            data.append(252)
+            self.writeInt8(length, data)
 
         for b in bytes:
-            self.out.write(b);
+            data.append(b);
 
-    def writeInt8(self,v):
-        self.out.write(v & 0xFF);
-
-
-    def writeInt16(self,v, o = None):
-        if o is None:
-            o = self.out;
-
-        o.write((v & 0xFF00) >> 8);
-        o.write((v & 0xFF) >> 0);
+    def writeInt8(self, v, data):
+        data.append(v & 0xFF)
 
 
-    def writeInt24(self,v):
-        self.out.write((v & 0xFF0000) >> 16);
-        self.out.write((v & 0xFF00) >> 8);
-        self.out.write((v & 0xFF) >> 0);
+    def writeInt16(self, v, data):
+        data.append((v & 0xFF00) >> 8);
+        data.append((v & 0xFF) >> 0);
 
 
-    def writeListStart(self,i):
-        #Utilities.debug("list start "+str(i));
+    def writeInt24(self, v, data):
+        data.append((v & 0xFF0000) >> 16)
+        data.append((v & 0xFF00) >> 8)
+        data.append((v & 0xFF) >> 0)
+
+
+    def writeListStart(self, i, data):
         if i == 0:
-            self.out.write(0)
+            data.append(0)
         elif i < 256:
-            self.out.write(248);
-            self.writeInt8(i);#f
+            data.append(248)
+            self.writeInt8(i, data)
         else:
-            self.out.write(249);
-            #write(i >> 8 & 0xFF);
-            self.writeInt16(i); #write(i >> 8 & 0xFF);
+            data.append(249)
+            self.writeInt16(i, data)
 
-    def writeToken(self, intValue):
+    def writeToken(self, intValue, data):
         if intValue < 245:
-            self.out.write(intValue)
+            data.append(intValue)
         elif intValue <=500:
-            self.out.write(254)
-            self.out.write(intValue - 245);
+            data.append(254)
+            data.append(intValue - 245)
 
-    def writeString(self,tag):
+    def writeString(self, tag, data):
         try:
-            key = self.tokenDictionary.getIndex(tag);
+            key = self.tokenDictionary.getIndex(tag)
             if key > 235:
-                self.writeToken(236);
-                self.writeToken(key - 237);
+                self.writeToken(236, data)
+                self.writeToken(key - 237, data)
             else:
-                self.writeToken(key);
+                self.writeToken(key, data)
         except KeyError:
             try:
                 at = '@'.encode() if type(tag) == bytes else '@'
-                atIndex = tag.index(at);
+                atIndex = tag.index(at)
 
                 if atIndex < 1:
-                    raise ValueError("atIndex < 1");
+                    raise ValueError("atIndex < 1")
                 else:
-                    server = tag[atIndex+1:];
-                    user = tag[0:atIndex];
-                    #Utilities.debug("GOT "+user+"@"+server);
-                    self.writeJid(user, server);
+                    server = tag[atIndex+1:]
+                    user = tag[0:atIndex]
+                    self.writeJid(user, server, data)
 
             except ValueError:
-                self.writeBytes(self.encodeString(tag));
+                self.writeBytes(self.encodeString(tag), data)
 
     def encodeString(self, string):
-        res = [];
+        res = []
 
         if type(string) == bytes:
             for char in string:
@@ -184,35 +133,11 @@ class Writer:
                 res.append(ord(char))
         return res;
 
-    def writeJid(self,user,server):
-        self.out.write(250);
+    def writeJid(self, user, server, data):
+        data.append(250)
         if user is not None:
-            self.writeString(user);
+            self.writeString(user, data)
         else:
-            self.writeToken(0);
-        self.writeString(server);
-
-
-    def getChild(self,string):
-        if self.children is None:
-            return None
-
-        for c in self.children:
-            if string == c.tag:
-                return c;
-        return None;
-
-    def getAttributeValue(self,string):
-
-        if self.attributes is None:
-            return None;
-
-        try:
-            val = self.attributes[string]
-            return val;
-        except KeyError:
-            return None;
-
-
-
+            self.writeToken(0, data)
+        self.writeString(server, data)
 
