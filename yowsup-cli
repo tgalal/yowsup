@@ -1,0 +1,103 @@
+#!/usr/bin/env python
+import sys, argparse, os
+from yowsup.demos import cli, echoclient
+class YowArgParser(argparse.ArgumentParser):
+    def __init__(self, *args, **kwargs):
+        super(YowArgParser, self).__init__(*args, **kwargs)
+        self.args = {}
+    def getArgs(self):
+        return self.parse_args()
+
+    def getConfig(self, config):
+        try:
+            f = open(config)
+            phone = idx = pw = cc = None
+            for l in f:
+                line = l.strip()
+                if len(line) and line[0] not in ('#',';'):
+                    prep = line.split('#', 1)[0].split(';', 1)[0].split('=', 1)
+                    varname = prep[0].strip()
+                    val = prep[1].strip()
+                    if varname == "phone":
+                        phone = val
+                    elif varname == "id":
+                        idx = val
+                    elif varname =="password":
+                        pw =val
+                    elif varname == "cc":
+                        cc = val
+            return cc, phone, idx, pw
+        except IOError:
+            print("Invalid config path: %s" % config)
+            sys.exit(1)
+
+    def process(self):
+        self.args = vars(self.parse_args())
+
+class DemosArgParser(YowArgParser):
+    def __init__(self, *args, **kwargs):
+        super(DemosArgParser, self).__init__()
+        self.description = "Run a yowsup demo"
+
+        credentialsOpts = self.add_mutually_exclusive_group(required = True)
+        credentialsOpts.add_argument("-l", "--login", action="store", metavar="phone:b64password",
+                                     help = "WhatsApp login credentials, in the format phonenumber:password, where password is base64 encoded.")
+        credentialsOpts.add_argument("-c", "--config", action="store",
+                                     help = "Path to config file containing authentication info. For more info about config format use --help-config")
+
+        cmdopts = self.add_argument_group("Command line interface demo")
+        cmdopts.add_argument('-y', '--yowsup', action = "store_true", help = "Start the Yowsup command line client")
+
+        echoOpts = self.add_argument_group("Echo client demo")
+        echoOpts.add_argument('-e', '--echo', action = "store_true", help = "Start the Yowsup Echo client")
+
+    def process(self):
+        super(DemosArgParser, self).process()
+        if self.args["yowsup"]:
+            self.startCmdline()
+        elif self.args["echo"]:
+            self.startEcho()
+
+        return True
+
+    def _getCredentials(self):
+        if self.args["login"]:
+            return tuple(self.args["login"].split(":"))
+        else:
+            config = self.getConfig(self.args["config"])
+            return config[1], config[3]
+
+    def startCmdline(self):
+        stack = cli.YowsupCliStack(self._getCredentials())
+        stack.start()
+
+    def startEcho(self):
+        try:
+            stack = echoclient.YowsupEchoStack(self._getCredentials())
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+
+if __name__ == "__main__":
+    args = sys.argv
+    if(len(args) > 1):
+        del args[0]
+
+
+    modeDict = {
+        "demos": DemosArgParser
+    }
+
+    if(len(args) == 0 or args[0] not in modeDict):
+        print("Available commands:\n===================")
+        print(", ".join(modeDict.keys()))
+
+        sys.exit(1)
+
+    mode = args[0]
+    parser = modeDict[mode]()
+    if not parser.process():
+        parser.print_help()
+
