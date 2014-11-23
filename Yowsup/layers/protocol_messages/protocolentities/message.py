@@ -1,6 +1,9 @@
 from Yowsup.structs import ProtocolEntity, ProtocolTreeNode
 class MessageProtocolEntity(ProtocolEntity):
 
+    MESSAGE_TYPE_TEXT = "text"
+    MESSAGE_TYPE_MEDIA = "media"
+
     def __init__(self, _type, _id = None,  _from = None, to = None, notify = None, timestamp = None, 
         participant = None, offline = None, retry = None):
 
