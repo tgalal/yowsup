@@ -1,9 +1,18 @@
 #!/usr/bin/env python
-import sys, argparse, os
+__version__ = "2.0"
+__author__ = "Tarek Galal"
+
+import sys, argparse, yowsup
 from yowsup.demos import cli, echoclient
+
 class YowArgParser(argparse.ArgumentParser):
     def __init__(self, *args, **kwargs):
         super(YowArgParser, self).__init__(*args, **kwargs)
+        self.add_argument(
+            "-v", "--version",
+            action = "store_true",
+            help = "Print version info and exit"
+        )
         self.args = {}
     def getArgs(self):
         return self.parse_args()
@@ -11,35 +20,121 @@ class YowArgParser(argparse.ArgumentParser):
     def getConfig(self, config):
         try:
             f = open(config)
-            phone = idx = pw = cc = None
+            out = {}
             for l in f:
                 line = l.strip()
                 if len(line) and line[0] not in ('#',';'):
                     prep = line.split('#', 1)[0].split(';', 1)[0].split('=', 1)
                     varname = prep[0].strip()
                     val = prep[1].strip()
-                    if varname == "phone":
-                        phone = val
-                    elif varname == "id":
-                        idx = val
-                    elif varname =="password":
-                        pw =val
-                    elif varname == "cc":
-                        cc = val
-            return cc, phone, idx, pw
+                    out[varname.replace('-', '_')] = val
+            return out
         except IOError:
             print("Invalid config path: %s" % config)
             sys.exit(1)
 
     def process(self):
         self.args = vars(self.parse_args())
+        if self.args["version"]:
+            print "yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__)
+            sys.exit(0)
+
+class RegistrationArgParser(YowArgParser):
+    def __init__(self, *args, **kwargs):
+        super(RegistrationArgParser, self).__init__(*args, **kwargs)
+        self.description = "WhatsApp Registration options"
+
+        configGroup = self.add_argument_group("Configuration options",
+                                              description = "Config file is optional. Other configuration arguments have higher priority if given, and will override those specified in the config file")
+        configGroup.add_argument("-c", '--config',
+                                 action = "store",
+                                 help = 'Path to config file. If this is not set then you must set at least --phone and --cc arguments')
+        configGroup.add_argument("-m", '--mcc',
+                                 action = "store",
+                                 help = "Put MCC info here")
+        configGroup.add_argument("-n", '--mnc',
+                                 action = "store",
+                                 help = "Put MNC info here")
+
+        configGroup.add_argument("-M", '--sim-mcc',
+                                 action = "store",
+                                 help = "Sim MCC"
+                                 )
+        configGroup.add_argument("-N", '--sim-mnc',
+                                 action= "store",
+                                 help = "SIM MNC"
+                                 )
+
+        configGroup.add_argument("-p", '--phone',
+                                 action= "store",
+                                 help = "Put phone info here")
+        configGroup.add_argument("-C", '--cc',
+                                 action = "store",
+                                 help = "Put country code info here")
+
+
+        configGroup.add_argument("-i", '--id',
+                                 action="store",
+                                 help = "Identity"
+                                 )
+
+        regSteps = self.add_argument_group("Modes")
+        regSteps = regSteps.add_mutually_exclusive_group()
+
+        regSteps.add_argument("-r", '--requestcode', help='Request the digit registration code from Whatsapp.', action="store", required=False, metavar="(sms|voice)")
+        regSteps.add_argument("-R", '--register', help='Register account on Whatsapp using the code you previously received', action="store", required=False, metavar="code")
+        regSteps.add_argument("-e", '--exists', help='Check if account credentials are valid. WARNING: Whatsapp now changes your password everytime you use this. Make sure you update your config file if the output informs about a password change', action="store_true", required=False)
+
+    def process(self):
+        super(RegistrationArgParser, self).process()
+
+        config = self.getConfig(self.args["config"]) if self.args["config"] else {}
+        if self.args["mcc"]     : config["mcc"]     = self.args["mcc"]
+        if self.args["mnc"]     : config["mnc"]     = self.args["mnc"]
+        if self.args["phone"]   : config["phone"]   = self.args["phone"]
+        if self.args["cc" ]     : config["cc"]      = self.args["cc"]
+        if self.args["id"]      : config["id"]      = self.args["id"]
+        if self.args["sim_mnc"] : config["sim_mnc"] = self.args["sim_mnc"]
+        if self.args["sim_mcc"] : config["sim_mcc"] = self.args["sim_mcc"]
+
+        if not "mcc"     in config: config["mcc"] = "000"
+        if not "mnc"     in config: config["mnc"] = "000"
+        if not "sim_mcc" in config: config["sim_mcc"] = "000"
+        if not "sim_mnc" in config: config["sim_mnc"] = "000"
+        if not "id"      in config: config["id"] = "000000000000000"
+
+        try:
+            assert self.args["requestcode"] or self.args["register"] or self.args["exists"], "Must specify one of the modes -r/-R/-e"
+            assert "cc"      in config, "Must specify cc (country code)"
+            assert "phone"   in config, "Must specify phone number"
+        except AssertionError as e:
+            print(e.message)
+            sys.exit(1)
+
+        if self.args["requestcode"]:
+            self.handleRequestCode(config)
+        elif self.args["register"]:
+            self.handleRegister(config)
+        elif self.args["exists"]:
+            self.handleExists(config)
+
+        return True
+
+    def handleRequestCode(self, config):
+        pass
+
+    def handleRegister(self, config):
+        pass
+
+    def handleExists(self, config):
+        pass
 
 class DemosArgParser(YowArgParser):
     def __init__(self, *args, **kwargs):
-        super(DemosArgParser, self).__init__()
+        super(DemosArgParser, self).__init__(*args, **kwargs)
         self.description = "Run a yowsup demo"
 
-        credentialsOpts = self.add_mutually_exclusive_group(required = True)
+        credentialsOpts = self.add_mutually_exclusive_group()
         credentialsOpts.add_argument("-l", "--login", action="store", metavar="phone:b64password",
                                      help = "WhatsApp login credentials, in the format phonenumber:password, where password is base64 encoded.")
         credentialsOpts.add_argument("-c", "--config", action="store",
@@ -65,7 +160,8 @@ class DemosArgParser(YowArgParser):
             return tuple(self.args["login"].split(":"))
         else:
             config = self.getConfig(self.args["config"])
-            return config[1], config[3]
+            assert "password" in config and "phone" in config, "Must specify at least phone number and password in config file"
+            return config["phone"], config["password"]
 
     def startCmdline(self):
         stack = cli.YowsupCliStack(self._getCredentials())
@@ -87,7 +183,8 @@ if __name__ == "__main__":
 
 
     modeDict = {
-        "demos": DemosArgParser
+        "demos":        DemosArgParser,
+        "registration": RegistrationArgParser
     }
 
     if(len(args) == 0 or args[0] not in modeDict):
