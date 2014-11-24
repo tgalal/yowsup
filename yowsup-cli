@@ -7,6 +7,28 @@ from yowsup.demos import cli, echoclient
 from yowsup.registration import WACodeRequest, WARegRequest, WAExistsRequest
 from yowsup.common.tools import WATools
 
+HELP_CONFIG = """
+############# Yowsup Configuration Sample ###########
+#
+# ====================
+# The file contains info about your WhatsApp account. This is used during registration and login.
+# You can define or override all fields in the command line args as well.
+#
+# Country code. See http://www.ipipi.com/help/telephone-country-codes.htm. This is now required.
+cc=49
+#
+# Your full phone number including the country code you defined in 'cc', also without '+' or '00'
+phone=491234567890
+#
+# id is Typically it's the phone serial number on which WhatsApp runs. It's used in resetting password if the id sent matches the one registered with.
+# Set it to some random text before registration and don't change it afterwards. Or just leave it is.
+id=000000000000000
+#
+# You obtain this password when you register using Yowsup.
+password=abcdefghijklomnopqrstuvwxyz=
+#######################################################
+"""
+
 class YowArgParser(argparse.ArgumentParser):
     def __init__(self, *args, **kwargs):
         super(YowArgParser, self).__init__(*args, **kwargs)
@@ -19,6 +41,8 @@ class YowArgParser(argparse.ArgumentParser):
             action = "store_true",
             help = "Show debug messages"
         )
+
+        self.add_argument("--help-config", help = "Prints a config file sample", action = "store_true")
         self.args = {}
     def getArgs(self):
         return self.parse_args()
@@ -45,10 +69,15 @@ class YowArgParser(argparse.ArgumentParser):
             print "yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__)
             sys.exit(0)
 
+        if self.args["help_config"]:
+            print(HELP_CONFIG)
+            sys.exit(0)
+
         if self.args["debug"]:
             logging.basicConfig(level = logging.DEBUG)
         else:
             logging.basicConfig(level = logging.INFO)
+
 
 class RegistrationArgParser(YowArgParser):
     def __init__(self, *args, **kwargs):
@@ -62,19 +91,19 @@ class RegistrationArgParser(YowArgParser):
                                  help = 'Path to config file. If this is not set then you must set at least --phone and --cc arguments')
         configGroup.add_argument("-m", '--mcc',
                                  action = "store",
-                                 help = "Put MCC info here")
+                                 help = "Mobile Country Code. Check your mcc here: https://en.wikipedia.org/wiki/Mobile_country_code")
         configGroup.add_argument("-n", '--mnc',
                                  action = "store",
-                                 help = "Put MNC info here")
+                                 help = "Mobile Network Code. Check your mnc from https://en.wikipedia.org/wiki/Mobile_country_code")
 
-        configGroup.add_argument("-M", '--sim-mcc',
-                                 action = "store",
-                                 help = "Sim MCC"
-                                 )
-        configGroup.add_argument("-N", '--sim-mnc',
-                                 action= "store",
-                                 help = "SIM MNC"
-                                 )
+        # configGroup.add_argument("-M", '--sim-mcc',
+        #                          action = "store",
+        #                          help = "Mobile Country Code. Check your mcc here: https://en.wikipedia.org/wiki/Mobile_country_code"
+        #                          )
+        # configGroup.add_argument("-N", '--sim-mnc',
+        #                          action= "store",
+        #                          help = "SIM MNC"
+        #                          )
 
         configGroup.add_argument("-p", '--phone',
                                  action= "store",
@@ -106,8 +135,8 @@ class RegistrationArgParser(YowArgParser):
         if self.args["phone"]   : config["phone"]   = self.args["phone"]
         if self.args["cc" ]     : config["cc"]      = self.args["cc"]
         if self.args["id"]      : config["id"]      = self.args["id"]
-        if self.args["sim_mnc"] : config["sim_mnc"] = self.args["sim_mnc"]
-        if self.args["sim_mcc"] : config["sim_mcc"] = self.args["sim_mcc"]
+        #if self.args["sim_mnc"] : config["sim_mnc"] = self.args["sim_mnc"]
+        #if self.args["sim_mcc"] : config["sim_mcc"] = self.args["sim_mcc"]
 
         if not "mcc"     in config: config["mcc"] = "000"
         if not "mnc"     in config: config["mnc"] = "000"
@@ -141,8 +170,8 @@ class RegistrationArgParser(YowArgParser):
                                 config["id"],
                                 config["mcc"],
                                 config["mnc"],
-                                config["sim_mcc"],
-                                config["sim_mnc"],
+                                config["mcc"],
+                                config["mnc"],
                                 method
         )
         result = codeReq.send()
