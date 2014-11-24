@@ -1084,13 +1084,17 @@ class ReaderThread(threading.Thread):
 						receiptType = node.getAttributeValue("type");
 						fromJid = node.getAttributeValue("from");
 						msg_id = node.getAttributeValue("id")
-						participant = node.getAttributeValue("participant")
-						if receiptType == "delivered" or receiptType == "played" or receiptType != "":
-							self.sendReceiptAck(msg_id, receiptType)
 						if fromJid[-9:] == "broadcast":
-							self.signalInterface.send("receipt_messageDelivered", (participant, msg_id))
-						else:
+							fromJid = node.getAttributeValue("participant")
+						self.sendReceiptAck(msg_id, receiptType)
+						if receiptType != "delivered" and receiptType != "played":
 							self.signalInterface.send("receipt_messageDelivered", (fromJid, msg_id))
+							groupNode = node.getChild("list")
+							if groupNode:
+								items = groupNode.getAllChildren("item");
+								for i in items:
+									msg_id = i.getAttributeValue("id")
+									self.signalInterface.send("receipt_messageDelivered", (fromJid, msg_id))
 
 					elif ProtocolTreeNode.tagEquals(node, "ack"):
 						ackClass = node.getAttributeValue("class")
