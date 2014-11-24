@@ -8,6 +8,7 @@ from yowsup.layers.protocol_messages           import YowMessagesProtocolLayer
 from yowsup.layers.stanzaregulator             import YowStanzaRegulator
 from yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
 from yowsup.layers.protocol_acks               import YowAckProtocolLayer
+from yowsup.layers.logger                      import YowLoggerLayer
 from yowsup.common import YowConstants
 import asyncore
 
@@ -16,6 +17,7 @@ class YowsupEchoStack(object):
         layers = (
             EchoLayer,
             (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
+            YowLoggerLayer,
             YowCoderLayer,
             YowCryptLayer,
             YowStanzaRegulator,

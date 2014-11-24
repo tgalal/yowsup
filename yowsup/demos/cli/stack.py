@@ -19,7 +19,7 @@ class YowsupCliStack(object):
         self.stack.setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, credentials)
 
     def start(self):
-
+        print("Yowsup Cli client\n==================\nType /help for available commands\n")
         self.stack.broadcastEvent(YowLayerEvent(YowsupCliLayer.EVENT_START))
 
         try:

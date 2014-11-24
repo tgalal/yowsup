@@ -18,6 +18,7 @@ from yowsup.layers.protocol_iq                 import YowIqProtocolLayer
 
 
 YOWSUP_CORE_LAYERS = (
+    YowLoggerLayer,
     YowCoderLayer,
     YowCryptLayer,
     YowStanzaRegulator,

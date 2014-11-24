@@ -1,32 +1,17 @@
 from yowsup.layers import YowLayer
+import logging
+logger = logging.getLogger(__name__)
 class YowLoggerLayer(YowLayer):
 
     def send(self, data):
-        print("SEND")
-        try:
-            #print(type(data))
-            if type(data) is bytearray:
-                print(list(data))
-            else:
-                print(data)
-            print("----\n")
-        except UnicodeEncodeError:
-            pass
+        ldata = list(data) if type(data) is bytearray else data
+        logger.debug("tx:\n%s" % ldata)
         self.toLower(data)
 
     def receive(self, data):
-        print("RECEIVE:")
-        try:
-            #print(type(data))
-            if type(data) is bytearray:
-                print(list(data))
-            else:
-                print(data)
-            print("----\n")
-        except UnicodeEncodeError:
-            pass
+        ldata = list(data) if type(data) is bytearray else data
+        logger.debug("rx:\n%s" % ldata)
         self.toUpper(data)
-
 
     def __str__(self):
         return "Logger Layer"

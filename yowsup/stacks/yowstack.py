@@ -1,5 +1,8 @@
 from yowsup.layers import YowParallelLayer
-import asyncore, time
+import asyncore, time, logging
+
+logger = logging.getLogger(__name__)
+
 class YowStack(object):
     __stack = []
     __stackInstances = []
@@ -41,13 +44,13 @@ class YowStack(object):
             asyncore.loop(*args, **kwargs)
 
     def _construct(self):
-        print("Initialzing stack")
+        logger.debug("Initializing stack")
         for s in self.__stack:
             if type(s) is tuple:
                 inst = YowParallelLayer(s)
             else:
                 inst = s()
-            print("Constructed %s" % inst)
+            logger.debug("Constructed %s" % inst)
             inst.setStack(self)
             self.__stackInstances.append(inst)
 
