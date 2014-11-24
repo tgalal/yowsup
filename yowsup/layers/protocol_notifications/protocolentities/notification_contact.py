@@ -4,7 +4,6 @@ class ContactNotificationProtocolEntity(NotificationProtocolEntity):
     '''
     <notification offline="0" id="{{NOTIFICATION_ID}}" notify="{{NOTIFY_NAME}}" type="contacts" 
             t="{{TIMESTAMP}}" from="{{SENDER_JID}}">
-        <remove jid="{{contact_jid}}"></remove>
     </notification>
     
     '''
