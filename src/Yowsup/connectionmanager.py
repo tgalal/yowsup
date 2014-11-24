@@ -1283,7 +1283,7 @@ class ReaderThread(threading.Thread):
 	
 	def parseGetPicture(self,node):
 		jid = node.getAttributeValue("from");
-		if "error code" in node.toString():
+		if node.getAttributeValue("type") == "error":
 			return;
 
 		pictureNode = node.getChild("picture")
