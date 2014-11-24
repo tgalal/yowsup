@@ -2,16 +2,20 @@
 __version__ = "2.0"
 __author__ = "Tarek Galal"
 
-import sys, argparse, yowsup
+import sys, argparse, yowsup, logging
 from yowsup.demos import cli, echoclient
 
 class YowArgParser(argparse.ArgumentParser):
     def __init__(self, *args, **kwargs):
         super(YowArgParser, self).__init__(*args, **kwargs)
-        self.add_argument(
-            "-v", "--version",
+        self.add_argument("-v", "--version",
             action = "store_true",
             help = "Print version info and exit"
+        )
+
+        self.add_argument("-d", "--debug",
+            action = "store_true",
+            help = "Show debug messages"
         )
         self.args = {}
     def getArgs(self):
@@ -38,6 +42,9 @@ class YowArgParser(argparse.ArgumentParser):
         if self.args["version"]:
             print "yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__)
             sys.exit(0)
+
+        if self.args["debug"]:
+            logging.basicConfig(level=logging.DEBUG)
 
 class RegistrationArgParser(YowArgParser):
     def __init__(self, *args, **kwargs):
