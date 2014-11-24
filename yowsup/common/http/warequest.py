@@ -1,4 +1,7 @@
-import urllib,sys, os
+import urllib,sys, os, logging
+import hashlib
+from .waresponseparser import ResponseParser
+from yowsup.common.constants import YowConstants
 
 if sys.version_info < (3, 0):
     import httplib
@@ -7,20 +10,14 @@ else:
     from http import client as httplib
     from urllib.parse import urlencode
 
-import hashlib
-from .waresponseparser import ResponseParser
-from yowsup.Common.debugger import Debugger as WADebug
-from yowsup.Common.constants import Constants
-from yowsup.Common.utilities import Utilities
+logger = logging.getLogger(__name__)
+
 
 class WARequest(object):
 
     OK = 200
 
-    #moved to Constants
-
     def __init__(self):
-        WADebug.attach(self)
 
         self.pvars = [];
         self.port = 443;
@@ -60,12 +57,12 @@ class WARequest(object):
 
     def getUserAgent(self):
 
-        tokenData = Utilities.readToken()
+        tokenData = None #Utilities.readToken()
 
         if tokenData:
             agent = tokenData["u"]
         else:
-            agent = Constants.tokenData["u"]
+            agent = YowConstants.DATA_CLIENT["u"]
         return agent
 
     def getToken(self, phone, token):
@@ -82,12 +79,12 @@ class WARequest(object):
         if isinstance(parser, ResponseParser):
             self.parser = parser
         else:
-            self._d("Invalid parser")
+            logger.error("Invalid parser")
 
     def getConnectionParameters(self):
 
         if not self.url:
-            return ("", "", self.port)
+            return "", "", self.port
 
         try:
             url = self.url.split("://", 1)
@@ -100,7 +97,7 @@ class WARequest(object):
 
         path = "/" + path
 
-        return (host, self.port, path)
+        return host, self.port, path
 
     def sendGetRequest(self, parser = None):
         self.response = None
@@ -116,11 +113,11 @@ class WARequest(object):
         self.response = WARequest.sendRequest(host, port, path, headers, params, "GET")
 
         if not self.response.status == WARequest.OK:
-            self._d("Request not success, status was %s"%self.response.status)
+            logger.error("Request not success, status was %s"%self.response.status)
             return {}
 
         data = self.response.read()
-        self._d(data);
+        logger.info(data);
 
         self.sent = True
         return parser.parse(data.decode(), self.pvars)
@@ -134,19 +131,19 @@ class WARequest(object):
         headers = dict(list({"User-Agent":self.getUserAgent(),
                 "Accept": parser.getMeta(),
                 "Content-Type":"application/x-www-form-urlencoded"
-            }.items()) + list(self.headers.items()));
+            }.items()) + list(self.headers.items()))
 
         host,port,path = self.getConnectionParameters()
         self.response = WARequest.sendRequest(host, port, path, headers, params, "POST")
 
 
         if not self.response.status == WARequest.OK:
-            self._d("Request not success, status was %s"%self.response.status)
+            logger.error("Request not success, status was %s" % self.response.status)
             return {}
 
         data = self.response.read()
 
-        self._d(data);
+        logger.info(data)
 
         self.sent = True
         return parser.parse(data.decode(), self.pvars)
@@ -155,23 +152,22 @@ class WARequest(object):
     @staticmethod
     def sendRequest(host, port, path, headers, params, reqType="GET"):
 
-        params = urlencode(params);
+        params = urlencode(params)
 
 
         path = path + "?"+ params if reqType == "GET" and params else path
 
         if len(headers):
-            WADebug.stdDebug(headers)
+            logger.debug(headers)
         if len(params):
-            WADebug.stdDebug(params)
+            logger.debug(params)
 
-        WADebug.stdDebug("Opening connection to %s" % host);
+        logger.debug("Opening connection to %s" % host);
 
         conn = httplib.HTTPSConnection(host ,port) if port == 443 else httplib.HTTPConnection(host ,port)
 
-        WADebug.stdDebug("Sending %s request to %s" % (reqType, path))
+        logger.debug("Sending %s request to %s" % (reqType, path))
         conn.request(reqType, path, params, headers);
 
         response = conn.getresponse()
-
         return response

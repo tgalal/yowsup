@@ -1,22 +1,25 @@
 from yowsup.common.http.warequest import WARequest
 from yowsup.common.http.waresponseparser import JSONResponseParser
 from yowsup.common import YowConstants as Constants
-from yowsup.common.utilities import Utilities
 import os
+
+
 class WACodeRequest(WARequest):
 
-    def __init__(self,cc, p_in, idx, method="sms"):
-        super(WACodeRequest,self).__init__();
+    def __init__(self,cc, p_in, idx, mcc= "000", mnc = "000", sim_mcc = "000", sim_mnc = "000", method="sms"):
+        super(WACodeRequest,self).__init__()
 
-        self.p_in = p_in #number
+        self.p_in = p_in
 
-        self.addParam("cc", cc);
-        self.addParam("in", p_in);
-        self.addParam("lc", "US");
-        self.addParam("lg", "en");
-        self.addParam("mcc", "000");
-        self.addParam("mnc", "000");
-        self.addParam("method", method);
+        self.addParam("cc", cc)
+        self.addParam("in", p_in)
+        self.addParam("lc", "US")
+        self.addParam("lg", "en")
+        self.addParam("mcc", mcc)
+        self.addParam("mnc", mnc)
+        self.addParam("sim_mcc", sim_mcc)
+        self.addParam("sim_mnc", sim_mnc)
+        self.addParam("method", method)
         self.addParam("id", idx)
 
         self.currentToken = None#Utilities.readToken()
@@ -24,7 +27,7 @@ class WACodeRequest(WARequest):
         if self.currentToken:
             print("Read token from %s " % os.path.expanduser(Constants.tokenStorage))
         else:
-            self.currentToken = Constants.tokenData
+            self.currentToken = Constants.DATA_CLIENT
 
         self.addParam("token", self.getToken(p_in, self.currentToken["t"]))
 

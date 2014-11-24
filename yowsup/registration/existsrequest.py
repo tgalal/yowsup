@@ -6,8 +6,8 @@ class WAExistsRequest(WARequest):
     def __init__(self,cc, p_in, idx):
         super(WAExistsRequest,self).__init__();
 
-        self.addParam("cc",cc);
-        self.addParam("in",p_in);
+        self.addParam("cc", cc);
+        self.addParam("in", p_in);
         self.addParam("id", idx);
 
         self.url = "v.whatsapp.net/v2/exist"

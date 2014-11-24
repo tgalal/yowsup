@@ -4,6 +4,8 @@ __author__ = "Tarek Galal"
 
 import sys, argparse, yowsup, logging
 from yowsup.demos import cli, echoclient
+from yowsup.registration import WACodeRequest, WARegRequest, WAExistsRequest
+from yowsup.common.tools import WATools
 
 class YowArgParser(argparse.ArgumentParser):
     def __init__(self, *args, **kwargs):
@@ -44,7 +46,9 @@ class YowArgParser(argparse.ArgumentParser):
             sys.exit(0)
 
         if self.args["debug"]:
-            logging.basicConfig(level=logging.DEBUG)
+            logging.basicConfig(level = logging.DEBUG)
+        else:
+            logging.basicConfig(level = logging.INFO)
 
 class RegistrationArgParser(YowArgParser):
     def __init__(self, *args, **kwargs):
@@ -96,6 +100,7 @@ class RegistrationArgParser(YowArgParser):
         super(RegistrationArgParser, self).process()
 
         config = self.getConfig(self.args["config"]) if self.args["config"] else {}
+
         if self.args["mcc"]     : config["mcc"]     = self.args["mcc"]
         if self.args["mnc"]     : config["mnc"]     = self.args["mnc"]
         if self.args["phone"]   : config["phone"]   = self.args["phone"]
@@ -110,6 +115,9 @@ class RegistrationArgParser(YowArgParser):
         if not "sim_mnc" in config: config["sim_mnc"] = "000"
         if not "id"      in config: config["id"] = "000000000000000"
 
+        config["id"] = WATools.processIdentity(config["id"])
+        config["phone"] = config["phone"][len(config["cc"]):]
+
         try:
             assert self.args["requestcode"] or self.args["register"] or self.args["exists"], "Must specify one of the modes -r/-R/-e"
             assert "cc"      in config, "Must specify cc (country code)"
@@ -119,22 +127,50 @@ class RegistrationArgParser(YowArgParser):
             sys.exit(1)
 
         if self.args["requestcode"]:
-            self.handleRequestCode(config)
+            self.handleRequestCode(self.args["requestcode"], config)
         elif self.args["register"]:
-            self.handleRegister(config)
+            self.handleRegister(self.args["register"], config)
         elif self.args["exists"]:
             self.handleExists(config)
 
         return True
 
-    def handleRequestCode(self, config):
-        pass
+    def handleRequestCode(self, method, config):
+        codeReq = WACodeRequest(config["cc"],
+                                config["phone"],
+                                config["id"],
+                                config["mcc"],
+                                config["mnc"],
+                                config["sim_mcc"],
+                                config["sim_mnc"],
+                                method
+        )
+        result = codeReq.send()
+        print(self.resultToString(result))
 
-    def handleRegister(self, config):
-        pass
+    def handleRegister(self, code, config):
+        code = code.replace('-', '')
+        req = WARegRequest(config["cc"], config["phone"], code, config["id"])
+        result = req.send()
+        print(self.resultToString(result))
 
     def handleExists(self, config):
-        pass
+        req = WAExistsRequest(config["cc"], config["phone"], config["id"])
+        result = req.send()
+        print(self.resultToString(result))
+        if result["pw"] is not None:
+            print("\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(config["cc"], config["phone"], result["pw"]))
+
+
+    def resultToString(self, result):
+        unistr = str if sys.version_info >= (3, 0) else unicode
+        out = []
+        for k, v in result.items():
+            if v is None:
+                continue
+            out.append("%s: %s" %(k, v.encode("utf-8") if type(v) is unistr else v))
+
+        return "\n".join(out)
 
 class DemosArgParser(YowArgParser):
     def __init__(self, *args, **kwargs):
