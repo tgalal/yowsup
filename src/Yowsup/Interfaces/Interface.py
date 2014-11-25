@@ -77,6 +77,7 @@ class SignalInterfaceBase(object):
 			"notification_contactAdded",
 
 			"contact_gotProfilePictureId",
+			"contact_gotProfilePictureIds",
 			"contact_gotProfilePicture",
 			"contact_typing",
 			"contact_paused",
