@@ -8,9 +8,9 @@ WhatsApp Messenger is a cross-platform mobile messaging app which allows you to 
 In addition to basic messaging WhatsApp users can create groups, send each other unlimited images, video and audio media messages.
 
 ## About Yowsup
-Yowsup is a python library that allows you to do all the previous in your own app. Yowsup allows you to login and use the Whatsapp service and provides you with all capabilities of an official Whatsapp client, allowing you to create a full-fledged custom Whatsapp client.
+Yowsup is a python library that allows you to do all the above in your own app. Yowsup allows you to login and use the Whatsapp service and provides you with all the capabilities of an official Whatsapp client, allowing you to create a full-fledged custom Whatsapp client.
 
-A solid example of Yowsup's usage is [Wazapp](https://github.com/tgalal/wazapp).  Wazapp is full featured Whatsapp client that is being used by hundreds of thousands of people around the world. Yowsup is born out of the Wazapp project. Before becoming a separate project, it was only the engine powering Wazapp. Now that it matured enough, it was separated into a separate project, allowing anyone to build their own Whatsapp client on top of it. Having such a popular client as Wazapp, built on Yowsup, helped bring the project into a much advanced, stable and mature level, and ensures its continuous development and maintaince.
+A solid example of Yowsup's usage is [Wazapp](https://github.com/tgalal/wazapp).  Wazapp is afull featured Whatsapp client that is being used by hundreds of thousands of people around the world. Yowsup is born out of the Wazapp project. Before becoming a separate project, it was the engine powering Wazapp. Now that it has matured enough, it has been separated into a separate project, allowing anyone to build their own Whatsapp client on top of it. Having such a popular client as Wazapp, built on Yowsup, helped bring the project up to an advanced, stable and mature level, and ensures its continuous development and maintenance.
 
 Yowsup also comes with a cross platform command-line frontend called [yowsup-cli](https://github.com/tgalal/yowsup/wiki/yowsup-cli). yowsup-cli allows you to jump into connecting and using Whatsapp service directly from command line.
 
@@ -19,10 +19,11 @@ Yowsup also comes with a cross platform command-line frontend called [yowsup-cli
  * **[yowsup-cli](https://github.com/tgalal/yowsup/wiki/yowsup-cli)**
  * **[Yowsup Library Documentation](https://github.com/tgalal/yowsup/wiki/Yowsup-Library-Documentation)**
 
-### Requirements:
- * python 2.6+
- * [python-dateutil](http://labix.org/python-dateutil)
- * **yowsup-cli** requires [argparse](http://code.google.com/p/argparse/) for python < 2.7
+### Development
+
+Install development requirements (preferably inside a virtualenv):
+
+    pip install -r requirements.txt
 
 ## License:
 MIT License:
