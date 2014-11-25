@@ -24,19 +24,18 @@ import time, datetime, sys
 
 if sys.version_info >= (3, 0):
 	raw_input = input
-	long = int
 
-class WhatsappCmdClient:
+class WhatsappTestClient:
 	
-	def __init__(self, phoneNumber, keepAlive = False, sendReceipts = False):
-		self.sendReceipts = sendReceipts
+	def __init__(self, phoneNumber):
+		self.sendReceipts = True
 		self.phoneNumber = phoneNumber
 		self.jid = "%s@s.whatsapp.net" % phoneNumber
 		
 		self.sentCache = {}
 		
 		connectionManager = YowsupConnectionManager()
-		connectionManager.setAutoPong(keepAlive)
+		connectionManager.setAutoPong(True)
 		self.signalsInterface = connectionManager.getSignalsInterface()
 		self.methodsInterface = connectionManager.getMethodsInterface()
 		
@@ -46,11 +45,15 @@ class WhatsappCmdClient:
 		self.signalsInterface.registerListener("receipt_messageSent", self.onMessageSent)
 		self.signalsInterface.registerListener("presence_updated", self.onPresenceUpdated)
 		self.signalsInterface.registerListener("disconnected", self.onDisconnected)
+		self.signalsInterface.registerListener("sync_contactsReceived", self.onSyncContacts)
+		self.signalsInterface.registerListener("sync_statusesReceived", self.onSyncStatuses)
 		
 		
 		self.commandMappings = {"lastseen":lambda: self.methodsInterface.call("presence_request", ( self.jid,)),
 								"available": lambda: self.methodsInterface.call("presence_sendAvailable"),
-								"unavailable": lambda: self.methodsInterface.call("presence_sendUnavailable")
+								"unavailable": lambda: self.methodsInterface.call("presence_sendUnavailable"),
+								"sync": lambda number: self.methodsInterface.call("sync_sendContacts", ([number],)),
+								"status": lambda cjid: self.methodsInterface.call("sync_getStatuses", ([cjid],))
 								 }
 		
 		self.done = False
@@ -66,6 +69,7 @@ class WhatsappCmdClient:
 	def onAuthSuccess(self, username):
 		print("Authed %s" % username)
 		self.methodsInterface.call("ready")
+		self.methodsInterface.call("clientconfig_send")
 		self.goInteractive(self.phoneNumber)
 
 	def onAuthFailed(self, username, err):
@@ -86,8 +90,12 @@ class WhatsappCmdClient:
 	def runCommand(self, command):
 		if command[0] == "/":
 			command = command[1:].split(' ')
+			param = command[1] if len(command) > 1 else ""
 			try:
-				self.commandMappings[command[0]]()
+				if len(param) > 1:
+					self.commandMappings[command[0]](param)
+				else:
+					self.commandMappings[command[0]]()
 				return 1
 			except KeyError:
 				return 0
@@ -104,6 +112,14 @@ class WhatsappCmdClient:
 			self.methodsInterface.call("message_ack", (jid, messageId))
 
 		print(self.getPrompt())
+
+	def onSyncContacts(self, syncList):
+		for item in syncList:
+			print("%s synced to %s"%(item["phone"], item["jid"]))
+
+	def onSyncStatuses(self, syncList):
+		for item in syncList:
+			print("%s status: %s. lastseen: %s"%(item["jid"], item["message"], item["lastseen"]))
 	
 	def goInteractive(self, jid):
 		print("Starting Interactive chat with %s" % jid)
