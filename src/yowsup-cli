@@ -308,8 +308,8 @@ else:
 			
 			print(resultToString(result))
 
-	elif args["dbus"]:
-            startDbusInterface()
+	#elif args["dbus"]:
+        #    startDbusInterface()
 	elif args["generatepassword"]:
 		print(Utilities.processIdentity(args["generatepassword"]));
 	elif args["decodestring"]:
