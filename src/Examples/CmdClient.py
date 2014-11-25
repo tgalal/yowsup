@@ -24,6 +24,7 @@ import time, datetime, sys
 
 if sys.version_info >= (3, 0):
 	raw_input = input
+	long = int
 
 class WhatsappCmdClient:
 	
