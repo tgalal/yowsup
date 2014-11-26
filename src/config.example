@@ -14,7 +14,7 @@
 
 ## Actual config starts below ##
 
-cc=
-phone=
-id=
-password=
+cc= #if not specified it will be autodetected
+phone=20111111111
+id=0000000000
+password=MDAwMDAwMDAwMA==
