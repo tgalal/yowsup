@@ -1066,7 +1066,10 @@ class ReaderThread(threading.Thread):
 
 							bodyNode = node.getChild("body");
 							newSubject = None if bodyNode is None else (bodyNode.data if sys.version_info < (3, 0) else bodyNode.data.encode('latin-1').decode());
-							
+							fromAttribute = node.getAttributeValue("from");
+                                                        author = node.getAttributeValue("author");
+                                                        attribute_t = node.getAttributeValue("t");
+  
 							if newSubject is not None:
 								self.signalInterface.send("group_subjectReceived",(msgId, fromAttribute, author, newSubject, int(attribute_t),  receiptRequested))
 

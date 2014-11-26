@@ -1,0 +1,6 @@
+bin/
+local/
+lib/
+include/
+*.pyc
+src/Yowsup/connectionmanager.py~
