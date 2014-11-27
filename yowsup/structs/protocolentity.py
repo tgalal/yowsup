@@ -37,4 +37,5 @@ class ProtocolEntityTest(unittest.TestCase):
 
     def test_generation(self):
         entity = self.ProtocolEntity.fromProtocolTreeNode(self.node)
-        self.assertEqual(entity.toProtocolTreeNode().toString(), self.node.toString())
+        self.assertEqual(entity.toProtocolTreeNode(), self.node)
+

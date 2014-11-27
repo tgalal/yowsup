@@ -11,10 +11,22 @@ class ProtocolTreeNode():
         
         self.tag = tag;
         self.attributes = AttribDict(attributes);
-        self.children = children;
+        self.children = children
         self.data = data
 
         assert children is None or type(self.children) is list, "Children must be a list"
+
+    def __eq__(self, protocolTreeNode):
+        """
+
+        :param protocolTreeNode: ProtocolTreeNode
+        :return: bool
+        """
+        return protocolTreeNode.__class__ == ProtocolTreeNode\
+            and self.tag == protocolTreeNode.tag\
+            and self.data == protocolTreeNode.data\
+            and self.children == protocolTreeNode.children\
+            and self.attributes == protocolTreeNode.attributes
         
     def toString(self):
         out = "<"+self.tag;
