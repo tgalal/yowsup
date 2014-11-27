@@ -1,33 +1,29 @@
-try:
-    from collections import OrderedDict #ordered to pass tests in python 3+
-    AttribDict = lambda normalDict: OrderedDict(normalDict)
-except ImportError:
-    AttribDict = lambda normalDict: normalDict
+class ProtocolTreeNode(object):
+    def __init__(self, tag, attributes = None, children = None, data = None):
 
-class ProtocolTreeNode():
-    
-    def __init__(self, tag, attributes = {}, children = None, data = None):
-
-        
-        self.tag = tag;
-        self.attributes = AttribDict(attributes);
-        self.children = children
+        self.tag = tag
+        self.attributes = attributes or {}
+        self.children = children or []
         self.data = data
 
-        assert children is None or type(self.children) is list, "Children must be a list"
+        assert type(self.children) is list, "Children must be a list, got %s" % type(self.children)
 
     def __eq__(self, protocolTreeNode):
         """
-
         :param protocolTreeNode: ProtocolTreeNode
         :return: bool
         """
+        #
+
         return protocolTreeNode.__class__ == ProtocolTreeNode\
             and self.tag == protocolTreeNode.tag\
             and self.data == protocolTreeNode.data\
-            and self.children == protocolTreeNode.children\
+            and set(self.children) == set(protocolTreeNode.children)\
             and self.attributes == protocolTreeNode.attributes
-        
+
+    def __hash__(self):
+        return hash(self.tag) ^ hash(tuple(self.attributes.items())) ^ hash(self.data)
+
     def toString(self):
         out = "<"+self.tag;
         if self.attributes is not None:
@@ -41,9 +37,8 @@ class ProtocolTreeNode():
             else:
                 out += self.data;
         
-        if self.children is not None:
-            for c in self.children:
-                out += c.toString();
+        for c in self.children:
+           out += c.toString()
         #print sel
         out+= "</"+self.tag+">\n"
         return out
@@ -75,8 +70,6 @@ class ProtocolTreeNode():
 
     def getChild(self,identifier):
 
-        if self.children is None or len(self.children) == 0:
-            return None
         if type(identifier) == int:
             if len(self.children) > identifier:
                 return self.children[identifier]
@@ -85,12 +78,14 @@ class ProtocolTreeNode():
 
         for c in self.children:
             if identifier == c.tag:
-                return c;
+                return c
 
-        return None;
+        return None
+
+    def hasChildren(self):
+        return len(self.children) > 0
 
     def addChild(self, childNode):
-        self.children = [] if self.children is None else self.children
         self.children.append(childNode)
 
     def addChildren(self, children):
@@ -98,30 +93,21 @@ class ProtocolTreeNode():
             self.addChild(c)
         
     def getAttributeValue(self,string):
-        
-        if self.attributes is None:
-            return None;
-        
         try:
-            val = self.attributes[string]
-            return val;
+            return self.attributes[string]
         except KeyError:
-            return None;
+            return None
 
     def setAttribute(self, key, value):
-        self.attributes = AttribDict({}) if self.attributes is None else self.attributes
         self.attributes[key] = value
 
     def getAllChildren(self,tag = None):
-        ret = [];
-        if self.children is None:
-            return ret;
-            
+        ret = []
         if tag is None:
             return self.children
         
         for c in self.children:
             if tag == c.tag:
                 ret.append(c)
-        
-        return ret; 
+
+        return ret
