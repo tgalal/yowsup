@@ -23,15 +23,7 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
                 self.raiseErrorForNode(node)
         elif node["type"] == "status":
             self.toUpper(StatusNotificationProtocolEntity.fromProtocolTreeNode(node))
-        elif node["type"] == "contacts":
-            if node.getChild("remove"):
-                self.toUpper(RemoveContactNotificationProtocolEntity.fromProtocolTreeNode(node))
-            else:
-                self.raiseErrorForNode(node)
 
-        else:
-            self.raiseErrorForNode(node)
 
-    def raiseErrorForNode(self, node):
-        raise ValueError("Unimplemented notification type %s " % node)
+
 

@@ -1,5 +1,5 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
-from .notification import NotificationProtocolEntity
+from yowsup.layers.protocol_notifications.protocolentities import NotificationProtocolEntity
 class ContactNotificationProtocolEntity(NotificationProtocolEntity):
     '''
     <notification offline="0" id="{{NOTIFICATION_ID}}" notify="{{NOTIFY_NAME}}" type="contacts" 
