@@ -3,9 +3,10 @@ from yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.network import YowNetworkLayer
+from yowsup.layers.protocol_contacts.protocolentities import GetSyncIqProtocolEntity
 from yowsup.common import YowConstants
 import datetime
-import sys, os
+import os
 
 
 ##protocolentities
@@ -191,7 +192,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @clicmd("Sync contacts, contacts should be comma separated phone numbers, with no spaces")
     def contacts_sync(self, contacts):
-        entity = ContactsSyncIqProtocolEntity(contacts.split(','))
+        entity = GetSyncIqProtocolEntity(contacts.split(','))
         self.toLower(entity)
 
     @clicmd("Disconnect")
@@ -220,7 +221,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @ProtocolEntityCallback("iq")
     def onIq(self, entity):
-        ""
+        print(entity)
 
     @ProtocolEntityCallback("receipt")
     def onReceipt(self, entity):
