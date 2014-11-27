@@ -1,4 +1,4 @@
-from .response import ResponseProtocolEntity
+from yowsup.layers.auth.protocolentities.response import ResponseProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from yowsup.structs.protocolentity import ProtocolEntityTest
 

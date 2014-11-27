@@ -1,5 +1,5 @@
 import unittest
-from .keystream import KeyStream
+from yowsup.layers.auth.keystream import KeyStream
 class KeyStreamTest(unittest.TestCase):
 
     def setUp(self):

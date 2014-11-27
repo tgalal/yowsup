@@ -1,4 +1,4 @@
-from .notification import NotificationProtocolEntity
+from yowsup.layers.protocol_notifications.protocolentities.notification import NotificationProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from yowsup.structs.protocolentity import ProtocolEntityTest
 

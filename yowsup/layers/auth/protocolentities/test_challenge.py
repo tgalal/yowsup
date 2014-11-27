@@ -1,4 +1,4 @@
-from .challenge import ChallengeProtocolEntity
+from yowsup.layers.auth.protocolentities.challenge import ChallengeProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from yowsup.structs.protocolentity import ProtocolEntityTest
 

@@ -1,4 +1,4 @@
-from .iq_sync import SyncIqProtocolEntity
+from yowsup.layers.protocol_contacts.protocolentities.iq_sync import SyncIqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from yowsup.layers.protocol_iq.protocolentities.test_iq import IqProtocolEntityTest
 

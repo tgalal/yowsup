@@ -1,8 +1,6 @@
-from .iq_result_groups_list import ListGroupsResultIqProtocolEntity
+from yowsup.layers.protocol_groups.protocolentities.iq_result_groups_list import ListGroupsResultIqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from yowsup.layers.protocol_iq.protocolentities.test_iq_result import ResultIqProtocolEntityTest
-from ..structs import Group
-import time
 
 class ListGroupsResultIqProtocolEntityTest(ResultIqProtocolEntityTest):
     def setUp(self):

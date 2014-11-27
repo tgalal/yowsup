@@ -1,5 +1,5 @@
-from .iq_groups_list import ListGroupsIqProtocolEntity
-from .test_iq_groups import GroupsIqProtocolEntityTest
+from yowsup.layers.protocol_groups.protocolentities.iq_groups_list import ListGroupsIqProtocolEntity
+from yowsup.layers.protocol_groups.protocolentities.test_iq_groups import GroupsIqProtocolEntityTest
 from yowsup.structs import ProtocolTreeNode
 
 class ListGroupsIqProtocolEntityTest(GroupsIqProtocolEntityTest):

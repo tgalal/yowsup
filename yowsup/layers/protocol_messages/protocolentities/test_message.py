@@ -1,4 +1,4 @@
-from .message import MessageProtocolEntity
+from yowsup.layers.protocol_messages.protocolentities.message import MessageProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from yowsup.structs.protocolentity import ProtocolEntityTest
 

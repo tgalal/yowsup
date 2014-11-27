@@ -1,6 +1,5 @@
-from .message_media_downloadable_image import ImageDownloadableMediaMessageProtocolEntity
-from yowsup.structs import ProtocolTreeNode
-from .test_message_media_downloadable import DownloadableMediaMessageProtocolEntityTest
+from yowsup.layers.protocol_media.protocolentities.message_media_downloadable_image import ImageDownloadableMediaMessageProtocolEntity
+from yowsup.layers.protocol_media.protocolentities.test_message_media_downloadable import DownloadableMediaMessageProtocolEntityTest
 
 class ImageDownloadableMediaMessageProtocolEntityTest(DownloadableMediaMessageProtocolEntityTest):
     def setUp(self):

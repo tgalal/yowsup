@@ -1,4 +1,4 @@
-from .message_media import MediaMessageProtocolEntity
+from yowsup.layers.protocol_media.protocolentities.message_media import MediaMessageProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from yowsup.structs.protocolentity import ProtocolEntityTest
 

@@ -1,6 +1,5 @@
-from .notification_picture import PictureNotificationProtocolEntity
-from yowsup.structs import ProtocolTreeNode
-from .test_notification import NotificationProtocolEntityTest
+from yowsup.layers.protocol_notifications.protocolentities.notification_picture import PictureNotificationProtocolEntity
+from yowsup.layers.protocol_notifications.protocolentities.test_notification import NotificationProtocolEntityTest
 
 class PictureNotificationProtocolEntityTest(NotificationProtocolEntityTest):
     def setUp(self):

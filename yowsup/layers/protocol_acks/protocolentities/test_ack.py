@@ -1,4 +1,4 @@
-from .ack import AckProtocolEntity
+from yowsup.layers.protocol_acks.protocolentities.ack import AckProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from yowsup.structs.protocolentity import ProtocolEntityTest
 

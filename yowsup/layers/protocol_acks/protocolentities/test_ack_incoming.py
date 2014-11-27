@@ -1,6 +1,5 @@
-from .ack_incoming import IncomingAckProtocolEntity
-from .test_ack import AckProtocolEntityTest
-from yowsup.structs import ProtocolTreeNode
+from yowsup.layers.protocol_acks.protocolentities.ack_incoming import IncomingAckProtocolEntity
+from yowsup.layers.protocol_acks.protocolentities.test_ack import AckProtocolEntityTest
 
 class IncomingAckProtocolEntityTest(AckProtocolEntityTest):
     def setUp(self):

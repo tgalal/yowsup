@@ -1,4 +1,4 @@
-from .stream_features import StreamFeaturesProtocolEntity
+from yowsup.layers.auth.protocolentities.stream_features import StreamFeaturesProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from yowsup.structs.protocolentity import ProtocolEntityTest
 

@@ -1,6 +1,6 @@
-from .iq_sync_result import ResultSyncIqProtocolEntity
+from yowsup.layers.protocol_contacts.protocolentities.iq_sync_result import ResultSyncIqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
-from .test_iq_sync import SyncIqProtocolEntityTest
+from yowsup.layers.protocol_contacts.protocolentities.test_iq_sync import SyncIqProtocolEntityTest
 
 class ResultSyncIqProtocolEntityTest(SyncIqProtocolEntityTest):
     def setUp(self):

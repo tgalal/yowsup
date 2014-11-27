@@ -1,4 +1,4 @@
-from .failure import FailureProtocolEntity
+from yowsup.layers.auth.protocolentities.failure import FailureProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from yowsup.structs.protocolentity import ProtocolEntityTest
 

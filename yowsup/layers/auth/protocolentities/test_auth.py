@@ -1,4 +1,4 @@
-from .auth import AuthProtocolEntity
+from yowsup.layers.auth.protocolentities import AuthProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from yowsup.structs.protocolentity import ProtocolEntityTest
 

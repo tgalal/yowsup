@@ -1,10 +1,10 @@
-from .notification_status import StatusNotificationProtocolEntity
+from yowsup.layers.protocol_notifications.protocolentities.notification_status import StatusNotificationProtocolEntity
 from yowsup.structs import ProtocolTreeNode
-from .test_notification import NotificationProtocolEntityTest
+from yowsup.layers.protocol_notifications.protocolentities.test_notification import NotificationProtocolEntityTest
 
 class StatusNotificationProtocolEntityTest(NotificationProtocolEntityTest):
     def setUp(self):
         super(StatusNotificationProtocolEntityTest, self).setUp()
         self.ProtocolEntity = StatusNotificationProtocolEntity
-        setNode = ProtocolTreeNode("set", {}, None, "status_data")
+        setNode = ProtocolTreeNode("set", {}, [], "status_data")
         self.node.addChild(setNode)

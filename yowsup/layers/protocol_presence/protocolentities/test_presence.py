@@ -1,4 +1,4 @@
-from .presence import PresenceProtocolEntity
+from yowsup.layers.protocol_presence.protocolentities.presence import PresenceProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from yowsup.structs.protocolentity import ProtocolEntityTest
 

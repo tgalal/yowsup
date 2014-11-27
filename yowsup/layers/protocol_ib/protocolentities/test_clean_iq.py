@@ -1,5 +1,5 @@
 from yowsup.structs import ProtocolTreeNode
-from .clean_iq import CleanIqProtocolEntity
+from yowsup.layers.protocol_ib.protocolentities.clean_iq import CleanIqProtocolEntity
 from yowsup.layers.protocol_iq.protocolentities.test_iq import IqProtocolEntityTest
 
 class CleanIqProtocolEntityTest(IqProtocolEntityTest):
