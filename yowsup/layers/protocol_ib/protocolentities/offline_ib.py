@@ -7,7 +7,7 @@ class OfflineIbProtocolEntity(IbProtocolEntity):
     </ib>
     '''
     def __init__(self, count):
-        super(IqProtocolEntity, self).__init__()
+        super(IbProtocolEntity, self).__init__()
         self.setProps(count)
 
 
@@ -21,7 +21,7 @@ class OfflineIbProtocolEntity(IbProtocolEntity):
         return node
 
     def __str__(self):
-        out = super(DirtyIbProtocolEntity, self).__str__()
+        out = super(OfflineIbProtocolEntity, self).__str__()
         out += "Offline count: %s\n" % self.count
         return out
 

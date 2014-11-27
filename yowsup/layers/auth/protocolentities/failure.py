@@ -8,6 +8,7 @@ class FailureProtocolEntity(ProtocolEntity):
     def __str__(self):
         out  = "Failure:\n"
         out += "Reason: %s\n" % self.reason
+        return out
 
     def getReason(self):
         return self.reason

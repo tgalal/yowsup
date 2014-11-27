@@ -18,7 +18,7 @@ class ListGroupsResultIqProtocolEntity(GroupsResultIqProtocolEntity):
     def __str__(self):
         out = super(ListGroupsResultIqProtocolEntity, self).__str__()
         for g in self.groupsList:
-            out += g
+            out += "%s" % g
             out += "\n"
         return out
 
