@@ -8,7 +8,7 @@ class IqProtocolEntity(ProtocolEntity):
 
     TYPES = ("set", "get", "result")
 
-    def __init__(self, xmlns, _id = None, _type = None, to = None, _from = None):
+    def __init__(self, xmlns = None, _id = None, _type = None, to = None, _from = None):
         super(IqProtocolEntity, self).__init__("iq")
 
         assert _type in self.__class__.TYPES, "Iq of type %s is not implemented, can accept only (%s)" % (_type," | ".join(self.__class__.TYPES))
@@ -28,9 +28,11 @@ class IqProtocolEntity(ProtocolEntity):
     def toProtocolTreeNode(self):
         attribs = {
             "id"          : self._id,
-            "xmlns"       : self.xmlns,
             "type"        : self._type
         }
+
+        if self.xmlns:
+            attribs["xmlns"] = self.xmlns
 
         if self.to:
             attribs["to"] = self.to
@@ -43,7 +45,8 @@ class IqProtocolEntity(ProtocolEntity):
         out  = "Iq:\n"
         out += "ID: %s\n" % self._id
         out += "Type: %s\n" % self._type
-        out += "xmlns: %s\n" % self.xmlns
+        if self.xmlns:
+            out += "xmlns: %s\n" % self.xmlns
         if self.to:
             out += "to: %s\n" % self.to
         elif self._from:

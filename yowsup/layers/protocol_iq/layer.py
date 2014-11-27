@@ -1,4 +1,4 @@
-from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
+from yowsup.layers import  YowProtocolLayer
 from yowsup.common import YowConstants
 from .protocolentities import *
 class YowIqProtocolLayer(YowProtocolLayer):
@@ -19,4 +19,5 @@ class YowIqProtocolLayer(YowProtocolLayer):
         if node["xmlns"] == "urn:xmpp:ping":
             entity = PongResultIqProtocolEntity(YowConstants.DOMAIN, node["id"])
             self.toLower(entity.toProtocolTreeNode())
-        #self.toUpper(IncomingAckProtocolEntity.fromProtocolTreeNode(node))
+        elif node["type"] == "error":
+            self.toUpper(ErrorIqProtocolEntity.fromProtocolTreeNode(node))
