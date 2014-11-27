@@ -145,7 +145,7 @@ class RegistrationArgParser(YowArgParser):
         if not "id"      in config: config["id"] = "000000000000000"
 
         config["id"] = WATools.processIdentity(config["id"])
-        config["phone"] = config["phone"][len(config["cc"]):]
+
 
         try:
             assert self.args["requestcode"] or self.args["register"] or self.args["exists"], "Must specify one of the modes -r/-R/-e"
@@ -154,6 +154,8 @@ class RegistrationArgParser(YowArgParser):
         except AssertionError as e:
             print(e.message)
             sys.exit(1)
+
+        config["phone"] = config["phone"][len(config["cc"]):]
 
         if self.args["requestcode"]:
             self.handleRequestCode(self.args["requestcode"], config)
@@ -231,18 +233,28 @@ class DemosArgParser(YowArgParser):
     def _getCredentials(self):
         if self.args["login"]:
             return tuple(self.args["login"].split(":"))
-        else:
+        elif self.args["config"]:
             config = self.getConfig(self.args["config"])
             assert "password" in config and "phone" in config, "Must specify at least phone number and password in config file"
             return config["phone"], config["password"]
+        else:
+            return None
 
     def startCmdline(self):
-        stack = cli.YowsupCliStack(self._getCredentials())
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+        stack = cli.YowsupCliStack(credentials)
         stack.start()
 
     def startEcho(self):
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
         try:
-            stack = echoclient.YowsupEchoStack(self._getCredentials())
+            stack = echoclient.YowsupEchoStack(credentials)
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
