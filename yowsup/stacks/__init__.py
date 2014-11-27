@@ -19,7 +19,6 @@ from yowsup.layers.protocol_contacts           import YowContactsIqProtocolLayer
 
 
 YOWSUP_CORE_LAYERS = (
-    YowLoggerLayer,
     YowCoderLayer,
     YowCryptLayer,
     YowStanzaRegulator,
