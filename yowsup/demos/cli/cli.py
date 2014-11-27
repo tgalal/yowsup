@@ -97,11 +97,11 @@ class Cli(object):
         if cmdInput.startswith("/"):
             cmdInput = cmdInput[1:]
         else:
+            self.print_usage()
             return
 
         cmdInputDissect = [c for c in shlex.split(cmdInput) if c]
-        args = []
-        
+
         cmd = cmdInputDissect[0]
 
         if not cmd in self.commands:
