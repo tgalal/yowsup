@@ -1,27 +1,35 @@
-import re
-from setuptools import setup
-
-init_py = open('yowsup/__init__.py').read()
-metadata = dict(re.findall("__([a-z]+)__ = ['|\"]([^']+)['|\"]", init_py))
-metadata['doc'] = re.findall('"""(.+)"""', init_py)[0]
+from __future__ import print_function
+from setuptools import setup, find_packages
+import yowsup
 
 setup(
     name='yowsup',
-    version=metadata['version'],
-    description=metadata['doc'],
-    author=metadata['author'],
-    author_email=metadata['email'],
-    url=metadata['url'],
-    packages=['yowsup'],
+    version=yowsup.__version__,
+    url='http://github.com/tgalal/yowsup/',
+    license='MIT License',
+    author='Tarek Galal',
+    tests_require=[],
+    install_requires=['python-dateutil'],
+    #scripts = ['go_foo.py'],
+    #cmdclass={'test': PyTest},
+    author_email='tare2.galal@gmail.com',
+    description='A WhatsApp python library',
+    #long_description=long_description,
+    packages= find_packages(),
     include_package_data=True,
-    install_requires=[
-        'python-dateutil < 2.3.0',
-        'argparse < 1.3.0',
-    ],
-    entry_points={
-        'console_scripts': [
-            'yowsup = yowsup.cli:main',
+    platforms='any',
+    #test_suite='',
+    classifiers = [
+        'Programming Language :: Python',
+        'Development Status :: 4 - Beta',
+        'Natural Language :: English',
+        #'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Topic :: Software Development :: Libraries :: Python Modules'
         ],
-    },
-    license=open('MIT-LICENSE.txt').read(),
+    #extras_require={
+    #    'testing': ['pytest'],
+    #}
 )
