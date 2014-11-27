@@ -53,15 +53,21 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def aliasToJid(self, calias):
         for alias, ajid in self.jidAliases.items():
             if calias.lower() == alias.lower():
-                return ajid
+                return self.normalizeJid(ajid)
 
-        return calias
+        return self.normalizeJid(calias)
 
     def jidToAlias(self, jid):
         for alias, ajid in self.jidAliases.items():
             if ajid == jid:
                 return alias
         return jid
+
+    def normalizeJid(self, number):
+        if '@' in number:
+            return number
+
+        return "%s@s.whatsapp.net" % number
 
     def onEvent(self, layerEvent):
         if layerEvent.getName() == self.__class__.EVENT_START:
@@ -174,9 +180,17 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         pass    
 
     @clicmd("Send message to a friend")
-    def message_send(self, contact, content):
-        outgoingMessage = TextMessageProtocolEntity(content, to = self.aliasToJid(contact))
-        self.toLower(outgoingMessage)
+    def message_send(self, number, content):
+        if self.assertConnected():
+            outgoingMessage = TextMessageProtocolEntity(content, to = self.aliasToJid(number))
+            self.toLower(outgoingMessage)
+
+    @clicmd("Broadcast message. numbers should comma separated phone numbers")
+    def message_broadcast(self, numbers, content):
+        if self.assertConnected():
+            jids = [self.aliasToJid(number) for number in numbers.split(',')]
+            outgoingMessage = BroadcastTextMessage(jids, content)
+            self.toLower(outgoingMessage)
 
     #@clicmd("Send read receipt")
     def message_read(self, message_id):
