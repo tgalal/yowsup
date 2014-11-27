@@ -1,4 +1,5 @@
-from yowsup.layers import YowLayer
+from yowsup.layers import YowLayer, YowLayerEvent
+from yowsup.layers.network import YowNetworkLayer
 class YowStanzaRegulator(YowLayer):
     '''
         send:       bytearray -> bytearray
@@ -8,13 +9,26 @@ class YowStanzaRegulator(YowLayer):
     def __init__(self):
         super(YowLayer, self).__init__()
         self.buf = bytearray()
+        self.enabled = False
+
+    def onEvent(self, yowLayerEvent):
+        if yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
+            self.enabled = True
+            self.buf = bytearray()
+        elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
+            self.enabled = False
+
 
     def send(self, data):
         self.toLower(data)
 
     def receive(self, data):
-        self.buf.extend(data)
-        self.processReceived()
+        if self.enabled:
+            self.buf.extend(data)
+            self.processReceived()
+        else:
+            self.toLower(data)
+
 
     def processReceived(self):
         metaData = self.buf[:3]
