@@ -18,6 +18,7 @@ from yowsup.layers.protocol_acks.protocolentities        import *
 from yowsup.layers.protocol_ib.protocolentities          import *
 from yowsup.layers.protocol_iq.protocolentities          import *
 from yowsup.layers.protocol_contacts.protocolentities    import *
+from yowsup.layers.protocol_profiles.protocolentities    import *
 
 ###
 
@@ -34,9 +35,12 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     DISCONNECT_ACTION_PROMPT = 0
     DISCONNECT_ACTION_EXIT   = 1
 
+    ACCOUNT_DEL_WARNINGS = 4
+
     def __init__(self):
         super(YowsupCliLayer, self).__init__()
         YowInterfaceLayer.__init__(self)
+        self.accountDelWarnings = 0
         self.connected = False
         self.username = None
         self.sendReceipts = True
@@ -177,7 +181,18 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     #@clicmd("Invite to group")
     def group_invite(self, group_jid, jid):
-        pass    
+        pass
+
+    @clicmd("Delete your account")
+    def account_delete(self):
+        if self.assertConnected():
+            if self.accountDelWarnings < self.__class__.ACCOUNT_DEL_WARNINGS:
+                self.accountDelWarnings += 1
+                remaining = self.__class__.ACCOUNT_DEL_WARNINGS - self.accountDelWarnings
+                self.output("Repeat delete command another %s times to send the delete request" % remaining, tag="Account delete Warning !!", prompt = False)
+            else:
+                entity = UnregisterIqProtocolEntity()
+                self.toLower(entity)
 
     @clicmd("Send message to a friend")
     def message_send(self, number, content):

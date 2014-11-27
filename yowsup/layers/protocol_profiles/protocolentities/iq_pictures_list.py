@@ -1,6 +1,6 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
-from .iq_pictures import PicturesIqsProtocolEntity
-class ListPicturesIqProtocolEntity(PicturesIqsProtocolEntity):
+from .iq_picture import PictureIqProtocolEntity
+class ListPicturesIqProtocolEntity(PictureIqProtocolEntity):
     '''
     <iq type="get" id="{{id}}" xmlns="w:profile:picture", to="self.jid">
         <list>
@@ -27,7 +27,7 @@ class ListPicturesIqProtocolEntity(PicturesIqsProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = PicturesIqsProtocolEntity.fromProtocolTreeNode(node)
+        entity = PictureIqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = ListPicturesIqProtocolEntity
         jids = [userNode.getAttributeValue("jid") for userNode in node.getChild("list").getAllChildren()]
         entity.setProps(jids)
