@@ -14,6 +14,7 @@ from yowsup.layers.protocol_presence           import YowPresenceProtocolLayer
 from yowsup.layers.protocol_ib                 import YowIbProtocolLayer
 from yowsup.layers.protocol_notifications      import YowNotificationsProtocolLayer
 from yowsup.layers.protocol_iq                 import YowIqProtocolLayer
+from yowsup.layers.protocol_contacts           import YowContactsIqProtocolLayer
 
 
 
@@ -29,7 +30,9 @@ YOWSUP_CORE_LAYERS = (
 YOWSUP_PROTOCOL_LAYERS_BASIC = (
     YowAuthenticationProtocolLayer, YowMessagesProtocolLayer,
     YowReceiptProtocolLayer, YowAckProtocolLayer, YowPresenceProtocolLayer,
-    YowIbProtocolLayer, YowIqProtocolLayer, YowNotificationsProtocolLayer
+    YowIbProtocolLayer, YowIqProtocolLayer, YowNotificationsProtocolLayer,
+    YowContactsIqProtocolLayer
+
 )
 
 YOWSUP_PROTOCOL_LAYERS_GROUPS = (YowGroupsProtocolLayer,) + YOWSUP_PROTOCOL_LAYERS_BASIC
