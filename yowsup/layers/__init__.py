@@ -98,6 +98,9 @@ class YowProtocolLayer(YowLayer):
     def isGroupJid(self, jid):
         return "-" in jid
 
+    def raiseErrorForNode(self, node):
+        raise ValueError("Unimplemented notification type %s " % node)
+
 class YowParallelLayer(YowLayer):
     def __init__(self, sublayers = []):
         super(YowParallelLayer, self).__init__()

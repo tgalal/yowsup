@@ -10,7 +10,7 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
     <receipt to="xxxxxxxxxxx@s.whatsapp.net" id="1415389947-15" type="read"></receipt>
 
     INCOMING
-    <receipt offline="0" from="4915225256022@s.whatsapp.net" id="1415577964-1" t="1415578027"></receipt>
+    <receipt offline="0" from="xxxxxxxxxx@s.whatsapp.net" id="1415577964-1" t="1415578027"></receipt>
     '''
 
     def __init__(self, _id, _from, timestamp, offline = None):

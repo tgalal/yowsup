@@ -1,5 +1,5 @@
 from yowsup.layers import YowLayer, YowLayerEvent
-import asyncore, socket, threading, sys, traceback
+import asyncore, socket
 class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
     '''
         send:       bytearray -> None

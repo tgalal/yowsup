@@ -6,10 +6,10 @@ class ReceiptProtocolEntity(ProtocolEntity):
     <receipt to="xxxxxxxxxxx@s.whatsapp.net" id="1415389947-15"></receipt>
 
     read
-    <receipt to="xxxxxxxxxxx@s.whatsapp.net" id="1415389947-15" type="read"></receipt>
+    <receipt to="xxxxxxxxxxx@s.whatsapp.net" id="1415389947-15" type="read || played"></receipt>
 
     INCOMING
-    <receipt offline="0" from="4915225256022@s.whatsapp.net" id="1415577964-1" t="1415578027"></receipt>
+    <receipt offline="0" from="4915225256022@s.whatsapp.net" id="1415577964-1" t="1415578027" type="played?"></receipt>
     '''
 
     def __init__(self, _id):
