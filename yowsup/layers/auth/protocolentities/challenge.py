@@ -8,8 +8,8 @@ class ChallengeProtocolEntity(ProtocolEntity):
         return self.nonce
 
     def toProtocolTreeNode(self):
-        return self._createProtocolTreeNode({}, children = None, data = self.nonce)
-        #return self._createProtocolTreeNode({}, children = [], data = "".join(map(chr, self.nonce)))
+        #return self._createProtocolTreeNode({}, children = None, data = self.nonce)
+        return self._createProtocolTreeNode({}, children = [], data = "".join(map(chr, self.nonce)))
 
     def __str__(self):
         out = "Challenge\n"

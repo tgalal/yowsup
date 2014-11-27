@@ -84,9 +84,9 @@ class Cli(object):
                 out += subcmdDetails["desc"].ljust(20)
                 addToOut(subcmdDetails["order"], out)
 
-        print "----------------------------------------------"
-        print "\n" . join(outArr)
-        print "----------------------------------------------"
+        print("----------------------------------------------")
+        print("\n" . join(outArr))
+        print("----------------------------------------------")
 
     def execCmd(self, cmdInput):
         cmdInput = cmdInput.rstrip()
@@ -128,9 +128,14 @@ class Cli(object):
 
     def startInputThread(self, cv):
         cv.acquire()
+        # Fix Python 2.x.
+        global input
+        try: input = raw_input
+        except NameError: pass
+
         while(True):
 
-            cmd = self._queuedCmds.pop(0) if len(self._queuedCmds) else raw_input(self.getPrompt()).strip()
+            cmd = self._queuedCmds.pop(0) if len(self._queuedCmds) else input(self.getPrompt()).strip()
             wait = self.execCmd(cmd)
             if wait:
                 self.acceptingInput = False
@@ -145,19 +150,19 @@ class Cli(object):
 
     def printPrompt(self):
         #return "Enter Message or command: (/%s)" % ", /".join(self.commandMappings)
-        print self.getPrompt(),
+        print(self.getPrompt(),)
 
     def output(self, message, tag = "general", prompt = True):
         if self.acceptingInput == True and self.lastPrompt is True:
-            print ""
+            print("")
 
 
         self.lastPrompt = prompt
 
         if tag is not None:
-            print "%s: %s" % (tag, message)
+            print("%s: %s" % (tag, message))
         else:
-            print message
+            print(message)
         if prompt:
             self.printPrompt()
 

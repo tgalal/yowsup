@@ -66,7 +66,7 @@ class YowArgParser(argparse.ArgumentParser):
     def process(self):
         self.args = vars(self.parse_args())
         if self.args["version"]:
-            print "yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__)
+            print("yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__))
             sys.exit(0)
 
         if self.args["help_config"]:

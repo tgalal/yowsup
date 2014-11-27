@@ -64,7 +64,10 @@ class WriteEncoder:
             self.writeInt8(length, data)
 
         for b in bytes:
-            data.append(b);
+            if type(b) is int:
+                data.append(b)
+            else:
+                data.append(ord(b))
 
     def writeInt8(self, v, data):
         data.append(v & 0xFF)

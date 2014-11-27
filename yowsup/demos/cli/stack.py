@@ -1,5 +1,5 @@
 from yowsup.stacks import YowStack, YOWSUP_FULL_STACK_DEBUG  as YOWSUP_FULL_STACK
-from layer import YowsupCliLayer
+from .layer import YowsupCliLayer
 from yowsup.common import YowConstants
 from yowsup.layers.network import YowNetworkLayer
 from yowsup.layers.auth import AuthError
