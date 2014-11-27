@@ -7,7 +7,7 @@ class DirtyIbProtocolEntity(IbProtocolEntity):
     </ib>
     '''
     def __init__(self, timestamp, _type):
-        super(IqProtocolEntity, self).__init__()
+        super(DirtyIbProtocolEntity, self).__init__()
         self.setProps(timestamp, _type)
 
 

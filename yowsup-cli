@@ -206,7 +206,8 @@ class DemosArgParser(YowArgParser):
         super(DemosArgParser, self).__init__(*args, **kwargs)
         self.description = "Run a yowsup demo"
 
-        credentialsOpts = self.add_mutually_exclusive_group()
+        configGroup = self.add_argument_group("Configuration options for demos")
+        credentialsOpts = configGroup.add_mutually_exclusive_group()
         credentialsOpts.add_argument("-l", "--login", action="store", metavar="phone:b64password",
                                      help = "WhatsApp login credentials, in the format phonenumber:password, where password is base64 encoded.")
         credentialsOpts.add_argument("-c", "--config", action="store",

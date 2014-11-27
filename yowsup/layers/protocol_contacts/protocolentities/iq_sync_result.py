@@ -1,5 +1,4 @@
 from yowsup.structs import ProtocolTreeNode
-from yowsup.structs.protocoltreenode import AttribDict
 from .iq_sync import SyncIqProtocolEntity
 
 class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
@@ -21,9 +20,9 @@ class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
     </iq>
     '''
 
-    def __init__(self,_from, _id, sid, index, last, wait, version, validNumbers, invalidNumbers = []):
+    def __init__(self,_from, _id, sid, index, last, wait, version, validNumbers, invalidNumbers = None):
         super(SyncIqProtocolEntity, self).__init__("get", _id, sid, index, last)
-        self.setResultSyncProps(wait, version, validNumbers, invalidNumbers)
+        self.setResultSyncProps(wait, version, validNumbers, invalidNumbers or [])
 
     def setResultSyncProps(self, wait, version, validNumbers, invalidNumbers):
         assert type(validNumbers) is dict, "valid numbers must be a dict {number -> jid}"

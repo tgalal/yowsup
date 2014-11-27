@@ -27,6 +27,7 @@ class ProtocolEntity(object):
     def toProtocolTreeNode(self):
         pass
 
+    @staticmethod
     def fromProtocolTreeNode(self, protocolTreeNode):
         pass
 

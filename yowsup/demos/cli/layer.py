@@ -16,6 +16,7 @@ from yowsup.layers.protocol_messages.protocolentities    import *
 from yowsup.layers.protocol_acks.protocolentities        import *
 from yowsup.layers.protocol_ib.protocolentities          import *
 from yowsup.layers.protocol_iq.protocolentities          import *
+from yowsup.layers.protocol_contacts.protocolentities    import *
 
 ###
 
@@ -188,17 +189,10 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def image_send(self, jid, path):
         pass
 
-    #@clicmd("Sync contacts, contacts should be comma separated phone number")
+    @clicmd("Sync contacts, contacts should be comma separated phone numbers, with no spaces")
     def contacts_sync(self, contacts):
-        pass
-
-    #@clicmd("Request code")
-    def register_request(self, number, mode):
-        pass
-
-    #@clicmd("Confirm registration")
-    def register_confirm(self, number, code):
-        pass
+        entity = ContactsSyncIqProtocolEntity(contacts.split(','))
+        self.toLower(entity)
 
     @clicmd("Disconnect")
     def disconnect(self):
@@ -239,7 +233,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         #print("%s [%s]:%s"%(self.username, formattedDate, self.sentCache[entity.getId()][1]))
         if entity.getClass() == "message":
             self.output(entity.getId(), tag = "Sent")
-            self.notifyInputThread()
+            #self.notifyInputThread()
 
     @ProtocolEntityCallback("success")
     def onSuccess(self, entity):
