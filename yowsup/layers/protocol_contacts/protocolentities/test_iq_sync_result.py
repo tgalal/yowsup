@@ -17,4 +17,5 @@ class ResultSyncIqProtocolEntityTest(SyncIqProtocolEntityTest):
         syncNode.setAttribute("wait", "123456")
         syncNode.setAttribute("version", "654321")
         syncNode.addChild(ProtocolTreeNode("out", children = users))
+        syncNode.addChild(ProtocolTreeNode("in", children = users))
         syncNode.addChild(ProtocolTreeNode("invalid", children = [ProtocolTreeNode("user", data = inv) for inv in invalids]))

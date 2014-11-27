@@ -33,7 +33,7 @@ class GetSyncIqProtocolEntity(SyncIqProtocolEntity):
     '''
 
     def __init__(self, numbers, mode = MODE_FULL, context = CONTEXT_INTERACTIVE, sid = None, index = 0, last = True):
-        super(SyncIqProtocolEntity, self).__init__("get", sid, index, last)
+        super(GetSyncIqProtocolEntity, self).__init__("get", sid = sid, index =  index, last = last)
         self.setGetSyncProps(numbers, mode, context)
 
     def setGetSyncProps(self, numbers, mode, context):

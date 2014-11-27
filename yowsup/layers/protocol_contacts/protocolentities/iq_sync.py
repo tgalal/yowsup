@@ -49,8 +49,6 @@ class SyncIqProtocolEntity(IqProtocolEntity):
     @staticmethod
     def fromProtocolTreeNode(node):
         syncNode         = node.getChild("sync")
-        userNodes        = syncNode.getAllChildren()
-        numbers          = [userNode.data for userNode in userNodes]
         entity           = IqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = SyncIqProtocolEntity
 
