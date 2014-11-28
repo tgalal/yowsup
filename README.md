@@ -6,7 +6,8 @@ Yowsup is a python library that enables you built application which use WhatsApp
 ## What's new in Yowsup 2.0
 
 Everything! The old library code was so messed up that I was disgusted just by looking at it. I rewrote the library from ground up with a much more robust, extensible architecture and a much simpler and easier to read code. 
- **For devs, the update is breaking for any old code. While old code will stay in "legacy" branch for a while, it's advised that you upgrade your code. Unless your code is a full fledged WhatsApp application, migrating won't be a hard task. **
+ 
+__For devs, the update is breaking for any old code. While old code will stay in "legacy" branch for a while, it's advised that you upgrade your code. Unless your code is a full fledged WhatsApp application, migrating won't be a hard task.__
 
 Here is what you need to know about Yowsup 2.0 to get started: (Or quickly [jump to installation](#installation)):
 
