@@ -14,6 +14,7 @@ Here is what you need to know about Yowsup 2.0 to get started: (Or quickly [jump
  * **[The new architecture](https://github.com/tgalal/yowsup/wiki/Yowsup-2.0-Architecture)**
  * **[Create a sample app](https://github.com/tgalal/yowsup/wiki/Yowsup-2.0-Sample-app)**
  * **[yowsup-cli 2.0](https://github.com/tgalal/yowsup/wiki/yowsup-cli-2.0)**
+ * **[The new Command line client](https://github.com/tgalal/yowsup/wiki/Yowsup-2.0-Command-line-client)**
  * **[Yowsup development, debugging, maintainance and sanity](https://github.com/tgalal/yowsup/wiki/Yowsup-development,-debugging,-maintainance-and-sanity)**
 
 
