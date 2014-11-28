@@ -1,48 +1,53 @@
-## Yowsup opened Whatsapp service under platforms!
+# Yowsup 2.0
+### Yowsup opened WhatsApp service under platforms!
 
-## About Whatsapp
-According to [Whatsapp.com](http:/www.whatsapp.com):
+Yowsup is a python library that enables you built application which use WhatsApp service. Yowsup has been used to create an unofficial WhatsApp client Nokia N9 through the Wazapp project which was in use by 200K + users as well as another fully featured unofficial client for Blackberry 10
 
-WhatsApp Messenger is a cross-platform mobile messaging app which allows you to exchange messages without having to pay for SMS. WhatsApp Messenger is available for iPhone, BlackBerry, Android, Windows Phone and Nokia and yes, those phones can all message each other! Because WhatsApp Messenger uses the same internet data plan that you use for email and web browsing, there is no cost to message and stay in touch with your friends.
+## What's new in Yowsup 2.0
 
-In addition to basic messaging WhatsApp users can create groups, send each other unlimited images, video and audio media messages.
+Everything! The old library code was so messed up that I was disgusted just by looking at it. I rewrote the library from ground up with a much more robust, extensible architecture and a much simpler and easier to read code. Here is what you need to know about Yowsup to get started: (Or quickly [jump to installation](#Installation)):
 
-## About Yowsup
-Yowsup is a python library that allows you to do all the above in your own app. Yowsup allows you to login and use the Whatsapp service and provides you with all the capabilities of an official Whatsapp client, allowing you to create a full-fledged custom Whatsapp client.
+ * **[The new architecture](https://github.com/tgalal/yowsup/wiki/Yowsup-2.0-Architecture)**
+ * **[Create a sample app](https://github.com/tgalal/yowsup/wiki/Yowsup-2.0-Sample-app)**
+ * **[yowsup-cli 2.0](https://github.com/tgalal/yowsup/wiki/yowsup-cli-2.0)**
+ * **[Yowsup development, debugging, maintainance and sanity](https://github.com/tgalal/yowsup/wiki/Yowsup-development,-debugging,-maintainance-and-sanity)**
 
-A solid example of Yowsup's usage is [Wazapp](https://github.com/tgalal/wazapp).  Wazapp is afull featured Whatsapp client that is being used by hundreds of thousands of people around the world. Yowsup is born out of the Wazapp project. Before becoming a separate project, it was the engine powering Wazapp. Now that it has matured enough, it has been separated into a separate project, allowing anyone to build their own Whatsapp client on top of it. Having such a popular client as Wazapp, built on Yowsup, helped bring the project up to an advanced, stable and mature level, and ensures its continuous development and maintenance.
 
-Yowsup also comes with a cross platform command-line frontend called [yowsup-cli](https://github.com/tgalal/yowsup/wiki/yowsup-cli). yowsup-cli allows you to jump into connecting and using Whatsapp service directly from command line.
+#### Installation
+ - Requires python2.6+, or python3.0 +
+ - Required python packages: python-dateutil
+ - Required python packages for yowsup-cli: argparse
 
-### Get started with:
- * **[Yowsup Features](https://github.com/tgalal/yowsup/wiki/About-and-Features)**
- * **[yowsup-cli](https://github.com/tgalal/yowsup/wiki/yowsup-cli)**
- * **[Yowsup Library Documentation](https://github.com/tgalal/yowsup/wiki/Yowsup-Library-Documentation)**
+Install using setup.py to pull all python dependencies
+```
+sudo python setup.py install
+```
+Because of a bug with python-dateutil package you might get permission error for some dateutil file called requires.txt when you use yowsup (see [this bug report](https://bugs.launchpad.net/dateutil/+bug/1243202)) to fix you'll need to chmod 644 that file.
 
-### Development
 
-Install development requirements (preferably inside a virtualenv):
+## Special thanks
 
-    pip install -r requirements.txt
+Special thanks to [CODeRUS](https://github.com/CODeRUS), [mgp25](https://github.com/mgp25), [shirioko](https://github.com/shirioko), and everyone else on the [WhatsAPI](https://github.com/mgp25/WhatsAPI-Official) project for their contributions to yowsup and the amazing effort they put into WhatsAPI, the PHP WhatsApp library
+
 
 ## License:
 MIT License:
 
-	Copyright (c) <2012> Tarek Galal <tare2.galal@gmail.com>
+    Copyright (c) <2012> Tarek Galal <tare2.galal@gmail.com>
 
-	Permission is hereby granted, free of charge, to any person obtaining a copy of this
-	software and associated documentation files (the "Software"), to deal in the Software
-	without restriction, including without limitation the rights to use, copy, modify,
-	merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
-	permit persons to whom the Software is furnished to do so, subject to the following
-	conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this
+    software and associated documentation files (the "Software"), to deal in the Software
+    without restriction, including without limitation the rights to use, copy, modify,
+    merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to the following
+    conditions:
 
-	The above copyright notice and this permission notice shall be included in all
-	copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
 
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-	INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
-	A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-	HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-	CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
-	OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+    INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+    A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+    CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+    OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
