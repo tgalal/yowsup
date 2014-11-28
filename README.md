@@ -34,6 +34,12 @@ Because of a bug with python-dateutil package you might get permission error for
 
 Special thanks to [CODeRUS](https://github.com/CODeRUS), [mgp25](https://github.com/mgp25), [shirioko](https://github.com/shirioko), and everyone else on the [WhatsAPI](https://github.com/mgp25/WhatsAPI-Official) project for their contributions to yowsup and the amazing effort they put into WhatsAPI, the PHP WhatsApp library
 
+Special thanks goes to all other people who use and contribute to the library as well.
+
+Please **[read this](https://github.com/tgalal/yowsup/wiki/Yowsup-development,-debugging,-maintainance-and-sanity)** if you'd like to contribute to yowsup 2.0
+
+Thanks!
+
 
 ## License:
 MIT License:
