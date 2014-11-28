@@ -17,7 +17,7 @@ HELP_CONFIG = """
 # Country code. See http://www.ipipi.com/help/telephone-country-codes.htm. This is now required.
 cc=49
 #
-# Your full phone number including the country code you defined in 'cc', also without '+' or '00'
+# Your full phone number including the country code you defined in 'cc', without preceding '+' or '00'
 phone=491234567890
 #
 # id is Typically it's the phone serial number on which WhatsApp runs. It's used in resetting password if the id sent matches the one registered with.
@@ -107,10 +107,10 @@ class RegistrationArgParser(YowArgParser):
 
         configGroup.add_argument("-p", '--phone',
                                  action= "store",
-                                 help = "Put phone info here")
+                                 help = " Your full phone number including the country code you defined in 'cc', without preceeding '+' or '00'")
         configGroup.add_argument("-C", '--cc',
                                  action = "store",
-                                 help = "Put country code info here")
+                                 help = "Country code. See http://www.ipipi.com/help/telephone-country-codes.htm. This is now required")
 
 
         configGroup.add_argument("-i", '--id',
@@ -153,6 +153,10 @@ class RegistrationArgParser(YowArgParser):
             assert "phone"   in config, "Must specify phone number"
         except AssertionError as e:
             print(e.message)
+            sys.exit(1)
+
+        if not config["phone"].startswith(config["cc"]):
+            print("Error, phone number does not start with the specified country code using")
             sys.exit(1)
 
         config["phone"] = config["phone"][len(config["cc"]):]
