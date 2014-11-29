@@ -51,7 +51,7 @@ class KeyStream:
     def __init__(self, key, macKey):
         self.key = key if sys.version_info < (3, 0) else bytes(key)
         self.rc4 = RC4(self.key, 0x300)
-        self.macKey = macKey if sys.version_info < (3, 0) else bytes(macKey)
+        self.macKey = str(macKey) if sys.version_info < (3, 0) else bytes(macKey)
         self.seq = 0
 
     def computeMac(self, bytes_buffer, int_offset, int_length):
