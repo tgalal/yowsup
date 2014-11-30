@@ -1,4 +1,5 @@
 from yowsup.layers import YowLayer, YowLayerEvent
+from yowsup.layers.network import YowNetworkLayer
 import inspect
 
 class ProtocolEntityCallback(object):
@@ -21,11 +22,11 @@ class YowInterfaceLayer(YowLayer):
                 self.callbacks[fn.callback] = getattr(self, fname)
 
     def connect(self):
-        loginEvent = YowLayerEvent("network.state.connect")
+        loginEvent = YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT)
         self.broadcastEvent(loginEvent)
 
     def diconnect(self):
-        disconnectEvent = YowLayerEvent("network.state.disconnect")
+        disconnectEvent = YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT)
         self.broadcastEvent(disconnectEvent)
 
     def send(self, data):
