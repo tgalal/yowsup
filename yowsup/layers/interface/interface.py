@@ -25,7 +25,7 @@ class YowInterfaceLayer(YowLayer):
         loginEvent = YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT)
         self.broadcastEvent(loginEvent)
 
-    def diconnect(self):
+    def disconnect(self):
         disconnectEvent = YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT)
         self.broadcastEvent(disconnectEvent)
 
