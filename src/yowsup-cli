@@ -37,7 +37,7 @@ from Yowsup.Registration.v2.existsrequest import WAExistsRequest as WAExistsRequ
 from Yowsup.Registration.v2.coderequest import WACodeRequest as WACodeRequestV2
 from Yowsup.Registration.v2.regrequest import WARegRequest as WARegRequestV2
 from Yowsup.Contacts.contacts import WAContactsSyncRequest
-
+from Examples.PictureClient import WhatsappPictureClient
 import threading,time, base64
 
 DEFAULT_CONFIG = os.path.expanduser("~")+"/.yowsup/auth"
@@ -170,6 +170,7 @@ regGroup = parser.add_argument_group("Registration options")
 modes = clientsGroup.add_mutually_exclusive_group()
 modes.add_argument('-l','--listen', help='Listen to messages', action="store_true", required=False, default=False)
 modes.add_argument('-s','--send', help="Send message to phone number and close connection. Phone is full number including country code, without '+' or '00'", action="store",  nargs=2, metavar=('<phone>','<message>'), required=False)
+modes.add_argument('-p','--picture', help='Get Profile Picture by ID', action="store", metavar=('<phone>'), required=False)
 modes.add_argument('-i','--interactive', help="Start an interactive conversation with a contact. Phone is full number including country code, without '+' or '00'", action="store", metavar='<phone>', required=False)
 modes.add_argument('-b','--broadcast', help="Broadcast message to multiple recepients, comma seperated", action="store", nargs=2, metavar=('<jids>', '<message>'), required=False)
 
@@ -249,6 +250,10 @@ else:
 			phone = args["send"][0]
 			message = args["send"][1]
 			wa = WhatsappEchoClient(phone, message, args['wait'])
+			wa.login(login, password)
+		elif args['picture']:
+			phone = args["picture"]
+			wa = WhatsappPictureClient(phone, args['wait'])
 			wa.login(login, password)
 		elif args['listen']:
 			wa = WhatsappListenerClient(args['keepalive'], args['autoack'])

@@ -27,7 +27,7 @@ from Yowsup.Common.utilities import Utilities
 from Yowsup.Common.debugger import Debugger
 import threading, select, time
 from Yowsup.Common.watime import WATime
-from .Auth.auth import YowsupAuth
+from Yowsup.Auth.auth import YowsupAuth
 from Yowsup.Common.constants import Constants
 from Yowsup.Interfaces.Lib.LibInterface import LibMethodInterface, LibSignalInterface
 import tempfile
@@ -885,8 +885,8 @@ class ReaderThread(threading.Thread):
 			self.disconnectedSent = True
 			if self.disconnectedCallback:
 				self.disconnectedCallback()
-			self.lock.release()
-			self.signalInterface.send("disconnected", (reason,))
+		self.lock.release()
+		self.signalInterface.send("disconnected", (reason,))
 
 	def run(self):
 		self._d("Read thread startedX");
@@ -1084,13 +1084,17 @@ class ReaderThread(threading.Thread):
 						receiptType = node.getAttributeValue("type");
 						fromJid = node.getAttributeValue("from");
 						msg_id = node.getAttributeValue("id")
-						participant = node.getAttributeValue("participant")
-						if receiptType == "delivered" or receiptType == "played" or receiptType != "":
-							self.sendReceiptAck(msg_id, receiptType)
 						if fromJid[-9:] == "broadcast":
-							self.signalInterface.send("receipt_messageDelivered", (participant, msg_id))
-						else:
+							fromJid = node.getAttributeValue("participant")
+						self.sendReceiptAck(msg_id, receiptType)
+						if receiptType != "delivered" and receiptType != "played":
 							self.signalInterface.send("receipt_messageDelivered", (fromJid, msg_id))
+							groupNode = node.getChild("list")
+							if groupNode:
+								items = groupNode.getAllChildren("item");
+								for i in items:
+									msg_id = i.getAttributeValue("id")
+									self.signalInterface.send("receipt_messageDelivered", (fromJid, msg_id))
 
 					elif ProtocolTreeNode.tagEquals(node, "ack"):
 						ackClass = node.getAttributeValue("class")
@@ -1158,6 +1162,7 @@ class ReaderThread(threading.Thread):
 
 	def parseGroups(self,node):
 		children = node.getAllChildren("group");
+		groups = []
 		for groupNode in children:
 			jid = groupNode.getAttributeValue("id") + "@g.us"
 			owner = groupNode.getAttributeValue("owner")
@@ -1167,6 +1172,9 @@ class ReaderThread(threading.Thread):
 			creation = groupNode.getAttributeValue("creation")
 
 			self.signalInterface.send("group_gotInfo",(jid, owner, subject, subjectOwner, int(subjectT),int(creation)))
+			groups.append((jid, owner, subject, subjectOwner, int(subjectT),int(creation)))
+
+		self.signalInterface.send("group_gotGroups", (groups,))
 
 
 	def parseGroupInfo(self,node):
@@ -1301,14 +1309,14 @@ class ReaderThread(threading.Thread):
 	def parseGetPictureIds(self,node):
 		jid = node.getAttributeValue("from");
 		groupNode = node.getChild("list")
-		#self._d(groupNode.toString())
+		self._d(groupNode.toString())
 		children = groupNode.getAllChildren("user");
-		#pids = []
+		pids = []
 		for c in children:
 			if c.getAttributeValue("id") is not None:
-				#pids.append({"jid":c.getAttributeValue("jid"),"id":c.getAttributeValue("id")})
+				pids.append({"jid":c.getAttributeValue("jid"),"id":c.getAttributeValue("id")})
 				self.signalInterface.send("contact_gotProfilePictureId", (c.getAttributeValue("jid"), c.getAttributeValue("id")))
-		#self.signalInterface.send("contact_gotProfilePictureIds", (pids,))
+		self.signalInterface.send("contact_gotProfilePictureIds", (pids,))
 
 
 	def parseSetPicture(self,node):
