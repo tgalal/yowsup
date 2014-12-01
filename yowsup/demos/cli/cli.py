@@ -1,4 +1,8 @@
-import threading, readline, inspect, shlex
+import threading, inspect, shlex
+try:
+    import readline
+except ImportError:
+    import pyreadline as readline
 
 class clicmd(object):
     def __init__(self, desc, order = 0):

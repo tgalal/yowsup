@@ -9,7 +9,7 @@ setup(
     license='MIT License',
     author='Tarek Galal',
     tests_require=[],
-    install_requires=['python-dateutil', 'argparse', 'readline'],
+    install_requires=['python-dateutil', 'argparse', 'pyreadline'],
     scripts = ['yowsup-cli'],
     #cmdclass={'test': PyTest},
     author_email='tare2.galal@gmail.com',
