@@ -30,8 +30,6 @@ class EchoLayer(YowInterfaceLayer):
             messageProtocolEntity.getBody(),
             to = messageProtocolEntity.getFrom())
 
-        self.toLower(receipt)
-
         print("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))
         
         self.toLower(receipt)
@@ -39,6 +37,7 @@ class EchoLayer(YowInterfaceLayer):
 
     def onMediaMessage(self, messageProtocolEntity):
         if messageProtocolEntity.getMediaType() == "image":
+            
             receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())
 
             outImage = ImageDownloadableMediaMessageProtocolEntity(
