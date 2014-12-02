@@ -9,3 +9,4 @@ class ImageDownloadableMediaMessageProtocolEntityTest(DownloadableMediaMessagePr
         mediaNode.setAttribute("encoding",  "ENCODING")
         mediaNode.setAttribute("width",     "1024")
         mediaNode.setAttribute("height",     "768")
+        mediaNode.setAttribute("caption", "caption")

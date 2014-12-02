@@ -23,13 +23,13 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
     '''
     def __init__(self,
             mediaType, mimeType, fileHash, url, ip, size, fileName,
-            encoding, width, height,
+            encoding, width, height, caption = None,
             _id = None, _from = None, to = None, notify = None, timestamp = None, participant = None,
             preview = None, offline = None, retry = None):
 
-        super(MediaMessageProtocolEntity, self).__init__(mediaType, 
+        super(ImageDownloadableMediaMessageProtocolEntity, self).__init__(mediaType,
             _id, _from, to, notify, timestamp, participant, preview, offline, retry)
-        self.setImageProps(encoding, width, height)
+        self.setImageProps(encoding, width, height, caption)
         self.setDownloadableMediaProps(mimeType, fileHash, url, ip, size, fileName)
 
     def __str__(self):
@@ -39,10 +39,14 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         out += "Height: %s\n" % self.height
         return out
 
-    def setImageProps(self, encoding, width, height):
+    def setImageProps(self, encoding, width, height, caption):
         self.encoding   = encoding
         self.width      = int(width)
         self.height     = int(height)
+        self.caption    = caption
+
+    def getCaption(self):
+        return self.caption
 
     def toProtocolTreeNode(self):
         node = super(DownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
@@ -51,6 +55,8 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         mediaNode.setAttribute("encoding",  self.encoding)
         mediaNode.setAttribute("width",     str(self.width))
         mediaNode.setAttribute("height",    str(self.height))
+        if self.caption:
+            mediaNode.setAttribute("caption", self.caption)
 
         return node
 
@@ -62,6 +68,7 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         entity.setImageProps(
             mediaNode.getAttributeValue("encoding"),
             mediaNode.getAttributeValue("width"),
-            mediaNode.getAttributeValue("height")
+            mediaNode.getAttributeValue("height"),
+            mediaNode.getAttributeValue("caption")
             )
         return entity
