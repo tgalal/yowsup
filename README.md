@@ -21,7 +21,7 @@ Here is what you need to know about Yowsup 2.0 to get started: (Or quickly [jump
 #### Installation
  - Requires python2.6+, or python3.0 +
  - Required python packages: python-dateutil
- - Required python packages for yowsup-cli: argparse, readline
+ - Required python packages for yowsup-cli: argparse, readline (or pyreadline for windows)
 
 Install using setup.py to pull all python dependencies
 ```
