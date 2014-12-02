@@ -5,6 +5,7 @@ from yowsup.layers.auth                        import YowCryptLayer, YowAuthenti
 from yowsup.layers.coder                       import YowCoderLayer
 from yowsup.layers.network                     import YowNetworkLayer
 from yowsup.layers.protocol_messages           import YowMessagesProtocolLayer
+from yowsup.layers.protocol_media              import YowMediaProtocolLayer
 from yowsup.layers.stanzaregulator             import YowStanzaRegulator
 from yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
 from yowsup.layers.protocol_acks               import YowAckProtocolLayer
@@ -15,7 +16,7 @@ class YowsupEchoStack(object):
     def __init__(self, credentials):
         layers = (
             EchoLayer,
-            (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
+            (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer),
             YowLoggerLayer,
             YowCoderLayer,
             YowCryptLayer,
