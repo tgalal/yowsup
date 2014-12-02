@@ -1,6 +1,14 @@
 from __future__ import print_function
 from setuptools import setup, find_packages
 import yowsup
+import platform
+
+deps = ['python-dateutil', 'argparse']
+
+if platform.system().lower() == "windows":
+    deps.append('pyreadline')
+else:
+    deps.append('readline')
 
 setup(
     name='yowsup',
@@ -9,7 +17,7 @@ setup(
     license='MIT License',
     author='Tarek Galal',
     tests_require=[],
-    install_requires=['python-dateutil', 'argparse', 'pyreadline'],
+    install_requires = deps,
     scripts = ['yowsup-cli'],
     #cmdclass={'test': PyTest},
     author_email='tare2.galal@gmail.com',
