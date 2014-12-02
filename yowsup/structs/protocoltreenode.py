@@ -49,6 +49,9 @@ class ProtocolTreeNode(object):
 
     def getData(self):
         return self.data
+
+    def setData(self, data):
+        self.data = data
         
     
     @staticmethod   
