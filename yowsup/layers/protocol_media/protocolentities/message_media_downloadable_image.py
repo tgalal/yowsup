@@ -22,15 +22,15 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
     </message>
     '''
     def __init__(self,
-            mediaType, mimeType, fileHash, url, ip, size, fileName,
+            mimeType, fileHash, url, ip, size, fileName,
             encoding, width, height, caption = None,
             _id = None, _from = None, to = None, notify = None, timestamp = None, participant = None,
             preview = None, offline = None, retry = None):
 
-        super(ImageDownloadableMediaMessageProtocolEntity, self).__init__(mediaType,
+        super(ImageDownloadableMediaMessageProtocolEntity, self).__init__("image",
+            mimeType, fileHash, url, ip, size, fileName,
             _id, _from, to, notify, timestamp, participant, preview, offline, retry)
         self.setImageProps(encoding, width, height, caption)
-        self.setDownloadableMediaProps(mimeType, fileHash, url, ip, size, fileName)
 
     def __str__(self):
         out  = super(ImageDownloadableMediaMessageProtocolEntity, self).__str__()
@@ -49,7 +49,7 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         return self.caption
 
     def toProtocolTreeNode(self):
-        node = super(DownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
+        node = super(ImageDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
         mediaNode = node.getChild("media")
 
         mediaNode.setAttribute("encoding",  self.encoding)

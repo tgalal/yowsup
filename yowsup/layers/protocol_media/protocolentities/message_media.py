@@ -103,6 +103,9 @@ class MediaMessageProtocolEntity(MessageProtocolEntity):
     def setPreview(self, preview):
         self.preview = preview
 
+    def getPreview(self):
+        return self.preview
+
     def setMediaType(self, mediaType):
         self.mediaType = mediaType
 
@@ -115,7 +118,7 @@ class MediaMessageProtocolEntity(MessageProtocolEntity):
         mediaNode = ProtocolTreeNode("media", {"type": self.mediaType}, None, None)
         node.addChild(mediaNode)
         if self.preview:
-            node.setData(self.preview)
+            mediaNode.setData(self.preview)
         return node
 
     @staticmethod
