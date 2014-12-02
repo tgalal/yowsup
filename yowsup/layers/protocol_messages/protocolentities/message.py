@@ -66,13 +66,13 @@ class MessageProtocolEntity(ProtocolEntity):
         if self.retry:
             attribs["retry"] = str(self.retry)
         if self.participant:
-            attribs["participant"] = participant
+            attribs["participant"] = self.participant
 
 
         xNode = None
-        if self.isOutgoing():
-            serverNode = ProtocolTreeNode("server", {})
-            xNode = ProtocolTreeNode("x", {"xmlns": "jabber:x:event"}, [serverNode])
+        #if self.isOutgoing():
+        #    serverNode = ProtocolTreeNode("server", {})
+        #    xNode = ProtocolTreeNode("x", {"xmlns": "jabber:x:event"}, [serverNode])
 
 
         return self._createProtocolTreeNode(attribs, children = [xNode] if xNode else None, data = None)
