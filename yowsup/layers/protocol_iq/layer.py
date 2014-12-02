@@ -21,3 +21,6 @@ class YowIqProtocolLayer(YowProtocolLayer):
             self.toLower(entity.toProtocolTreeNode())
         elif node["type"] == "error":
             self.toUpper(ErrorIqProtocolEntity.fromProtocolTreeNode(node))
+        elif node["type"] == "result" and not len(node.getAllChildren()):
+            #allowing only unidentifiable result (has no children) iq through this layer. (ex: ping result)
+            self.toUpper(ResultIqProtocolEntity.fromProtocolTreeNode(node))
