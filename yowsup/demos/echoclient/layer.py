@@ -10,8 +10,7 @@ class EchoLayer(YowInterfaceLayer):
 
     @ProtocolEntityCallback("message")
     def onMessage(self, messageProtocolEntity):
-        #send receipt otherwise we keep receiving the same message over and over
-        
+
         if not messageProtocolEntity.isGroupMessage():
             if messageProtocolEntity.getType() == 'text':
                 self.onTextMessage(messageProtocolEntity)
@@ -31,7 +30,8 @@ class EchoLayer(YowInterfaceLayer):
             to = messageProtocolEntity.getFrom())
 
         print("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))
-        
+
+        #send receipt otherwise we keep receiving the same message over and over
         self.toLower(receipt)
         self.toLower(outgoingMessageProtocolEntity)
 
@@ -48,6 +48,7 @@ class EchoLayer(YowInterfaceLayer):
 
             print("Echoing image %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
 
+            #send receipt otherwise we keep receiving the same message over and over
             self.toLower(receipt)
             self.toLower(outImage)
 
