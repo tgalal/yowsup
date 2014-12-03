@@ -47,6 +47,7 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
 
     def send(self, data):
         self.out_buffer = self.out_buffer + data
+        self.initiate_send()
 
     def receive(self, data):
         self.toUpper(data)
