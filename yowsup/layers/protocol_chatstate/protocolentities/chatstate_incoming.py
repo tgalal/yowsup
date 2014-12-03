@@ -1,4 +1,3 @@
-from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .chatstate import ChatstateProtocolEntity
 class IncomingChatstateProtocolEntity(ChatstateProtocolEntity):
     '''

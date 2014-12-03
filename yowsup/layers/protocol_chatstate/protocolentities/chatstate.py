@@ -15,8 +15,13 @@ class ChatstateProtocolEntity(ProtocolEntity):
     </chatstate>
     '''
 
+    STATE_TYPING = "composing"
+    STATE_PAUSED = "paused"
+    STATES = (STATE_TYPING, STATE_PAUSED)
+
     def __init__(self, _state):
         super(ChatstateProtocolEntity, self).__init__("chatstate")
+        assert _state in self.__class__.STATES, "Expected chat state to be in %s, got %s" % (self.__class__.STATES, _state)
         self._state = _state
 
     def getState(self):

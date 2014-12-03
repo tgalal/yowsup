@@ -1,4 +1,3 @@
-from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .chatstate import ChatstateProtocolEntity
 class OutgoingChatstateProtocolEntity(ChatstateProtocolEntity):
     '''
@@ -34,7 +33,7 @@ class OutgoingChatstateProtocolEntity(ChatstateProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = ChatstateProtocolEntity.toProtocolTreeNode(node)
+        entity = ChatstateProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = OutgoingChatstateProtocolEntity
         entity.setOutgoingData(
             node.getAttributeValue("to"),
