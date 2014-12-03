@@ -1,0 +1,289 @@
+#!/usr/bin/env python
+__version__ = "2.0"
+__author__ = "Tarek Galal"
+
+import sys, argparse, yowsup, logging
+from yowsup.demos import cli, echoclient
+from yowsup.registration import WACodeRequest, WARegRequest, WAExistsRequest
+from yowsup.common.tools import WATools
+
+HELP_CONFIG = """
+############# Yowsup Configuration Sample ###########
+#
+# ====================
+# The file contains info about your WhatsApp account. This is used during registration and login.
+# You can define or override all fields in the command line args as well.
+#
+# Country code. See http://www.ipipi.com/help/telephone-country-codes.htm. This is now required.
+cc=49
+#
+# Your full phone number including the country code you defined in 'cc', without preceding '+' or '00'
+phone=491234567890
+#
+# id is Typically it's the phone serial number on which WhatsApp runs. It's used in resetting password if the id sent matches the one registered with.
+# Set it to some random text before registration and don't change it afterwards. Or just leave it is.
+id=000000000000000
+#
+# You obtain this password when you register using Yowsup.
+password=NDkxNTIyNTI1NjAyMkBzLndoYXRzYXBwLm5ldA==
+#######################################################
+"""
+
+class YowArgParser(argparse.ArgumentParser):
+    def __init__(self, *args, **kwargs):
+        super(YowArgParser, self).__init__(*args, **kwargs)
+        self.add_argument("-v", "--version",
+            action = "store_true",
+            help = "Print version info and exit"
+        )
+
+        self.add_argument("-d", "--debug",
+            action = "store_true",
+            help = "Show debug messages"
+        )
+
+        self.add_argument("--help-config", help = "Prints a config file sample", action = "store_true")
+        self.args = {}
+    def getArgs(self):
+        return self.parse_args()
+
+    def getConfig(self, config):
+        try:
+            f = open(config)
+            out = {}
+            for l in f:
+                line = l.strip()
+                if len(line) and line[0] not in ('#',';'):
+                    prep = line.split('#', 1)[0].split(';', 1)[0].split('=', 1)
+                    varname = prep[0].strip()
+                    val = prep[1].strip()
+                    out[varname.replace('-', '_')] = val
+            return out
+        except IOError:
+            print("Invalid config path: %s" % config)
+            sys.exit(1)
+
+    def process(self):
+        self.args = vars(self.parse_args())
+        if self.args["version"]:
+            print("yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__))
+            sys.exit(0)
+
+        if self.args["help_config"]:
+            print(HELP_CONFIG)
+            sys.exit(0)
+
+        if self.args["debug"]:
+            logging.basicConfig(level = logging.DEBUG)
+        else:
+            logging.basicConfig(level = logging.INFO)
+
+
+class RegistrationArgParser(YowArgParser):
+    def __init__(self, *args, **kwargs):
+        super(RegistrationArgParser, self).__init__(*args, **kwargs)
+        self.description = "WhatsApp Registration options"
+
+        configGroup = self.add_argument_group("Configuration options",
+                                              description = "Config file is optional. Other configuration arguments have higher priority if given, and will override those specified in the config file")
+        configGroup.add_argument("-c", '--config',
+                                 action = "store",
+                                 help = 'Path to config file. If this is not set then you must set at least --phone and --cc arguments')
+        configGroup.add_argument("-m", '--mcc',
+                                 action = "store",
+                                 help = "Mobile Country Code. Check your mcc here: https://en.wikipedia.org/wiki/Mobile_country_code")
+        configGroup.add_argument("-n", '--mnc',
+                                 action = "store",
+                                 help = "Mobile Network Code. Check your mnc from https://en.wikipedia.org/wiki/Mobile_country_code")
+
+        # configGroup.add_argument("-M", '--sim-mcc',
+        #                          action = "store",
+        #                          help = "Mobile Country Code. Check your mcc here: https://en.wikipedia.org/wiki/Mobile_country_code"
+        #                          )
+        # configGroup.add_argument("-N", '--sim-mnc',
+        #                          action= "store",
+        #                          help = "SIM MNC"
+        #                          )
+
+        configGroup.add_argument("-p", '--phone',
+                                 action= "store",
+                                 help = " Your full phone number including the country code you defined in 'cc', without preceeding '+' or '00'")
+        configGroup.add_argument("-C", '--cc',
+                                 action = "store",
+                                 help = "Country code. See http://www.ipipi.com/help/telephone-country-codes.htm. This is now required")
+
+
+        configGroup.add_argument("-i", '--id',
+                                 action="store",
+                                 help = "Identity"
+                                 )
+
+        regSteps = self.add_argument_group("Modes")
+        regSteps = regSteps.add_mutually_exclusive_group()
+
+        regSteps.add_argument("-r", '--requestcode', help='Request the digit registration code from Whatsapp.', action="store", required=False, metavar="(sms|voice)")
+        regSteps.add_argument("-R", '--register', help='Register account on Whatsapp using the code you previously received', action="store", required=False, metavar="code")
+        regSteps.add_argument("-e", '--exists', help='Check if account credentials are valid. WARNING: Whatsapp now changes your password everytime you use this. Make sure you update your config file if the output informs about a password change', action="store_true", required=False)
+
+    def process(self):
+        super(RegistrationArgParser, self).process()
+
+        config = self.getConfig(self.args["config"]) if self.args["config"] else {}
+
+        if self.args["mcc"]     : config["mcc"]     = self.args["mcc"]
+        if self.args["mnc"]     : config["mnc"]     = self.args["mnc"]
+        if self.args["phone"]   : config["phone"]   = self.args["phone"]
+        if self.args["cc" ]     : config["cc"]      = self.args["cc"]
+        if self.args["id"]      : config["id"]      = self.args["id"]
+        #if self.args["sim_mnc"] : config["sim_mnc"] = self.args["sim_mnc"]
+        #if self.args["sim_mcc"] : config["sim_mcc"] = self.args["sim_mcc"]
+
+        if not "mcc"     in config: config["mcc"] = "000"
+        if not "mnc"     in config: config["mnc"] = "000"
+        if not "sim_mcc" in config: config["sim_mcc"] = "000"
+        if not "sim_mnc" in config: config["sim_mnc"] = "000"
+        if not "id"      in config: config["id"] = "000000000000000"
+
+        config["id"] = WATools.processIdentity(config["id"])
+
+
+        try:
+            assert self.args["requestcode"] or self.args["register"] or self.args["exists"], "Must specify one of the modes -r/-R/-e"
+            assert "cc"      in config, "Must specify cc (country code)"
+            assert "phone"   in config, "Must specify phone number"
+        except AssertionError as e:
+            print(e.message)
+            sys.exit(1)
+
+        if not config["phone"].startswith(config["cc"]):
+            print("Error, phone number does not start with the specified country code using")
+            sys.exit(1)
+
+        config["phone"] = config["phone"][len(config["cc"]):]
+
+        if self.args["requestcode"]:
+            self.handleRequestCode(self.args["requestcode"], config)
+        elif self.args["register"]:
+            self.handleRegister(self.args["register"], config)
+        elif self.args["exists"]:
+            self.handleExists(config)
+
+        return True
+
+    def handleRequestCode(self, method, config):
+        codeReq = WACodeRequest(config["cc"],
+                                config["phone"],
+                                config["id"],
+                                config["mcc"],
+                                config["mnc"],
+                                config["mcc"],
+                                config["mnc"],
+                                method
+        )
+        result = codeReq.send()
+        print(self.resultToString(result))
+
+    def handleRegister(self, code, config):
+        code = code.replace('-', '')
+        req = WARegRequest(config["cc"], config["phone"], code, config["id"])
+        result = req.send()
+        print(self.resultToString(result))
+
+    def handleExists(self, config):
+        req = WAExistsRequest(config["cc"], config["phone"], config["id"])
+        result = req.send()
+        print(self.resultToString(result))
+        if result["pw"] is not None:
+            print("\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(config["cc"], config["phone"], result["pw"]))
+
+
+    def resultToString(self, result):
+        unistr = str if sys.version_info >= (3, 0) else unicode
+        out = []
+        for k, v in result.items():
+            if v is None:
+                continue
+            out.append("%s: %s" %(k, v.encode("utf-8") if type(v) is unistr else v))
+
+        return "\n".join(out)
+
+class DemosArgParser(YowArgParser):
+    def __init__(self, *args, **kwargs):
+        super(DemosArgParser, self).__init__(*args, **kwargs)
+        self.description = "Run a yowsup demo"
+
+        configGroup = self.add_argument_group("Configuration options for demos")
+        credentialsOpts = configGroup.add_mutually_exclusive_group()
+        credentialsOpts.add_argument("-l", "--login", action="store", metavar="phone:b64password",
+                                     help = "WhatsApp login credentials, in the format phonenumber:password, where password is base64 encoded.")
+        credentialsOpts.add_argument("-c", "--config", action="store",
+                                     help = "Path to config file containing authentication info. For more info about config format use --help-config")
+
+        cmdopts = self.add_argument_group("Command line interface demo")
+        cmdopts.add_argument('-y', '--yowsup', action = "store_true", help = "Start the Yowsup command line client")
+
+        echoOpts = self.add_argument_group("Echo client demo")
+        echoOpts.add_argument('-e', '--echo', action = "store_true", help = "Start the Yowsup Echo client")
+
+    def process(self):
+        super(DemosArgParser, self).process()
+        if self.args["yowsup"]:
+            self.startCmdline()
+        elif self.args["echo"]:
+            self.startEcho()
+
+        return True
+
+    def _getCredentials(self):
+        if self.args["login"]:
+            return tuple(self.args["login"].split(":"))
+        elif self.args["config"]:
+            config = self.getConfig(self.args["config"])
+            assert "password" in config and "phone" in config, "Must specify at least phone number and password in config file"
+            return config["phone"], config["password"]
+        else:
+            return None
+
+    def startCmdline(self):
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+        stack = cli.YowsupCliStack(credentials)
+        stack.start()
+
+    def startEcho(self):
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+        try:
+            stack = echoclient.YowsupEchoStack(credentials)
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+
+if __name__ == "__main__":
+    args = sys.argv
+    if(len(args) > 1):
+        del args[0]
+
+
+    modeDict = {
+        "demos":        DemosArgParser,
+        "registration": RegistrationArgParser
+    }
+
+    if(len(args) == 0 or args[0] not in modeDict):
+        print("Available commands:\n===================")
+        print(", ".join(modeDict.keys()))
+
+        sys.exit(1)
+
+    mode = args[0]
+    parser = modeDict[mode]()
+    if not parser.process():
+        parser.print_help()
+
