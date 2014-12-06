@@ -24,13 +24,13 @@ from Yowsup.Common.debugger import Debugger
 
 class ProtocolTreeNode():
 	
-	def __init__(self,tag,attributes,children=None,data=None):
+	def __init__(self,tag,attributes = None,children=None,data=None):
 
 		Debugger.attach(self)
 
-		self.tag = tag;
-		self.attributes = attributes;
-		self.children = children;
+		self.tag = tag
+		self.attributes = attributes
+		self.children = children
 		self.data = data
 
 	def toString(self, depth = 0):
