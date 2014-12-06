@@ -23,11 +23,11 @@ class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
     </iq>
     '''
 
-    def __init__(self,_from, _id, sid, index, last, wait, version, inNumbers, outNumbers, invalidNumbers):
-        super(SyncIqProtocolEntity, self).__init__("get", _id, sid, index, last)
+    def __init__(self,_id, sid, index, last, version, inNumbers, outNumbers, invalidNumbers, wait = None):
+        super(ResultSyncIqProtocolEntity, self).__init__("result", _id, sid, index, last)
         self.setResultSyncProps(wait, version, inNumbers, outNumbers, invalidNumbers)
 
-    def setResultSyncProps(self, wait, version, inNumbers, outNumbers, invalidNumbers):
+    def setResultSyncProps(self, version, inNumbers, outNumbers, invalidNumbers, wait = None):
         assert type(inNumbers) is dict, "in numbers must be a dict {number -> jid}"
         assert type(outNumbers) is dict, "out numbers must be a dict {number -> jid}"
         assert type(invalidNumbers) is list, "invalid numbers must be a list"
@@ -35,13 +35,14 @@ class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
         self.inNumbers = inNumbers
         self.outNumbers = outNumbers
         self.invalidNumbers = invalidNumbers
-        self.wait = int(wait)
+        self.wait = int(wait) if wait is not None else None
         self.version = version
 
 
     def __str__(self):
         out  = super(SyncIqProtocolEntity, self).__str__()
-        out += "Wait: %s\n" % self.wait
+        if self.wait is not None:
+            out += "Wait: %s\n" % self.wait
         out += "Version: %s\n" % self.version
         out += "In Numbers: %s\n" % (",".join(self.inNumbers))
         out += "Out Numbers: %s\n" % (",".join(self.outNumbers))
@@ -57,8 +58,10 @@ class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
 
         node = super(ResultSyncIqProtocolEntity, self).toProtocolTreeNode()
         syncNode = node.getChild("sync")
-        syncNode.setAttribute("wait", str(self.wait))
         syncNode.setAttribute("version", self.version)
+
+        if self.wait is not None:
+            syncNode.setAttribute("wait", str(self.wait))
 
         if len(outUsers):
             syncNode.addChild(ProtocolTreeNode("out", children = outUsers))
@@ -92,11 +95,11 @@ class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
         entity           = SyncIqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = ResultSyncIqProtocolEntity
 
-        entity.setResultSyncProps(syncNode.getAttributeValue("wait"),
-            syncNode.getAttributeValue("version"),
+        entity.setResultSyncProps(syncNode.getAttributeValue("version"),
             inUsersDict,
             outUsersDict,
-            invalidUsers
+            invalidUsers,
+            syncNode.getAttributeValue("wait")
             )
    
         return entity

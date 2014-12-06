@@ -16,7 +16,7 @@ class SyncIqProtocolEntity(IqProtocolEntity):
     '''
 
     def __init__(self, _type, _id = None, sid = None, index = 0, last = True):
-        super(SyncIqProtocolEntity, self).__init__("urn:xmpp:whatsapp:sync", _id = None, _type = _type)
+        super(SyncIqProtocolEntity, self).__init__("urn:xmpp:whatsapp:sync", _id = _id, _type = _type)
         self.setSyncProps(sid, index, last)
 
     def setSyncProps(self, sid, index, last):
