@@ -15,7 +15,7 @@ class ResultSyncIqProtocolEntityTest(SyncIqProtocolEntityTest):
 
         self.node["type"] = "result"
         syncNode = self.node.getChild("sync")
-        #syncNode.setAttribute("wait", None)
+        syncNode.setAttribute("wait", "123456")
         syncNode.setAttribute("version", "654321")
         syncNode.addChild(ProtocolTreeNode("out", children = users))
         syncNode.addChild(ProtocolTreeNode("in", children = users))
