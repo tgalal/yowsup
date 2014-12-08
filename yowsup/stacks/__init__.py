@@ -15,6 +15,7 @@ from yowsup.layers.protocol_ib                 import YowIbProtocolLayer
 from yowsup.layers.protocol_notifications      import YowNotificationsProtocolLayer
 from yowsup.layers.protocol_iq                 import YowIqProtocolLayer
 from yowsup.layers.protocol_contacts           import YowContactsIqProtocolLayer
+from yowsup.layers.protocol_chatstate          import YowChatstateProtocolLayer
 
 
 
@@ -30,7 +31,7 @@ YOWSUP_PROTOCOL_LAYERS_BASIC = (
     YowAuthenticationProtocolLayer, YowMessagesProtocolLayer,
     YowReceiptProtocolLayer, YowAckProtocolLayer, YowPresenceProtocolLayer,
     YowIbProtocolLayer, YowIqProtocolLayer, YowNotificationsProtocolLayer,
-    YowContactsIqProtocolLayer
+    YowContactsIqProtocolLayer, YowChatstateProtocolLayer
 
 )
 
@@ -43,5 +44,5 @@ YOWSUP_FULL_STACK_DEBUG = (YOWSUP_PROTOCOL_LAYERS_FULL,) +\
                            (YowLoggerLayer,) +\
                            YOWSUP_CORE_LAYERS
 
-YOWSUIP_FULL_STACK = (YOWSUP_PROTOCOL_LAYERS_FULL) +\
+YOWSUP_FULL_STACK = (YOWSUP_PROTOCOL_LAYERS_FULL) +\
                      YOWSUP_CORE_LAYERS

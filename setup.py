@@ -11,7 +11,7 @@ else:
     deps.append('readline')
 
 setup(
-    name='yowsup',
+    name='yowsup2',
     version=yowsup.__version__,
     url='http://github.com/tgalal/yowsup/',
     license='MIT License',

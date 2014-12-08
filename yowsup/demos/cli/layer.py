@@ -3,7 +3,6 @@ from yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.network import YowNetworkLayer
-from yowsup.layers.protocol_contacts.protocolentities import GetSyncIqProtocolEntity
 from yowsup.common import YowConstants
 import datetime
 import os
@@ -19,6 +18,7 @@ from yowsup.layers.protocol_ib.protocolentities          import *
 from yowsup.layers.protocol_iq.protocolentities          import *
 from yowsup.layers.protocol_contacts.protocolentities    import *
 from yowsup.layers.protocol_profiles.protocolentities    import *
+from yowsup.layers.protocol_chatstate.protocolentities   import *
 
 ###
 
@@ -219,10 +219,23 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def image_send(self, jid, path):
         pass
 
+    @clicmd("Send typing state")
+    def state_typing(self, jid):
+        if self.assertConnected():
+            entity = OutgoingChatstateProtocolEntity(ChatstateProtocolEntity.STATE_TYPING, self.aliasToJid(jid))
+            self.toLower(entity)
+
+    @clicmd("Send paused state")
+    def state_paused(self, jid):
+        if self.assertConnected():
+            entity = OutgoingChatstateProtocolEntity(ChatstateProtocolEntity.STATE_PAUSED, self.aliasToJid(jid))
+            self.toLower(entity)
+
     @clicmd("Sync contacts, contacts should be comma separated phone numbers, with no spaces")
     def contacts_sync(self, contacts):
-        entity = GetSyncIqProtocolEntity(contacts.split(','))
-        self.toLower(entity)
+        if self.assertConnected():
+            entity = GetSyncIqProtocolEntity(contacts.split(','))
+            self.toLower(entity)
 
     @clicmd("Disconnect")
     def disconnect(self):
@@ -242,11 +255,15 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         self.getStack().setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, (username, b64password))
         connectEvent = YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT)
         self.broadcastEvent(connectEvent)
-        return True #promopt will wait until notified
+        return True #prompt will wait until notified
 
 
 
     ######## receive #########
+
+    @ProtocolEntityCallback("chatstate")
+    def onChatstate(self, entity):
+        print(entity)
 
     @ProtocolEntityCallback("iq")
     def onIq(self, entity):

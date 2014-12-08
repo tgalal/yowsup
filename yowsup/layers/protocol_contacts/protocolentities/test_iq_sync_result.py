@@ -13,9 +13,14 @@ class ResultSyncIqProtocolEntityTest(SyncIqProtocolEntityTest):
         ]
         invalids = ["aaaaa", "bbbbb"]
 
+        self.node["type"] = "result"
         syncNode = self.node.getChild("sync")
         syncNode.setAttribute("wait", "123456")
         syncNode.setAttribute("version", "654321")
         syncNode.addChild(ProtocolTreeNode("out", children = users))
         syncNode.addChild(ProtocolTreeNode("in", children = users))
         syncNode.addChild(ProtocolTreeNode("invalid", children = [ProtocolTreeNode("user", data = inv) for inv in invalids]))
+
+    def test_delta_result(self):
+        del self.node.getChild("sync")["wait"]
+        self.test_generation()
