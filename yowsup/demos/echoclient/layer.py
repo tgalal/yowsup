@@ -3,7 +3,7 @@ from yowsup.layers.protocol_messages.protocolentities  import TextMessageProtoco
 from yowsup.layers.protocol_media.protocolentities  import ImageDownloadableMediaMessageProtocolEntity
 from yowsup.layers.protocol_receipts.protocolentities  import OutgoingReceiptProtocolEntity
 from yowsup.layers.protocol_acks.protocolentities      import OutgoingAckProtocolEntity
-
+from yowsup.layers.protocol_media.protocolentities  import VcardMediaMessageProtocolEntity
 
 
 class EchoLayer(YowInterfaceLayer):
@@ -52,4 +52,10 @@ class EchoLayer(YowInterfaceLayer):
             self.toLower(receipt)
             self.toLower(outImage)
 
- 
+        elif messageProtocolEntity.getMediaType() == "vcard":
+            receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())
+            outVcard = VcardMediaMessageProtocolEntity(messageProtocolEntity.getName(),messageProtocolEntity.getCardData(),to = messageProtocolEntity.getFrom())
+            print("Echoing vcard (%s, %s) to %s" % (messageProtocolEntity.getName(), messageProtocolEntity.getCardData(), messageProtocolEntity.getFrom(False)))
+            #send receipt otherwise we keep receiving the same message over and over
+            self.toLower(outVcard)
+            self.toLower(receipt)
