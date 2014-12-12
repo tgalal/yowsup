@@ -1,8 +1,8 @@
 from yowsup.layers.protocol_media.protocolentities.message_media import MediaMessageProtocolEntity
+from yowsup.layers.protocol_messages.protocolentities.test_message import MessageProtocolEntityTest
 from yowsup.structs import ProtocolTreeNode
-from yowsup.structs.protocolentity import ProtocolEntityTest
 
-class MediaMessageProtocolEntityTest(ProtocolEntityTest):
+class MediaMessageProtocolEntityTest(MessageProtocolEntityTest):
     def setUp(self):
         super(MediaMessageProtocolEntityTest, self).setUp()
         self.ProtocolEntity = MediaMessageProtocolEntity
