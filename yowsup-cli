@@ -153,11 +153,12 @@ class RegistrationArgParser(YowArgParser):
             assert "phone"   in config, "Must specify phone number"
         except AssertionError as e:
             print(e.message)
-            sys.exit(1)
+            print("\n")
+            return False
 
         if not config["phone"].startswith(config["cc"]):
-            print("Error, phone number does not start with the specified country code using")
-            sys.exit(1)
+            print("Error, phone number does not start with the specified country code\n")
+            return False
 
         config["phone"] = config["phone"][len(config["cc"]):]
 
@@ -167,6 +168,8 @@ class RegistrationArgParser(YowArgParser):
             self.handleRegister(self.args["register"], config)
         elif self.args["exists"]:
             self.handleExists(config)
+        else:
+            return False
 
         return True
 
@@ -231,7 +234,8 @@ class DemosArgParser(YowArgParser):
             self.startCmdline()
         elif self.args["echo"]:
             self.startEcho()
-
+        else:
+            return False
         return True
 
     def _getCredentials(self):
