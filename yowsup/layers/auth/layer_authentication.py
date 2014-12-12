@@ -8,6 +8,7 @@ from .protocolentities import *
 import base64
 class YowAuthenticationProtocolLayer(YowProtocolLayer):
     EVENT_LOGIN      = "org.openwhatsapp.yowsup.event.auth.login"
+    EVENT_AUTHED     = "org.openwhatsapp.yowsup.event.auth.authed"
     PROP_CREDENTIALS = "org.openwhatsapp.yowsup.prop.auth.credentials"
 
     def __init__(self):
@@ -41,7 +42,7 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
     def login(self):
         
         self._sendFeatures()
-        self._sendAuth();
+        self._sendAuth()
 
     ###recieved node handlers handlers
     def handleStreamFeatures(self, node):
@@ -49,6 +50,8 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         self.supportsReceiptAcks  = nodeEntity.supportsReceiptAcks()
 
     def handleSuccess(self, node):
+        successEvent = YowLayerEvent(self.__class__.EVENT_AUTHED)
+        self.broadcastEvent(successEvent)
         nodeEntity = SuccessProtocolEntity.fromProtocolTreeNode(node)
         self.toUpper(nodeEntity)
 
