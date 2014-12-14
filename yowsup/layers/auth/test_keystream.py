@@ -49,5 +49,5 @@ class KeyStreamTest(unittest.TestCase):
     def test_manyEncode(self):
         keys = self.keysTarget
         kstream = KeyStream(keys[2], keys[3])
-        for i in xrange(0, 4294967299):
+        for i in xrange(0, 300):
             encoded = kstream.encodeMessage(self.inputMessage, 0, 4, len(self.inputMessage) - 4)
