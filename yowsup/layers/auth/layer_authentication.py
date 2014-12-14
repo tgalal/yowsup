@@ -8,7 +8,7 @@ from .protocolentities import *
 import base64
 class YowAuthenticationProtocolLayer(YowProtocolLayer):
     EVENT_LOGIN      = "org.openwhatsapp.yowsup.event.auth.login"
-    EVENT_AUTHED     = "org.openwhatsapp.yowsup.event.auth.authed"
+    EVENT_AUTHED  = "org.openwhatsapp.yowsup.event.auth.authed"
     PROP_CREDENTIALS = "org.openwhatsapp.yowsup.prop.auth.credentials"
 
     def __init__(self):
@@ -19,7 +19,6 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
             "challenge": (self.handleChallenge, None)
         }
         super(YowAuthenticationProtocolLayer, self).__init__(handleMap)
-        self.supportsReceiptAcks = False
         self.credentials = None
 
     def __str__(self):
@@ -47,7 +46,6 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
     ###recieved node handlers handlers
     def handleStreamFeatures(self, node):
         nodeEntity = StreamFeaturesProtocolEntity.fromProtocolTreeNode(node)
-        self.supportsReceiptAcks  = nodeEntity.supportsReceiptAcks()
 
     def handleSuccess(self, node):
         successEvent = YowLayerEvent(self.__class__.EVENT_AUTHED)
@@ -67,10 +65,10 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
 
     ##senders
     def _sendFeatures(self):
-        self.entityToLower(StreamFeaturesProtocolEntity())
+        self.entityToLower(StreamFeaturesProtocolEntity(["readreceipts", "groups_v2", "privacy", "presence"]))
 
     def _sendAuth(self):
-        self.entityToLower(AuthProtocolEntity(self.credentials[0]))
+        self.entityToLower(AuthProtocolEntity(self.credentials[0], passive=True))
 
     def _sendResponse(self,nonce):
         keys = KeyStream.generateKeys(self.credentials[1], nonce)
