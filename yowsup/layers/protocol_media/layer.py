@@ -26,6 +26,7 @@ class YowMediaProtocolLayer(YowProtocolLayer):
                 self.toUpper(entity)    
             elif mediaNode.getAttributeValue("type") == "location":
                 entity = LocationMediaMessageProtocolEntity.fromProtocolTreeNode(node)
+                self.toUpper(entity)
             elif mediaNode.getAttributeValue("type") == "vcard":
                 entity = VCardMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
