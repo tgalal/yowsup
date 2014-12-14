@@ -33,9 +33,9 @@ class ProtocolTreeNode(object):
 
         if self.data is not None:
             if type(self.data) is bytearray:
-                out += self.data.decode()
+                out += "%s" % self.data.decode()
             else:
-                out += self.data;
+                out += "%s" % self.data;
         
         for c in self.children:
            out += c.toString()
