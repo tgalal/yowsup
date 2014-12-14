@@ -20,7 +20,7 @@ class AuthenticationProtocolLayerTest(YowLayerTest, YowAuthenticationProtocolLay
 
     def test_streamfeatures(self):
         self._sendFeatures()
-        self.assertEqual(self.dataSink.toString(), StreamFeaturesProtocolEntity().toProtocolTreeNode().toString())
+        self.assertEqual(self.dataSink.toString(), StreamFeaturesProtocolEntity(["readreceipts","groups_v2","privacy","presence"]).toProtocolTreeNode().toString())
 
     def test_auth(self):
         self._sendAuth()

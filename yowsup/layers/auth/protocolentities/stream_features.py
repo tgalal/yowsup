@@ -1,19 +1,17 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 class StreamFeaturesProtocolEntity(ProtocolEntity):
-    def __init__(self, receipt_acks = False):
+    def __init__(self,  features = None):
         super(StreamFeaturesProtocolEntity, self).__init__("stream:features")
-        self.receiptAcks = receipt_acks
-    
+        self.setFeatures(features)
+
+    def setFeatures(self, features = None):
+        self.features = features or []
+
     def toProtocolTreeNode(self):
-        features = []
-        if self.supportsReceiptAcks():
-            features.append(ProtocolTreeNode("receipt_acks", {}))
-        return self._createProtocolTreeNode({}, children = features, data = None)
+        featureNodes = [ProtocolTreeNode(feature) for feature in self.features]
+        return self._createProtocolTreeNode({}, children = featureNodes, data = None)
 
-
-    def supportsReceiptAcks(self):
-        return self.receiptAcks
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        return StreamFeaturesProtocolEntity(node.getChild("receipt_acks") is not None)
+        return StreamFeaturesProtocolEntity([fnode.tag for fnode in node.getAllChildren()])
