@@ -468,9 +468,9 @@ class TokenDictionary:
         ]
 
 
-    def getToken(self, index, seconday = False):
+    def getToken(self, index, secondary = False):
         targetDict = self.dictionary
-        if not seconday and index > 236 and index < (236 + len(self.secondaryDictionary)):
+        if secondary or index > 236 and index < (236 + len(self.secondaryDictionary)):
             targetDict = self.secondaryDictionary
         if index < 0 or index > len(targetDict) - 1:
             return None
