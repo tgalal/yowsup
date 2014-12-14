@@ -31,7 +31,7 @@ class WACodeRequest(WARequest):
         else:
             self.currentToken = Constants.DATA_CLIENT
 
-        self.addParam("token", self.getToken(p_in, self.currentToken["t"]))
+        self.addParam("token", Constants.generateRequestToken(p_in)) #self.getToken(p_in, self.currentToken["t"]))
 
         self.url = "v.whatsapp.net/v2/code"
 
