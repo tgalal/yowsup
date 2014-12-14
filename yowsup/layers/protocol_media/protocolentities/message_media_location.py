@@ -46,8 +46,8 @@ class LocationMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         return self.url
 
     def setLocationMediaProps(self, latitude, longitude, locationName, url, encoding):
-        self.latitude = latitude
-        self.longitude = longitude
+        self.latitude = str(latitude)
+        self.longitude = str(longitude)
         self.name = locationName
         self.url = url
         self.encoding= encoding
