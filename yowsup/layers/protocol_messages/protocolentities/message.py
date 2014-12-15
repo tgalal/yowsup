@@ -37,7 +37,10 @@ class MessageProtocolEntity(ProtocolEntity):
     def isBroadcast(self):
         return False
 
-    def getPariticipant(self):
+    def getTo(self, full = True):
+        return self.to if full else self.to.split('@')[0]
+
+    def getParticipant(self):
         return self.participant
 
     def getNotify(self):
