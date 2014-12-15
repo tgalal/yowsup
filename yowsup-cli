@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__ = "2.0"
+__version__ = "2.0.2"
 __author__ = "Tarek Galal"
 
 import sys, argparse, yowsup, logging
@@ -277,7 +277,8 @@ if __name__ == "__main__":
 
     modeDict = {
         "demos":        DemosArgParser,
-        "registration": RegistrationArgParser
+        "registration": RegistrationArgParser,
+        "version":      None
     }
 
     if(len(args) == 0 or args[0] not in modeDict):
@@ -287,7 +288,11 @@ if __name__ == "__main__":
         sys.exit(1)
 
     mode = args[0]
-    parser = modeDict[mode]()
-    if not parser.process():
-        parser.print_help()
+    if mode == "version":
+        print("yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__))
+        sys.exit(0)
+    else:
+        parser = modeDict[mode]()
+        if not parser.process():
+            parser.print_help()
 
