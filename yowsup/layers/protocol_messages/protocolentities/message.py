@@ -37,12 +37,12 @@ class MessageProtocolEntity(ProtocolEntity):
     def isBroadcast(self):
         return False
 
-    def getPariticipant(self):
+    def getParticipant(self):
         return self.participant
 
     def getNotify(self):
         return self.notify
-    
+
     def toProtocolTreeNode(self):
         attribs = {
             "type"      : self._type,
