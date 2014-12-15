@@ -27,7 +27,8 @@ class YowStack(object):
         return self._props[key] if key in self._props else default
 
     def emitEvent(self, yowLayerEvent):
-       self.__stackInstances[0].emitEvent(yowLayerEvent)
+        if not self.__stackInstances[0].onEvent(yowLayerEvent):
+            self.__stackInstances[0].emitEvent(yowLayerEvent)
 
     def broadcastEvent(self, yowLayerEvent):
         if not self.__stackInstances[-1].onEvent(yowLayerEvent):
