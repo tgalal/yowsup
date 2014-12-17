@@ -20,7 +20,7 @@ class PresenceProtocolEntity(ProtocolEntity):
         self.name = name
 
     def getType(self):
-        return _type
+        return self._type
 
     def getName(self):
         return self.name

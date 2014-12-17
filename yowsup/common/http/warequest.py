@@ -41,7 +41,7 @@ class WARequest(object):
             self.result = value
 
     def addParam(self,name,value):
-        self.params.append((name,value.encode('utf-8')))
+        self.params.append((name,value))
 
     def removeParam(self, name):
         for i in range(0, len(self.params)):
@@ -110,6 +110,7 @@ class WARequest(object):
             }.items()) + list(self.headers.items()));
 
         host,port,path = self.getConnectionParameters()
+
         self.response = WARequest.sendRequest(host, port, path, headers, params, "GET")
 
         if not self.response.status == WARequest.OK:
@@ -163,7 +164,6 @@ class WARequest(object):
             logger.debug(params)
 
         logger.debug("Opening connection to %s" % host);
-
         conn = httplib.HTTPSConnection(host ,port) if port == 443 else httplib.HTTPConnection(host ,port)
 
         logger.debug("Sending %s request to %s" % (reqType, path))

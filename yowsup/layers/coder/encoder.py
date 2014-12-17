@@ -13,7 +13,7 @@ class WriteEncoder:
         data.append(87)
         data.append(65)
         data.append(1)
-        data.append(4)
+        data.append(5)
 
         streamOpenAttributes = {"to": domain, "resource": resource}
         self.writeListStart(len(streamOpenAttributes) * 2 + 1, data)
@@ -102,16 +102,15 @@ class WriteEncoder:
             data.append(intValue - 245)
 
     def writeString(self, tag, data):
-        try:
-            key = self.tokenDictionary.getIndex(tag)
-            if key > 235:
+        tok = self.tokenDictionary.getIndex(tag)
+        if tok:
+            index, secondary = tok
+            if secondary:
                 self.writeToken(236, data)
-                self.writeToken(key - 237, data)
-            else:
-                self.writeToken(key, data)
-        except KeyError:
+            self.writeToken(index, data)
+        else:
+            at = '@'.encode() if type(tag) == bytes else '@'
             try:
-                at = '@'.encode() if type(tag) == bytes else '@'
                 atIndex = tag.index(at)
 
                 if atIndex < 1:
@@ -120,7 +119,6 @@ class WriteEncoder:
                     server = tag[atIndex+1:]
                     user = tag[0:atIndex]
                     self.writeJid(user, server, data)
-
             except ValueError:
                 self.writeBytes(self.encodeString(tag), data)
 

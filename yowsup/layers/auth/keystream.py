@@ -56,7 +56,7 @@ class KeyStream:
 
     def computeMac(self, bytes_buffer, int_offset, int_length):
         mac = hmac.new(self.macKey, None, hashlib.sha1)
-        updateData = bytes_buffer[int_offset:] + bytearray([self.seq >> 24, self.seq >> 16, self.seq >> 8, self.seq])
+        updateData = bytes_buffer[int_offset:] + bytearray([self.seq >> 24, (self.seq >> 16) % 256, (self.seq >> 8) % 256, self.seq % 256])
 
         try:
             mac.update(updateData)

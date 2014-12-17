@@ -19,9 +19,9 @@ class ProtocolEntity(object):
     def _getCurrentTimestamp(self):
         return int(time.time())
 
-    def _generateId(self):
+    def _generateId(self, short = False):
         ProtocolEntity.__ID_GEN += 1
-        return str(int(time.time())) + "-" + str(ProtocolEntity.__ID_GEN)
+        return str(ProtocolEntity.__ID_GEN) if short else str(int(time.time())) + "-" + str(ProtocolEntity.__ID_GEN)
         
     
     def toProtocolTreeNode(self):

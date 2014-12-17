@@ -1,5 +1,6 @@
 from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from .protocolentities import *
+from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
 class YowNotificationsProtocolLayer(YowProtocolLayer):
 
     def __init__(self):
@@ -23,6 +24,15 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
                 self.raiseErrorForNode(node)
         elif node["type"] == "status":
             self.toUpper(StatusNotificationProtocolEntity.fromProtocolTreeNode(node))
+        elif node["type"] == "features":
+            pass
+        else:
+            self.raiseErrorForNode(node)
+
+        ack = OutgoingAckProtocolEntity(node["id"], "notification", node["type"])
+        self.toLower(ack.toProtocolTreeNode())
+
+
 
 
 

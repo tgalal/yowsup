@@ -109,8 +109,8 @@ class YowParallelLayer(YowLayer):
             #s.setLayers(self, self)
             s.toLower = self.toLower
             s.toUpper = self.toUpper
-            s.broadcastEvent = self.broadcastEvent
-            s.emitEvent = self.emitEvent
+            s.broadcastEvent = self.subBroadcastEvent
+            s.emitEvent = self.subEmitEvent
 
 
     def setStack(self, stack):
@@ -126,6 +126,14 @@ class YowParallelLayer(YowLayer):
     def send(self, data):
         for s in self.sublayers:
             s.send(data)
+
+    def subBroadcastEvent(self, yowLayerEvent):
+        self.onEvent(yowLayerEvent)
+        self.broadcastEvent(yowLayerEvent)
+
+    def subEmitEvent(self, yowLayerEvent):
+        self.onEvent(yowLayerEvent)
+        self.emitEvent(yowLayerEvent)
 
 
     def onEvent(self, yowLayerEvent):

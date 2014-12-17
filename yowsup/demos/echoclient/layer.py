@@ -2,8 +2,9 @@ from yowsup.layers.interface                           import YowInterfaceLayer,
 from yowsup.layers.protocol_messages.protocolentities  import TextMessageProtocolEntity
 from yowsup.layers.protocol_media.protocolentities  import ImageDownloadableMediaMessageProtocolEntity
 from yowsup.layers.protocol_receipts.protocolentities  import OutgoingReceiptProtocolEntity
+from yowsup.layers.protocol_media.protocolentities  import LocationMediaMessageProtocolEntity
 from yowsup.layers.protocol_acks.protocolentities      import OutgoingAckProtocolEntity
-
+from yowsup.layers.protocol_media.protocolentities  import VCardMediaMessageProtocolEntity
 
 
 class EchoLayer(YowInterfaceLayer):
@@ -52,4 +53,24 @@ class EchoLayer(YowInterfaceLayer):
             self.toLower(receipt)
             self.toLower(outImage)
 
- 
+        elif messageProtocolEntity.getMediaType() == "location":
+
+            receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())
+
+            outLocation = LocationMediaMessageProtocolEntity(messageProtocolEntity.getLatitude(),
+                messageProtocolEntity.getLongitude(), messageProtocolEntity.getLocationName(),
+                messageProtocolEntity.getLocationURL(), messageProtocolEntity.encoding,
+                to = messageProtocolEntity.getFrom(), preview=messageProtocolEntity.getPreview())
+
+            print("Echoing location (%s, %s) to %s" % (messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude(), messageProtocolEntity.getFrom(False)))
+
+            #send receipt otherwise we keep receiving the same message over and over
+            self.toLower(outLocation)
+            self.toLower(receipt)
+        elif messageProtocolEntity.getMediaType() == "vcard":
+            receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())
+            outVcard = VCardMediaMessageProtocolEntity(messageProtocolEntity.getName(),messageProtocolEntity.getCardData(),to = messageProtocolEntity.getFrom())
+            print("Echoing vcard (%s, %s) to %s" % (messageProtocolEntity.getName(), messageProtocolEntity.getCardData(), messageProtocolEntity.getFrom(False)))
+            #send receipt otherwise we keep receiving the same message over and over
+            self.toLower(outVcard)
+            self.toLower(receipt)

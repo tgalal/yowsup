@@ -13,13 +13,13 @@ class ErrorIqProtocolEntity(IqProtocolEntity):
         self.setErrorProps(code, text, backoff)
 
     def setErrorProps(self, code, text, backoff):
-        self.code = int(code)
+        self.code = code
         self.text = text
         self.backoff = int(backoff) if backoff else 0
 
     def toProtocolTreeNode(self):
         node = super(ErrorIqProtocolEntity, self).toProtocolTreeNode()
-        errorNode = ProtocolTreeNode("error", {"text": self.text, "code": str(self.code)})
+        errorNode = ProtocolTreeNode("error", {"text": self.text, "code": self.code})
         if self.backoff:
             errorNode.setAttribute("backoff", str(self.backoff))
         node.addChild(errorNode)

@@ -37,6 +37,12 @@ class MessageProtocolEntity(ProtocolEntity):
     def isBroadcast(self):
         return False
 
+<<<<<<< HEAD
+=======
+    def getTo(self, full = True):
+        return self.to if full else self.to.split('@')[0]
+
+>>>>>>> 3e39dd86814a5221c7202beb3daa4959ce6762b2
     def getParticipant(self):
         return self.participant
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__ = "2.0"
+__version__ = "2.0.2"
 __author__ = "Tarek Galal"
 
 import sys, argparse, yowsup, logging
@@ -153,11 +153,12 @@ class RegistrationArgParser(YowArgParser):
             assert "phone"   in config, "Must specify phone number"
         except AssertionError as e:
             print(e.message)
-            sys.exit(1)
+            print("\n")
+            return False
 
         if not config["phone"].startswith(config["cc"]):
-            print("Error, phone number does not start with the specified country code using")
-            sys.exit(1)
+            print("Error, phone number does not start with the specified country code\n")
+            return False
 
         config["phone"] = config["phone"][len(config["cc"]):]
 
@@ -167,6 +168,8 @@ class RegistrationArgParser(YowArgParser):
             self.handleRegister(self.args["register"], config)
         elif self.args["exists"]:
             self.handleExists(config)
+        else:
+            return False
 
         return True
 
@@ -231,7 +234,8 @@ class DemosArgParser(YowArgParser):
             self.startCmdline()
         elif self.args["echo"]:
             self.startEcho()
-
+        else:
+            return False
         return True
 
     def _getCredentials(self):
@@ -273,7 +277,8 @@ if __name__ == "__main__":
 
     modeDict = {
         "demos":        DemosArgParser,
-        "registration": RegistrationArgParser
+        "registration": RegistrationArgParser,
+        "version":      None
     }
 
     if(len(args) == 0 or args[0] not in modeDict):
@@ -283,7 +288,11 @@ if __name__ == "__main__":
         sys.exit(1)
 
     mode = args[0]
-    parser = modeDict[mode]()
-    if not parser.process():
-        parser.print_help()
+    if mode == "version":
+        print("yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__))
+        sys.exit(0)
+    else:
+        parser = modeDict[mode]()
+        if not parser.process():
+            parser.print_help()
 
