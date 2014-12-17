@@ -45,7 +45,7 @@ class MessageProtocolEntity(ProtocolEntity):
 
     def getNotify(self):
         return self.notify
-
+    
     def toProtocolTreeNode(self):
         attribs = {
             "type"      : self._type,
