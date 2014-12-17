@@ -261,7 +261,7 @@ class KeyStream:
     mac = hmac.new(self.macKey, None, sha1)
     mac.update(buffer(_bytearray(bytes_buffer[int_offset:])))
 
-    numArray = "%s%s%s%s" % (chr(self.seq >> 24), chr(self.seq >> 16), chr(self.seq >> 8), chr(self.seq))
+    numArray = "%s%s%s%s" % (chr((self.seq >> 24) & 255), chr((self.seq >> 16) & 255), chr((self.seq >> 8) & 255), chr(self.seq & 255))
 
     mac.update(buffer(_bytearray(numArray)))
 
