@@ -1,7 +1,7 @@
 from .protocoltreenode import ProtocolTreeNode
 import unittest, time
 class ProtocolEntity(object):
-    __ID_GEN = -1
+    __ID_GEN = 0
 
     def __init__(self, tag):
         self.tag = tag
