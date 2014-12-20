@@ -16,10 +16,13 @@ from yowsup.layers.protocol_notifications      import YowNotificationsProtocolLa
 from yowsup.layers.protocol_iq                 import YowIqProtocolLayer
 from yowsup.layers.protocol_contacts           import YowContactsIqProtocolLayer
 from yowsup.layers.protocol_chatstate          import YowChatstateProtocolLayer
-
+from yowsup.layers.textsecure                  import YowTextSecureLayer
+from yowsup.layers.protocol_privacy            import YowPrivacyProtocolLayer
 
 
 YOWSUP_CORE_LAYERS = (
+    YowTextSecureLayer,
+    YowLoggerLayer,
     YowCoderLayer,
     YowCryptLayer,
     YowStanzaRegulator,
@@ -37,11 +40,11 @@ YOWSUP_PROTOCOL_LAYERS_BASIC = (
 
 YOWSUP_PROTOCOL_LAYERS_GROUPS = (YowGroupsProtocolLayer,) + YOWSUP_PROTOCOL_LAYERS_BASIC
 YOWSUP_PROTOCOL_LAYERS_MEDIA  = (YowMediaProtocolLayer,) + YOWSUP_PROTOCOL_LAYERS_BASIC
-YOWSUP_PROTOCOL_LAYERS_FULL = (YowGroupsProtocolLayer, YowMediaProtocolLayer) + YOWSUP_PROTOCOL_LAYERS_BASIC
+YOWSUP_PROTOCOL_LAYERS_FULL = (YowGroupsProtocolLayer, YowMediaProtocolLayer, YowPrivacyProtocolLayer)\
+                              + YOWSUP_PROTOCOL_LAYERS_BASIC
 
 
 YOWSUP_FULL_STACK_DEBUG = (YOWSUP_PROTOCOL_LAYERS_FULL,) +\
-                           (YowLoggerLayer,) +\
                            YOWSUP_CORE_LAYERS
 
 YOWSUP_FULL_STACK = (YOWSUP_PROTOCOL_LAYERS_FULL) +\
