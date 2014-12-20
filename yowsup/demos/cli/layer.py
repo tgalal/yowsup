@@ -3,6 +3,7 @@ from yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.network import YowNetworkLayer
+from yowsup.layers.protocol_contacts.protocolentities import GetSyncIqProtocolEntity
 from yowsup.common import YowConstants
 import datetime
 import os
@@ -19,6 +20,9 @@ from yowsup.layers.protocol_iq.protocolentities          import *
 from yowsup.layers.protocol_contacts.protocolentities    import *
 from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.layers.protocol_chatstate.protocolentities   import *
+from yowsup.layers.textsecure.protocolentities  import *
+from yowsup.layers.protocol_privacy.protocolentities     import *
+from yowsup.layers.textsecure import YowTextSecureLayer
 
 ###
 
@@ -182,6 +186,29 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     #@clicmd("Invite to group")
     def group_invite(self, group_jid, jid):
         pass
+
+    @clicmd("Get shared keys")
+    def keys_get(self, jid):
+        if self.assertConnected():
+            entity = KeyIqProtocolEntity(jid)
+            self.toLower(entity)
+
+    @clicmd("Send prekeys")
+    def keys_set(self):
+        if self.assertConnected():
+            self.broadcastEvent(YowLayerEvent(YowTextSecureLayer.EVENT_PREKEYS_SET))
+
+    @clicmd("Send init seq")
+    def seq(self):
+        priv = PrivacyListIqProtocolEntity()
+        self.toLower(priv)
+        push = PushIqProtocolEntity()
+        self.toLower(push)
+        props = PropsIqProtocolEntity()
+        self.toLower(props)
+        crypto = CryptoIqProtocolEntity()
+        self.toLower(crypto)
+
 
     @clicmd("Delete your account")
     def account_delete(self):
