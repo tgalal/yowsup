@@ -68,7 +68,7 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         self.entityToLower(StreamFeaturesProtocolEntity(["readreceipts", "groups_v2", "privacy", "presence"]))
 
     def _sendAuth(self):
-        self.entityToLower(AuthProtocolEntity(self.credentials[0], passive=True))
+        self.entityToLower(AuthProtocolEntity(self.credentials[0], passive=False))
 
     def _sendResponse(self,nonce):
         keys = KeyStream.generateKeys(self.credentials[1], nonce)
