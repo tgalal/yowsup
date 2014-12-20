@@ -1,3 +1,4 @@
+import binascii
 class ProtocolTreeNode(object):
     def __init__(self, tag, attributes = None, children = None, data = None):
 
@@ -33,9 +34,14 @@ class ProtocolTreeNode(object):
 
         if self.data is not None:
             if type(self.data) is bytearray:
-                out += "%s" % self.data.decode()
+                try:
+                    out += "%s" % self.data.decode()
+                except UnicodeDecodeError:
+                    out += binascii.hexlify(self.data)
             else:
-                out += "%s" % self.data;
+                out += "%s" % self.data
+
+            out += "\nHEX:%s" % binascii.hexlify(self.data)
         
         for c in self.children:
            out += c.toString()
