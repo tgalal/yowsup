@@ -46,7 +46,7 @@ class Curve:
 
     @staticmethod
     def verifySignature(ecPublicSigningKey, message, signature):
-        return _curve.curve25519_verify(signature, ecPublicSigningKey.serialize()[1:], message, len(message))
+        return _curve.curve25519_verify(signature, ecPublicSigningKey.serialize()[1:], message, len(message)) == 0
         # pk = ecPublicSigningKey.serialize()
         #return ed.checkvalid(signature, message, ecPublicSigningKey.serialize()[1:])
         #return ed2.checkvalid(signature, message, ecPublicSigningKey.serialize()[1:])

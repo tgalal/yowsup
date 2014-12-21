@@ -2,7 +2,9 @@ from ecc.curve import Curve
 import Crypto.Cipher.AES as AES
 from Crypto.Util import Counter
 from ratchet.chainkey import ChainKey
+from .sessionbuilder import SessionBuilder
 from util.byteutil import ByteUtil
+from .state.sessionstate import SessionState
 import struct
 class SessionCipher:
 
@@ -12,6 +14,8 @@ class SessionCipher:
         self.preKeyStore = preKeyStore
         self.recepientId = recepientId
         self.deviceId = deviceId
+        self.sessionBuilder = SessionBuilder(sessionStore, preKeyStore, signedPreKeyStore,
+                                             identityKeyStore, recepientId, deviceId)
 
 
 
@@ -38,11 +42,75 @@ class SessionCipher:
   }
     """
 
-    #def decryptPkmsg(self, ciphertext):
+    def decryptPkmsg(self, ciphertext):
+        """
+        :type ciphertext: PreKeyWhisperMessage
+        """
+        sessionRecord = self.sessionStore.loadSession(self.recepientId, self.deviceId)
+        unsigedPreKeyId = self.sessionBuilder.process(sessionRecord, ciphertext)
+        plaintext = self.decryptWithSessionRecord(sessionRecord, ciphertext.getWhisperMessage())
+
+        #callback.handlePlaintext(plaintext);
+        self.sessionStore.storeSession(unsigedPreKeyId)
+
+        if unsigedPreKeyId is not None:
+            self.preKeyStore.removePreKey(unsigedPreKeyId)
+
+        return plaintext
 
 
+    def decryptWithSessionRecord(self, sessionRecord, cipherText):
+        """
+        :type sessionRecord: SessionRecord
+        :type cipherText: WhisperMessage
+        """
 
-    def decrypt(self, sessionState, ciphertextMessage):
+        previousStates = sessionRecord.getPreviousSessionStates()
+        sessionState = SessionState(sessionRecord.getSessionState())
+        plaintext = self.decryptWithSessionState(sessionState, cipherText)
+        sessionRecord.setState(sessionState)
+
+        return plaintext
+
+
+    """
+      private byte[] decrypt(SessionRecord sessionRecord, WhisperMessage ciphertext)
+      throws DuplicateMessageException, LegacyMessageException, InvalidMessageException
+  {
+    synchronized (SESSION_LOCK) {
+      Iterator<SessionState> previousStates = sessionRecord.getPreviousSessionStates().iterator();
+      List<Exception>        exceptions     = new LinkedList<>();
+
+      try {
+        SessionState sessionState = new SessionState(sessionRecord.getSessionState());
+        byte[]       plaintext    = decrypt(sessionState, ciphertext);
+
+        sessionRecord.setState(sessionState);
+        return plaintext;
+      } catch (InvalidMessageException e) {
+        exceptions.add(e);
+      }
+
+      while (previousStates.hasNext()) {
+        try {
+          SessionState promotedState = new SessionState(previousStates.next());
+          byte[]       plaintext     = decrypt(promotedState, ciphertext);
+
+          previousStates.remove();
+          sessionRecord.promoteState(promotedState);
+
+          return plaintext;
+        } catch (InvalidMessageException e) {
+          exceptions.add(e);
+        }
+      }
+
+      throw new InvalidMessageException("No valid sessions.", exceptions);
+    }
+  }
+    """
+
+    def decryptWithSessionState(self, sessionState, ciphertextMessage):
 
         if not sessionState.hasSenderChain():
             raise Exception("Uninitialized session!")

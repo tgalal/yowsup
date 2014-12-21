@@ -1,6 +1,4 @@
 import abc
-import hkdfv2
-import hkdfv3
 import hmac
 import hashlib
 import math
@@ -10,6 +8,7 @@ class HKDF(object):
 
     @staticmethod
     def createFor(messageVersion):
+        import hkdfv2, hkdfv3
         if messageVersion == 2:
             return hkdfv2.HKDFv2()
         elif messageVersion == 3:
