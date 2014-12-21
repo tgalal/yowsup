@@ -48,8 +48,8 @@ class Curve25519Test(unittest.TestCase):
         bobPublicKey = Curve.decodePoint(bobPublic, 0)
         bobPrivateKey = Curve.decodePrivatePoint(bobPrivate)
 
-        sharedOne = Curve.calculateAgreement(alicePublicKey, bobPrivateKey);
-        sharedTwo = Curve.calculateAgreement(bobPublicKey, alicePrivateKey);
+        sharedOne = Curve.calculateAgreement(alicePublicKey, bobPrivateKey)
+        sharedTwo = Curve.calculateAgreement(bobPublicKey, alicePrivateKey)
 
         self.assertEqual(sharedOne, shared)
         self.assertEqual(sharedTwo, shared)

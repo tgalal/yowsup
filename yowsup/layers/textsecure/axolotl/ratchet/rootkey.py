@@ -9,10 +9,10 @@ class RootKey:
     def getKeyBytes(self):
         return self.key
 
-    def createChain(self, ECPublicKey_theirRatchetKey, ECKeyPair_ouRatchetKey):
-        sharedSecret = Curve.calculateAgreement(ECPublicKey_theirRatchetKey, ECKeyPair_ouRatchetKey.getPrivateKey())
-        derivedSecretBytes = self.kdf.deriveSecrets(sharedSecret, self.key, "WhisperRatchet".getBytes(), DerivedRootSecrets.SIZE)
+    def createChain(self, ECPublicKey_theirRatchetKey, ECKeyPair_ourRatchetKey):
+        sharedSecret = Curve.calculateAgreement(ECPublicKey_theirRatchetKey, ECKeyPair_ourRatchetKey.getPrivateKey())
+        derivedSecretBytes = self.kdf.deriveSecrets(sharedSecret, bytearray("WhisperRatchet"), DerivedRootSecrets.SIZE, salt = self.key)
         derivedSecrets = DerivedRootSecrets(derivedSecretBytes)
-        newRootKey = RootKey(derivedSecrets.getRootKey())
+        newRootKey = RootKey(self.kdf, derivedSecrets.getRootKey())
         newChainKey = ChainKey(self.kdf, derivedSecrets.getChainKey(), 0)
         return (newRootKey, newChainKey)

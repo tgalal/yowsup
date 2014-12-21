@@ -37,12 +37,22 @@ class Curve:
     def decodePrivatePoint(bytes):
         return DjbECPrivateKey(str(bytes))
 
+
     @staticmethod
     def calculateAgreement(publicKey, privateKey):
+        out = ctypes.c_char_p(str(bytearray(32)))
+        _curve.curve25519_donna(out, privateKey.getPrivateKey(), publicKey.getPublicKey())
+        return out.value
+
+    @staticmethod
+    def xcalculateAgreement(publicKey, privateKey):
         #key = curve25519.keys.Private(secret=privateKey)
         #return key.get_shared_key(curve25519.keys.Public(publicKey), lambda x: x)
-        key = curve25519.keys.Private(secret = privateKey.serialize())
-        return key.get_shared_key(curve25519.keys.Public(publicKey.serialize()[1:]), lambda  x: x)
+        secret = ''.join(privateKey.getPrivateKey()) #because for some reason keysPrivate changes 1st byte of secret to 32
+        key = curve25519.keys.Private(secret = secret)
+        publicKey = publicKey.getPublicKey()
+        l = len(publicKey)
+        return key.get_shared_key(curve25519.keys.Public(publicKey), lambda  x: x)
 
     @staticmethod
     def verifySignature(ecPublicSigningKey, message, signature):
