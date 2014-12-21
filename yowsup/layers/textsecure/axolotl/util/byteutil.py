@@ -11,13 +11,23 @@ class ByteUtil:
 
         return baos
 
+    # @staticmethod
+    # def xsplit(inp, firstLength, secondLength, thirdLength = None):
+    #     parts = []
+    #     parts.append(inp[:firstLength])
+    #     parts.append(inp[len(parts[0]): secondLength + 1])
+    #     if thirdLength:
+    #         parts.append(inp[len(parts[1]): thirdLength + 1])
+    #     return parts
+
     @staticmethod
     def split(inp, firstLength, secondLength, thirdLength = None):
         parts = []
         parts.append(inp[:firstLength])
-        parts.append(inp[len(parts[0]): secondLength + 1])
-        if thirdLength:
-            parts.append(inp[len(parts[1]): thirdLength + 1])
+        parts.append(inp[firstLength:firstLength + secondLength])
+        if thirdLength is not None:
+            parts.append(inp[firstLength + secondLength: firstLength + secondLength + thirdLength])
+
         return parts
 
 
