@@ -31,13 +31,13 @@ class SessionState:
         self.sessionStructure.remoteIdentityPublic = identityKey.serialize()
 
     def setLocalIdentityKey(self, identityKey):
-        self.sessionStructure.localIdentityPublik = identityKey.serialize()
+        self.sessionStructure.localIdentityPublic = identityKey.serialize()
 
 
     def getRemoteIdentityKey(self):
-        if self.sessionStructure.removeIdentityPublic is None:
+        if self.sessionStructure.remoteIdentityPublic is None:
             return None
-        return IdentityKey(self.sessionStructure.remoteIdentityPublic)
+        return IdentityKey(self.sessionStructure.remoteIdentityPublic, 0)
 
     def getLocalIdentityKey(self):
         return IdentityKey(self.sessionStructure.localIdentityPublic, 0)
@@ -115,11 +115,11 @@ class SessionState:
         chainKeyStructure.index = chainKey.index
 
         senderChain = storageprotos.SessionStructure.Chain()
-        senderChain.senderRatchetKey = senderRatchetKeyPair.getPublickKey().serialize()
+        senderChain.senderRatchetKey = senderRatchetKeyPair.getPublicKey().serialize()
         senderChain.senderRatchetKeyPrivate = senderRatchetKeyPair.getPrivateKey().serialize()
-        senderChain.chainKey = chainKeyStructure
+        senderChain.chainKey.MergeFrom(chainKeyStructure)
 
-        self.sessionStructure.senderChain = senderChain
+        self.sessionStructure.senderChain.MergeFrom(senderChain)
 
 
     def getSenderChainKey(self):
