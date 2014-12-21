@@ -202,4 +202,17 @@ class SessionState:
         self.sessionStructure.receiverChains[chainAndIndex[1]] = chain
 
 
+    def setRemoteRegistrationId(self, registrationId):
+        self.sessionStructure.remoteRegistrationId = registrationId
+
+    def getRemoteRegistrationId(self, registrationId):
+        return self.sessionStructure.remoteRegistrationId
+
+    def setLocalRegistrationId(self, registrationId):
+        self.sessionStructure.localRegistrationId = registrationId
+
+    def getLocalRegistrationId(self):
+        return self.sessionStructure.localRegistrationId
+
+
 

@@ -3,6 +3,10 @@ from sessionstate import SessionState
 class SessionRecord:
     ARCHIVED_STATES_MAX_LENGTH = 40
     def __init__(self, sessionState = None, serialized = None):
+        """
+        :type sessionState: SessionState
+        :type serialized: str
+        """
         self.previousStates = []
         if sessionState:
             self.sessionState = sessionState

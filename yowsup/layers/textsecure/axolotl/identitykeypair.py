@@ -6,7 +6,7 @@ class IdentityKeyPair:
         if serialized:
             structure = IdentityKeyPairStructure()
             structure.ParseFromString(serialized)
-            self.publicKey = IdentityKey(_bytes = bytearray(structure.publicKey), offset = 0)
+            self.publicKey = IdentityKey(bytearray(structure.publicKey), offset = 0)
             self.privateKey = Curve.decodePrivatePoint(bytearray(structure.privateKey))
         else:
             self.publicKey = identityKeyPublicKey
