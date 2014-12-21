@@ -17,7 +17,7 @@ class HKDF(object):
             raise Exception("Unknown version: %s " % messageVersion)
 
     def deriveSecrets(self, inputKeyMaterial, info, outputLength, salt = None):
-        salt = salt or [0] * self.__class__.HASH_OUTPUT_SIZE
+        salt = salt or bytearray(self.__class__.HASH_OUTPUT_SIZE)
         prk = self.extract(salt, inputKeyMaterial)
         return self.expand(prk, info, outputLength)
 
@@ -38,7 +38,7 @@ class HKDF(object):
             mac.update(mixin)
             if info is not None:
                 mac.update(info)
-            mac.update(i % 256)
+            mac.update(chr(i % 256))
 
             stepResult = mac.digest()
             stepSize = min(remainingBytes, len(stepResult))
