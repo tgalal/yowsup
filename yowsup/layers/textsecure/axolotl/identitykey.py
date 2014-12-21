@@ -4,7 +4,7 @@ class IdentityKey:
         if offset is None:
             self.publicKey = ecPubKeyOrBytes
         else:
-            self.publicKey = Curve.decodePoint(ecPubKeyOrBytes, offset)
+            self.publicKey = Curve.decodePoint(bytearray(ecPubKeyOrBytes), offset)
 
     def getPublicKey(self):
         return self.publicKey

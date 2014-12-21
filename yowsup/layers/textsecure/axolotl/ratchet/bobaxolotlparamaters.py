@@ -20,7 +20,7 @@ class BobAxolotlParameters:
         self.theirBaseKey = theirBaseKey
 
         if ourIdentityKey is None or ourSignedPreKey is None or ourRatchetKey is None\
-            or ourOneTimePreKey is None or theirIdentityKey is None or theirBaseKey is None:
+            or theirIdentityKey is None or theirBaseKey is None:
             raise Exception("Null value!")
 
     def getOurIdentityKey(self):
