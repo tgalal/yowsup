@@ -1,10 +1,10 @@
 from ecc.curve import Curve
 class IdentityKey:
-    def __init__(self, ecPubKey = None, _bytes = None, offset = None):
-        if ecPubKey:
-            self.publicKey = ecPubKey
+    def __init__(self, ecPubKeyOrBytes, offset = None):
+        if offset is None:
+            self.publicKey = ecPubKeyOrBytes
         else:
-            self.publicKey = Curve.decodePoint(_bytes, offset)
+            self.publicKey = Curve.decodePoint(ecPubKeyOrBytes, offset)
 
     def getPublicKey(self):
         return self.publicKey
