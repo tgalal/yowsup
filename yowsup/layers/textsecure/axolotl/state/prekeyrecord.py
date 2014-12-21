@@ -18,3 +18,6 @@ class PreKeyRecord:
         publicKey = Curve.decodePoint(bytearray(self.structure.publicKey), 0)
         privateKey = Curve.decodePrivatePoint(bytearray(self.structure.privateKey))
         return ECKeyPair(publicKey, privateKey)
+
+    def serialize(self):
+        return self.structure.SerializeToString()

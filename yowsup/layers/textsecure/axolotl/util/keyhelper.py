@@ -12,11 +12,26 @@ import struct
 import time
 import binascii
 
+LOG_PATH = "/home/tarek/.yowsup/%s" % str(int(time.time()))
+os.makedirs(LOG_PATH)
+
 
 class KeyHelper:
 
     def __init__(self):
         pass
+
+    @staticmethod
+    def serialize(name, serializable):
+        f = open(LOG_PATH + "/" + name, 'w')
+        f.write(binascii.hexlify(serializable.serialize()))
+        #f.write('\n-----------------------------\n')
+        f.close()
+    @staticmethod
+    def log(name, val):
+        f = open(LOG_PATH + "/" + name, 'w')
+        f.write(val)
+        f.close()
 
     """
     Generate an identity key pair.  Clients should only do this once,
@@ -30,8 +45,10 @@ class KeyHelper:
         serialized = '0a21056e8936e8367f768a7bba008ade7cf58407bdc7a6aae293e2cb7c06668dcd7d5e12205011524f0c15467100dd6' \
                      '03e0d6020f4d293edfbcd82129b14a88791ac81365c'
         serialized = binascii.unhexlify(serialized)
-        return IdentityKeyPair(publicKey, keyPair.getPrivateKey())
-        #return IdentityKeyPair(serialized=serialized)
+        identityKeyPair = IdentityKeyPair(publicKey, keyPair.getPrivateKey())
+        KeyHelper.serialize("identity", identityKeyPair)
+        return identityKeyPair
+        # return IdentityKeyPair(serialized=serialized)
 
     """
     Generate a registration ID.  Clients should only do this once,
@@ -39,7 +56,9 @@ class KeyHelper:
     """
     @staticmethod
     def generateRegistrationId():
-        return KeyHelper.generateRandomSequence()
+        regId =  KeyHelper.generateRandomSequence()
+        KeyHelper.log("registrationId", str(regId))
+        return regId
 
     @staticmethod
     def generateRandomSequence():
@@ -63,7 +82,9 @@ class KeyHelper:
         results = []
         start -= 1
         for i in xrange(0, count):
-            results.append(PreKeyRecord(((start + i) % (Medium.MAX_VALUE-1)) + 1, Curve.generateKeyPair()))
+            preKeyId = ((start + i) % (Medium.MAX_VALUE-1)) + 1
+            results.append(PreKeyRecord(preKeyId, Curve.generateKeyPair()))
+            KeyHelper.serialize("prekey_%s" % preKeyId,results[-1])
 
         return results
 
@@ -75,7 +96,11 @@ class KeyHelper:
 
         #Curve.verifySignature(identityKeyPair.getPublicKey(), keyPair.getPublicKey().serialize(), signature)
 
-        return SignedPreKeyRecord(signedPreKeyId, int(round(time.time() * 1000)), keyPair, signature)
+        spk = SignedPreKeyRecord(signedPreKeyId, int(round(time.time() * 1000)), keyPair, signature)
+
+        KeyHelper.serialize("signed_prekey", spk)
+
+        return spk
 
     @staticmethod
     def working_generateSignedPreKey(identityKeyPair, signedPreKeyId):
