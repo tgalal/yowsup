@@ -41,7 +41,7 @@ class MessageProtocolEntity(ProtocolEntity):
         return self.to if full else self.to.split('@')[0]
 
     def getParticipant(self, full = True):
-        return self.participant if full else self.participant.slit('@')[0]
+        return self.participant if full else self.participant.split('@')[0]
 
     def getNotify(self):
         return self.notify
