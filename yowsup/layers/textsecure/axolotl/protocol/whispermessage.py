@@ -1,10 +1,10 @@
-from ciphertextmessage import CipherTextMessage
+from ciphertextmessage import CiphertextMessage
 from ..util.byteutil import ByteUtil
 from ..ecc.curve import Curve
 import whisperprotos
 import hmac
 import hashlib
-class WhisperMessage(CipherTextMessage):
+class WhisperMessage(CiphertextMessage):
     MAC_LENGTH = 8
 
     def __init__(self, messageVersion = None, macKey = None, ECPublicKey_senderRatchetKey = None,
@@ -14,6 +14,7 @@ class WhisperMessage(CipherTextMessage):
 
         self.serialized = ""
         if serialized:
+            assert type(serialized) is str, "Expected serialized %s, got %s" % (str, type(serialized))
             messageParts = ByteUtil.split(serialized, 1, len(serialized) - 1 - WhisperMessage.MAC_LENGTH,
                                           WhisperMessage.MAC_LENGTH)
             version = messageParts[0][0]
@@ -48,7 +49,7 @@ class WhisperMessage(CipherTextMessage):
             message = message.SerializeToString()
             mac  = self.getMac(messageVersion, senderIdentityKey, receiverIdentityKey, macKey,
                                ByteUtil.combine(version, message))
-            self.serialized = ByteUtil.combine(version, message, mac)
+            self.serialized = str(ByteUtil.combine(version, message, mac))
             self.senderRatchetKey = ECPublicKey_senderRatchetKey
             self.counter = counter
             self.previousCounter = previousCounter
@@ -90,7 +91,7 @@ class WhisperMessage(CipherTextMessage):
         return self.serialized
 
     def getType(self):
-        return CipherTextMessage.WHISPER_TYPE
+        return CiphertextMessage.WHISPER_TYPE
 
     def isLegacy(self, message):
-        return message is not None and len(message) >= 1 and ByteUtil.highBitsToInt(message[0]) <= CipherTextMessage.UNSUPPORTED_VERSION
+        return message is not None and len(message) >= 1 and ByteUtil.highBitsToInt(message[0]) <= CiphertextMessage.UNSUPPORTED_VERSION

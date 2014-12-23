@@ -8,7 +8,7 @@ class InMemorySignedPreKeyStore(SignedPreKeyStore):
         if not signedPreKeyId in self.store:
             raise Exception("No such signedprekeyrecord! %s " % signedPreKeyId)
 
-        return SignedPreKeyRecord(self.store[signedPreKeyId])
+        return SignedPreKeyRecord(serialized=self.store[signedPreKeyId])
 
     def loadSignedPreKeys(self):
         results = []

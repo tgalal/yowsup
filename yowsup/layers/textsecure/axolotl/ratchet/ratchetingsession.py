@@ -98,7 +98,7 @@ class RatchetingSession:
                                                parameters.getOurSignedPreKey().getPrivateKey()))
 
         if sessionVersion >= 3 and parameters.getOurOneTimePreKey() is not None:
-            secrets.write(Curve.calculateAgreement(parameters.getTheirBaseKey(),
+            secrets.extend(Curve.calculateAgreement(parameters.getTheirBaseKey(),
                                                    parameters.getOurOneTimePreKey().getPrivateKey()))
 
         derivedKeys = RatchetingSession.calculateDerivedKeys(sessionVersion, secrets)
@@ -119,7 +119,7 @@ class RatchetingSession:
                                              ChainKey(kdf, derivedSecrets[1], 0))
 
     @staticmethod
-    def isAlice(ourKey, theirKey, ecPublicKey):
+    def isAlice(ourKey, theirKey):
         """
         :type ourKey: ECPublicKey
         :type theirKey: ECPublicKey

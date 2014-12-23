@@ -1,16 +1,16 @@
-from .ciphertextmessage import CipherTextMessage
+from .ciphertextmessage import CiphertextMessage
 from ..util.byteutil import ByteUtil
 from ..ecc.curve import Curve
 from ..identitykey import IdentityKey
 from .whispermessage import WhisperMessage
 import whisperprotos
-class PreKeyWhisperMessage(CipherTextMessage):
+class PreKeyWhisperMessage(CiphertextMessage):
     def __init__(self, messageVersion = None, registrationId = None, preKeyId = None,
                  signedPreKeyId = None, ecPublicBaseKey = None, identityKey = None, whisperMessage = None, serialized = None):
 
         if serialized:
             self.version = ByteUtil.highBitsToInt(serialized[0])
-            if self.version > CipherTextMessage.CURRENT_VERSION:
+            if self.version > CiphertextMessage.CURRENT_VERSION:
                 raise Exception("Unknown version %s" % self.version)
 
             preKeyWhisperMessage = whisperprotos.PreKeyWhisperMessage()
@@ -54,7 +54,7 @@ class PreKeyWhisperMessage(CipherTextMessage):
 
             versionBytes = ByteUtil.intsToByteHighAndLow(self.version, self.__class__.CURRENT_VERSION)
             messageBytes = builder.SerializeToString()
-            self.serialized = ByteUtil.combine(versionBytes, messageBytes)
+            self.serialized = str(ByteUtil.combine(versionBytes, messageBytes))
 
     def getMessageVersion(self):
         return self.version
@@ -81,4 +81,4 @@ class PreKeyWhisperMessage(CipherTextMessage):
         return self.serialized
 
     def getType(self):
-        return CipherTextMessage.PREKEY_TYPE
+        return CiphertextMessage.PREKEY_TYPE

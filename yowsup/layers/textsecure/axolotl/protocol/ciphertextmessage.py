@@ -1,5 +1,5 @@
 import abc
-class CipherTextMessage(object):
+class CiphertextMessage(object):
     __metaclass__ = abc.ABCMeta
 
     UNSUPPORTED_VERSION = 1
