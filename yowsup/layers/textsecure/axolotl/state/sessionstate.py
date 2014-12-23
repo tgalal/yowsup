@@ -1,5 +1,5 @@
 import storageprotos
-from ..identitykey import IdentityKey
+from ..identitykeypair import IdentityKey,IdentityKeyPair
 from ..ratchet.rootkey import RootKey
 from ..kdf.hkdf import HKDF
 from ..ecc.curve import Curve
@@ -7,8 +7,15 @@ from ..ecc.eckeypair import ECKeyPair
 from ..ratchet.chainkey import ChainKey
 from ..kdf.messagekeys import MessageKeys
 class SessionState:
-    def __init__(self, sessionStructure = None):
-        self.sessionStructure = sessionStructure or storageprotos.SessionStructure()
+    def __init__(self, session = None):
+
+        if session == None:
+            self.sessionStructure = storageprotos.SessionStructure()
+        elif session.__class__ == SessionState:
+            self.sessionStructure = storageprotos.SessionStructure()
+            self.sessionStructure.CopyFrom(session.sessionStructure)
+        else:
+            self.sessionStructure = session
 
     def getStructure(self):
         return self.sessionStructure
@@ -69,7 +76,7 @@ class SessionState:
         return self.getReceiverChain(ECPublickKey_senderEphemeral) is not None
 
     def hasSenderChain(self):
-        return self.sessionStructure.senderChain is not None
+        return self.sessionStructure.HasField("senderChain")
 
     def getReceiverChain(self, ECPublickKey_senderEphemeral):
         receiverChains = self.sessionStructure.receiverChains
@@ -88,38 +95,33 @@ class SessionState:
             return None
 
         return ChainKey(HKDF.createFor(self.getSessionVersion()),
-                        receiverChain.getChainKey().getKey(),
-                        receiverChain.getChainKey().getIndex())
+                        receiverChain.chainKey.key,
+                        receiverChain.chainKey.index)
 
     def addReceiverChain(self, ECPublickKey_senderRatchetKey, chainKey):
         senderRatchetKey = ECPublickKey_senderRatchetKey
 
-        chainKeyStructure = storageprotos.SessionStructure.Chain.ChainKey()
-        chainKeyStructure.key = chainKey.getKey()
-        chainKeyStructure.index = chainKey.getIndex()
 
         chain = storageprotos.SessionStructure.Chain()
-        chain.key = chainKeyStructure
         chain.senderRatchetKey = senderRatchetKey.serialize()
+        chain.chainKey.key = chainKey.getKey()
+        chain.chainKey.index = chainKey.getIndex()
 
-        self.sessionStructure.receiverChains.append(chain)
+        self.sessionStructure.receiverChains.extend([chain])
 
         if len(self.sessionStructure.receiverChains) > 5:
-            self.sessionStructure.receiverChains.pop(0)
+            self.sessionStructure.receiverChains.remove(0)
 
 
     def setSenderChain(self, ECKeyPair_senderRatchetKeyPair, chainKey):
         senderRatchetKeyPair = ECKeyPair_senderRatchetKeyPair
-        chainKeyStructure = storageprotos.SessionStructure.Chain.ChainKey()
-        chainKeyStructure.key = chainKey.key
-        chainKeyStructure.index = chainKey.index
 
         senderChain = storageprotos.SessionStructure.Chain()
-        senderChain.senderRatchetKey = senderRatchetKeyPair.getPublicKey().serialize()
-        senderChain.senderRatchetKeyPrivate = senderRatchetKeyPair.getPrivateKey().serialize()
-        senderChain.chainKey.MergeFrom(chainKeyStructure)
 
-        self.sessionStructure.senderChain.MergeFrom(senderChain)
+        self.sessionStructure.senderChain.senderRatchetKey = senderRatchetKeyPair.getPublicKey().serialize()
+        self.sessionStructure.senderChain.senderRatchetKeyPrivate = senderRatchetKeyPair.getPrivateKey().serialize()
+        self.sessionStructure.senderChain.chainKey.key = chainKey.key
+        self.sessionStructure.senderChain.chainKey.index = chainKey.index
 
 
     def getSenderChainKey(self):
@@ -128,13 +130,10 @@ class SessionState:
                         chainKeyStructure.key, chainKeyStructure.index)
 
     def setSenderChainKey(self, ChainKey_nextChainKey):
-        nextChainKey = ChainKey
-        chainKey = storageprotos.SessionStructure.Chain.ChainKey()
-        chainKey.key = nextChainKey.getKey()
-        chainKey.index = nextChainKey.getIndex()
-        chain = self.sessionStructure.Chain()
-        chain.chainKey = chainKey
-        self.sessionStructure.senderChain = chain
+        nextChainKey = ChainKey_nextChainKey
+
+        self.sessionStructure.senderChain.chainKey.key = nextChainKey.getKey()
+        self.sessionStructure.senderChain.chainKey.index = nextChainKey.getIndex()
 
 
     def hasMessageKeys(self, ECPublickKey_senderEphemeral, counter):
@@ -178,29 +177,102 @@ class SessionState:
         senderEphemeral = ECPublicKey_senderEphemeral
         chainAndIndex = self.getReceiverChain(senderEphemeral)
         chain = chainAndIndex[0]
-        messageKeyStructure = storageprotos.SessionStructure.Chain.MessageKey()
+        messageKeyStructure = chain.messageKeys.add() #storageprotos.SessionStructure.Chain.MessageKey()
         messageKeyStructure.cipherKey = messageKeys.getCipherKey()
         messageKeyStructure.macKey = messageKeys.getMacKey()
         messageKeyStructure.index = messageKeys.getCounter()
         messageKeyStructure.iv = messageKeys.getIv()
 
 
-        chain.messageKeys.append(messageKeyStructure)
+        #chain.messageKeys.append(messageKeyStructure)
 
-        self.sessionStructure.receiverChains[chainAndIndex[1]] = chain
+        self.sessionStructure.receiverChains[chainAndIndex[1]].CopyFrom(chain)
 
 
     def setReceiverChainKey(self, ECPublicKey_senderEphemeral, chainKey):
         senderEphemeral = ECPublicKey_senderEphemeral
         chainAndIndex = self.getReceiverChain(senderEphemeral)
         chain = chainAndIndex[0]
-        chainKeyStructure = storageprotos.SessionStructure.Chain.ChainKey()
-        chainKeyStructure.key = chainKey.getKey()
-        chainKeyStructure.index = chainKey.getIndex()
+        chain.chainKey.key = chainKey.getKey()
+        chain.chainKey.index = chainKey.getIndex()
 
-        chain.chainkey = chainKeyStructure
-        self.sessionStructure.receiverChains[chainAndIndex[1]] = chain
+        #self.sessionStructure.receiverChains[chainAndIndex[1]].ClearField()
+        self.sessionStructure.receiverChains[chainAndIndex[1]].CopyFrom(chain)
 
+
+    def setPendingKeyExchange(self, sequence, ourBaseKey, ourRatchetKey, ourIdentityKey):
+        """
+        :type sequence: int
+        :type ourBaseKey: ECKeyPair
+        :type ourRatchetKey: ECKeyPair
+        :type  ourIdentityKey: IdentityKeyPair
+        """
+
+        structure = self.sessionStructure.PendingKeyExchange()
+        structure.sequence = sequence
+        structure.localBaseKey = ourBaseKey.getPublicKey().serialize()
+        structure.localBaseKeyPrivate = ourBaseKey.getPrivateKey().serialize()
+        structure.localRatchetKey = ourRatchetKey.getPublicKey().serialize()
+        structure.localRatchetKeyPrivate = ourRatchetKey.getPrivateKey().serialize()
+        structure.localIdentityKey = ourIdentityKey.getPublicKey().serialize()
+        structure.localIdentityKeyPrivate = ourIdentityKey.getPrivateKey().serialize()
+
+        self.sessionStructure.pendingKeyExchange.MergeFrom(structure)
+
+
+    def getPendingKeyExchangeSequence(self):
+        return self.sessionStructure.pendingKeyExchange.sequence
+
+    def getPendingKeyExchangeBaseKey(self):
+        publicKey = Curve.decodePoint(bytearray(self.sessionStructure.pendingKeyExchange.localBaseKey), 0)
+        privateKey = Curve.decodePrivatePoint(self.sessionStructure.pendingKeyExchange.localBaseKeyPrivate)
+        return ECKeyPair(publicKey, privateKey)
+
+
+    def getPendingKeyExchangeRatchetKey(self):
+        publicKey = Curve.decodePoint(bytearray(self.sessionStructure.pendingKeyExchange.localRatchetKey), 0)
+        privateKey = Curve.decodePrivatePoint(self.sessionStructure.pendingKeyExchange.localRatchetKeyPrivate)
+        return ECKeyPair(publicKey, privateKey)
+
+
+    def getPendingKeyExchangeIdentityKey(self):
+        publicKey = IdentityKey(bytearray(self.sessionStructure.pendingKeyExchange\
+                                                            .localIdentityKey), 0)
+
+        privateKey = Curve.decodePrivatePoint(self.sessionStructure.pendingKeyExchange.localIdentityKeyPrivate)
+        return IdentityKeyPair(publicKey, privateKey)
+
+    def hasPendingKeyExchange(self):
+        return self.sessionStructure.HasField("pendingKeyExchange")
+
+
+    def setUnacknowledgedPreKeyMessage(self, preKeyId, signedPreKeyId, baseKey):
+        """
+        :type preKeyId: int
+        :type signedPreKeyId: int
+        :type baseKey: ECPublicKey
+        """
+
+        self.sessionStructure.pendingPreKey.signedPreKeyId = signedPreKeyId
+        self.sessionStructure.pendingPreKey.baseKey = baseKey.serialize()
+
+        if preKeyId is not None:
+            self.sessionStructure.pendingPreKey.preKeyId = preKeyId
+
+    def hasUnacknowledgedPreKeyMessage(self):
+        return self.sessionStructure.HasField("pendingPreKey")
+
+    def getUnacknowledgedPreKeyMessageItems(self):
+        preKeyId = None
+        if self.sessionStructure.pendingPreKey.HasField("preKeyId"):
+            preKeyId = self.sessionStructure.pendingPreKey.preKeyId
+
+        return SessionState.UnacknowledgedPreKeyMessageItems(preKeyId,
+                                     self.sessionStructure.pendingPreKey.signedPreKeyId,
+                                     Curve.decodePoint(bytearray(self.sessionStructure.pendingPreKey\
+                                                                 .baseKey), 0))
+    def clearUnacknowledgedPreKeyMessage(self):
+        self.sessionStructure.ClearField("pendingPreKey")
 
     def setRemoteRegistrationId(self, registrationId):
         self.sessionStructure.remoteRegistrationId = registrationId
@@ -214,5 +286,28 @@ class SessionState:
     def getLocalRegistrationId(self):
         return self.sessionStructure.localRegistrationId
 
+    def serialize(self):
+        return self.sessionStructure.SerializeToString()
 
+
+    class UnacknowledgedPreKeyMessageItems:
+        def __init__(self, preKeyId, signedPreKeyId, baseKey):
+            """
+            :type preKeyId: int
+            :type signedPreKeyId: int
+            :type baseKey: ECPublicKey
+            """
+            self.preKeyId       = preKeyId
+            self.signedPreKeyId = signedPreKeyId
+            self.baseKey        = baseKey
+
+
+        def getPreKeyId(self):
+            return self.preKeyId
+
+        def getSignedPreKeyId(self):
+            return self.signedPreKeyId
+
+        def getBaseKey(self):
+            return self.baseKey
 

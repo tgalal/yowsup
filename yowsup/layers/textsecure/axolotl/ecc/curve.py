@@ -5,8 +5,11 @@ import ctypes
 from djbec import DjbECPrivateKey, DjbECPublicKey
 from eckeypair import ECKeyPair
 
-ctypes.cdll.LoadLibrary("/home/tarek/Projects/yowsup/libs/x86_64/libcurve25519.so")
-_curve = ctypes.CDLL("/home/tarek/Projects/yowsup/libs/x86_64/libcurve25519.so")
+#/home/tarek/Projects/yowsup/libs/x86_64/libcurve25519.so
+PATH_LIB_CURVE = "/mnt/XPlatform/Projects/python-axolotl/build/lib.linux-x86_64-2.7/curve25519.so"
+
+ctypes.cdll.LoadLibrary(PATH_LIB_CURVE)
+_curve = ctypes.CDLL(PATH_LIB_CURVE)
 
 
 class Curve:

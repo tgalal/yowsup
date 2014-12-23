@@ -1,5 +1,6 @@
 from ..ecc.curve import Curve
 from .bobaxolotlparamaters import BobAxolotlParameters
+from .aliceaxolotlparameters import AliceAxolotlParameters
 from ..kdf.hkdf import HKDF
 from ..util.byteutil import ByteUtil
 from .rootkey import RootKey
@@ -15,7 +16,14 @@ class RatchetingSession:
         """
 
         if RatchetingSession.isAlice(parameters.getOurBaseKey().getPublicKey(), parameters.getTheirBaseKey()):
-            raise Exception("IMPL ALICE SESSION!")
+            aliceParameters = AliceAxolotlParameters.newBuilder()
+            aliceParameters.setOurBaseKey(parameters.getOurBaseKey())\
+                     .setOurIdentityKey(parameters.getOurIdentityKey())\
+                     .setTheirRatchetKey(parameters.getTheirRatchetKey())\
+                     .setTheirIdentityKey(parameters.getTheirIdentityKey())\
+                     .setTheirSignedPreKey(parameters.getTheirBaseKey())\
+                     .setTheirOneTimePreKey(None)
+            RatchetingSession.initializeSessionAsAlice(sessionState, sessionVersion, aliceParameters.create())
         else:
             bobParameters = BobAxolotlParameters.newBuilder()
             bobParameters.setOurIdentityKey(parameters.getOurIdentityKey())\
@@ -25,6 +33,44 @@ class RatchetingSession:
                    .setTheirBaseKey(parameters.getTheirBaseKey())\
                    .setTheirIdentityKey(parameters.getTheirIdentityKey())
             RatchetingSession.initializeSessionAsBob(sessionState, sessionVersion, bobParameters.create())
+
+
+    @staticmethod
+    def initializeSessionAsAlice(sessionState, sessionVersion, parameters):
+        """
+        :type sessionState: SessionState
+        :type sessionVersion: int
+        :type parameters: AliceAxolotlParameters
+        """
+
+
+        sessionState.setSessionVersion(sessionVersion)
+        sessionState.setRemoteIdentityKey(parameters.getTheirIdentityKey())
+        sessionState.setLocalIdentityKey(parameters.getOurIdentityKey().getPublicKey())
+
+        sendingRatchetKey = Curve.generateKeyPair()
+        secrets = bytearray()
+
+        if sessionVersion >= 3:
+            secrets.extend(RatchetingSession.getDiscontinuityBytes())
+
+        secrets.extend(Curve.calculateAgreement(parameters.getTheirSignedPreKey(),
+                                             parameters.getOurIdentityKey().getPrivateKey()))
+        secrets.extend(Curve.calculateAgreement(parameters.getTheirIdentityKey().getPublicKey(),
+                                             parameters.getOurBaseKey().getPrivateKey()))
+        secrets.extend(Curve.calculateAgreement(parameters.getTheirSignedPreKey(),
+                                             parameters.getOurBaseKey().getPrivateKey()))
+
+        if sessionVersion >= 3 and parameters.getTheirOneTimePreKey() is not None:
+            secrets.extend(Curve.calculateAgreement(parameters.getTheirOneTimePreKey(), parameters.getOurBaseKey().getPrivateKey()))
+
+        derivedKeys = RatchetingSession.calculateDerivedKeys(sessionVersion, secrets)
+        sendingChain = derivedKeys.getRootKey().createChain(parameters.getTheirRatchetKey(), sendingRatchetKey)
+
+        sessionState.addReceiverChain(parameters.getTheirRatchetKey(), derivedKeys.getChainKey())
+        sessionState.setSenderChain(sendingRatchetKey, sendingChain[1])
+        sessionState.setRootKey(sendingChain[0])
+
 
     @staticmethod
     def initializeSessionAsBob(sessionState, sessionVersion, parameters):
@@ -40,7 +86,7 @@ class RatchetingSession:
 
         secrets = bytearray()
 
-        if sessionState >= 3:
+        if sessionVersion >= 3:
             secrets.extend(RatchetingSession.getDiscontinuityBytes())
 
         secrets.extend(Curve.calculateAgreement(parameters.getTheirIdentityKey().getPublicKey(),
@@ -83,6 +129,10 @@ class RatchetingSession:
 
     class DerivedKeys:
         def __init__(self, rootKey, chainKey):
+            """
+            :type rootKey: RootKey
+            :type  chainKey: ChainKey
+            """
             self.rootKey = rootKey
             self.chainKey = chainKey
 

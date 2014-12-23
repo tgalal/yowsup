@@ -12,11 +12,12 @@ class WhisperMessage(CipherTextMessage):
                  senderIdentityKey = None, receiverIdentityKey = None,
                  serialized = None):
 
+        self.serialized = ""
         if serialized:
             messageParts = ByteUtil.split(serialized, 1, len(serialized) - 1 - WhisperMessage.MAC_LENGTH,
                                           WhisperMessage.MAC_LENGTH)
             version = messageParts[0][0]
-            message = messageParts[1]
+            message = str(messageParts[1])
             mac = messageParts[2]
 
             if ByteUtil.highBitsToInt(version) <= self.__class__.UNSUPPORTED_VERSION:
@@ -45,7 +46,6 @@ class WhisperMessage(CipherTextMessage):
             message.previousCounter = previousCounter
             message.ciphertext = ciphertext
             message = message.SerializeToString()
-
             mac  = self.getMac(messageVersion, senderIdentityKey, receiverIdentityKey, macKey,
                                ByteUtil.combine(version, message))
             self.serialized = ByteUtil.combine(version, message, mac)
@@ -80,9 +80,10 @@ class WhisperMessage(CipherTextMessage):
         mac = hmac.new(macKey, digestmod=hashlib.sha256)
         if messageVersion >= 3:
             mac.update(senderIdentityKey.getPublicKey().serialize())
-            mac.update(receiverIdentityKey.getPublickKey().serialize())
+            mac.update(receiverIdentityKey.getPublicKey().serialize())
 
-        fullMac = mac.update(serialized)
+        mac.update(serialized)
+        fullMac = mac.digest()
         return ByteUtil.trim(fullMac, self.__class__.MAC_LENGTH)
 
     def serialize(self):
@@ -93,19 +94,3 @@ class WhisperMessage(CipherTextMessage):
 
     def isLegacy(self, message):
         return message is not None and len(message) >= 1 and ByteUtil.highBitsToInt(message[0]) <= CipherTextMessage.UNSUPPORTED_VERSION
-
-    # def getMac(self, macKey, serialized):
-    #     fullMac = hmac.new(macKey, serialized, digestmod=hashlib.sha256).digest()
-    #     return fullMac[:self.MAC_LENGTH]
-
-    # def verifyMac(self, macKey):
-    #     ourMac = self.getMac( macKey, self.serialized[:len(self.serialized) - self.MAC_LENGTH] )
-    #     theirMac = self.serialized[len(self.serialized) - self.MAC_LENGTH:][:self.MAC_LENGTH]
-    #
-    #     if not ourMac == theirMac:
-    #         print( "Bad Mac! (inside WhisperMessage verifyMac)")
-
-
-
-
-

@@ -55,6 +55,9 @@ class InMemoryAxolotlStore(AxolotlStore):
     def loadSignedPreKey(self, signedPreKeyId):
         return self.signedPreKeyStore.loadSignedPreKey(signedPreKeyId)
 
+    def loadSignedPreKeys(self):
+        return self.signedPreKeyStore.loadSignedPreKeys()
+
     def storeSignedPreKey(self, signedPreKeyId, signedPreKeyRecord):
         self.signedPreKeyStore.storeSignedPreKey(signedPreKeyId, signedPreKeyRecord)
 
@@ -62,4 +65,4 @@ class InMemoryAxolotlStore(AxolotlStore):
         return self.signedPreKeyStore.containsSignedPreKey(signedPreKeyId)
 
     def removeSignedPreKey(self, signedPreKeyId):
-        return self.signedPreKeyStore.containsSignedPreKey(signedPreKeyId)
+        return self.signedPreKeyStore.containsSignedPreKey()
