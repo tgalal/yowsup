@@ -59,18 +59,26 @@ class Curve:
 
     @staticmethod
     def verifySignature(ecPublicSigningKey, message, signature):
-        result = _curve.curve25519_verify(signature, ecPublicSigningKey.serialize()[1:], message, len(message))
+        result = _curve.curve25519_verify(signature, ecPublicSigningKey.getPublicKey(), message, len(message))
         return result == 0
         # pk = ecPublicSigningKey.serialize()
         #return ed.checkvalid(signature, message, ecPublicSigningKey.serialize()[1:])
         #return ed2.checkvalid(signature, message, ecPublicSigningKey.serialize()[1:])
         # raise Exception("IMPL ME")
 
+    _CALC_ATTEMPTS  = 0
     @staticmethod
     def calculateSignature(ecPrivateSigningKey, message):
         rand = os.urandom(64)
         out = ctypes.c_char_p('')
-        res = _curve.curve25519_sign(out, ecPrivateSigningKey.serialize(), message, len(message), rand)
+        res = _curve.curve25519_sign(out, ecPrivateSigningKey.getPrivateKey(), message, len(message), rand)
+
+        if len(out.value) != 64:
+            if Curve._CALC_ATTEMPTS > 20:
+                raise AssertionError("Couldn't generate a valid signature !!")
+            Curve._CALC_ATTEMPTS += 1
+            return Curve.calculateSignature(ecPrivateSigningKey, message)
+        Curve._CALC_ATTEMPTS = 0
         return out.value
         #return _curve.curve25519_sign()
         #signature =  ed.signature(message, ecPrivateSigningKey.serialize(), rand)
