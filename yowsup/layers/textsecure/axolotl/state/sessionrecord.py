@@ -59,8 +59,8 @@ class SessionRecord:
     def serialize(self):
         previousStructures = [previousState.getStructure() for previousState in self.previousStates]
         record = storageprotos.RecordStructure()
-        record.currentSession = self.sessionState.getStructure()
-        record.previousSessions = previousStructures
+        record.currentSession.MergeFrom(self.sessionState.getStructure())
+        record.previousSessions.extend(previousStructures)
 
         return record.SerializeToString()
 
