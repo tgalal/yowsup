@@ -56,8 +56,8 @@ class SessionCipherTest(unittest.TestCase):
             alicePlaintextMessages.append(bytearray("смерть за смерть %s" % i))
             aliceCiphertextMessages.append(aliceCipher.encrypt(bytearray(("смерть за смерть %s" % i))))
 
-        shuffle(aliceCiphertextMessages)
-        shuffle(alicePlaintextMessages)
+        #shuffle(aliceCiphertextMessages)
+        #shuffle(alicePlaintextMessages)
 
 
         for i in range(0, len(aliceCiphertextMessages)/2):

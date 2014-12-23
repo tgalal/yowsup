@@ -101,7 +101,7 @@ class SessionCipher:
         plaintext = self.decryptWithSessionRecord(sessionRecord, ciphertext.getWhisperMessage())
 
         #callback.handlePlaintext(plaintext);
-        self.sessionStore.storeSession(unsignedPreKeyId)
+        self.sessionStore.storeSession(self.recipientId, self.deviceId, sessionRecord)
 
         if unsignedPreKeyId is not None:
             self.preKeyStore.removePreKey(unsignedPreKeyId)

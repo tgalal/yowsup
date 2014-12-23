@@ -164,12 +164,10 @@ class SessionState:
             messageKey = messageKeyList[i]
             if messageKey.index == counter:
                 result = MessageKeys(messageKey.cipherKey, messageKey.macKey, messageKey.iv, messageKey.index)
-                messageKeyList.pop(i)
+                del messageKeyList[i]
                 break
 
-        updatedChain = chain
-        updatedChain.messageKeys = messageKeyList
-        self.sessionStructure.receiverChains[chainAndIndex[1]] = updatedChain
+        self.sessionStructure.receiverChains[chainAndIndex[1]].CopyFrom(chain)
 
         return result
 
