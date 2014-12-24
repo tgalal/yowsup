@@ -12,6 +12,7 @@ from yowsup.layers.textsecure.axolotl.state.prekeybundle import PreKeyBundle
 from yowsup.layers.textsecure.axolotl.tests.inmemoryaxolotlstore import InMemoryAxolotlStore
 from yowsup.layers.textsecure.axolotl.state.prekeyrecord import PreKeyRecord
 from yowsup.layers.textsecure.axolotl.state.signedprekeyrecord import SignedPreKeyRecord
+from yowsup.layers.textsecure.axolotl.tests.inmemoryidentitykeystore import InMemoryIdentityKeyStore
 class SessionBuilderTest(unittest.TestCase):
     ALICE_RECIPIENT_ID = 5L
     BOB_RECIPIENT_ID   = 2L
@@ -183,6 +184,42 @@ class SessionBuilderTest(unittest.TestCase):
         except Exception:
             #good
             pass
+
+    def test_badSignedPreKeySignature(self):
+        aliceStore          = InMemoryAxolotlStore()
+        aliceSessionBuilder = SessionBuilder(aliceStore, aliceStore, aliceStore, aliceStore,
+                                             self.__class__.BOB_RECIPIENT_ID, 1)
+
+        bobIdentityKeyStore = InMemoryIdentityKeyStore()
+
+        bobPreKeyPair            = Curve.generateKeyPair()
+        bobSignedPreKeyPair      = Curve.generateKeyPair()
+        bobSignedPreKeySignature = Curve.calculateSignature(bobIdentityKeyStore.getIdentityKeyPair().getPrivateKey(),
+                                                                  bobSignedPreKeyPair.getPublicKey().serialize())
+
+        for i in range(0, len(bobSignedPreKeySignature) * 8):
+            modifiedSignature = bytearray(bobSignedPreKeySignature[:])
+            modifiedSignature[i/8] ^= 0x01 << (i % 8)
+
+            bobPreKey = PreKeyBundle(bobIdentityKeyStore.getLocalRegistrationId(), 1,
+                                                31337, bobPreKeyPair.getPublicKey(),
+                                                22, bobSignedPreKeyPair.getPublicKey(), modifiedSignature,
+                                                bobIdentityKeyStore.getIdentityKeyPair().getPublicKey())
+
+            try:
+                aliceSessionBuilder.processPreKeyBundle(bobPreKey)
+            except Exception:
+                pass
+                #good
+        bobPreKey = PreKeyBundle(bobIdentityKeyStore.getLocalRegistrationId(), 1,
+                                              31337, bobPreKeyPair.getPublicKey(),
+                                              22, bobSignedPreKeyPair.getPublicKey(), bobSignedPreKeySignature,
+                                              bobIdentityKeyStore.getIdentityKeyPair().getPublicKey())
+
+        aliceSessionBuilder.processPreKeyBundle(bobPreKey)
+
+
+    
 
     def runInteraction(self, aliceStore, bobStore):
         """
