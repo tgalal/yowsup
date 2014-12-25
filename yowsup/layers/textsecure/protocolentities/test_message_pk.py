@@ -1,9 +1,9 @@
 from yowsup.layers.protocol_messages.protocolentities.test_message import MessageProtocolEntityTest
 from yowsup.layers.textsecure.protocolentities import PkMessageProtocolEntity
 from yowsup.structs import ProtocolTreeNode
-from yowsup.layers.textsecure.entities import ratcheting_session
-from yowsup.layers.textsecure.entities.prekeyrecord import PreKeyRecord
-from yowsup.layers.textsecure.pytextsecure.keyutils import IdentityKeyUtil
+#from yowsup.layers.textsecure.entities import ratcheting_session
+#from yowsup.layers.textsecure.entities.prekeyrecord import PreKeyRecord
+#from yowsup.layers.textsecure.pytextsecure.keyutils import IdentityKeyUtil
 class PkMessageProtocolEntityTest(MessageProtocolEntityTest):
     def setUp(self):
         super(PkMessageProtocolEntityTest, self).setUp()
@@ -29,33 +29,33 @@ class PkMessageProtocolEntityTest(MessageProtocolEntityTest):
         theirIdentityKey = message.identityKey
 
 
-        preKeyRecord = PreKeyRecord(preKeyId)
-        ourBaseKey = preKeyRecord.keyPair
-        ourEphemeralKey = ourBaseKey
-        ourIdentityKey = []#IdentityKeyUtil().getIdentityKeyPair()
-
-        ratcheting_session.initializeSession(self.sessionRecord.sessionState,
-                                             ourBaseKey, theirBaseKey,
-                                             ourEphemeralKey, theirEphemeralKey,
-                                             ourIdentityKey, theirIdentityKey)
-
-        self.sessionRecord.sessionState.setLocalRegistrationId(123)
-        self.sessionRecord.sessionState.setRemoteRegistrationId(message.registrationId)
-
-        #if simultaneousInitiate:
-        #    self.sessionRecord.getSessionState().setNeedsRefresh(True)
-
-        self.sessionRecord.save()
-
-
-        recipient = incomingPushMessageSignal.source
-        recipientDevice = incomingPushMessageSignal.sourceDevice
-
-        #if not SessionRecord().hasSession(recipientDevice):
-        #    sendResult(pushReceiver.RESULT_NO_SESSION)
-
-        sessionCipher = session_cipher.SessionCipher(recipient)
-        plaintextBody = sessionCipher.decrypt(incomingPushMessageSignal.message)
+        # preKeyRecord = PreKeyRecord(preKeyId)
+        # ourBaseKey = preKeyRecord.keyPair
+        # ourEphemeralKey = ourBaseKey
+        # ourIdentityKey = []#IdentityKeyUtil().getIdentityKeyPair()
+        #
+        # ratcheting_session.initializeSession(self.sessionRecord.sessionState,
+        #                                      ourBaseKey, theirBaseKey,
+        #                                      ourEphemeralKey, theirEphemeralKey,
+        #                                      ourIdentityKey, theirIdentityKey)
+        #
+        # self.sessionRecord.sessionState.setLocalRegistrationId(123)
+        # self.sessionRecord.sessionState.setRemoteRegistrationId(message.registrationId)
+        #
+        # #if simultaneousInitiate:
+        # #    self.sessionRecord.getSessionState().setNeedsRefresh(True)
+        #
+        # self.sessionRecord.save()
+        #
+        #
+        # recipient = incomingPushMessageSignal.source
+        # recipientDevice = incomingPushMessageSignal.sourceDevice
+        #
+        # #if not SessionRecord().hasSession(recipientDevice):
+        # #    sendResult(pushReceiver.RESULT_NO_SESSION)
+        #
+        # sessionCipher = session_cipher.SessionCipher(recipient)
+        # plaintextBody = sessionCipher.decrypt(incomingPushMessageSignal.message)
 
 
         #initializeSessionAsBob(sessionState,
