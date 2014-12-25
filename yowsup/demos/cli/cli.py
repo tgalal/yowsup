@@ -1,4 +1,4 @@
-import threading, inspect, shlex
+import threading, inspect, shlex, Queue
 try:
     import readline
 except ImportError:
@@ -19,6 +19,7 @@ class Cli(object):
         self.commands = {}
         self.acceptingInput = False
         self.lastPrompt = True
+        self.blockingQueue = Queue.Queue()
 
         self._queuedCmds = []
 
@@ -46,8 +47,8 @@ class Cli(object):
                    "fn": fn,
                    "order": fn.cliorder
                 }
-        self.cv = threading.Condition()
-        self.inputThread = threading.Thread(target = self.startInputThread, args = (self.cv,))
+        #self.cv = threading.Condition()
+        self.inputThread = threading.Thread(target = self.startInputThread)
         self.inputThread.daemon = True
 
     
@@ -127,11 +128,14 @@ class Cli(object):
         if len(subcmdData["args"]) != len(args):
             return self.print_usage()
 
-        return targetFn(*args)
+        return self.doExecCmd(lambda :targetFn(*args))
+
+    def doExecCmd(self, fn):
+        return fn()
 
 
-    def startInputThread(self, cv):
-        cv.acquire()
+    def startInputThread(self):
+        #cv.acquire()
         # Fix Python 2.x.
         global input
         try: input = raw_input
@@ -143,18 +147,18 @@ class Cli(object):
             wait = self.execCmd(cmd)
             if wait:
                 self.acceptingInput = False
-                cv.wait()
+                self.blockingQueue.get(True)
+                #cv.wait()
                 #self.inputThread.wait()
             self.acceptingInput = True
-
-        cv.release()
+        #cv.release()
 
     def getPrompt(self):
         return "[%s]:" % ("connected" if self.connected else "offline")
 
     def printPrompt(self):
         #return "Enter Message or command: (/%s)" % ", /".join(self.commandMappings)
-        print(self.getPrompt(),)
+        print(self.getPrompt())
 
     def output(self, message, tag = "general", prompt = True):
         if self.acceptingInput == True and self.lastPrompt is True:
@@ -177,9 +181,7 @@ class Cli(object):
                         return cmd
 
     def notifyInputThread(self):
-        self.cv.acquire()
-        self.cv.notify()
-        self.cv.release()
+        self.blockingQueue.put(1)
 
 if __name__ == "__main__":
     c = Cli()
