@@ -7,11 +7,19 @@
 # import packetregulator
 import unittest
 import sys
+import Queue
 
 class YowLayerEvent:
     def __init__(self, name, **kwargs):
         self.name = name
+        self.detached = False
+        if "detached" in kwargs:
+            del kwargs["detached"]
+            self.detached = True
         self.args = kwargs
+
+    def isDetached(self):
+        return self.detached
 
     def getName(self):
         return self.name
@@ -24,6 +32,7 @@ class YowLayer(object):
     __upper = None
     __lower = None
     _props = {}
+    __detachedQueue = Queue.Queue()
     # def __init__(self, upperLayer, lowerLayer):
     #     self.setLayers(upperLayer, lowerLayer)
 
@@ -57,11 +66,21 @@ class YowLayer(object):
 
     def emitEvent(self, yowLayerEvent):
         if self.__upper and not self.__upper.onEvent(yowLayerEvent):
-            self.__upper.emitEvent(yowLayerEvent)
+            if yowLayerEvent.isDetached():
+                yowLayerEvent.detached = False
+                self.getStack().execDetached(lambda :  self.__upper.emitEvent(yowLayerEvent))
+
+            else:
+                self.__upper.emitEvent(yowLayerEvent)
+
 
     def broadcastEvent(self, yowLayerEvent):
         if self.__lower and not self.__lower.onEvent(yowLayerEvent):
-            self.__lower.broadcastEvent(yowLayerEvent)
+            if yowLayerEvent.isDetached():
+                yowLayerEvent.detached = False
+                self.getStack().execDetached(lambda:self.__lower.broadcastEvent(yowLayerEvent))
+            else:
+                self.__lower.broadcastEvent(yowLayerEvent)
 
     '''return true to stop propagating the event'''
     def onEvent(self, yowLayerEvent):
