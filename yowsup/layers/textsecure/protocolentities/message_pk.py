@@ -1,6 +1,6 @@
 from yowsup.layers.protocol_messages.protocolentities import MessageProtocolEntity
 from yowsup.structs import ProtocolTreeNode
-from ..entities.prewhispermessage import PreKeyWhisperMessage
+from axolotl.protocol.prekeywhispermessage import PreKeyWhisperMessage
 class PkMessageProtocolEntity(MessageProtocolEntity):
     '''
     <message retry="1" from="4917675341470@s.whatsapp.net" t="1418906418" offline="1" type="text" id="1418906377-1" notify="Tarek Galal">
@@ -24,7 +24,7 @@ HEX:33089eb3c90312210510e0196be72fe65913c6a84e75a54f40a3ee290574d6a23f408df990e7
         self.encVersion = encVersion
         self.encData = encData
 
-        self.prewhispermessage = PreKeyWhisperMessage(bytearray(encData))
+        self.prewhispermessage = PreKeyWhisperMessage(serialized= bytearray(encData))
 
         #self.registrationId = preKeyWhisperMessage.registrationId
         #self.pkId = preKeyWhisperMessage.preKeyId
