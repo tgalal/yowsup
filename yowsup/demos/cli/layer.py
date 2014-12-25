@@ -91,8 +91,8 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         elif layerEvent.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
             self.output("Disconnected: %s" % layerEvent.getArg("reason"))
             if self.disconnectAction == self.__class__.DISCONNECT_ACTION_PROMPT:
-                self.notifyInputThread()
                 self.connected = False
+                self.notifyInputThread()
             else:
                 os._exit(os.EX_OK)
 
