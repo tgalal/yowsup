@@ -36,7 +36,7 @@ class LiteIdentityKeyStore(IdentityKeyStore):
         c = self.dbConn.cursor()
         c.execute(q)
         result = c.fetchone()
-        return result[0]
+        return result[0] if result else None
 
 
     def storeLocalData(self, registrationId, identityKeyPair):
