@@ -1,3 +1,4 @@
-from .iq_key import KeyIqProtocolEntity
+from .iq_key_get import GetKeysIqProtocolEntity
 from .iq_keys_set import SetKeysIqProtocolEntity
-from .message_pk import PkMessageProtocolEntity
+from .iq_keys_get_result import ResultGetKeysIqProtocolEntity
+from .message_encrypted import EncryptedMessageProtocolEntity
