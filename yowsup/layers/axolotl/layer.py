@@ -22,15 +22,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class YowTextSecureLayer(YowLayer):
-    EVENT_PREKEYS_SET = "org.openwhatsapp.yowsup.events.textsecure.set"
+class YowAxolotlLayer(YowLayer):
+    EVENT_PREKEYS_SET = "org.openwhatsapp.yowsup.events.axololt.setkeys"
     _STATE_INIT = 0
     _STATE_GENKEYS = 1
     _STATE_HASKEYS = 2
     _DB = "axolotl.db"
 
     def __init__(self):
-        super(YowTextSecureLayer, self).__init__()
+        super(YowAxolotlLayer, self).__init__()
         self.store = None
         self.state = self.__class__._STATE_INIT
 

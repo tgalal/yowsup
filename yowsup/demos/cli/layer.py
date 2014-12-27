@@ -20,9 +20,9 @@ from yowsup.layers.protocol_iq.protocolentities          import *
 from yowsup.layers.protocol_contacts.protocolentities    import *
 from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.layers.protocol_chatstate.protocolentities   import *
-from yowsup.layers.textsecure.protocolentities  import *
+from yowsup.layers.axolotl.protocolentities  import *
 from yowsup.layers.protocol_privacy.protocolentities     import *
-from yowsup.layers.textsecure import YowTextSecureLayer
+from yowsup.layers.axolotl import YowAxolotlLayer
 
 ###
 
@@ -196,7 +196,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Send prekeys")
     def keys_set(self):
         if self.assertConnected():
-            self.broadcastEvent(YowLayerEvent(YowTextSecureLayer.EVENT_PREKEYS_SET))
+            self.broadcastEvent(YowLayerEvent(YowAxolotlLayer.EVENT_PREKEYS_SET))
 
     @clicmd("Send init seq")
     def seq(self):
