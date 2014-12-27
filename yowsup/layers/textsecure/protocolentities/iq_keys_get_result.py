@@ -95,7 +95,7 @@ class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
             userNode = ProtocolTreeNode("user", {"jid": jid})
             registrationNode = ProtocolTreeNode("registration", data = self.__class__._intToBytes(preKeyBundle.getRegistrationId()))
             typeNode = ProtocolTreeNode("type", data = self.__class__._intToBytes(Curve.DJB_TYPE))
-            identityNode = ProtocolTreeNode("identity", data = preKeyBundle.getIdentityKey().getPublicKey())
+            identityNode = ProtocolTreeNode("identity", data = preKeyBundle.getIdentityKey().getPublicKey().getPublicKey())
 
             skeyNode = ProtocolTreeNode("skey")
             skeyNode_idNode = ProtocolTreeNode("id", data=self.__class__._intToBytes(preKeyBundle.getSignedPreKeyId()))
