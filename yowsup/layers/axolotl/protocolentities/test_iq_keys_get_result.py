@@ -1,5 +1,5 @@
 from yowsup.layers.protocol_iq.protocolentities.test_iq_result import ResultIqProtocolEntityTest
-from yowsup.layers.textsecure.protocolentities import ResultGetKeysIqProtocolEntity
+from yowsup.layers.axolotl.protocolentities import ResultGetKeysIqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from axolotl.util.keyhelper import KeyHelper
 from axolotl.ecc.curve import Curve

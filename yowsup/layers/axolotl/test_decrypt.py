@@ -2,7 +2,7 @@ import unittest
 from axolotl.protocol.prekeywhispermessage import PreKeyWhisperMessage
 from axolotl.sessionbuilder import SessionBuilder
 from axolotl.sessioncipher import SessionCipher
-from yowsup.layers.textsecure.store.sqlite.liteaxolotlstore import LiteAxolotlStore
+from yowsup.layers.axolotl.store.sqlite.liteaxolotlstore import LiteAxolotlStore
 from axolotl.tests.inmemoryaxolotlstore import InMemoryAxolotlStore
 from axolotl.state.prekeybundle import PreKeyBundle
 from axolotl.protocol.ciphertextmessage import CiphertextMessage

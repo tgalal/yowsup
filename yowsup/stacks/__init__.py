@@ -16,12 +16,12 @@ from yowsup.layers.protocol_notifications      import YowNotificationsProtocolLa
 from yowsup.layers.protocol_iq                 import YowIqProtocolLayer
 from yowsup.layers.protocol_contacts           import YowContactsIqProtocolLayer
 from yowsup.layers.protocol_chatstate          import YowChatstateProtocolLayer
-from yowsup.layers.textsecure                  import YowTextSecureLayer
+from yowsup.layers.axolotl                  import YowAxolotlLayer
 from yowsup.layers.protocol_privacy            import YowPrivacyProtocolLayer
 
 
 YOWSUP_CORE_LAYERS = (
-    YowTextSecureLayer,
+    YowAxolotlLayer,
     YowLoggerLayer,
     YowCoderLayer,
     YowCryptLayer,
