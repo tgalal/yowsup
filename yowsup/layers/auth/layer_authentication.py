@@ -10,6 +10,7 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
     EVENT_LOGIN      = "org.openwhatsapp.yowsup.event.auth.login"
     EVENT_AUTHED  = "org.openwhatsapp.yowsup.event.auth.authed"
     PROP_CREDENTIALS = "org.openwhatsapp.yowsup.prop.auth.credentials"
+    PROP_PASSIVE = "org.openwhatsapp.yowsup.prop.auth.passive"
 
     def __init__(self):
         handleMap = {
@@ -48,7 +49,7 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         nodeEntity = StreamFeaturesProtocolEntity.fromProtocolTreeNode(node)
 
     def handleSuccess(self, node):
-        successEvent = YowLayerEvent(self.__class__.EVENT_AUTHED)
+        successEvent = YowLayerEvent(self.__class__.EVENT_AUTHED, passive = self.getProp(self.__class__.PROP_PASSIVE))
         self.broadcastEvent(successEvent)
         nodeEntity = SuccessProtocolEntity.fromProtocolTreeNode(node)
         self.toUpper(nodeEntity)
@@ -68,7 +69,8 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         self.entityToLower(StreamFeaturesProtocolEntity(["readreceipts", "groups_v2", "privacy", "presence"]))
 
     def _sendAuth(self):
-        self.entityToLower(AuthProtocolEntity(self.credentials[0], passive=False))
+        passive = self.getProp(self.__class__.PROP_PASSIVE, False)
+        self.entityToLower(AuthProtocolEntity(self.credentials[0], passive=passive))
 
     def _sendResponse(self,nonce):
         keys = KeyStream.generateKeys(self.credentials[1], nonce)
