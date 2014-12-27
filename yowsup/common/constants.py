@@ -1,5 +1,6 @@
 import base64
 import hashlib
+import os
 class YowConstants:
     DOMAIN       = "s.whatsapp.net"
     RESOURCE     = "Android-2.11.471-443"#"S40-2.12.53"
@@ -14,6 +15,8 @@ class YowConstants:
         "t": "PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk1416435341393{phone}",
         "d": "Android"
     }
+    PATH_STORAGE = "~/.yowsup"
+
     #######ANDROID
     SIGNATURE = "MIIDMjCCAvCgAwIBAgIETCU2pDALBgcqhkjOOAQDBQAwfDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFDASBgNV" \
                 "BAcTC1NhbnRhIENsYXJhMRYwFAYDVQQKEw1XaGF0c0FwcCBJbmMuMRQwEgYDVQQLEwtFbmdpbmVlcmluZzEUMBIGA1UEAxMLQnJ" \
