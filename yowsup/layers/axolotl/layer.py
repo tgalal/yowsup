@@ -170,7 +170,9 @@ class YowAxolotlLayer(YowLayer):
 
             sessionCipher = self.getSessionCipher(recipient_id)
 
-            ciphertext = sessionCipher.encrypt(bytearray(plaintext))
+
+
+            ciphertext = sessionCipher.encrypt(plaintext)
             encEntity = EncryptedMessageProtocolEntity(
                 EncryptedMessageProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncryptedMessageProtocolEntity.TYPE_PKMSG ,
                                                    "%s/%s" % (CURRENT_ENV.getOSName(), CURRENT_ENV.getVersion()),

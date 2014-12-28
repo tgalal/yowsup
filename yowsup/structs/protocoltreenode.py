@@ -43,7 +43,7 @@ class ProtocolTreeNode(object):
                 out += "%s" % self.data
 
             if type(self.data) is str and sys.version_info >= (3,0):
-                out += "\nHEX:%s" % binascii.hexlify(self.data.encode())
+                out += "\nHEX3:%s" % binascii.hexlify(self.data.encode('latin-1'))
             else:
                 out += "\nHEX:%s" % binascii.hexlify(self.data)
         

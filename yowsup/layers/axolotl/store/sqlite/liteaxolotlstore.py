@@ -7,7 +7,7 @@ import sqlite3
 class LiteAxolotlStore(AxolotlStore):
     def __init__(self, db):
         conn = sqlite3.connect(db, check_same_thread=False)
-        conn.text_factory = str
+        conn.text_factory = bytes
         self.identityKeyStore = LiteIdentityKeyStore(conn)
         self.preKeyStore =  LitePreKeyStore(conn)
         self.signedPreKeyStore = LiteSignedPreKeyStore(conn)

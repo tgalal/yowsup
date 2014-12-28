@@ -5,6 +5,7 @@ from axolotl.identitykey import IdentityKey
 from axolotl.ecc.curve import Curve
 from axolotl.ecc.djbec import DjbECPublicKey
 import binascii
+import sys
 class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
     """
     <iq type="result" from="s.whatsapp.net" id="3">
@@ -56,8 +57,17 @@ class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
 
     @staticmethod
     def _bytesToInt(val):
-        return int(binascii.hexlify(val), 16)
+        if sys.version_info >= (3,0):
+            valEnc = val.encode('latin-1')
+        else:
+            valEnc = val
+        return int(binascii.hexlify(valEnc), 16)
 
+    @staticmethod
+    def encStr(string):
+        if sys.version_info >= (3,0):
+            return string.encode('latin-1')
+        return string
 
     @staticmethod
     def fromProtocolTreeNode(node):
@@ -69,14 +79,14 @@ class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
             preKeyNode = userNode.getChild("key")
             signedPreKeyNode = userNode.getChild("skey")
             registrationId = ResultGetKeysIqProtocolEntity._bytesToInt(userNode.getChild("registration").getData())
-            identityKey = IdentityKey(DjbECPublicKey(userNode.getChild("identity").getData()))
+            identityKey = IdentityKey(DjbECPublicKey(ResultGetKeysIqProtocolEntity.encStr(userNode.getChild("identity").getData())))
 
             preKeyId = ResultGetKeysIqProtocolEntity._bytesToInt(preKeyNode.getChild("id").getData())
-            preKeyPublic = DjbECPublicKey(preKeyNode.getChild("value").getData())
+            preKeyPublic = DjbECPublicKey(ResultGetKeysIqProtocolEntity.encStr(preKeyNode.getChild("value").getData()))
 
             signedPreKeyId = ResultGetKeysIqProtocolEntity._bytesToInt(signedPreKeyNode.getChild("id").getData())
-            signedPreKeySig = signedPreKeyNode.getChild("signature").getData()
-            signedPreKeyPub = DjbECPublicKey(signedPreKeyNode.getChild("value").getData())
+            signedPreKeySig = ResultGetKeysIqProtocolEntity.encStr(signedPreKeyNode.getChild("signature").getData())
+            signedPreKeyPub = DjbECPublicKey(ResultGetKeysIqProtocolEntity.encStr(signedPreKeyNode.getChild("value").getData()))
 
             preKeyBundle = PreKeyBundle(registrationId, 1, preKeyId, preKeyPublic,
                                         signedPreKeyId, signedPreKeyPub, signedPreKeySig, identityKey)
