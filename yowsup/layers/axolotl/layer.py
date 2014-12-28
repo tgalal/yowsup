@@ -15,7 +15,7 @@ from .protocolentities import EncryptedMessageProtocolEntity
 from axolotl.sessioncipher import SessionCipher
 from yowsup.structs import ProtocolTreeNode
 from .protocolentities import GetKeysIqProtocolEntity, ResultGetKeysIqProtocolEntity
-from axolotl.state.prekeybundle import PreKeyBundle
+from yowsup.env import CURRENT_ENV
 import binascii
 
 import logging
@@ -39,6 +39,9 @@ class YowAxolotlLayer(YowLayer):
         self.pendingMessages = {}
         self.pendingGetKeysIqs = {}
         self.skipEncJids = []
+
+    def __str__(self):
+        return "Axolotl Layer"
 
     def send(self, node):
         if node.tag == "message" and node["type"] == "text" and node["to"] not in self.skipEncJids:
@@ -175,7 +178,7 @@ class YowAxolotlLayer(YowLayer):
             ciphertext = sessionCipher.encrypt(bytearray(plaintext))
             encEntity = EncryptedMessageProtocolEntity(
                 EncryptedMessageProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncryptedMessageProtocolEntity.TYPE_PKMSG ,
-                                                   "Android/%s" % YowConstants.DATA_CLIENT["v"],
+                                                   "%s/%s" % (CURRENT_ENV.getOSName(), CURRENT_ENV.getVersion()),
                                                    1,
                                                    ciphertext.serialize(),
                                                    MessageProtocolEntity.MESSAGE_TYPE_TEXT,

@@ -20,7 +20,6 @@ from yowsup.layers.protocol_iq.protocolentities          import *
 from yowsup.layers.protocol_contacts.protocolentities    import *
 from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.layers.protocol_chatstate.protocolentities   import *
-from yowsup.layers.axolotl.protocolentities  import *
 from yowsup.layers.protocol_privacy.protocolentities     import *
 from yowsup.layers.axolotl import YowAxolotlLayer
 
