@@ -6,3 +6,5 @@ from .iq_groups_info        import InfoGroupsIqProtocolEntity
 from .iq_result_groups_list import ListGroupsResultIqProtocolEntity
 #from .iq_groups_participants_add import AddParticipantsIqProtocolEntity
 #from .iq_groups_participants_remove import RemoveParticipantsIqProtocolEntity
+from .notification_group    import GroupNotificationProtocolEntity
+from .notification_subject  import SubjectNotificationProtocolEntity

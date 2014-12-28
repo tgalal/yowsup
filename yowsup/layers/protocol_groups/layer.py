@@ -14,7 +14,8 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
 
     def __init__(self):
         handleMap = {
-            "iq": (self.recvIq, self.sendIq)
+            "iq": (self.recvIq, self.sendIq),
+            "notification": (self.recvNotification, None)
         }
         super(YowGroupsProtocolLayer, self).__init__(handleMap)
 
@@ -28,3 +29,7 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
     def recvIq(self, node):
         if node["type"] == "result" and len(node.getAllChildren()):
             self.toUpper(ListGroupsResultIqProtocolEntity.fromProtocolTreeNode(node))
+
+    def recvNotification(self, node):
+        if node["type"] == "subject":
+            self.toUpper(SubjectNotificationProtocolEntity.fromProtocolTreeNode(node))

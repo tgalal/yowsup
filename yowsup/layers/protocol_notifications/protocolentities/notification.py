@@ -26,6 +26,9 @@ class NotificationProtocolEntity(ProtocolEntity):
     def getId(self):
         return self._id
 
+    def getTimestamp(self):
+        return self.timestmap
+
     def toProtocolTreeNode(self):
         attribs = {
             "t"         : str(self.timestmap),
