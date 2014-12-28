@@ -14,8 +14,7 @@ class ListParticipantsResultIqProtocolEntity(GroupResultIqProtocolEntity):
 
     def __str__(self):
         out = super(ListParticipantsResultIqProtocolEntity, self).__str__()
-        for g in self.participantList:
-            out += "%s\n" % g
+        out += "Participants: %s\n" % " ".join(self.participantList)
         return out
 
     def getParticipants(self):

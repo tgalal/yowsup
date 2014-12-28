@@ -3,7 +3,7 @@ from .iq import IqProtocolEntity
 class ResultIqProtocolEntity(IqProtocolEntity):
 
     '''
-    <iq type="result" id="{{id}}" from={{FROM}}">
+    <iq type="result" id="{{id}}" from="{{FROM}}">
     </iq>
     '''
 
