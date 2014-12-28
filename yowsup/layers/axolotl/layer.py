@@ -38,9 +38,10 @@ class YowAxolotlLayer(YowLayer):
         self.sessionCiphers = {}
         self.pendingMessages = {}
         self.pendingGetKeysIqs = {}
+        self.skipEncJids = []
 
     def send(self, node):
-        if node.tag == "message" and node["type"] == "text":
+        if node.tag == "message" and node["type"] == "text" and node["to"] not in self.skipEncJids:
             self.handlePlaintextNode(node)
             return
         self.toLower(node)
@@ -84,6 +85,9 @@ class YowAxolotlLayer(YowLayer):
                     sessionBuilder.processPreKeyBundle(preKeyBundle)
 
                     self.processPendingMessages(jid)
+                else:
+                    self.skipEncJids.append(jid)
+                    self.processPendingMessages(jid)
 
 
                 #registrationId =
@@ -101,7 +105,10 @@ class YowAxolotlLayer(YowLayer):
     def processPendingMessages(self, jid):
         if jid in self.pendingMessages:
             for messageNode in self.pendingMessages[jid]:
-                self.handlePlaintextNode(messageNode)
+                if jid in self.skipEncJids:
+                    self.toLower(messageNode)
+                else:
+                    self.handlePlaintextNode(messageNode)
 
             del self.pendingMessages[jid]
 
