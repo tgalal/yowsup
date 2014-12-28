@@ -3,7 +3,7 @@ __version__ = "2.0.2"
 __author__ = "Tarek Galal"
 
 import sys, argparse, yowsup, logging
-from yowsup.demos import cli, echoclient
+from yowsup.demos import cli, echoclient, sendclient
 from yowsup.registration import WACodeRequest, WARegRequest, WAExistsRequest
 from yowsup.common.tools import WATools
 
@@ -231,12 +231,19 @@ class DemosArgParser(YowArgParser):
         echoOpts = self.add_argument_group("Echo client demo")
         echoOpts.add_argument('-e', '--echo', action = "store_true", help = "Start the Yowsup Echo client")
 
+        sendOpts = self.add_argument_group("Send client demo")
+        sendOpts.add_argument('-s', '--send', action="store", help = "Send a message to specified phone number, "
+                                                                     "wait for server receipt and exit",
+                              metavar=("phone", "message"), nargs = 2)
+
     def process(self):
         super(DemosArgParser, self).process()
         if self.args["yowsup"]:
             self.startCmdline()
         elif self.args["echo"]:
             self.startEcho()
+        elif self.args["send"]:
+            self.startSendClient()
         else:
             return False
         return True
@@ -266,6 +273,20 @@ class DemosArgParser(YowArgParser):
             sys.exit(1)
         try:
             stack = echoclient.YowsupEchoStack(credentials, self.args["moxie"])
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+    def startSendClient(self):
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+
+        try:
+            stack = sendclient.YowsupSendStack(credentials, [([self.args["send"][0], self.args["send"][1]])],
+                                               self.args["moxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
