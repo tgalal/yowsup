@@ -22,6 +22,9 @@ class ListGroupsResultIqProtocolEntity(GroupsResultIqProtocolEntity):
             out += "\n"
         return out
 
+    def getGroups(self):
+        return self.groupsList
+
     def setProps(self, groupsList):
         assert type(groupsList) is list and len(groupsList) > 0 and groupsList[0].__class__ is Group,\
             "groupList must be a list of Group instances"

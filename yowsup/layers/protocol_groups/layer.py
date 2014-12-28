@@ -26,5 +26,5 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
             self.entityToLower(entity)
 
     def recvIq(self, node):
-        return
-
+        if node["type"] == "result" and len(node.getAllChildren()):
+            self.toUpper(ListGroupsResultIqProtocolEntity.fromProtocolTreeNode(node))
