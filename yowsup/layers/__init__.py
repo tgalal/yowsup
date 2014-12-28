@@ -1,13 +1,8 @@
-# import auth
-# import coder
-# import media
-# import logger
-# import network
-# import protocol
-# import packetregulator
 import unittest
-import sys
-import Queue
+try:
+    import Queue
+except ImportError:
+    import queue as Queue
 
 class YowLayerEvent:
     def __init__(self, name, **kwargs):

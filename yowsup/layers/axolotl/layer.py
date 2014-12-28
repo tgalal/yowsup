@@ -1,20 +1,20 @@
 from yowsup.layers import YowLayer, YowLayerEvent
-from protocolentities import SetKeysIqProtocolEntity
+from .protocolentities import SetKeysIqProtocolEntity
 from axolotl.util.keyhelper import KeyHelper
-from store.sqlite.liteaxolotlstore import LiteAxolotlStore
+from .store.sqlite.liteaxolotlstore import LiteAxolotlStore
 from axolotl.sessionbuilder import SessionBuilder
 from yowsup.layers.protocol_messages.protocolentities.message import MessageProtocolEntity
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from axolotl.ecc.curve import Curve
 from yowsup.common.tools import StorageTools
-from yowsup.common.constants import YowConstants
 from axolotl.protocol.prekeywhispermessage import PreKeyWhisperMessage
 from axolotl.protocol.whispermessage import WhisperMessage
 from .protocolentities import EncryptedMessageProtocolEntity
 from axolotl.sessioncipher import SessionCipher
 from yowsup.structs import ProtocolTreeNode
 from .protocolentities import GetKeysIqProtocolEntity, ResultGetKeysIqProtocolEntity
+from axolotl.util.hexutil import HexUtil
 from yowsup.env import CURRENT_ENV
 import binascii
 
@@ -92,11 +92,6 @@ class YowAxolotlLayer(YowLayer):
                     self.skipEncJids.append(jid)
                     self.processPendingMessages(jid)
 
-
-                #registrationId =
-                #preKeyBundle = PreKeyBundle()
-
-
                 return
         elif protocolTreeNode.tag == "message":
             encNode = protocolTreeNode.getChild("enc")
@@ -117,7 +112,7 @@ class YowAxolotlLayer(YowLayer):
 
     def onEvent(self, yowLayerEvent):
         if yowLayerEvent.getName() == self.__class__.EVENT_PREKEYS_SET:
-            self.sendKeys()
+            self._sendKeys()
         elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
             self.initStore()
             if self.isInitState():
@@ -156,7 +151,7 @@ class YowAxolotlLayer(YowLayer):
         return self.state == self.__class__._STATE_GENKEYS
 
     def adjustArray(self, arr):
-        return binascii.hexlify(arr).decode('hex')
+        return HexUtil.decodeHex(binascii.hexlify(arr))
 
 
     def handlePlaintextNode(self, node):
@@ -235,33 +230,6 @@ class YowAxolotlLayer(YowLayer):
         #     _id = "0" + _id
         return binascii.unhexlify(_id)
 
-
-    def xxx_sendKeys(self):
-        self.genKeys()
-        return
-        identityKeyPair = self.store.getIdentityKeyPair()
-        registrationId = self.store.getLocalRegistrationId()
-        preKeys = self.store.loadPreKeys()[:2]
-        signedPreKey = self.store.loadSignedPreKeys()[0]
-
-        preKeysDict = {}
-        for preKey in preKeys:
-            keyPair = preKey.getKeyPair()
-            preKeysDict[self.adjustId(preKey.getId())] = self.adjustArray(keyPair.getPublicKey().serialize()[1:])
-
-        signedKeyTuple = (self.adjustId(signedPreKey.getId()),
-                          self.adjustArray(signedPreKey.getKeyPair().getPublicKey().serialize()[1:]),
-                          self.adjustArray(signedPreKey.getSignature()))
-
-
-        setKeysIq = SetKeysIqProtocolEntity(self.adjustArray(identityKeyPair.getPublicKey().serialize()[1:]), signedKeyTuple, preKeysDict, Curve.DJB_TYPE, self.adjustId(registrationId))
-
-
-        print(setKeysIq.toProtocolTreeNode())
-
-        # self.toLower(setKeysIq.toProtocolTreeNode())
-
-
     def _sendKeys(self):
         logger.debug("Generating Identity...")
         identityKeyPair     = KeyHelper.generateIdentityKeyPair()
@@ -281,8 +249,6 @@ class YowAxolotlLayer(YowLayer):
                           self.adjustArray(signedPreKey.getKeyPair().getPublicKey().serialize()[1:]),
                           self.adjustArray(signedPreKey.getSignature()))
 
-        print registrationId
-
         setKeysIq = SetKeysIqProtocolEntity(self.adjustArray(identityKeyPair.getPublicKey().serialize()[1:]), signedKeyTuple, preKeysDict, Curve.DJB_TYPE, self.adjustId(registrationId))
 
         self.pendingKeys = {
@@ -294,31 +260,5 @@ class YowAxolotlLayer(YowLayer):
         }
 
         logger.debug("Dropping payload")
-        self.toLower(setKeysIq.toProtocolTreeNode())
-
-
-    def genKeys(self):
-        identityKeyPair     = KeyHelper.generateIdentityKeyPair()
-        registrationId      = KeyHelper.generateRegistrationId()
-        preKeys             = KeyHelper.generatePreKeys(7493876, 200)
-        signedPreKey        = KeyHelper.generateSignedPreKey(identityKeyPair, 0)
-
-
-        self.store.storeLocalData(registrationId, identityKeyPair)
-        self.store.storeSignedPreKey(signedPreKey.getId(), signedPreKey)
-
-        preKeysDict = {}
-        for preKey in preKeys:
-            self.store.storePreKey(preKey.getId(), preKey)
-            keyPair = preKey.getKeyPair()
-            preKeysDict[self.adjustId(preKey.getId())] = self.adjustArray(keyPair.getPublicKey().serialize()[1:])
-
-        signedKeyTuple = (self.adjustId(signedPreKey.getId()),
-                          self.adjustArray(signedPreKey.getKeyPair().getPublicKey().serialize()[1:]),
-                          self.adjustArray(signedPreKey.getSignature()))
-
-
-        print registrationId
-        setKeysIq = SetKeysIqProtocolEntity(self.adjustArray(identityKeyPair.getPublicKey().serialize()[1:]), signedKeyTuple, preKeysDict, self.__class__.TYPE_DJB, self.adjustId(registrationId))
         self.toLower(setKeysIq.toProtocolTreeNode())
 
