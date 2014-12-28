@@ -222,7 +222,8 @@ class DemosArgParser(YowArgParser):
         credentialsOpts.add_argument("-c", "--config", action="store",
                                      help = "Path to config file containing authentication info. For more info about config format use --help-config")
 
-        configGroup.add_argument("-m", "--moxie", action="store_true", help="Enable the new WhatsApp encryption")
+        configGroup.add_argument("-m", "--moxie", action="store_true", help="Enable experimental support for the"
+                                                                            " new WhatsApp encryption")
 
         cmdopts = self.add_argument_group("Command line interface demo")
         cmdopts.add_argument('-y', '--yowsup', action = "store_true", help = "Start the Yowsup command line client")
@@ -264,7 +265,7 @@ class DemosArgParser(YowArgParser):
             print("Error: You must specify a configuration method")
             sys.exit(1)
         try:
-            stack = echoclient.YowsupEchoStack(credentials)
+            stack = echoclient.YowsupEchoStack(credentials, self.args["moxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
