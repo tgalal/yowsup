@@ -1,7 +1,7 @@
 import urllib,sys, os, logging
 import hashlib
 from .waresponseparser import ResponseParser
-from yowsup.common.constants import YowConstants
+from yowsup.env import CURRENT_ENV
 
 if sys.version_info < (3, 0):
     import httplib
@@ -56,17 +56,7 @@ class WARequest(object):
         self.params = []
 
     def getUserAgent(self):
-
-        tokenData = None #Utilities.readToken()
-
-        if tokenData:
-            agent = tokenData["u"]
-        else:
-            agent = YowConstants.DATA_CLIENT["u"]
-        return agent
-
-    def getToken(self, phone, token):
-        return hashlib.md5(token.format(phone=phone).encode()).hexdigest()
+        return CURRENT_ENV.getUserAgent()
 
     def send(self, parser = None):
 
