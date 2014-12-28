@@ -8,6 +8,7 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
         InfoGroupsIqProtocolEntity,
         LeaveGroupsIqProtocolEntity,
         ListGroupsIqProtocolEntity,
+        SubjectGroupsIqProtocolEntity,
         ParticipantsGroupsIqProtocolEntity
         #AddPariticipantsIqProtocolEntity,
         #RemoveParticipantsIqProtocolEntity
@@ -28,9 +29,9 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
             self.entityToLower(entity)
 
     def recvIq(self, node):
-        if node["type"] == "result" and node["from"] == "g.us" and len(node.getAllChildren()):
+        if node["type"] == "result" and node["from"] == "g.us" and len(node.getAllChildren()) > 0:
             self.toUpper(ListGroupsResultIqProtocolEntity.fromProtocolTreeNode(node))
-        elif node["type"] == "result" and len(node.getAllChildren()):
+        elif node["type"] == "result" and len(node.getAllChildren()) > 0:
             self.toUpper(ListParticipantsResultIqProtocolEntity.fromProtocolTreeNode(node))
 
     def recvNotification(self, node):
