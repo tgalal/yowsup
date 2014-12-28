@@ -1,6 +1,9 @@
 from yowsup.layers import YowParallelLayer
 import asyncore, time, logging
-import Queue
+try:
+    import Queue
+except ImportError:
+    import queue as Queue
 logger = logging.getLogger(__name__)
 
 class YowStack(object):

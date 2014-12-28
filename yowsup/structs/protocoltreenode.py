@@ -1,4 +1,5 @@
 import binascii
+import sys
 class ProtocolTreeNode(object):
     def __init__(self, tag, attributes = None, children = None, data = None):
 
@@ -26,11 +27,11 @@ class ProtocolTreeNode(object):
         return hash(self.tag) ^ hash(tuple(self.attributes.items())) ^ hash(self.data)
 
     def toString(self):
-        out = "<"+self.tag;
+        out = "<"+self.tag
         if self.attributes is not None:
             for key,val in self.attributes.items():
                 out+= " "+key+'="'+val+'"'
-        out+= ">\n";
+        out+= ">\n"
 
         if self.data is not None:
             if type(self.data) is bytearray:
@@ -41,7 +42,10 @@ class ProtocolTreeNode(object):
             else:
                 out += "%s" % self.data
 
-            out += "\nHEX:%s" % binascii.hexlify(self.data)
+            if type(self.data) is str and sys.version_info >= (3,0):
+                out += "\nHEX:%s" % binascii.hexlify(self.data.encode())
+            else:
+                out += "\nHEX:%s" % binascii.hexlify(self.data)
         
         for c in self.children:
            out += c.toString()
@@ -62,7 +66,7 @@ class ProtocolTreeNode(object):
     
     @staticmethod   
     def tagEquals(node,string):
-        return node is not None and node.tag is not None and node.tag == string;
+        return node is not None and node.tag is not None and node.tag == string
         
         
     @staticmethod

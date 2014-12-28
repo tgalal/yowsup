@@ -2,6 +2,17 @@ import time,datetime,re, hashlib
 from dateutil import tz
 import os
 from .constants import YowConstants
+import codecs, sys
+
+
+class HexTools:
+    decode_hex = codecs.getdecoder("hex_codec")
+    @staticmethod
+    def decodeHex(hexString):
+        result = HexTools.decode_hex(hexString)[0]
+        if sys.version_info >= (3,0):
+            result = result.decode('latin-1')
+        return result
 
 class WATools:
     @staticmethod

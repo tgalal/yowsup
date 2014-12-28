@@ -1,4 +1,8 @@
-import threading, inspect, shlex, Queue
+import threading, inspect, shlex
+try:
+    import Queue
+except ImportError:
+    import queue as Queue
 try:
     import readline
 except ImportError:
