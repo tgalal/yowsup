@@ -26,6 +26,8 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
             self.toUpper(StatusNotificationProtocolEntity.fromProtocolTreeNode(node))
         elif node["type"] == "features":
             pass
+        elif node["type"] == "contacts":
+            pass
         else:
             self.raiseErrorForNode(node)
 
