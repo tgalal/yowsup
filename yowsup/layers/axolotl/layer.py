@@ -17,6 +17,8 @@ from .protocolentities import GetKeysIqProtocolEntity, ResultGetKeysIqProtocolEn
 from axolotl.util.hexutil import HexUtil
 from yowsup.env import CURRENT_ENV
 from axolotl.invalidmessageexception import InvalidMessageException
+from .protocolentities import EncryptNotification
+from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
 import binascii
 import sys
 
@@ -57,9 +59,13 @@ class YowAxolotlLayer(YowLayer):
         """
         if protocolTreeNode.tag == "iq":
             if self.pendingKeys and self.pendingKeys["iq"] == protocolTreeNode["id"]:
-                logger.info("Persisting keys, this will take a minute")
-                self.store.storeLocalData(self.pendingKeys["registrationId"], self.pendingKeys["identityKeyPair"])
-                logger.debug("Stored RegistrationId, and IdentityKeyPair")
+
+                if protocolTreeNode["type"] == "error":
+                    raise Exception("Sent keys where not accepted")
+
+                if self.pendingKeys["fresh"]:
+                    self.store.storeLocalData(self.pendingKeys["registrationId"], self.pendingKeys["identityKeyPair"])
+                    logger.debug("Stored RegistrationId, and IdentityKeyPair")
                 self.store.storeSignedPreKey(self.pendingKeys["signedPreKey"].getId(), self.pendingKeys["signedPreKey"])
                 logger.debug("Stored Signed PreKey")
                 total = len(self.pendingKeys["preKeys"])
@@ -93,13 +99,18 @@ class YowAxolotlLayer(YowLayer):
                 else:
                     self.skipEncJids.append(jid)
                     self.processPendingMessages(jid)
-
                 return
         elif protocolTreeNode.tag == "message":
             encNode = protocolTreeNode.getChild("enc")
             if encNode:
                 self.handleEncMessage(protocolTreeNode)
                 return
+        elif protocolTreeNode.tag == "notification" and protocolTreeNode["type"] == "encrypt":
+            entity = EncryptNotification.fromProtocolTreeNode(protocolTreeNode)
+            ack = OutgoingAckProtocolEntity(protocolTreeNode["id"], "notification", protocolTreeNode["type"])
+            self.toLower(ack.toProtocolTreeNode())
+            self._sendKeys(fresh=False, countPreKeys=20)
+            return
         self.toUpper(protocolTreeNode)
 
     def processPendingMessages(self, jid):
@@ -238,16 +249,11 @@ class YowAxolotlLayer(YowLayer):
         #     _id = "0" + _id
         return binascii.unhexlify(_id)
 
-    def _sendKeys(self):
-        logger.debug("Generating Identity...")
-        identityKeyPair     = KeyHelper.generateIdentityKeyPair()
-        logger.debug("Generating Registration Id...")
-        registrationId      = KeyHelper.generateRegistrationId()
-        logger.debug("Generating 200 PreKeys...")
-        preKeys             = KeyHelper.generatePreKeys(7493876, 10)
-        logger.debug("Generating Signed PreKey")
-        signedPreKey        = KeyHelper.generateSignedPreKey(identityKeyPair, 0)
-        logger.debug("Preparing payload")
+    def _sendKeys(self, fresh = True, countPreKeys = 10):
+        identityKeyPair     = KeyHelper.generateIdentityKeyPair() if fresh else self.store.getIdentityKeyPair()
+        registrationId      = KeyHelper.generateRegistrationId() if fresh else self.store.getLocalRegistrationId()
+        preKeys             = KeyHelper.generatePreKeys(KeyHelper.getRandomSequence(), countPreKeys)
+        signedPreKey        = KeyHelper.generateSignedPreKey(identityKeyPair, KeyHelper.getRandomSequence(65536))
         preKeysDict = {}
         for preKey in preKeys:
             keyPair = preKey.getKeyPair()
@@ -258,15 +264,15 @@ class YowAxolotlLayer(YowLayer):
                           self.adjustArray(signedPreKey.getSignature()))
 
         setKeysIq = SetKeysIqProtocolEntity(self.adjustArray(identityKeyPair.getPublicKey().serialize()[1:]), signedKeyTuple, preKeysDict, Curve.DJB_TYPE, self.adjustId(registrationId))
-
         self.pendingKeys = {
-            "iq": setKeysIq.getId(),
-            "identityKeyPair": identityKeyPair,
-            "registrationId": registrationId,
-            "preKeys": preKeys,
-            "signedPreKey": signedPreKey
+                "iq": setKeysIq.getId(),
+                "identityKeyPair": identityKeyPair,
+                "registrationId": registrationId,
+                "preKeys": preKeys,
+                "signedPreKey": signedPreKey,
+                "fresh": fresh
         }
 
-        logger.debug("Dropping payload")
+        logger.debug("Deploying payload")
         self.toLower(setKeysIq.toProtocolTreeNode())
 
