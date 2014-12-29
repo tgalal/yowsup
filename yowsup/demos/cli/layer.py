@@ -21,6 +21,7 @@ from yowsup.layers.protocol_contacts.protocolentities    import *
 from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.layers.protocol_chatstate.protocolentities   import *
 from yowsup.layers.protocol_privacy.protocolentities     import *
+from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
 from yowsup.layers.axolotl import YowAxolotlLayer
 
 ###
@@ -189,7 +190,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Get shared keys")
     def keys_get(self, jid):
         if self.assertConnected():
-            entity = KeyIqProtocolEntity(jid)
+            entity = GetKeysIqProtocolEntity(jid)
             self.toLower(entity)
 
     @clicmd("Send prekeys")

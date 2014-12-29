@@ -35,9 +35,9 @@ class LiteSignedPreKeyStore(SignedPreKeyStore):
         return results
 
     def storeSignedPreKey(self, signedPreKeyId, signedPreKeyRecord):
-        q = "DELETE FROM signed_prekeys WHERE prekey_id = ?"
-        self.dbConn.cursor().execute(q, (signedPreKeyId,))
-        self.dbConn.commit()
+        #q = "DELETE FROM signed_prekeys WHERE prekey_id = ?"
+        #self.dbConn.cursor().execute(q, (signedPreKeyId,))
+        #self.dbConn.commit()
 
         q = "INSERT INTO signed_prekeys (prekey_id, record) VALUES(?,?)"
         cursor = self.dbConn.cursor()
