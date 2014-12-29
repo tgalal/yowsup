@@ -1,5 +1,6 @@
 from yowsup.layers.protocol_messages.protocolentities import MessageProtocolEntity
 from yowsup.structs import ProtocolTreeNode
+import sys
 class EncryptedMessageProtocolEntity(MessageProtocolEntity):
     '''
     <message retry="1" from="4917675341470@s.whatsapp.net" t="1418906418" offline="1" type="text" id="1418906377-1" notify="Tarek Galal">
@@ -50,5 +51,6 @@ HEX:33089eb3c90312210510e0196be72fe65913c6a84e75a54f40a3ee290574d6a23f408df990e7
         entity = MessageProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = EncryptedMessageProtocolEntity
         encNode = node.getChild("enc")
-        entity.setEncProps(encNode["type"], encNode["av"], encNode["v"], encNode.data)
+        entity.setEncProps(encNode["type"], encNode["av"], encNode["v"],
+                           encNode.data.encode('latin-1') if sys.version_info >= (3,0) else encNode.data)
         return entity

@@ -16,7 +16,9 @@ from yowsup.structs import ProtocolTreeNode
 from .protocolentities import GetKeysIqProtocolEntity, ResultGetKeysIqProtocolEntity
 from axolotl.util.hexutil import HexUtil
 from yowsup.env import CURRENT_ENV
+from axolotl.invalidmessageexception import InvalidMessageException
 import binascii
+import sys
 
 import logging
 logger = logging.getLogger(__name__)
@@ -192,10 +194,14 @@ class YowAxolotlLayer(YowLayer):
 
 
     def handleEncMessage(self, node):
-        if node.getChild("enc")["type"] == "pkmsg":
-            self.handlePreKeyWhisperMessage(node)
-        else:
-            self.handleWhisperMessage(node)
+        try:
+            if node.getChild("enc")["type"] == "pkmsg":
+                self.handlePreKeyWhisperMessage(node)
+            else:
+                self.handleWhisperMessage(node)
+        except InvalidMessageException:
+            logger.error("Invalid message from %s!! Your axololtl database data might be inconsistent with WhatsApp, or with what that contact has" % node["from"])
+            sys.exit(1)
 
     def getSessionCipher(self, recipientId):
         if recipientId in self.sessionCiphers:
@@ -238,7 +244,7 @@ class YowAxolotlLayer(YowLayer):
         logger.debug("Generating Registration Id...")
         registrationId      = KeyHelper.generateRegistrationId()
         logger.debug("Generating 200 PreKeys...")
-        preKeys             = KeyHelper.generatePreKeys(7493876, 50)
+        preKeys             = KeyHelper.generatePreKeys(7493876, 10)
         logger.debug("Generating Signed PreKey")
         signedPreKey        = KeyHelper.generateSignedPreKey(identityKeyPair, 0)
         logger.debug("Preparing payload")
