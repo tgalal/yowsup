@@ -58,14 +58,14 @@ class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
     @staticmethod
     def _bytesToInt(val):
         if sys.version_info >= (3,0):
-            valEnc = val.encode('latin-1')
+            valEnc = val.encode('latin-1') if type(val) is str else val
         else:
             valEnc = val
         return int(binascii.hexlify(valEnc), 16)
 
     @staticmethod
     def encStr(string):
-        if sys.version_info >= (3,0):
+        if sys.version_info >= (3,0) and type(string) is str:
             return string.encode('latin-1')
         return string
 
