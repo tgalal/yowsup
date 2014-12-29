@@ -474,12 +474,13 @@ class YowsupConnectionManager:
 		self._d("updating status to: %s"%(status))
 
 		idx = self.makeId("send_status_")
+		#TODO: self.readerThread.requests[idx] = self.readerThread.parseSendChangeStatus
 		statusNode = ProtocolTreeNode("status", None, None, status)
-		iqNode = ProtocolTreeNode("iq", {"to": self.domain, "type": "set", "id": idx, "xmlns": "status"}, [statusNode]);
+		iqNode = ProtocolTreeNode("iq", {"to": self.domain, "type": "set", "id": idx, "xmlns": "status"}, [statusNode])
 		
-		self._writeNode(iqNode);
+		self._writeNode(iqNode)
 		
-		return messageNode.getAttributeValue("id")
+		return iqNode.getAttributeValue("id")
 		
 		
 	
