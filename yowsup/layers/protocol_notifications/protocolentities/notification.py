@@ -12,7 +12,7 @@ class NotificationProtocolEntity(ProtocolEntity):
         self._type      = _type
         self._id        = _id
         self._from      =_from
-        self.timestmap  = int(timestamp)
+        self.timestamp  = int(timestamp)
         self.notify     = notify
         self.offline    = offline == "1"
    
