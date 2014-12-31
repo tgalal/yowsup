@@ -71,6 +71,12 @@ I don't have mac to test. Send me instructions or a MacBook.
 
  - Install [mingw](http://www.mingw.org/) compiler
  - Add mingw to your PATH
+ - In PYTHONPATH\Lib\distutils create a file called distutils.cfg and add these lines:
+ 
+```
+[build]
+compiler=mingw32
+```
  - Install gcc: ```mingw-get.exe install gcc```
  - Install [zlib](http://www.zlib.net/)
  - ```python setup.py install```
