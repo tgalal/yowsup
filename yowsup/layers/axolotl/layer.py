@@ -1,4 +1,4 @@
-from yowsup.layers import YowLayer, YowLayerEvent
+from yowsup.layers import YowProtocolLayer, YowLayerEvent
 from .protocolentities import SetKeysIqProtocolEntity
 from axolotl.util.keyhelper import KeyHelper
 from .store.sqlite.liteaxolotlstore import LiteAxolotlStore
@@ -26,7 +26,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class YowAxolotlLayer(YowLayer):
+class YowAxolotlLayer(YowProtocolLayer):
     EVENT_PREKEYS_SET = "org.openwhatsapp.yowsup.events.axololt.setkeys"
     _STATE_INIT = 0
     _STATE_GENKEYS = 1
@@ -38,11 +38,11 @@ class YowAxolotlLayer(YowLayer):
         self.store = None
         self.state = self.__class__._STATE_INIT
 
-        self.pendingKeys = None
         self.sessionCiphers = {}
         self.pendingMessages = {}
         self.pendingGetKeysIqs = {}
         self.skipEncJids = []
+        self.sentFreshKeys = False
 
     def __str__(self):
         return "Axolotl Layer"
@@ -57,61 +57,36 @@ class YowAxolotlLayer(YowLayer):
         """
         :type protocolTreeNode: ProtocolTreeNode
         """
-        if protocolTreeNode.tag == "iq":
-            if self.pendingKeys and self.pendingKeys["iq"] == protocolTreeNode["id"]:
+        if not self.processIqRegistry(protocolTreeNode):
+            if protocolTreeNode.tag == "iq":
+                if protocolTreeNode["id"] in self.pendingGetKeysIqs:
+                    recipient_id = self.pendingGetKeysIqs[protocolTreeNode["id"]]
+                    jid = recipient_id + "@s.whatsapp.net"
+                    del self.pendingGetKeysIqs[protocolTreeNode["id"]]
+                    entity = ResultGetKeysIqProtocolEntity.fromProtocolTreeNode(protocolTreeNode)
+                    preKeyBundle = entity.getPreKeyBundleFor(jid)
+                    if preKeyBundle:
+                        sessionBuilder = SessionBuilder(self.store, self.store, self.store,
+                                                       self.store, recipient_id, 1)
+                        sessionBuilder.processPreKeyBundle(preKeyBundle)
 
-                if protocolTreeNode["type"] == "error":
-                    raise Exception("Sent keys where not accepted")
-
-                if self.pendingKeys["fresh"]:
-                    self.store.storeLocalData(self.pendingKeys["registrationId"], self.pendingKeys["identityKeyPair"])
-                    logger.debug("Stored RegistrationId, and IdentityKeyPair")
-                self.store.storeSignedPreKey(self.pendingKeys["signedPreKey"].getId(), self.pendingKeys["signedPreKey"])
-                logger.debug("Stored Signed PreKey")
-                total = len(self.pendingKeys["preKeys"])
-                curr = 0
-                prevPercentage = 0
-                for preKey in self.pendingKeys["preKeys"]:
-                    self.store.storePreKey(preKey.getId(), preKey)
-                    curr += 1
-                    currPercentage = (curr * 100) / total
-                    if currPercentage == prevPercentage:
-                        continue
-                    prevPercentage = currPercentage
-                    logger.debug("%s" % currPercentage + "%")
-
-                self.state = self.__class__._STATE_GENKEYS
-                self.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT))
-
+                        self.processPendingMessages(jid)
+                    else:
+                        self.skipEncJids.append(jid)
+                        self.processPendingMessages(jid)
+                    return
+            elif protocolTreeNode.tag == "message":
+                encNode = protocolTreeNode.getChild("enc")
+                if encNode:
+                    self.handleEncMessage(protocolTreeNode)
+                    return
+            elif protocolTreeNode.tag == "notification" and protocolTreeNode["type"] == "encrypt":
+                entity = EncryptNotification.fromProtocolTreeNode(protocolTreeNode)
+                ack = OutgoingAckProtocolEntity(protocolTreeNode["id"], "notification", protocolTreeNode["type"])
+                self.toLower(ack.toProtocolTreeNode())
+                self._sendKeys(fresh=False, countPreKeys=20)
                 return
-            elif protocolTreeNode["id"] in self.pendingGetKeysIqs:
-                recipient_id = self.pendingGetKeysIqs[protocolTreeNode["id"]]
-                jid = recipient_id + "@s.whatsapp.net"
-                del self.pendingGetKeysIqs[protocolTreeNode["id"]]
-                entity = ResultGetKeysIqProtocolEntity.fromProtocolTreeNode(protocolTreeNode)
-                preKeyBundle = entity.getPreKeyBundleFor(jid)
-                if preKeyBundle:
-                    sessionBuilder = SessionBuilder(self.store, self.store, self.store,
-                                                   self.store, recipient_id, 1)
-                    sessionBuilder.processPreKeyBundle(preKeyBundle)
-
-                    self.processPendingMessages(jid)
-                else:
-                    self.skipEncJids.append(jid)
-                    self.processPendingMessages(jid)
-                return
-        elif protocolTreeNode.tag == "message":
-            encNode = protocolTreeNode.getChild("enc")
-            if encNode:
-                self.handleEncMessage(protocolTreeNode)
-                return
-        elif protocolTreeNode.tag == "notification" and protocolTreeNode["type"] == "encrypt":
-            entity = EncryptNotification.fromProtocolTreeNode(protocolTreeNode)
-            ack = OutgoingAckProtocolEntity(protocolTreeNode["id"], "notification", protocolTreeNode["type"])
-            self.toLower(ack.toProtocolTreeNode())
-            self._sendKeys(fresh=False, countPreKeys=20)
-            return
-        self.toUpper(protocolTreeNode)
+            self.toUpper(protocolTreeNode)
 
     def processPendingMessages(self, jid):
         if jid in self.pendingMessages:
@@ -153,7 +128,6 @@ class YowAxolotlLayer(YowLayer):
         )
         self.state = self.__class__._STATE_HASKEYS if  self.store.getLocalRegistrationId() is not None \
             else self.__class__._STATE_INIT
-        self.pendingKeys = None
 
 
 
@@ -264,15 +238,29 @@ class YowAxolotlLayer(YowLayer):
                           self.adjustArray(signedPreKey.getSignature()))
 
         setKeysIq = SetKeysIqProtocolEntity(self.adjustArray(identityKeyPair.getPublicKey().serialize()[1:]), signedKeyTuple, preKeysDict, Curve.DJB_TYPE, self.adjustId(registrationId))
-        self.pendingKeys = {
-                "iq": setKeysIq.getId(),
-                "identityKeyPair": identityKeyPair,
-                "registrationId": registrationId,
-                "preKeys": preKeys,
-                "signedPreKey": signedPreKey,
-                "fresh": fresh
-        }
 
-        logger.debug("Deploying payload")
-        self.toLower(setKeysIq.toProtocolTreeNode())
+        onResult = lambda _, __: self.persistKeys(registrationId, identityKeyPair, preKeys, signedPreKey, fresh)
+        self._sendIq(setKeysIq, onResult, self.onSentKeysError)
 
+    def persistKeys(self, registrationId, identityKeyPair, preKeys, signedPreKey, fresh):
+        total = len(preKeys)
+        curr = 0
+        prevPercentage = 0
+        for preKey in preKeys:
+            self.store.storePreKey(preKey.getId(), preKey)
+            curr += 1
+            currPercentage = (curr * 100) / total
+            if currPercentage == prevPercentage:
+                continue
+            prevPercentage = currPercentage
+            logger.debug("%s" % int(currPercentage) + "%")
+
+        self.store.storeSignedPreKey(signedPreKey.getId(), signedPreKey)
+
+        if fresh:
+            self.store.storeLocalData(registrationId, identityKeyPair)
+            self.state = self.__class__._STATE_GENKEYS
+            self.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT))
+
+    def onSentKeysError(self, errorNode, keysEntity):
+        raise Exception("Sent keys where not accepted")
