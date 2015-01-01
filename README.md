@@ -8,7 +8,7 @@ P.S: Yowsup's license changed to GPLv3
 
 ### (December 31, 2014)
 
-New features land in yowsup. You will need to re-install to pull new dependencies. Follow the [updated install instructions for your OS](#installation).
+New features land in yowsup. You will need to re-install to pull new dependencies. Follow the [updated install instructions for your OS](#installation-updated-dec-31-2014).
 
 A couple of highlights:
 
