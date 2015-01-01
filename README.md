@@ -2,7 +2,9 @@
 
 ## Updates (January 1, 2015) 
 
-Yowsup is now licensed under GPLv3
+Happy new year!
+
+P.S: Yowsup's license changed to GPLv3
 
 ### (December 31, 2014)
 
