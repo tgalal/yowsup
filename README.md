@@ -1,6 +1,10 @@
 # Yowsup 2.0
 
-## Update (December 31, 2014)
+## Updates (January 1, 2015) 
+
+Yowsup is now licensed under GPLv3
+
+### (December 31, 2014)
 
 New features land in yowsup. You will need to re-install to pull new dependencies. Follow the [updated install instructions for your OS](#installation).
 
@@ -105,23 +109,5 @@ Thanks!
 
 
 # License:
-MIT License:
 
-    Copyright (c) <2012> Tarek Galal <tare2.galal@gmail.com>
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of this
-    software and associated documentation files (the "Software"), to deal in the Software
-    without restriction, including without limitation the rights to use, copy, modify,
-    merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
-    permit persons to whom the Software is furnished to do so, subject to the following
-    conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-    INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
-    A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-    HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
-    CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
-    OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Licensed under the GPLv3: http://www.gnu.org/licenses/gpl-3.0.html
