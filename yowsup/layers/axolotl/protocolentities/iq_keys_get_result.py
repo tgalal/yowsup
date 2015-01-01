@@ -41,6 +41,9 @@ class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
         super(ResultGetKeysIqProtocolEntity, self).__init__(_from = "s.whatsapp.net", _id=_id)
         self.setPreKeyBundleMap(preKeyBundleMap)
 
+    def getJids(self):
+        return self.preKeyBundleMap.keys()
+
     def setPreKeyBundleMap(self, preKeyBundleMap = None):
         self.preKeyBundleMap = preKeyBundleMap or {}
 

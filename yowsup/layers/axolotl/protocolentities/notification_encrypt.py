@@ -12,11 +12,14 @@ class EncryptNotification(NotificationProtocolEntity):
         self.setProps(count)
 
     def setProps(self, count):
-        self.count = count
+        self.count = int(count)
+
+    def getCount(self):
+        return self.count
 
     def toProtocolTreeNode(self):
         node = super(EncryptNotification, self).toProtocolTreeNode()
-        countNode = ProtocolTreeNode("count", {"value": self.count})
+        countNode = ProtocolTreeNode("count", {"value": str(self.count)})
         node.addChild(countNode)
         return node
 
