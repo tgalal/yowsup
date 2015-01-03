@@ -242,7 +242,7 @@ class YowAxolotlLayer(YowProtocolLayer):
             self.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT))
 
     def onSentKeysError(self, errorNode, keysEntity):
-        raise Exception("Sent keys where not accepted")
+        raise Exception("Sent keys were not accepted")
 
     def onGetKeysResult(self, resultNode, getKeysEntity):
         entity = ResultGetKeysIqProtocolEntity.fromProtocolTreeNode(resultNode)
