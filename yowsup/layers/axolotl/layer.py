@@ -138,7 +138,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         recipient_id = entity.getTo(False)
 
         if not self.store.containsSession(recipient_id, 1):
-            entity = GetKeysIqProtocolEntity(node["to"])
+            entity = GetKeysIqProtocolEntity([node["to"]])
             if node["to"] not in self.pendingMessages:
                 self.pendingMessages[node["to"]] = []
             self.pendingMessages[node["to"]].append(node)
@@ -247,19 +247,22 @@ class YowAxolotlLayer(YowProtocolLayer):
     def onGetKeysResult(self, resultNode, getKeysEntity):
         entity = ResultGetKeysIqProtocolEntity.fromProtocolTreeNode(resultNode)
 
-        for jid in entity.getJids():
+        resultJids = entity.getJids()
+        for jid in getKeysEntity.getJids():
+
+            if jid not in resultJids:
+                self.skipEncJids.append(jid)
+                self.processPendingMessages(jid)
+                continue
+
             recipient_id = jid.split('@')[0]
             preKeyBundle = entity.getPreKeyBundleFor(jid)
 
-            if preKeyBundle:
-                sessionBuilder = SessionBuilder(self.store, self.store, self.store,
+            sessionBuilder = SessionBuilder(self.store, self.store, self.store,
                                                self.store, recipient_id, 1)
-                sessionBuilder.processPreKeyBundle(preKeyBundle)
+            sessionBuilder.processPreKeyBundle(preKeyBundle)
 
-                self.processPendingMessages(jid)
-            else:
-                self.skipEncJids.append(jid)
-                self.processPendingMessages(jid)
+            self.processPendingMessages(jid)
 
     def onGetKeysError(self, errorNode, getKeysEntity):
         pass
