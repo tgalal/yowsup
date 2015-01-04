@@ -1,7 +1,7 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
-from .iq_result_groups import GroupsResultIqProtocolEntity
+from .iq_result_group import GroupResultIqProtocolEntity
 from ..structs import Group
-class ListGroupsResultIqProtocolEntity(GroupsResultIqProtocolEntity):
+class ListGroupsResultIqProtocolEntity(GroupResultIqProtocolEntity):
     '''
     <iq type="result" from="g.us" id="{{IQ_ID}}">
         <group s_t="{{SUBJECT_TIME}}" creation="{{CREATING_TIME}}" owner="{{OWNER_JID}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
@@ -17,10 +17,13 @@ class ListGroupsResultIqProtocolEntity(GroupsResultIqProtocolEntity):
 
     def __str__(self):
         out = super(ListGroupsResultIqProtocolEntity, self).__str__()
+        out += "Groups:\n"
         for g in self.groupsList:
-            out += "%s" % g
-            out += "\n"
+            out += "%s\n" % g
         return out
+
+    def getGroups(self):
+        return self.groupsList
 
     def setProps(self, groupsList):
         assert type(groupsList) is list and len(groupsList) > 0 and groupsList[0].__class__ is Group,\
@@ -48,7 +51,7 @@ class ListGroupsResultIqProtocolEntity(GroupsResultIqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = GroupsResultIqProtocolEntity.fromProtocolTreeNode(node)
+        entity = GroupResultIqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = ListGroupsResultIqProtocolEntity
         groups = [
             Group(groupNode["id"], groupNode["owner"], groupNode["subject"], groupNode["s_o"], groupNode["s_t"], groupNode["creation"])

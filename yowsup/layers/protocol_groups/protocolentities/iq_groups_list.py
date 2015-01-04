@@ -6,7 +6,7 @@ class ListGroupsIqProtocolEntity(GroupsIqProtocolEntity):
         <list type="{{participating | owning}}"></list>
     </iq>
     
-    result:
+    result (processed in iq_result_groups_list.py):
     <iq type="result" from="g.us" id="{{IQ_ID}}">
         <group s_t="{{SUBJECT_TIME}}" creation="{{CREATING_TIME}}" owner="{{OWNER_JID}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
         </group>

@@ -2,7 +2,7 @@ from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 class IqProtocolEntity(ProtocolEntity):
 
     '''
-    <iq type="{{get | set}}" id="{{id}}" xmlns="{{xmlns}}, to={{TO}} from={{FROM}}">
+    <iq type="{{get | set}}" id="{{id}}" xmlns="{{xmlns}}" to="{{TO}}" from="{{FROM}}">
     </iq>
     '''
 
@@ -27,6 +27,15 @@ class IqProtocolEntity(ProtocolEntity):
 
     def getXmlns(self):
         return self.xmlns
+
+    def getType(self):
+        return self._type
+
+    def getFrom(self):
+        return self._from
+
+    def getTo(self):
+        return self.to
     
     def toProtocolTreeNode(self):
         attribs = {
