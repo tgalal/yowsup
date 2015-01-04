@@ -17,10 +17,12 @@ class YowIqProtocolLayer(YowProtocolLayer):
             self.toLower(entity.toProtocolTreeNode())
 
         elif entity.getXmlns() == 'w:m':
-            # Whatsapp media?
+            # protocol media?
+            print('==== IQ Media. Send image')
             self.toLower(entity.toProtocolTreeNode())
 
     def recvIq(self, node):
+        print('==== recvIq in class: %s' % self.__class__.__name__)
         if node["xmlns"] == "urn:xmpp:ping":
             entity = PongResultIqProtocolEntity(YowConstants.DOMAIN, node["id"])
             self.toLower(entity.toProtocolTreeNode())
