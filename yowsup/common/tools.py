@@ -16,17 +16,8 @@ class HexTools:
 
 class WATools:
     @staticmethod
-    def processIdentity(identifier):
-        try:
-            identifier.index(":")
-            identifier = identifier.upper()
-            identifier = identifier + identifier
-
-        except:
-            identifier = identifier[::-1]
-
-        digest = hashlib.md5(identifier.encode("utf-8"))
-        return digest.hexdigest()
+    def generateIdentity():
+        return os.urandom(20)
 
 class StorageTools:
     @staticmethod
@@ -36,6 +27,26 @@ class StorageTools:
         if not os.path.exists(os.path.dirname(fullPath)):
             os.makedirs(os.path.dirname(fullPath))
         return fullPath
+
+    @staticmethod
+    def getStorageForPhone(phone):
+        return StorageTools.constructPath(phone + '/')
+
+    @staticmethod
+    def writeIdentity(phone, identity):
+        path = StorageTools.getStorageForPhone(phone)
+        with open(path + "/id", 'wb') as idFile:
+            idFile.write(identity)
+
+    @staticmethod
+    def getIdentity(phone):
+        path = StorageTools.getStorageForPhone(phone)
+        out = None
+        idPath = path + "/id"
+        if os.path.isfile(idPath):
+            with open(path + "/id", 'rb') as idFile:
+                out = idFile.readline()
+        return out
 
 
 class TimeTools:
