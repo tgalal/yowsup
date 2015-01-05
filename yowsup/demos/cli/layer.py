@@ -271,7 +271,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @clicmd("Quick login")
     def L(self):
-        return self.login(*self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS))
+        return self.login(*self.getStack().getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS))
 
     @clicmd("Login to WhatsApp", 0)
     def login(self, username, b64password):
