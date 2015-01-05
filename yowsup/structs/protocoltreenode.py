@@ -42,14 +42,17 @@ class ProtocolTreeNode(object):
             else:
                 out += "%s" % self.data
 
+
             if type(self.data) is str and sys.version_info >= (3,0):
-                out += "\nHEX3:%s" % binascii.hexlify(self.data.encode('latin-1'))
+                out += "\nHEX3:%s\n" % binascii.hexlify(self.data.encode('latin-1'))
             else:
-                out += "\nHEX:%s" % binascii.hexlify(self.data)
+                out += "\nHEX:%s\n" % binascii.hexlify(self.data)
         
         for c in self.children:
-           out += c.toString()
-        #print sel
+            try:
+                out += c.toString()
+            except UnicodeDecodeError:
+                out += "[ENCODED DATA]\n"
         out+= "</"+self.tag+">\n"
         return out
 
