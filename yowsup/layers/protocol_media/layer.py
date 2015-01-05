@@ -1,8 +1,9 @@
 from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from .protocolentities import ImageDownloadableMediaMessageProtocolEntity
+from .protocolentities import AudioDownloadableMediaMessageProtocolEntity
 from .protocolentities import LocationMediaMessageProtocolEntity
-
 from .protocolentities import VCardMediaMessageProtocolEntity
+
 class YowMediaProtocolLayer(YowProtocolLayer):
     def __init__(self):
         handleMap = {
@@ -17,13 +18,15 @@ class YowMediaProtocolLayer(YowProtocolLayer):
         if entity.getType() == "media":
             self.entityToLower(entity)
 
-    ###recieved node handlers handlers
     def recvMessageStanza(self, node):
         if node.getAttributeValue("type") == "media":
             mediaNode = node.getChild("media")
             if mediaNode.getAttributeValue("type") == "image":
                 entity = ImageDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
-                self.toUpper(entity)    
+                self.toUpper(entity)
+            elif mediaNode.getAttributeValue("type") == "audio":
+                entity = AudioDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
+                self.toUpper(entity)
             elif mediaNode.getAttributeValue("type") == "location":
                 entity = LocationMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
