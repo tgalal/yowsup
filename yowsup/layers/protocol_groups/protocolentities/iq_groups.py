@@ -2,7 +2,7 @@ from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 class GroupsIqProtocolEntity(IqProtocolEntity):
     '''
-    <iq type="{{get | set?}}" id="{{id}}" xmlns="w:g", to={{group_jid}}">
+    <iq type="{{get | set?}}" id="{{id}}" xmlns="w:g", to="{{group_jid}}">
     </iq>
     '''
     def __init__(self, to = None, _from  = None, _id = None, _type = None):
