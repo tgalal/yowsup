@@ -1,17 +1,20 @@
-# import auth
-# import coder
-# import media
-# import logger
-# import network
-# import protocol
-# import packetregulator
 import unittest
-import sys
+try:
+    import Queue
+except ImportError:
+    import queue as Queue
 
 class YowLayerEvent:
     def __init__(self, name, **kwargs):
         self.name = name
+        self.detached = False
+        if "detached" in kwargs:
+            del kwargs["detached"]
+            self.detached = True
         self.args = kwargs
+
+    def isDetached(self):
+        return self.detached
 
     def getName(self):
         return self.name
@@ -24,6 +27,7 @@ class YowLayer(object):
     __upper = None
     __lower = None
     _props = {}
+    __detachedQueue = Queue.Queue()
     # def __init__(self, upperLayer, lowerLayer):
     #     self.setLayers(upperLayer, lowerLayer)
 
@@ -57,11 +61,21 @@ class YowLayer(object):
 
     def emitEvent(self, yowLayerEvent):
         if self.__upper and not self.__upper.onEvent(yowLayerEvent):
-            self.__upper.emitEvent(yowLayerEvent)
+            if yowLayerEvent.isDetached():
+                yowLayerEvent.detached = False
+                self.getStack().execDetached(lambda :  self.__upper.emitEvent(yowLayerEvent))
+
+            else:
+                self.__upper.emitEvent(yowLayerEvent)
+
 
     def broadcastEvent(self, yowLayerEvent):
         if self.__lower and not self.__lower.onEvent(yowLayerEvent):
-            self.__lower.broadcastEvent(yowLayerEvent)
+            if yowLayerEvent.isDetached():
+                yowLayerEvent.detached = False
+                self.getStack().execDetached(lambda:self.__lower.broadcastEvent(yowLayerEvent))
+            else:
+                self.__lower.broadcastEvent(yowLayerEvent)
 
     '''return true to stop propagating the event'''
     def onEvent(self, yowLayerEvent):
@@ -75,15 +89,17 @@ class YowLayer(object):
 
 
 class YowProtocolLayer(YowLayer):
-    def __init__(self, handleMap = {}):
+    def __init__(self, handleMap = None):
         super(YowProtocolLayer, self).__init__()
-        self.handleMap = handleMap
+        self.handleMap = handleMap or {}
+        self.iqRegistry = {}
 
     def receive(self, node):
-        if node.tag in self.handleMap:
-            recv, _ = self.handleMap[node.tag]
-            if recv:
-                recv(node)
+        if not self.processIqRegistry(node):
+            if node.tag in self.handleMap:
+                recv, _ = self.handleMap[node.tag]
+                if recv:
+                    recv(node)
 
     def send(self, entity):
         if entity.getTag() in self.handleMap:
@@ -101,9 +117,30 @@ class YowProtocolLayer(YowLayer):
     def raiseErrorForNode(self, node):
         raise ValueError("Unimplemented notification type %s " % node)
 
+
+    def _sendIq(self, iqEntity, onSuccess = None, onError = None):
+        self.iqRegistry[iqEntity.getId()] = (iqEntity, onSuccess, onError)
+        self.toLower(iqEntity.toProtocolTreeNode())
+
+    def processIqRegistry(self, protocolTreeNode):
+        if protocolTreeNode.tag == "iq":
+            iq_id = protocolTreeNode["id"]
+            if iq_id in self.iqRegistry:
+                originalIq, successClbk, errorClbk = self.iqRegistry[iq_id]
+                del self.iqRegistry[iq_id]
+
+                if protocolTreeNode["type"] == "result" and successClbk:
+                    successClbk(protocolTreeNode, originalIq)
+                elif protocolTreeNode["type"] == "error" and errorClbk:
+                    errorClbk(protocolTreeNode, originalIq)
+                return True
+
+        return False
+
 class YowParallelLayer(YowLayer):
-    def __init__(self, sublayers = []):
+    def __init__(self, sublayers = None):
         super(YowParallelLayer, self).__init__()
+        self.sublayers = sublayers or []
         self.sublayers = tuple([sublayer() for sublayer in sublayers])
         for s in self.sublayers:
             #s.setLayers(self, self)

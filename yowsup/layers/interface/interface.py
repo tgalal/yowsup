@@ -32,10 +32,6 @@ class YowInterfaceLayer(YowLayer):
     def send(self, data):
         self.toLower(data)
 
-    @ProtocolEntityCallback("success")
-    def onSuccess(self, entity):
-        print("Logged in")
-
     def receive(self, entity):
         entityType = entity.getTag()
         if entityType in self.callbacks:

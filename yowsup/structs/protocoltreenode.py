@@ -1,3 +1,5 @@
+import binascii
+import sys
 class ProtocolTreeNode(object):
     def __init__(self, tag, attributes = None, children = None, data = None):
 
@@ -25,21 +27,32 @@ class ProtocolTreeNode(object):
         return hash(self.tag) ^ hash(tuple(self.attributes.items())) ^ hash(self.data)
 
     def toString(self):
-        out = "<"+self.tag;
+        out = "<"+self.tag
         if self.attributes is not None:
             for key,val in self.attributes.items():
                 out+= " "+key+'="'+val+'"'
-        out+= ">\n";
+        out+= ">\n"
 
         if self.data is not None:
             if type(self.data) is bytearray:
-                out += "%s" % self.data.decode()
+                try:
+                    out += "%s" % self.data.decode()
+                except UnicodeDecodeError:
+                    out += binascii.hexlify(self.data)
             else:
-                out += "%s" % self.data;
+                out += "%s" % self.data
+
+
+            if type(self.data) is str and sys.version_info >= (3,0):
+                out += "\nHEX3:%s\n" % binascii.hexlify(self.data.encode('latin-1'))
+            else:
+                out += "\nHEX:%s\n" % binascii.hexlify(self.data)
         
         for c in self.children:
-           out += c.toString()
-        #print sel
+            try:
+                out += c.toString()
+            except UnicodeDecodeError:
+                out += "[ENCODED DATA]\n"
         out+= "</"+self.tag+">\n"
         return out
 
@@ -56,7 +69,7 @@ class ProtocolTreeNode(object):
     
     @staticmethod   
     def tagEquals(node,string):
-        return node is not None and node.tag is not None and node.tag == string;
+        return node is not None and node.tag is not None and node.tag == string
         
         
     @staticmethod

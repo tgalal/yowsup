@@ -1,11 +1,15 @@
 from yowsup.layers import YowParallelLayer
 import asyncore, time, logging
-
+try:
+    import Queue
+except ImportError:
+    import queue as Queue
 logger = logging.getLogger(__name__)
 
 class YowStack(object):
     __stack = []
     __stackInstances = []
+    __detachedQueue = Queue.Queue()
     def __init__(self, stackClassesArr = ()):
         self.__stack = stackClassesArr[::-1] or []
         self.__stackInstances = []
@@ -34,6 +38,9 @@ class YowStack(object):
         if not self.__stackInstances[-1].onEvent(yowLayerEvent):
             self.__stackInstances[-1].broadcastEvent(yowLayerEvent)
 
+    def execDetached(self, fn):
+        self.__class__.__detachedQueue.put(fn)
+
     def loop(self, *args, **kwargs):
         if "discrete" in kwargs:
             discreteVal = kwargs["discrete"]
@@ -41,6 +48,11 @@ class YowStack(object):
             while True:
                 asyncore.loop(*args, **kwargs)
                 time.sleep(discreteVal)
+                try:
+                    callback = self.__class__.__detachedQueue.get(False) #doesn't block
+                    callback()
+                except Queue.Empty:
+                    pass
         else:
             asyncore.loop(*args, **kwargs)
 

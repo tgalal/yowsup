@@ -1,7 +1,8 @@
 import urllib,sys, os, logging
 import hashlib
 from .waresponseparser import ResponseParser
-from yowsup.common.constants import YowConstants
+from yowsup.env import S40YowsupEnv
+CURRENT_ENV = S40YowsupEnv()
 
 if sys.version_info < (3, 0):
     import httplib
@@ -19,8 +20,8 @@ class WARequest(object):
 
     def __init__(self):
 
-        self.pvars = [];
-        self.port = 443;
+        self.pvars = []
+        self.port = 443
         self.type = "GET"
         self.parser = None
         self.params = []
@@ -32,7 +33,7 @@ class WARequest(object):
 
 
     def setParsableVariables(self, pvars):
-        self.pvars = pvars;
+        self.pvars = pvars
 
     def onResponse(self, name, value):
         if name == "status":
@@ -50,23 +51,13 @@ class WARequest(object):
 
 
     def addHeaderField(self, name, value):
-        self.headers[name] = value;
+        self.headers[name] = value
 
     def clearParams(self):
         self.params = []
 
     def getUserAgent(self):
-
-        tokenData = None #Utilities.readToken()
-
-        if tokenData:
-            agent = tokenData["u"]
-        else:
-            agent = YowConstants.DATA_CLIENT["u"]
-        return agent
-
-    def getToken(self, phone, token):
-        return hashlib.md5(token.format(phone=phone).encode()).hexdigest()
+        return CURRENT_ENV.getUserAgent()
 
     def send(self, parser = None):
 
@@ -118,7 +109,7 @@ class WARequest(object):
             return {}
 
         data = self.response.read()
-        logger.info(data);
+        logger.info(data)
 
         self.sent = True
         return parser.parse(data.decode(), self.pvars)

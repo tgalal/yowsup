@@ -3,6 +3,7 @@ from yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.network import YowNetworkLayer
+import sys
 from yowsup.common import YowConstants
 import datetime
 import os
@@ -19,6 +20,9 @@ from yowsup.layers.protocol_iq.protocolentities          import *
 from yowsup.layers.protocol_contacts.protocolentities    import *
 from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.layers.protocol_chatstate.protocolentities   import *
+from yowsup.layers.protocol_privacy.protocolentities     import *
+from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
+from yowsup.layers.axolotl import YowAxolotlLayer
 
 ###
 
@@ -87,8 +91,8 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         elif layerEvent.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
             self.output("Disconnected: %s" % layerEvent.getArg("reason"))
             if self.disconnectAction == self.__class__.DISCONNECT_ACTION_PROMPT:
-                self.notifyInputThread()
                 self.connected = False
+                self.notifyInputThread()
             else:
                 os._exit(os.EX_OK)
 
@@ -182,6 +186,41 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     #@clicmd("Invite to group")
     def group_invite(self, group_jid, jid):
         pass
+
+    @clicmd("Get pariticipants in a group")
+    def group_participants(self, group_jid):
+        if self.assertConnected():
+            entity = ParticipantsGroupsIqProtocolEntity(group_jid)
+            self.toLower(entity)
+
+    @clicmd("Change group subject")
+    def group_setSubject(self, jid, subject):
+        if self.assertConnected():
+            entity = SubjectGroupsIqProtocolEntity(jid, subject)
+            self.toLower(entity)
+
+    @clicmd("Get shared keys")
+    def keys_get(self, jid):
+        if self.assertConnected():
+            entity = GetKeysIqProtocolEntity(jid)
+            self.toLower(entity)
+
+    @clicmd("Send prekeys")
+    def keys_set(self):
+        if self.assertConnected():
+            self.broadcastEvent(YowLayerEvent(YowAxolotlLayer.EVENT_PREKEYS_SET))
+
+    @clicmd("Send init seq")
+    def seq(self):
+        priv = PrivacyListIqProtocolEntity()
+        self.toLower(priv)
+        push = PushIqProtocolEntity()
+        self.toLower(push)
+        props = PropsIqProtocolEntity()
+        self.toLower(props)
+        crypto = CryptoIqProtocolEntity()
+        self.toLower(crypto)
+
 
     @clicmd("Delete your account")
     def account_delete(self):
@@ -295,7 +334,11 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @ProtocolEntityCallback("notification")
     def onNotification(self, notification):
-        self.output("From :%s, Type: %s" % (self.jidToAlias(notification.getFrom()), notification.getType()), tag = "Notification")
+        notificationData = notification.__str__()
+        if notificationData:
+            self.output(notificationData, tag = "Notification")
+        else:
+            self.output("From :%s, Type: %s" % (self.jidToAlias(notification.getFrom()), notification.getType()), tag = "Notification")
         if self.sendReceipts:
             receipt = OutgoingReceiptProtocolEntity(notification.getId(), notification.getFrom())
             self.toLower(receipt)
@@ -310,20 +353,18 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             messageOut = self.getMediaMessageBody(message)
         else:
             messageOut = "Unknown message type %s " % message.getType()
-            print(messageOut.toProtocolTreeNode())
+            print(message.toProtocolTreeNode())
 
 
         formattedDate = datetime.datetime.fromtimestamp(message.getTimestamp()).strftime('%d-%m-%Y %H:%M')
         output = self.__class__.MESSAGE_FORMAT.format(
             FROM = message.getFrom(),
             TIME = formattedDate,
-            MESSAGE = messageOut,
+            MESSAGE = messageOut.encode('latin-1').decode() if sys.version_info >= (3, 0) else messageOut,
             MESSAGE_ID = message.getId()
             )
 
         self.output(output, tag = None, prompt = not self.sendReceipts)
-
-        
         if self.sendReceipts:
             receipt = OutgoingReceiptProtocolEntity(message.getId(), message.getFrom())
             self.toLower(receipt)

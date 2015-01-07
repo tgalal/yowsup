@@ -3,9 +3,8 @@ __version__ = "2.0.2"
 __author__ = "Tarek Galal"
 
 import sys, argparse, yowsup, logging
-from yowsup.demos import cli, echoclient
-from yowsup.registration import WACodeRequest, WARegRequest, WAExistsRequest
-from yowsup.common.tools import WATools
+from yowsup.demos import cli, echoclient, sendclient
+from yowsup.registration import WACodeRequest, WARegRequest
 
 HELP_CONFIG = """
 ############# Yowsup Configuration Sample ###########
@@ -19,10 +18,6 @@ cc=49
 #
 # Your full phone number including the country code you defined in 'cc', without preceding '+' or '00'
 phone=491234567890
-#
-# id is Typically it's the phone serial number on which WhatsApp runs. It's used in resetting password if the id sent matches the one registered with.
-# Set it to some random text before registration and don't change it afterwards. Or just leave it is.
-id=000000000000000
 #
 # You obtain this password when you register using Yowsup.
 password=NDkxNTIyNTI1NjAyMkBzLndoYXRzYXBwLm5ldA==
@@ -113,17 +108,16 @@ class RegistrationArgParser(YowArgParser):
                                  help = "Country code. See http://www.ipipi.com/help/telephone-country-codes.htm. This is now required")
 
 
-        configGroup.add_argument("-i", '--id',
-                                 action="store",
-                                 help = "Identity"
-                                 )
+        # configGroup.add_argument("-i", '--id',
+        #                          action="store",
+        #                          help = "Identity"
+        #                          )
 
         regSteps = self.add_argument_group("Modes")
         regSteps = regSteps.add_mutually_exclusive_group()
 
         regSteps.add_argument("-r", '--requestcode', help='Request the digit registration code from Whatsapp.', action="store", required=False, metavar="(sms|voice)")
         regSteps.add_argument("-R", '--register', help='Register account on Whatsapp using the code you previously received', action="store", required=False, metavar="code")
-        regSteps.add_argument("-e", '--exists', help='Check if account credentials are valid. WARNING: Whatsapp now changes your password everytime you use this. Make sure you update your config file if the output informs about a password change', action="store_true", required=False)
 
     def process(self):
         super(RegistrationArgParser, self).process()
@@ -134,7 +128,6 @@ class RegistrationArgParser(YowArgParser):
         if self.args["mnc"]     : config["mnc"]     = self.args["mnc"]
         if self.args["phone"]   : config["phone"]   = self.args["phone"]
         if self.args["cc" ]     : config["cc"]      = self.args["cc"]
-        if self.args["id"]      : config["id"]      = self.args["id"]
         #if self.args["sim_mnc"] : config["sim_mnc"] = self.args["sim_mnc"]
         #if self.args["sim_mcc"] : config["sim_mcc"] = self.args["sim_mcc"]
 
@@ -142,9 +135,8 @@ class RegistrationArgParser(YowArgParser):
         if not "mnc"     in config: config["mnc"] = "000"
         if not "sim_mcc" in config: config["sim_mcc"] = "000"
         if not "sim_mnc" in config: config["sim_mnc"] = "000"
-        if not "id"      in config: config["id"] = "000000000000000"
 
-        config["id"] = WATools.processIdentity(config["id"])
+
 
 
         try:
@@ -166,8 +158,6 @@ class RegistrationArgParser(YowArgParser):
             self.handleRequestCode(self.args["requestcode"], config)
         elif self.args["register"]:
             self.handleRegister(self.args["register"], config)
-        elif self.args["exists"]:
-            self.handleExists(config)
         else:
             return False
 
@@ -176,7 +166,6 @@ class RegistrationArgParser(YowArgParser):
     def handleRequestCode(self, method, config):
         codeReq = WACodeRequest(config["cc"],
                                 config["phone"],
-                                config["id"],
                                 config["mcc"],
                                 config["mnc"],
                                 config["mcc"],
@@ -188,17 +177,9 @@ class RegistrationArgParser(YowArgParser):
 
     def handleRegister(self, code, config):
         code = code.replace('-', '')
-        req = WARegRequest(config["cc"], config["phone"], code, config["id"])
+        req = WARegRequest(config["cc"], config["phone"], code)
         result = req.send()
         print(self.resultToString(result))
-
-    def handleExists(self, config):
-        req = WAExistsRequest(config["cc"], config["phone"], config["id"])
-        result = req.send()
-        print(self.resultToString(result))
-        if result["pw"] is not None:
-            print("\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(config["cc"], config["phone"], result["pw"]))
-
 
     def resultToString(self, result):
         unistr = str if sys.version_info >= (3, 0) else unicode
@@ -222,11 +203,19 @@ class DemosArgParser(YowArgParser):
         credentialsOpts.add_argument("-c", "--config", action="store",
                                      help = "Path to config file containing authentication info. For more info about config format use --help-config")
 
+        configGroup.add_argument("-m", "--moxie", action="store_true", help="Enable experimental support for the"
+                                                                            " new WhatsApp encryption")
+
         cmdopts = self.add_argument_group("Command line interface demo")
         cmdopts.add_argument('-y', '--yowsup', action = "store_true", help = "Start the Yowsup command line client")
 
         echoOpts = self.add_argument_group("Echo client demo")
         echoOpts.add_argument('-e', '--echo', action = "store_true", help = "Start the Yowsup Echo client")
+
+        sendOpts = self.add_argument_group("Send client demo")
+        sendOpts.add_argument('-s', '--send', action="store", help = "Send a message to specified phone number, "
+                                                                     "wait for server receipt and exit",
+                              metavar=("phone", "message"), nargs = 2)
 
     def process(self):
         super(DemosArgParser, self).process()
@@ -234,6 +223,8 @@ class DemosArgParser(YowArgParser):
             self.startCmdline()
         elif self.args["echo"]:
             self.startEcho()
+        elif self.args["send"]:
+            self.startSendClient()
         else:
             return False
         return True
@@ -253,7 +244,7 @@ class DemosArgParser(YowArgParser):
         if not credentials:
             print("Error: You must specify a configuration method")
             sys.exit(1)
-        stack = cli.YowsupCliStack(credentials)
+        stack = cli.YowsupCliStack(credentials, self.args["moxie"])
         stack.start()
 
     def startEcho(self):
@@ -262,7 +253,21 @@ class DemosArgParser(YowArgParser):
             print("Error: You must specify a configuration method")
             sys.exit(1)
         try:
-            stack = echoclient.YowsupEchoStack(credentials)
+            stack = echoclient.YowsupEchoStack(credentials, self.args["moxie"])
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+    def startSendClient(self):
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+
+        try:
+            stack = sendclient.YowsupSendStack(credentials, [([self.args["send"][0], self.args["send"][1]])],
+                                               self.args["moxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")

@@ -21,14 +21,20 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from yowsup.common.http.warequest import WARequest
 from yowsup.common.http.waresponseparser import JSONResponseParser
+from yowsup.common.tools import StorageTools
 
 class WARegRequest(WARequest):
 
-    def __init__(self,cc, p_in, code, idx):
-        super(WARegRequest,self).__init__();
+    def __init__(self,cc, p_in, code):
+        super(WARegRequest,self).__init__()
+        idx = StorageTools.getIdentity(cc + p_in)
 
-        self.addParam("cc", cc);
-        self.addParam("in", p_in);
+        if idx is None:
+            raise ValueError("You have to request code first")
+
+        self.addParam("cc", cc)
+        self.addParam("in", p_in)
+
         self.addParam("id", idx)
         self.addParam("code", code)
 
@@ -40,4 +46,4 @@ class WARegRequest(WARequest):
         self.setParser(JSONResponseParser())
         
     def register(self):
-        return self.send();
+        return self.send()
