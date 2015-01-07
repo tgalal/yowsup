@@ -3,7 +3,7 @@ from yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.network import YowNetworkLayer
-from yowsup.layers.protocol_contacts.protocolentities import GetSyncIqProtocolEntity
+import sys
 from yowsup.common import YowConstants
 import datetime
 import os
@@ -360,13 +360,11 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         output = self.__class__.MESSAGE_FORMAT.format(
             FROM = message.getFrom(),
             TIME = formattedDate,
-            MESSAGE = messageOut,
+            MESSAGE = messageOut.encode('latin-1').decode() if sys.version_info >= (3, 0) else messageOut,
             MESSAGE_ID = message.getId()
             )
 
         self.output(output, tag = None, prompt = not self.sendReceipts)
-
-        
         if self.sendReceipts:
             receipt = OutgoingReceiptProtocolEntity(message.getId(), message.getFrom())
             self.toLower(receipt)
