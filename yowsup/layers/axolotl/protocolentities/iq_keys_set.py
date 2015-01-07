@@ -34,10 +34,6 @@ class SetKeysIqProtocolEntity(IqProtocolEntity):
 
         return entity
 
-    def log(self):
-        with open("/home/tarek/yowdebug/keys_%s" % int(time.time()), "wb") as f:
-            f.write(self.toProtocolTreeNode().__str__())
-
     def toProtocolTreeNode(self):
         node = super(SetKeysIqProtocolEntity, self).toProtocolTreeNode()
         identityNode = ProtocolTreeNode("identity", data = self.identityKey)
