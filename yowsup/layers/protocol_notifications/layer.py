@@ -27,7 +27,7 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
         elif node["type"] == "features":
             # Not implemented
             pass
-        elif node["type"] in [ "contacts", "subject" ]:
+        elif node["type"] in [ "contacts", "subject", "w:gp2" ]:
             # Implemented in respectively the protocol_contacts and protocol_groups layer
             pass
         elif node["type"] == "contacts":

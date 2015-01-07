@@ -1,7 +1,7 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
-from .iq_result_group import GroupResultIqProtocolEntity
+from yowsup.layers.protocol_iq.protocolentities import ResultIqProtocolEntity
 from ..structs import Group
-class ListGroupsResultIqProtocolEntity(GroupResultIqProtocolEntity):
+class ListGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
     '''
     <iq type="result" from="g.us" id="{{IQ_ID}}">
         <group s_t="{{SUBJECT_TIME}}" creation="{{CREATING_TIME}}" owner="{{OWNER_JID}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
@@ -51,7 +51,7 @@ class ListGroupsResultIqProtocolEntity(GroupResultIqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = GroupResultIqProtocolEntity.fromProtocolTreeNode(node)
+        entity = ResultIqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = ListGroupsResultIqProtocolEntity
         groups = [
             Group(groupNode["id"], groupNode["owner"], groupNode["subject"], groupNode["s_o"], groupNode["s_t"], groupNode["creation"])

@@ -1,5 +1,9 @@
 from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from .protocolentities import *
+import logging
+logger = logging.getLogger(__name__)
+
+
 class YowGroupsProtocolLayer(YowProtocolLayer):
 
     HANDLE = (
@@ -26,7 +30,16 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
 
     def sendIq(self, entity):
         if entity.__class__ in self.__class__.HANDLE:
-            self.entityToLower(entity)
+            if entity.__class__ == SubjectGroupsIqProtocolEntity:
+                self._sendIq(entity, self.onSetSubjectSuccess, self.onSetSubjectFailed)
+            else:
+                self.entityToLower(entity)
+
+    def onSetSubjectSuccess(self, node, originalIqEntity):
+        logger.info("Group subject change success")
+
+    def onSetSubjectFailed(self, node, originalIqEntity):
+        logger.error("Group subject change failed")
 
     def recvIq(self, node):
         if node["type"] == "result" and node["from"] == "g.us" and len(node.getAllChildren()) > 0:
@@ -35,5 +48,6 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
             self.toUpper(ListParticipantsResultIqProtocolEntity.fromProtocolTreeNode(node))
 
     def recvNotification(self, node):
-        if node["type"] == "subject":
-            self.toUpper(SubjectNotificationProtocolEntity.fromProtocolTreeNode(node))
+        if node["type"] == "w:gp2":
+            if node.getChild("subject"):
+                self.toUpper(SubjectNotificationProtocolEntity.fromProtocolTreeNode(node))

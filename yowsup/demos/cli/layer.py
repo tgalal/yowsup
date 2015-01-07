@@ -187,6 +187,18 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def group_invite(self, group_jid, jid):
         pass
 
+    @clicmd("Get pariticipants in a group")
+    def group_participants(self, group_jid):
+        if self.assertConnected():
+            entity = ParticipantsGroupsIqProtocolEntity(group_jid)
+            self.toLower(entity)
+
+    @clicmd("Change group subject")
+    def group_setSubject(self, jid, subject):
+        if self.assertConnected():
+            entity = SubjectGroupsIqProtocolEntity(jid, subject)
+            self.toLower(entity)
+
     @clicmd("Get shared keys")
     def keys_get(self, jid):
         if self.assertConnected():
@@ -322,7 +334,11 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @ProtocolEntityCallback("notification")
     def onNotification(self, notification):
-        self.output("From :%s, Type: %s" % (self.jidToAlias(notification.getFrom()), notification.getType()), tag = "Notification")
+        notificationData = notification.__str__()
+        if notificationData:
+            self.output(notificationData, tag = "Notification")
+        else:
+            self.output("From :%s, Type: %s" % (self.jidToAlias(notification.getFrom()), notification.getType()), tag = "Notification")
         if self.sendReceipts:
             receipt = OutgoingReceiptProtocolEntity(notification.getId(), notification.getFrom())
             self.toLower(receipt)

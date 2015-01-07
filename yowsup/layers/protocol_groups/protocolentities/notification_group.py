@@ -4,24 +4,28 @@ from yowsup.layers.protocol_notifications.protocolentities import NotificationPr
 class GroupNotificationProtocolEntity(NotificationProtocolEntity):
     '''
 
-    <notification participant="{{SENDER_JID}}" t="{{TIMESTAMP}}" from="{{GROUP_JID}}" type="{{TYPE}}" id="{{NOTIFICATION_ID}}" notify="{{NOTIFY_NAME}}">
-        {{CONTENTS}}
+    <notification notify="WhatsApp" id="{{id}}" t="1420402514" participant="{{participant_jiid}}" from="{{group_jid}}" type="w:gp2">
     </notification>
 
     '''
 
-    def __init__(self, _type, _id,  _from, timestamp, notify, participant):
-        super(SubjectNotificationProtocolEntity, self).__init__(_type, _id, _from, timestamp, notify, False)
+    def __init__(self, _id,  _from, timestamp, notify, participant, offline):
+        super(GroupNotificationProtocolEntity, self).__init__("w:gp2", _id, _from, timestamp, notify, offline)
         self.setParticipant(participant)
 
     def setParticipant(self, participant):
         self._participant = participant
 
-    def getParticipant(self):
-        return self._participant
+    def getParticipant(self, full = True):
+        return self._participant if full else self._participant.split('@')[0]
+
+    def __str__(self):
+        out = super(GroupNotificationProtocolEntity, self).__str__()
+        out += "Participant: %s\n" % self.getParticipant()
+        return out
 
     def toProtocolTreeNode(self):
-        node = super(SubjectNotificationProtocolEntity, self).toProtocolTreeNode()
+        node = super(GroupNotificationProtocolEntity, self).toProtocolTreeNode()
         node.setAttribute("participant", self.getParticipant())
         return node
 
