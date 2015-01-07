@@ -28,7 +28,7 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
             pass
         elif node["type"] == "contacts":
             pass
-        elif node["type"] == "participant":
+        elif node["type"] == "w:gp2":
             pass
         else:
             self.raiseErrorForNode(node)
