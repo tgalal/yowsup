@@ -71,8 +71,8 @@ class MediaUploader(WARequest):
             self._d(POST)
             self._d("sending REQUEST ")
             self._d(hBAOS)
-            ssl_sock.write(bytearray(POST.encode()))
-            ssl_sock.write(bytearray(hBAOS.encode()))
+            ssl_sock.write(POST.encode())
+            ssl_sock.write(hBAOS.encode())
     
             totalsent = 0
             buf = 1024
@@ -92,7 +92,7 @@ class MediaUploader(WARequest):
                 stream = stream[buf:]
                 totalsent = totalsent + buf
     
-            ssl_sock.write(bytearray(fBAOS.encode()))
+            ssl_sock.write(fBAOS.encode())
     
             sleep(1)
             self._d("Reading response...")
