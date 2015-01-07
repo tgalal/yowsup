@@ -353,7 +353,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             messageOut = self.getMediaMessageBody(message)
         else:
             messageOut = "Unknown message type %s " % message.getType()
-            print(messageOut.toProtocolTreeNode())
+            print(message.toProtocolTreeNode())
 
 
         formattedDate = datetime.datetime.fromtimestamp(message.getTimestamp()).strftime('%d-%m-%Y %H:%M')
