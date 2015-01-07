@@ -1,8 +1,8 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from yowsup.layers.protocol_notifications.protocolentities import NotificationProtocolEntity
-from .notification_group import GroupNotificationProtocolEntity
+from .notification_groups import GroupsNotificationProtocolEntity
 
-class SubjectNotificationProtocolEntity(GroupNotificationProtocolEntity):
+class SubjectGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
     '''
 
     <notification notify="WhatsApp" id="{{id}}" t="{{TIMESTAMP}}" participant="{{PARTICIPANT_JID}}" from="{{GROUP_JID}}" type="w:gp2">
@@ -13,7 +13,7 @@ class SubjectNotificationProtocolEntity(GroupNotificationProtocolEntity):
     '''
 
     def __init__(self, _type, _id,  _from, timestamp, notify, participant, subject):
-        super(SubjectNotificationProtocolEntity, self).__init__(_id, _from, timestamp, notify, participant)
+        super(SubjectGroupsNotificationProtocolEntity, self).__init__(_id, _from, timestamp, notify, participant)
         self.setSubjectData(subject)
 
     def setSubjectData(self, subject, subjectOwner, subjectTimestamp):
@@ -31,13 +31,13 @@ class SubjectNotificationProtocolEntity(GroupNotificationProtocolEntity):
         return self.subjectTimestamp
 
     def __str__(self):
-        out = super(SubjectNotificationProtocolEntity, self).__str__()
+        out = super(SubjectGroupsNotificationProtocolEntity, self).__str__()
         out += "New subject: %s\n" % self.getSubject()
         out += "Set by: %s\n" % self.getSubjectOwner()
         return out
 
     def toProtocolTreeNode(self):
-        node = super(SubjectNotificationProtocolEntity, self).toProtocolTreeNode()
+        node = super(SubjectGroupsNotificationProtocolEntity, self).toProtocolTreeNode()
         subjectNode = ProtocolTreeNode("subject", {
             "s_t": str(self.getSubjectTimestamp()),
             "s_o": self.getSubjectOwner(),
@@ -48,8 +48,8 @@ class SubjectNotificationProtocolEntity(GroupNotificationProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = GroupNotificationProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = SubjectNotificationProtocolEntity
+        entity = GroupsNotificationProtocolEntity.fromProtocolTreeNode(node)
+        entity.__class__ = SubjectGroupsNotificationProtocolEntity
         subjectNode = node.getChild("subject")
         entity.setSubjectData(subjectNode["subject"], subjectNode["s_o"], subjectNode["s_t"])
         return entity

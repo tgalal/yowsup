@@ -32,8 +32,17 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
         if entity.__class__ in self.__class__.HANDLE:
             if entity.__class__ == SubjectGroupsIqProtocolEntity:
                 self._sendIq(entity, self.onSetSubjectSuccess, self.onSetSubjectFailed)
+            elif entity.__class__ == CreateGroupsIqProtocolEntity:
+                self._sendIq(entity, self.onCreateGroupSuccess, self.onCreateGroupFailed)
             else:
                 self.entityToLower(entity)
+
+    def onCreateGroupSuccess(self, node, originalIqEntity):
+        logger.info("Group create success")
+        self.toUpper(SuccessCreateGroupsIqProtocolEntity.fromProtocolTreeNode(node))
+
+    def onCreateGroupFailed(self, node, originalIqEntity):
+        logger.error("Group create failed")
 
     def onSetSubjectSuccess(self, node, originalIqEntity):
         logger.info("Group subject change success")
@@ -50,4 +59,4 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
     def recvNotification(self, node):
         if node["type"] == "w:gp2":
             if node.getChild("subject"):
-                self.toUpper(SubjectNotificationProtocolEntity.fromProtocolTreeNode(node))
+                self.toUpper(SubjectGroupsNotificationProtocolEntity.fromProtocolTreeNode(node))
