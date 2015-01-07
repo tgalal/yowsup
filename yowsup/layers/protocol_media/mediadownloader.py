@@ -30,32 +30,31 @@ class MediaDownloader:
             u = urlopen(url)
             
             path = tempfile.mkstemp()[1]
-            f = open(path, "wb")
-            meta = u.info()
+            with open(path, "wb") as f:
+                meta = u.info()
 
-            if sys.version_info >= (3, 0):
-                fileSize = int(u.getheader("Content-Length"))
-            else:
-                fileSize = int(meta.getheaders("Content-Length")[0])
+                if sys.version_info >= (3, 0):
+                    fileSize = int(u.getheader("Content-Length"))
+                else:
+                    fileSize = int(meta.getheaders("Content-Length")[0])
 
-            fileSizeDl = 0
-            blockSz = 8192
-            lastEmit = 0
-            while True:
-                buf = u.read(blockSz)
-                
-                if not buf:
-                    break
+                fileSizeDl = 0
+                blockSz = 8192
+                lastEmit = 0
+                while True:
+                    buf = u.read(blockSz)
 
-                fileSizeDl += len(buf)
-                f.write(buf)
-                status = (fileSizeDl * 100 / fileSize)
-            
-                if self.progressCallback and lastEmit != status:
-                    self.progressCallback(int(status))
-                    lastEmit = status;
-            
-            f.close()
+                    if not buf:
+                        break
+
+                    fileSizeDl += len(buf)
+                    f.write(buf)
+                    status = (fileSizeDl * 100 / fileSize)
+
+                    if self.progressCallback and lastEmit != status:
+                        self.progressCallback(int(status))
+                        lastEmit = status;
+
             if self.successCallback:
                 self.successCallback(path)
         except:
