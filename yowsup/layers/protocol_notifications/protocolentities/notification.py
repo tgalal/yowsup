@@ -16,7 +16,13 @@ class NotificationProtocolEntity(ProtocolEntity):
         self.notify     = notify
         self.offline    = offline == "1"
    
-    
+
+    def __str__(self):
+        out = "Notification\n"
+        out += "From: %s\n" % self.getFrom()
+        out += "Type: %s\n" % self.getType()
+        return out
+
     def getFrom(self):
         return self._from
 
