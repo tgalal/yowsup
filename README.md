@@ -6,7 +6,7 @@
 
 Happy new year!
 
-P.S: Yowsup's license changed to GPLv3
+P.S: Yowsup's license changed to GPLv3 (previously the MIT License was used).
 
 ### (December 31, 2014)
 
@@ -114,4 +114,4 @@ Thanks!
 
 # License:
 
-Licensed under the GPLv3: http://www.gnu.org/licenses/gpl-3.0.html
+As of January 1, 2015 yowsup is licensed under the GPLv3: http://www.gnu.org/licenses/gpl-3.0.html. Earlier versions were licensed under the MIT License.
