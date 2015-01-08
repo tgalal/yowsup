@@ -6,7 +6,7 @@
 
 Happy new year!
 
-P.S: Yowsup's license changed to GPLv3 (previously the MIT License was used).
+P.S: Yowsup's [license changed](https://github.com/tgalal/yowsup#license) to GPLv3 (previously the MIT License was used).
 
 ### (December 31, 2014)
 
@@ -114,4 +114,6 @@ Thanks!
 
 # License:
 
-As of January 1, 2015 yowsup is licensed under the GPLv3: http://www.gnu.org/licenses/gpl-3.0.html. Earlier versions were licensed under the MIT License.
+As of January 1, 2015 yowsup is licensed under the GPLv3: http://www.gnu.org/licenses/gpl-3.0.html. 
+
+Earlier versions were licensed under the MIT License and the reason for the change is the new dependency on [python-axolotl](https://github.com/tgalal/python-axolotl) (GPLv3) which provides us with End-to-End encryption, without which yowsup would have been unusable in the near future.
