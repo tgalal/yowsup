@@ -140,7 +140,7 @@ class RegistrationArgParser(YowArgParser):
 
 
         try:
-            assert self.args["requestcode"] or self.args["register"] or self.args["exists"], "Must specify one of the modes -r/-R/-e"
+            assert self.args["requestcode"] or self.args["register"], "Must specify one of the modes -r/-R"
             assert "cc"      in config, "Must specify cc (country code)"
             assert "phone"   in config, "Must specify phone number"
         except AssertionError as e:
