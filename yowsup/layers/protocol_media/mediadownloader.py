@@ -1,5 +1,5 @@
-
-import sys, tempfile
+import sys, tempfile, logging
+logger = logging.getLogger(__name__)
 
 if sys.version_info >= (3, 0):
     from urllib.request import urlopen
@@ -23,7 +23,7 @@ class MediaDownloader:
                     url = "https://" if self.port == 443 else "http://"
                     url = url + self.url
                     url = url + "?" + urlencode(self.params)
-                    print(url)
+                    logger.debug("URL is %s" % url)
                 else:
                     raise Exception("No url specified for fetching")
             
@@ -58,6 +58,6 @@ class MediaDownloader:
             if self.successCallback:
                 self.successCallback(path)
         except:
-            print("Error occured at transfer %s"%sys.exc_info()[1])
+            logger.exception("Error occured at transfer")
             if self.errorCallback:
                 self.errorCallback();
