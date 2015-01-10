@@ -20,7 +20,6 @@ from yowsup.layers.protocol_privacy            import YowPrivacyProtocolLayer
 
 
 YOWSUP_CORE_LAYERS = (
-    YowLoggerLayer,
     YowCoderLayer,
     YowCryptLayer,
     YowStanzaRegulator,
