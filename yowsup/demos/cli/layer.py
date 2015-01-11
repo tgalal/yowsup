@@ -7,9 +7,7 @@ import sys
 from yowsup.common import YowConstants
 import datetime
 import os
-
-
-##protocolentities
+import logging
 from yowsup.layers.protocol_receipts.protocolentities    import *
 from yowsup.layers.protocol_groups.protocolentities      import *
 from yowsup.layers.protocol_presence.protocolentities    import *
@@ -21,10 +19,12 @@ from yowsup.layers.protocol_contacts.protocolentities    import *
 from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.layers.protocol_chatstate.protocolentities   import *
 from yowsup.layers.protocol_privacy.protocolentities     import *
+from yowsup.layers.protocol_media.protocolentities       import *
+from yowsup.layers.protocol_media.mediauploader import MediaUploader
 from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
 from yowsup.layers.axolotl import YowAxolotlLayer
 
-###
+logger = logging.getLogger(__name__)
 
 class YowsupCliLayer(Cli, YowInterfaceLayer):
     PROP_RECEIPT_AUTO       = "org.openwhatsapp.yowsup.prop.cli.autoreceipt"
@@ -254,9 +254,15 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def message_delivered(self, message_id):
         pass
 
-    #@clicmd("Send and image")
-    def image_send(self, jid, path):
-        pass
+    @clicmd("Send and image")
+    def image_send(self, number, path):
+        if self.assertConnected():
+            jid = self.aliasToJid(number)
+            entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE, filePath=path)
+            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity)
+            errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
+
+            self._sendIq(entity, successFn, errorFn)
 
     @clicmd("Send typing state")
     def state_typing(self, jid):
@@ -389,27 +395,42 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             )
 
 
+    def doSendImage(self, filePath, url, to, ip = None):
+        entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
+        print(entity)
+        self.toLower(entity)
+
+    ########### callbacks ############
+
+    def onRequestUploadResult(self, jid, filePath, resultRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity):
+        if resultRequestUploadIqProtocolEntity.isDuplicate():
+            self.doSendImage(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid,
+                             resultRequestUploadIqProtocolEntity.getIp())
+        else:
+            # successFn = lambda filePath, jid, url: self.onUploadSuccess(filePath, jid, url, resultRequestUploadIqProtocolEntity.getIp())
+            mediaUploader = MediaUploader(jid, self.getOwnJid(), filePath,
+                                      resultRequestUploadIqProtocolEntity.getUrl(),
+                                      resultRequestUploadIqProtocolEntity.getResumeOffset(),
+                                      self.onUploadSuccess, self.onUploadError, self.onUploadProgress, async=False)
+            mediaUploader.start()
+
+    def onRequestUploadError(self, jid, path, errorRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity):
+        logger.error("Request upload for file %s for %s failed" % (path, jid))
+
+    def onUploadSuccess(self, filePath, jid, url):
+        self.doSendImage(filePath, url, jid)
+
+    def onUploadError(self, filePath, jid, url):
+        logger.error("Upload file %s to %s for %s failed!" % (filePath, url, jid))
+
+    def onUploadProgress(self, filePath, jid, url, progress):
+        sys.stdout.write("%s => %s, %d%% \r" % (os.path.basename(filePath), jid, progress))
+        sys.stdout.flush()
+
     def __str__(self):
         return "CLI Interface Layer"
-
-
-
-
-
-    def group_create_success(self, entity):
-        self.iqregistry.drop(entity.getId())
-        self.notify("created with id blablabla")
-
-
 
     @clicmd("Print this message")
     def help(self):
         self.print_usage()
     
-    @clicmd("halawa")
-    def test(self):
-        pass
-
-if __name__ == "__main__":
-    yc = YowsupCli()
-    yc.print_usage()
