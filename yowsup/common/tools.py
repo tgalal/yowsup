@@ -126,7 +126,7 @@ class ImageTools:
     @staticmethod
     def generatePreviewFromImage(image):
         fd, path = tempfile.mkstemp()
-        fileObj = os.fdopen(fd)
+        fileObj = os.fdopen(fd, "rb+")
         preview = None
         if ImageTools.scaleImage(image, fileObj, "JPEG", YowConstants.PREVIEW_WIDTH, YowConstants.PREVIEW_HEIGHT):
             fileObj.seek(0)

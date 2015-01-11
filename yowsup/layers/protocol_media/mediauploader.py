@@ -3,6 +3,9 @@ from yowsup.common.http.waresponseparser import JSONResponseParser
 import socket, ssl, mimetypes, os, hashlib, sys
 from time import sleep
 import threading
+import logging
+
+logger = logging.getLogger(__name__)
 
 class MediaUploader(WARequest, threading.Thread):
     def __init__(self, jid, accountJid, sourcePath, uploadUrl, resumeOffset = 0, successClbk = None, errorClbk = None, progressCallback = None, async = True):
@@ -136,6 +139,6 @@ class MediaUploader(WARequest, threading.Thread):
                 self.errorCallback(uploadUrl)
 
         except:
-            print("Error occured at transfer %s"%sys.exc_info()[1])
+            logger.exception("Error occured at transfer %s"%sys.exc_info()[1])
             if self.errorCallback:
                 self.errorCallback(sourcePath, self.jid, uploadUrl)
