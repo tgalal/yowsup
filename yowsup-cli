@@ -3,8 +3,6 @@ __version__ = "2.0.2"
 __author__ = "Tarek Galal"
 
 import sys, argparse, yowsup, logging
-from yowsup.demos import cli, echoclient, sendclient
-from yowsup.registration import WACodeRequest, WARegRequest
 
 HELP_CONFIG = """
 ############# Yowsup Configuration Sample ###########
@@ -164,6 +162,7 @@ class RegistrationArgParser(YowArgParser):
         return True
 
     def handleRequestCode(self, method, config):
+        from yowsup.registration import WACodeRequest
         codeReq = WACodeRequest(config["cc"],
                                 config["phone"],
                                 config["mcc"],
@@ -176,6 +175,7 @@ class RegistrationArgParser(YowArgParser):
         print(self.resultToString(result))
 
     def handleRegister(self, code, config):
+        from yowsup.registration import WARegRequest
         code = code.replace('-', '')
         req = WARegRequest(config["cc"], config["phone"], code)
         result = req.send()
@@ -240,6 +240,7 @@ class DemosArgParser(YowArgParser):
             return None
 
     def startCmdline(self):
+        from yowsup.demos import cli
         credentials = self._getCredentials()
         if not credentials:
             print("Error: You must specify a configuration method")
@@ -248,6 +249,7 @@ class DemosArgParser(YowArgParser):
         stack.start()
 
     def startEcho(self):
+        from yowsup.demos import echoclient
         credentials = self._getCredentials()
         if not credentials:
             print("Error: You must specify a configuration method")
@@ -260,6 +262,7 @@ class DemosArgParser(YowArgParser):
             sys.exit(0)
 
     def startSendClient(self):
+        from yowsup.demos import sendclient
         credentials = self._getCredentials()
         if not credentials:
             print("Error: You must specify a configuration method")
