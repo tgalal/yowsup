@@ -1,5 +1,6 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
+from yowsup.common.tools import ImageTools
 class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
     '''
     <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
@@ -72,3 +73,20 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
             mediaNode.getAttributeValue("caption")
             )
         return entity
+
+
+    @staticmethod
+    def fromFilePath(path, url, ip, to, mimeType = None, caption = None, dimensions = None):
+        preview = ImageTools.generatePreviewFromImage(path)
+        entity = DownloadableMediaMessageProtocolEntity.fromFilePath(path, url, DownloadableMediaMessageProtocolEntity.MEDIA_TYPE_IMAGE, ip, to, mimeType, preview)
+        entity.__class__ = ImageDownloadableMediaMessageProtocolEntity
+
+        if not dimensions:
+            dimensions = ImageTools.getImageDimensions(path)
+
+        assert dimensions, "Could not determine image dimensions"
+
+        width, height = dimensions
+        entity.setImageProps("raw", width, height, caption)
+        return entity
+

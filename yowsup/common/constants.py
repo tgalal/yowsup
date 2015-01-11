@@ -5,3 +5,6 @@ class YowConstants:
         )
 
     PATH_STORAGE = "~/.yowsup"
+
+    PREVIEW_WIDTH = 64
+    PREVIEW_HEIGHT = 64
