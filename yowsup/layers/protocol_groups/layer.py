@@ -20,7 +20,7 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
 
     def __init__(self):
         handleMap = {
-            "iq": (self.recvIq, self.sendIq),
+            "iq": (None, self.sendIq),
             "notification": (self.recvNotification, None)
         }
         super(YowGroupsProtocolLayer, self).__init__(handleMap)
@@ -34,6 +34,10 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
                 self._sendIq(entity, self.onSetSubjectSuccess, self.onSetSubjectFailed)
             elif entity.__class__ == CreateGroupsIqProtocolEntity:
                 self._sendIq(entity, self.onCreateGroupSuccess, self.onCreateGroupFailed)
+            elif entity.__class__ == ParticipantsGroupsIqProtocolEntity:
+                self._sendIq(entity, self.onGetParticipantsResult)
+            elif entity.__class__ == ListGroupsIqProtocolEntity:
+                self._sendIq(entity, self.onListGroupsResult)
             else:
                 self.entityToLower(entity)
 
@@ -50,11 +54,11 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
     def onSetSubjectFailed(self, node, originalIqEntity):
         logger.error("Group subject change failed")
 
-    def recvIq(self, node):
-        if node["type"] == "result" and node["from"] == "g.us" and len(node.getAllChildren()) > 0:
-            self.toUpper(ListGroupsResultIqProtocolEntity.fromProtocolTreeNode(node))
-        elif node["type"] == "result" and len(node.getAllChildren()) > 0:
-            self.toUpper(ListParticipantsResultIqProtocolEntity.fromProtocolTreeNode(node))
+    def onGetParticipantsResult(self, node, originalIqEntity):
+        self.toUpper(ListParticipantsResultIqProtocolEntity.fromProtocolTreeNode(node))
+
+    def onListGroupsResult(self, node, originalIqEntity):
+        self.toUpper(ListGroupsResultIqProtocolEntity.fromProtocolTreeNode(node))
 
     def recvNotification(self, node):
         if node["type"] == "w:gp2":
