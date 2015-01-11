@@ -74,6 +74,8 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def normalizeJid(self, number):
         if '@' in number:
             return number
+        elif "-" in number:
+            return "%s@g.us" % number
 
         return "%s@s.whatsapp.net" % number
 
@@ -190,19 +192,19 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Get pariticipants in a group")
     def group_participants(self, group_jid):
         if self.assertConnected():
-            entity = ParticipantsGroupsIqProtocolEntity(group_jid)
+            entity = ParticipantsGroupsIqProtocolEntity(self.aliasToJid(group_jid))
             self.toLower(entity)
 
     @clicmd("Change group subject")
     def group_setSubject(self, jid, subject):
         if self.assertConnected():
-            entity = SubjectGroupsIqProtocolEntity(jid, subject)
+            entity = SubjectGroupsIqProtocolEntity(self.aliasToJid(jid), subject)
             self.toLower(entity)
 
     @clicmd("Get shared keys")
     def keys_get(self, jid):
         if self.assertConnected():
-            entity = GetKeysIqProtocolEntity(jid)
+            entity = GetKeysIqProtocolEntity(self.aliasToJid(jid))
             self.toLower(entity)
 
     @clicmd("Send prekeys")
