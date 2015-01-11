@@ -1,7 +1,9 @@
 from yowsup.layers import YowLayer
 from yowsup import ProtocolTreeNode
 from .mediadownloader import MediaDownloader
-import shutil, os
+import shutil, os, logging
+logger = logging.getLogger(__name__)
+
 class YowMediaPictureLayer(YowLayer):
     def send(self, data):
         self.toLower(data)
@@ -13,17 +15,17 @@ class YowMediaPictureLayer(YowLayer):
             self.toUpper(node)
 
     def downloadMedia(self, url):
-        print("Downloading %s" % url)
+        logger.debug("Downloading %s" % url)
         downloader = MediaDownloader(self.onSuccess, self.onError, self.onProgress)
         downloader.download(url)
 
     def onError(self):
-        print("Error download file")
+        logger.error("Error download file")
 
     def onSuccess(self, path):
         outPath = "/tmp/yowfiles/%s.jpg" % os.path.basename(path)
         shutil.copyfile(path, outPath)
-        print("Picture downloaded to %s" % outPath)
+        logger.debug("Picture downloaded to %s" % outPath)
 
     def onProgress(self, progress):
-        print("Download progress %s" % progress)
+        logger.debug("Download progress %s" % progress)
