@@ -142,7 +142,7 @@ class RegistrationArgParser(YowArgParser):
             assert "cc"      in config, "Must specify cc (country code)"
             assert "phone"   in config, "Must specify phone number"
         except AssertionError as e:
-            print(e.message)
+            print(e)
             print("\n")
             return False
 
