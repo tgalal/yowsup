@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__ = "2.0.2"
+__version__ = "2.0.9"
 __author__ = "Tarek Galal"
 
 import sys, argparse, yowsup, logging
