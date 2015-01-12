@@ -61,7 +61,7 @@ class StorageTools:
         idPath = path + "/id"
         if os.path.isfile(idPath):
             with open(path + "/id", 'rb') as idFile:
-                out = idFile.readline()
+                out = idFile.read()
         return out
 
 
