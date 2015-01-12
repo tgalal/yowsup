@@ -399,7 +399,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     def doSendImage(self, filePath, url, to, ip = None):
         entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
-        print(entity)
         self.toLower(entity)
 
     ########### callbacks ############
