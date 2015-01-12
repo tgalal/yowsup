@@ -1,8 +1,16 @@
-# Yowsup 2.0
+# Yowsup 2
 
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z9KKEUVYEY6BN" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
 
-## Updates (January 1, 2015) 
+## Updates (January 12, 2015)
+
+Yowsup 2.2.15 is out.
+
+Image upload and send is now implemented. [Read here](https://github.com/tgalal/yowsup/wiki/Yowsup2:-Upload-and-send-Media) how to integrate in your code, or try it out with yowsup-cli
+
+[Read full release notes](https://github.com/tgalal/yowsup/releases/tag/v2.2.15)
+
+### Updates (January 1, 2015) 
 
 Happy new year!
 
@@ -54,14 +62,19 @@ Here is what you need to know about Yowsup 2.0 to get started: (Or quickly [jump
  * **[Yowsup development, debugging, maintainance and sanity](https://github.com/tgalal/yowsup/wiki/Yowsup-development,-debugging,-maintainance-and-sanity)**
 
 
-## Installation (Updated Dec 31, 2014)
+## Installation 
+(Updated Jan 12, 2015)
 
  - Requires python2.6+, or python3.0 +
  - Required python packages: python-dateutil, 
  - Required python packages for end-to-end encryption: protobuf, pycrypto, python-axolotl-curve25519
- - Required python packages for yowsup-cli: argparse, readline (or pyreadline for windows)
+ - Required python packages for yowsup-cli: argparse, readline (or pyreadline for windows), pillow (for sending images)
 
-Install using setup.py to pull all python dependencies
+Install using setup.py to pull all python dependencies, or using pip:
+
+```
+pip install yowsup2
+```
 
 ### Linux
 
@@ -72,8 +85,10 @@ python setup.py install
 Because of a bug with python-dateutil package you might get permission error for some dateutil file called requires.txt when you use yowsup (see [this bug report](https://bugs.launchpad.net/dateutil/+bug/1243202)) to fix you'll need to chmod 644 that file.
 
 ### Mac
-
-I don't have mac to test. Send me instructions or a MacBook.
+```
+python setup.py install
+```
+Administrators privileges might be required, if so then run with 'sudo' 
 
 ### Windows
 
