@@ -1,8 +1,9 @@
 from yowsup.layers.protocol_notifications.protocolentities.notification import NotificationProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from yowsup.structs.protocolentity import ProtocolEntityTest
+import unittest
 
-class NotificationProtocolEntityTest(ProtocolEntityTest):
+class NotificationProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
         self.ProtocolEntity = NotificationProtocolEntity
         attribs = {
