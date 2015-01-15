@@ -9,7 +9,7 @@ python:
 install:
     - python setup.py install
 # command to run tests
-script: python -m unittest discover -v
+script: nosetests
 branches:
   only:
     - master
