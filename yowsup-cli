@@ -217,6 +217,11 @@ class DemosArgParser(YowArgParser):
                                                                      "wait for server receipt and exit",
                               metavar=("phone", "message"), nargs = 2)
 
+        sendOpts = self.add_argument_group("Send media demo")
+        sendOpts.add_argument('-x', '--media', action="store", help="Send a media message to specified phone number, "
+                                                                     "wait for server receipt and exit (jpg, mp3, mp4).",
+                              metavar=("phone", "path"), nargs = 2)
+
     def process(self):
         super(DemosArgParser, self).process()
         if self.args["yowsup"]:
@@ -225,6 +230,8 @@ class DemosArgParser(YowArgParser):
             self.startEcho()
         elif self.args["send"]:
             self.startSendClient()
+        elif self.args["media"]:
+            self.startMediaClient()
         else:
             return False
         return True
@@ -271,6 +278,21 @@ class DemosArgParser(YowArgParser):
         try:
             stack = sendclient.YowsupSendStack(credentials, [([self.args["send"][0], self.args["send"][1]])],
                                                self.args["moxie"])
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+    def startMediaClient(self):
+        from yowsup.demos import mediaclient
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+
+        try:
+            stack = mediaclient.SendMediaStack(credentials, [(self.args["media"][0], self.args["media"][1])])
+
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
