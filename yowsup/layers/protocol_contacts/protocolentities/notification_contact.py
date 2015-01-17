@@ -8,7 +8,7 @@ class ContactNotificationProtocolEntity(NotificationProtocolEntity):
     
     '''
 
-    def __init__(self, _type, _id,  _from, status, timestamp, notify, offline = False):
+    def __init__(self, _id,  _from, timestamp, notify, offline = False):
         super(ContactNotificationProtocolEntity, self).__init__("contacts", _id, _from, timestamp, notify, offline)
 
 

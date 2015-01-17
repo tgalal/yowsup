@@ -1,9 +1,11 @@
 from yowsup.layers.protocol_acks.protocolentities.ack_incoming import IncomingAckProtocolEntity
-from yowsup.layers.protocol_acks.protocolentities.test_ack import AckProtocolEntityTest
+from yowsup.structs.protocolentity import ProtocolEntityTest
+import unittest
+import time
 
-class IncomingAckProtocolEntityTest(AckProtocolEntityTest):
+entity = IncomingAckProtocolEntity("12345", "message", "sender@s.whatsapp.com", int(time.time()))
+
+class IncomingAckProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
-        super(IncomingAckProtocolEntityTest, self).setUp()
         self.ProtocolEntity = IncomingAckProtocolEntity
-        self.node.setAttribute("from", "ack_from")
-        self.node.setAttribute("t", "ack_timestamp")
+        self.node = entity.toProtocolTreeNode()
