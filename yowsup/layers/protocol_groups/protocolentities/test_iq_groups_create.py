@@ -1,10 +1,10 @@
 from yowsup.layers.protocol_groups.protocolentities.iq_groups_create import CreateGroupsIqProtocolEntity
-from yowsup.layers.protocol_groups.protocolentities.test_iq_groups import GroupsIqProtocolEntityTest
-from yowsup.structs import ProtocolTreeNode
+from yowsup.structs.protocolentity import ProtocolEntityTest
+import unittest
 
-class CreateGroupsIqProtocolEntityTest(GroupsIqProtocolEntityTest):
+entity = CreateGroupsIqProtocolEntity("group subject")
+
+class CreateGroupsIqProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
-        super(CreateGroupsIqProtocolEntityTest, self).setUp()
         self.ProtocolEntity = CreateGroupsIqProtocolEntity
-        groupNode = ProtocolTreeNode("group", {"action": "create", "subject": "group_subj"})
-        self.node.addChild(groupNode)
+        self.node = entity.toProtocolTreeNode()
