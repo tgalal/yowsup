@@ -1,11 +1,10 @@
 
 from lxml import etree
 import binascii
+import sys
 
 def ProtocolTreeNode(tag = None, attributes = None, children = None , data = None, ns = None, xmlString = None):
     assert bool(tag) ^ bool(xmlString), "Must provide either tag or xmlString"
-
-
 
     if ":" in tag:
         tagNS, tagName = tag.split(':')
@@ -25,6 +24,8 @@ class _ProtocolTreeNode(etree.ElementBase):
         children = children or []
         nsmap = {}
 
+        if ns is not None:
+            nsmap[ns[0]] = ns[1]
 
         element = _ProtocolTreeNode.parser.makeelement(tag, nsmap = nsmap)
         element.setData(data)
@@ -33,6 +34,10 @@ class _ProtocolTreeNode(etree.ElementBase):
             element.setAttribute(k, v)
 
         return element
+
+    def _init(self):
+        self.isHexEncoded = False
+
     def getTag(self):
         return self.tag
 
@@ -118,23 +123,38 @@ class _ProtocolTreeNode(etree.ElementBase):
         return etree.tostring(self, pretty_print = True)
 
     def __str__(self, ensureNamespace = True):
-        if ensureNamespace and ":" in self.getTag():
-            ns = self.getTag().split(':')[0]
-            attrib = "xmlns:%s" % ns
-            if not self.hasAttribute(attrib):
-                self.setAttribute(attrib, ns)
-                result = self.toPrettyXml()
-                self.removeAttribute(attrib)
-                return result
+        # if ensureNamespace and ":" in self.getTag():
+        #     ns = self.getTag().split(':')[0]
+        #     attrib = "xmlns:%s" % ns
+        #     if not self.hasAttribute(attrib):
+        #         self.setAttribute(attrib, ns)
+        #         result = self.toPrettyXml()
+        #         self.removeAttribute(attrib)
+        #         return result
 
-        return self.toPrettyXml()
+        result = self.toPrettyXml()
+        if type(result == bytes):
+            result = result.decode('utf-8')
+
+        return result
 
     def getData(self):
-        return binascii.unhexlify(self.text) if self.text else None
+        if self.text:
+            if not self.isHexEncoded:
+                return self.text
+
+            data = binascii.unhexlify(self.text)
+            return data if sys.version_info < (3, 0) else data.decode()
 
     def setData(self, data):
         if data:
-            self.text = binascii.hexlify(data)
+            try:
+                self.text = data
+            except ValueError:
+                if type(data) is not bytes:
+                    data = data.encode()
+                self.text= binascii.hexlify(data)
+                self.isHexEncoded = True
 
 
     @staticmethod
@@ -190,3 +210,7 @@ class _ProtocolTreeNode(etree.ElementBase):
     def getAllChildren(self,tag = None):
         return self.findall(tag) if tag is not None else self[:]
 
+p = ProtocolTreeNode("stream:features", ns=("stream", "stream"))
+print(p)
+
+# print(type(s))
