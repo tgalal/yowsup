@@ -17,9 +17,9 @@ class YowIbProtocolLayer(YowProtocolLayer):
             self.toLower(entity.toProtocolTreeNode())
 
     def recvIb(self, node):
-        if node.getChild("dirty"):
+        if node.getChild("dirty") is not None:
             self.toUpper(DirtyIbProtocolEntity.fromProtocolTreeNode(node))
-        elif node.getChild("offline"):
+        elif node.getChild("offline") is not None:
             self.toUpper(OfflineIbProtocolEntity.fromProtocolTreeNode(node))
         else:
             raise ValueError("Unkown ib node %s" % node)

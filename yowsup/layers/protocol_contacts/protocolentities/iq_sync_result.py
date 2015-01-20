@@ -80,17 +80,17 @@ class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
         outNode          = syncNode.getChild("out")
         inNode           = syncNode.getChild("in")
         invalidNode      = syncNode.getChild("invalid")
-        outUsers         = outNode.getAllChildren() if outNode else []
-        inUsers          = inNode.getAllChildren()  if inNode else []
-        invalidUsers     = [inode.data for inode in invalidNode.getAllChildren()] if invalidNode else []
+        outUsers         = outNode.getAllChildren() if outNode is not None else []
+        inUsers          = inNode.getAllChildren()  if inNode is not None else []
+        invalidUsers     = [inode.getData() for inode in invalidNode.getAllChildren()] if invalidNode is not None else []
 
         outUsersDict = {}
         for u in outUsers:
-            outUsersDict[u.data] = u.getAttributeValue("jid")
+            outUsersDict[u.getData()] = u.getAttributeValue("jid")
 
         inUsersDict = {}
         for u in inUsers:
-            inUsersDict[u.data] = u.getAttributeValue("jid")
+            inUsersDict[u.getData()] = u.getAttributeValue("jid")
 
         entity           = SyncIqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = ResultSyncIqProtocolEntity

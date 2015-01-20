@@ -68,7 +68,7 @@ class GetSyncIqProtocolEntity(SyncIqProtocolEntity):
     def fromProtocolTreeNode(node):
         syncNode         = node.getChild("sync")
         userNodes        = syncNode.getAllChildren()
-        numbers          = [userNode.data for userNode in userNodes]
+        numbers          = [userNode.getData() for userNode in userNodes]
         entity           = SyncIqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = GetSyncIqProtocolEntity
 

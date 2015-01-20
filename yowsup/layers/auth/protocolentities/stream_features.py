@@ -9,7 +9,7 @@ class StreamFeaturesProtocolEntity(ProtocolEntity):
 
     def toProtocolTreeNode(self):
         featureNodes = [ProtocolTreeNode(feature) for feature in self.features]
-        return self._createProtocolTreeNode({}, children = featureNodes, data = None)
+        return self._createProtocolTreeNode({}, children = featureNodes, data = None, ns=("stream", "stream"))
 
 
     @staticmethod

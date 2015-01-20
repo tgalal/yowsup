@@ -51,7 +51,8 @@ class ResultRequestUploadIqProtocolEntity(ResultIqProtocolEntity):
         entity= ResultIqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = ResultRequestUploadIqProtocolEntity
         mediaNode = node.getChild("media")
-        if mediaNode:
+
+        if mediaNode is not None:
             entity.setUploadProps(mediaNode["url"], mediaNode["ip"], mediaNode["resume"])
         else:
             duplicateNode = node.getChild("duplicate")

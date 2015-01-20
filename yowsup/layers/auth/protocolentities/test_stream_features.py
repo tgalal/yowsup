@@ -9,4 +9,4 @@ class StreamFeaturesProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
         attribs = {
         }
         childNode = ProtocolTreeNode("receipt_acks", {}, None, None)
-        self.node = ProtocolTreeNode("stream:features", attribs, [childNode])
+        self.node = ProtocolTreeNode("stream:features", attribs, [childNode], ns=("stream", "stream"))

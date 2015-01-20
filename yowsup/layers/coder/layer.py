@@ -31,7 +31,7 @@ class YowCoderLayer(YowLayer):
 
     def receive(self, data):
         node = self.reader.getProtocolTreeNode(data)
-        if node:
+        if node is not None:
             self.toUpper(node)
 
     def write(self, i):

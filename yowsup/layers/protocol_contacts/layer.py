@@ -14,17 +14,17 @@ class YowContactsIqProtocolLayer(YowProtocolLayer):
 
     def recvNotification(self, node):
         if node["type"] == "contacts":
-            if node.getChild("remove"):
+            if node.getChild("remove") is not None:
                 self.toUpper(RemoveContactNotificationProtocolEntity.fromProtocolTreeNode(node))
-            elif node.getChild("add"):
+            elif node.getChild("add") is not None:
                 self.toUpper(AddContactNotificationProtocolEntity.fromProtocolTreeNode(node))
-            elif node.getChild("update"):
+            elif node.getChild("update") is not None:
                 self.toUpper(UpdateContactNotificationProtocolEntity.fromProtocolTreeNode(node))
             else:
                 self.raiseErrorForNode(node)
 
     def recvIq(self, node):
-        if node["type"] == "result" and node.getChild("sync"):
+        if node["type"] == "result" and node.getChild("sync") is not None:
             self.toUpper(ResultSyncIqProtocolEntity.fromProtocolTreeNode(node))
 
     def sendIq(self, entity):
