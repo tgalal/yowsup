@@ -30,19 +30,19 @@ class WriteEncoder:
 
     def writeInternal(self, node, data):
 
-        x = 1 + (0 if node.attributes is None else len(node.attributes) * 2) + (0 if not node.hasChildren() else 1) + (0 if node.data is None else 1)
+        x = 1 + (0 if node.getAttributes() is None else len(node.getAttributes()) * 2) + (0 if not node.hasChildren() else 1) + (0 if node.getData() is None else 1)
 
-        self.writeListStart(1 + (0 if node.attributes is None else len(node.attributes) * 2) + (0 if not node.hasChildren() else 1) + (0 if node.data is None else 1), data)
+        self.writeListStart(1 + (0 if node.getAttributes() is None else len(node.getAttributes()) * 2) + (0 if not node.hasChildren() else 1) + (0 if node.getData() is None else 1), data)
 
-        self.writeString(node.tag, data)
-        self.writeAttributes(node.attributes, data);
+        self.writeString(node.getTag(), data)
+        self.writeAttributes(node.getAttributes(), data);
 
-        if node.data is not None:
-            self.writeBytes(node.data, data)
+        if node.getData() is not None:
+            self.writeBytes(node.getData(), data)
 
         if node.hasChildren():
-            self.writeListStart(len(node.children), data);
-            for c in node.children:
+            self.writeListStart(len(node.getAllChildren()), data);
+            for c in node.getAllChildren():
                 self.writeInternal(c, data);
 
 
