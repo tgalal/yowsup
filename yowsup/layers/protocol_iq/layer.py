@@ -50,8 +50,8 @@ class YowIqProtocolLayer(YowProtocolLayer):
         self._pingQueue[id] = None
         pingQueueSize = len(self._pingQueue)
         self._pingQueueLock.release()
-        self.__logger.debug("ping queue size: %d" % pingQueueSize)
-        if pingQueueSize >= 3:
+        if pingQueueSize >= 2:
+            self.__logger.debug("ping queue size: %d" % pingQueueSize)
             self.getStack().broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT))
             time.sleep(1)
             self.getStack().broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))
