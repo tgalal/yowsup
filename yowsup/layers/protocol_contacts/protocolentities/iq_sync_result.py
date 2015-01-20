@@ -25,7 +25,7 @@ class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
 
     def __init__(self,_id, sid, index, last, version, inNumbers, outNumbers, invalidNumbers, wait = None):
         super(ResultSyncIqProtocolEntity, self).__init__("result", _id, sid, index, last)
-        self.setResultSyncProps(wait, version, inNumbers, outNumbers, invalidNumbers)
+        self.setResultSyncProps(version, inNumbers, outNumbers, invalidNumbers, wait)
 
     def setResultSyncProps(self, version, inNumbers, outNumbers, invalidNumbers, wait = None):
         assert type(inNumbers) is dict, "in numbers must be a dict {number -> jid}"

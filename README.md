@@ -1,4 +1,4 @@
-# Yowsup 2
+# Yowsup 2 [![Build Status](https://travis-ci.org/tgalal/yowsup.svg?branch=master)](https://travis-ci.org/tgalal/yowsup)
 
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z9KKEUVYEY6BN" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
 
@@ -106,6 +106,11 @@ compiler=mingw32
 
 If pycrypto fails to install with some "chmod error". You can install it separately using something like 
 ```easy_install http://www.voidspace.org.uk/downloads/pycrypto26/pycrypto-2.6.win32-py2.7.exe```
+
+or for python3 from:
+
+ > [https://github.com/axper/python3-pycrypto-windows-installer](https://github.com/axper/python3-pycrypto-windows-installer)
+
 and then rerun the install command again
 
 # Special thanks
