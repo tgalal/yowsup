@@ -35,9 +35,6 @@ class _ProtocolTreeNode(etree.ElementBase):
 
         return element
 
-    def _init(self):
-        self.isHexEncoded = False
-
     def getTag(self):
         return self.tag
 
@@ -138,23 +135,41 @@ class _ProtocolTreeNode(etree.ElementBase):
 
         return result
 
+
     def getData(self):
         if self.text:
-            if not self.isHexEncoded:
-                return self.text
-
-            data = binascii.unhexlify(self.text)
-            return data if sys.version_info < (3, 0) else data.decode()
+            return self.text.encode().decode("unicode_escape")
 
     def setData(self, data):
+        if data:
+            if type(data) is bytes:
+                data = data.decode('latin-1')
+            self.text = data.encode("unicode_escape")
+
+    def _getData(self):
+        if self.text:
+            hexEncoded = self.text.startswith("0x")
+            if not hexEncoded:
+                return self.text
+
+            data = binascii.unhexlify(self.text[2:])
+            return data #if sys.version_info < (3, 0) else data.decode()
+
+    def _setData(self, data):
         if data:
             try:
                 self.text = data
             except ValueError:
                 if type(data) is not bytes:
                     data = data.encode()
-                self.text= binascii.hexlify(data)
-                self.isHexEncoded = True
+
+                self.text = binascii.hexlify(data)
+                self.text = "0x" + self.text
+
+                # if sys.version_info < (3,0):
+                #     self.text =  "0x" + binascii.hexlify(data)
+                # else:
+                #     self.text =  binascii.hexlify(data)
 
 
     @staticmethod
@@ -210,7 +225,16 @@ class _ProtocolTreeNode(etree.ElementBase):
     def getAllChildren(self,tag = None):
         return self.findall(tag) if tag is not None else self[:]
 
-p = ProtocolTreeNode("stream:features", ns=("stream", "stream"))
+
+data = bytes([1,23])
+data = data.decode("latin-1")
+data = data.encode('unicode-escape')
+print(type(data))
+p = ProtocolTreeNode("stream:features", ns=("stream", "stream"), data= data)
+
 print(p)
+
+data = p.getData()
+print(data.encode().decode("unicode-escape"))
 
 # print(type(s))
