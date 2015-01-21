@@ -3,7 +3,7 @@ from lxml import etree
 import binascii
 import sys
 
-def ProtocolTreeNode(tag = None, attributes = None, children = None , data = None, ns = None, xmlString = None):
+def ProtocolTreeNode(tag = None, attributes = None, children = None , data = None, ns = None, xmlString = None, dataEncoding = None):
     assert bool(tag) ^ bool(xmlString), "Must provide either tag or xmlString"
 
     if ":" in tag:
@@ -12,23 +12,27 @@ def ProtocolTreeNode(tag = None, attributes = None, children = None , data = Non
         if not ns:
             ns = (tagNS, tagNS)
 
-    return _ProtocolTreeNode.new(tag, attributes, children, data, ns) if tag else _ProtocolTreeNode.fromXML(xmlString)
+    return _ProtocolTreeNode.new(tag, attributes, children, data, ns, dataEncoding) if tag else _ProtocolTreeNode.fromXML(xmlString)
 
 class _ProtocolTreeNode(etree.ElementBase):
     parser = None
 
+    hexlify = ("response", "success", "challenge", "registration", "identity", "value", "id", "signature", "enc", "type")
+
     @staticmethod
-    def new(tag, attributes = None, children = None , data = None, ns = None):
+    def new(tag, attributes = None, children = None , data = None, ns = None, dataEncoding = None):
         _ProtocolTreeNode.__ensureParser()
         attributes = attributes or {}
         children = children or []
+        if dataEncoding is None and tag in _ProtocolTreeNode.hexlify:
+            dataEncoding = "hex"
         nsmap = {}
 
         if ns is not None:
             nsmap[ns[0]] = ns[1]
 
         element = _ProtocolTreeNode.parser.makeelement(tag, nsmap = nsmap)
-        element.setData(data)
+        element.setData(data, dataEncoding)
         element.addChildren(children)
         for k, v in attributes.items():
             element.setAttribute(k, v)
@@ -75,6 +79,7 @@ class _ProtocolTreeNode(etree.ElementBase):
         :return: bool
         """
         #
+
         if protocolTreeNode.__class__ == _ProtocolTreeNode \
                 and self.getTag() == protocolTreeNode.getTag() \
                 and self.getData()  == protocolTreeNode.getData() \
@@ -108,6 +113,8 @@ class _ProtocolTreeNode(etree.ElementBase):
     def getAttributes(self):
         result = {}
         for k in self.attrib:
+            if k.startswith("meta-yowsup"):
+                continue
             result[k] = self.getAttributeValue(k)
 
         return result
@@ -138,13 +145,35 @@ class _ProtocolTreeNode(etree.ElementBase):
 
     def getData(self):
         if self.text:
-            return self.text.encode().decode("unicode_escape")
+            encoding = self.getMetaAttribute("encoding", "unicode_escape")
+            if encoding == "hex":
+                data = binascii.unhexlify(self.text.encode()).decode("latin-1")
+            else:
+                data = self.text.encode().decode(encoding)
+            if sys.version_info < (3,0) and type(data) is unicode:
+                data = data.encode("latin-1")
+            return data
 
-    def setData(self, data):
-        if data:
+    def setData(self, data, dataEncoding = None):
+        if data is not None:
             if type(data) is bytes:
                 data = data.decode('latin-1')
-            self.text = data.encode("unicode_escape")
+
+            if dataEncoding:
+                self.setMetaAttribute("encoding", dataEncoding)
+            else:
+                dataEncoding = "unicode_escape"
+
+            if dataEncoding == "hex":
+                self.text = binascii.hexlify(data.encode("latin-1"))
+            else:
+                self.text = data.encode(dataEncoding)
+
+    def setMetaAttribute(self, key, val):
+        self.setAttribute("meta-yowsup-" + key, val)
+
+    def getMetaAttribute(self, key, default = None):
+        return self.getAttributeValue("meta-yowsup-" + key) or default
 
     def _getData(self):
         if self.text:
