@@ -13,3 +13,4 @@ script: nosetests
 branches:
   only:
     - master
+    - uniform_xml
