@@ -12,8 +12,8 @@ class ProtocolEntity(object):
     def isType(self,  typ):
         return self.tag == typ
 
-    def _createProtocolTreeNode(self, attributes, children = None, data = None, ns = None):
-        return ProtocolTreeNode(self.getTag(), attributes, children, data, ns)
+    def _createProtocolTreeNode(self, attributes, children = None, data = None, ns = None, dataEncoding = None):
+        return ProtocolTreeNode(self.getTag(), attributes, children, data, ns, dataEncoding=dataEncoding)
 
 
     def _getCurrentTimestamp(self):
