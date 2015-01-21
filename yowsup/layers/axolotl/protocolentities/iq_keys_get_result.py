@@ -63,8 +63,9 @@ class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
         if sys.version_info >= (3,0):
             valEnc = val.encode('latin-1') if type(val) is str else val
         else:
-            valEnc = val
-        return int(binascii.hexlify(valEnc), 16)
+            valEnc = val.encode('latin-1') if type(val) is unicode else val
+        hexlified = binascii.hexlify(valEnc)
+        return int(hexlified, 16)
 
     @staticmethod
     def encStr(string):

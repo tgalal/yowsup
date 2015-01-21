@@ -224,17 +224,3 @@ class _ProtocolTreeNode(etree.ElementBase):
 
     def getAllChildren(self,tag = None):
         return self.findall(tag) if tag is not None else self[:]
-
-
-data = bytes([1,23])
-data = data.decode("latin-1")
-data = data.encode('unicode-escape')
-print(type(data))
-p = ProtocolTreeNode("stream:features", ns=("stream", "stream"), data= data)
-
-print(p)
-
-data = p.getData()
-print(data.encode().decode("unicode-escape"))
-
-# print(type(s))
