@@ -10,7 +10,7 @@ class LeaveGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     '''
 
     def __init__(self, jids, _id = None):
-        super(LeaveGroupIqProtocolEntity, self).__init__(_to = "g.us", _id = _id, _type = "set")
+        super(LeaveGroupsIqProtocolEntity, self).__init__(to = "g.us", _id = _id, _type = "set")
         self.setProps(jids)
 
     def setProps(self, jids):
@@ -20,6 +20,7 @@ class LeaveGroupsIqProtocolEntity(GroupsIqProtocolEntity):
         node = super(LeaveGroupsIqProtocolEntity, self).toProtocolTreeNode()
         leaveNode = ProtocolTreeNode("leave",{}, [ProtocolTreeNode("group", {"id": jid}) for jid in self.jids])
         node.addChild(leaveNode)
+        return node
 
     @staticmethod
     def fromProtocolTreeNode(node):
