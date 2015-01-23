@@ -1,12 +1,12 @@
-
 from lxml import etree
 import binascii
 import sys
 
-def ProtocolTreeNode(tag = None, attributes = None, children = None , data = None, ns = None, xmlString = None, dataEncoding = None):
+def ProtocolTreeNode(tag = None, attributes = None, children = None , data = None, ns = None, dataEncoding = None, xmlString = None):
     assert bool(tag) ^ bool(xmlString), "Must provide either tag or xmlString"
+    assert bool(xmlString) ^ (bool(tag) or bool(attributes) or bool(children) or bool(data) or bool(data) or bool(dataEncoding)), "Either XML string or xml data"
 
-    if ":" in tag:
+    if tag and ":" in tag:
         tagNS, tagName = tag.split(':')
         tag = "{%s}%s" % (tagNS, tagName)
         if not ns:
