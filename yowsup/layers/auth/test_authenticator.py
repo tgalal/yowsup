@@ -28,7 +28,7 @@ class AuthenticationProtocolLayerTest(YowLayerTest, YowAuthenticationProtocolLay
 
     def test_handle_challenge(self):
         node = ProtocolTreeNode("challenge", {}, None, "salt")
-        self.handleChallenge(node)
+        self._handleChallenge(node)
 
 
 
