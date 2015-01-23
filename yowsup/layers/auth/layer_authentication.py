@@ -14,12 +14,20 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
 
     def __init__(self):
         handleMap = {
-            "stream:features": (self.handleStreamFeatures, None),
-            "failure": (self.handleFailure, None),
-            "success": (self.handleSuccess, None),
-            "challenge": (self.handleChallenge, None)
+            "stream:features": (self._handleStreamFeatures, None),
+            "failure": (self._handleFailure, None),
+            "success": (self._handleSuccess, None),
+            "challenge": (self._handleChallenge, None)
         }
-        super(YowAuthenticationProtocolLayer, self).__init__(handleMap)
+
+        handlers = {
+            SuccessProtocolEntity: (self.handleSuccess, None),
+            ChallengeProtocolEntity: (self.handleChallenge, None),
+            StreamFeaturesProtocolEntity: (self.handleStreamFeatures, None),
+            FailureProtocolEntity: (self.handleFailure, None)
+        }
+
+        super(YowAuthenticationProtocolLayer, self).__init__(handleMap, handlers)
         self.credentials = None
 
     def __str__(self):
@@ -46,21 +54,37 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
 
     ###recieved node handlers handlers
     def handleStreamFeatures(self, node):
+        pass
+
+    def _handleStreamFeatures(self, node):
         nodeEntity = StreamFeaturesProtocolEntity.fromProtocolTreeNode(node)
 
-    def handleSuccess(self, node):
+    def handleSuccess(self, xentity):
+        successEvent = YowLayerEvent(self.__class__.EVENT_AUTHED, passive = self.getProp(self.__class__.PROP_PASSIVE))
+        self.broadcastEvent(successEvent)
+        self.toUpper(xentity)
+
+    def handleChallenge(self, challengeEntity):
+        self._sendResponse(challengeEntity.getNonce())
+
+    def _handleSuccess(self, node):
         successEvent = YowLayerEvent(self.__class__.EVENT_AUTHED, passive = self.getProp(self.__class__.PROP_PASSIVE))
         self.broadcastEvent(successEvent)
         nodeEntity = SuccessProtocolEntity.fromProtocolTreeNode(node)
         self.toUpper(nodeEntity)
 
-    def handleFailure(self, node):
+    def handleFailure(self, nodeEntity):
+        self.toUpper(nodeEntity)
+        self.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT, reason = "Authentication Failure"))
+        raise AuthError(nodeEntity.getReason())
+
+    def _handleFailure(self, node):
         nodeEntity = FailureProtocolEntity.fromProtocolTreeNode(node)
         self.toUpper(nodeEntity)
         self.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT, reason = "Authentication Failure"))
         raise AuthError(nodeEntity.getReason())
 
-    def handleChallenge(self, node):
+    def _handleChallenge(self, node):
         nodeEntity = ChallengeProtocolEntity.fromProtocolTreeNode(node)
         self._sendResponse(nodeEntity.getNonce())
 

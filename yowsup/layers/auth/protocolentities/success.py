@@ -1,5 +1,10 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
+
+
 class SuccessProtocolEntity(ProtocolEntity):
+
+    schema =  (__file__, "schemas/success.xsd")
+
     def __init__(self, status, kind, creation, expiration, props, t, nonce = None):
         super(SuccessProtocolEntity, self).__init__("success")
         self.status = status

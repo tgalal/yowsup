@@ -1,6 +1,6 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 class FailureProtocolEntity(ProtocolEntity):
-
+    schema = (__file__, "schemas/failure.xsd")
     def __init__(self, reason):
         super(FailureProtocolEntity, self).__init__("failure")
         self.reason = reason

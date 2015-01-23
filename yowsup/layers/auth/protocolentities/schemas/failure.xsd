@@ -1,0 +1,9 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="failure">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="not-authorized" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

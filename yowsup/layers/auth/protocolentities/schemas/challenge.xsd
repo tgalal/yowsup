@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="challenge">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:restriction base="yowsup_encodable">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:pattern value=".+" />
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:restriction>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+ </xs:schema>

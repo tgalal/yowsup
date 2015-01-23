@@ -1,5 +1,6 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 class StreamFeaturesProtocolEntity(ProtocolEntity):
+    schema = (__file__, "schemas/stream_features.xsd")
     def __init__(self,  features = None):
         super(StreamFeaturesProtocolEntity, self).__init__("stream:features")
         self.setFeatures(features)

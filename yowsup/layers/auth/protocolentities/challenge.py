@@ -1,5 +1,6 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 class ChallengeProtocolEntity(ProtocolEntity):
+    schema = (__file__, "schemas/challenge.xsd")
     def __init__(self, nonce):
         super(ChallengeProtocolEntity, self).__init__("challenge")
         self.nonce = nonce
