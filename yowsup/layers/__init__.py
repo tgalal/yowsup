@@ -1,4 +1,5 @@
 import unittest
+from lxml import etree
 try:
     import Queue
 except ImportError:
@@ -89,10 +90,15 @@ class YowLayer(object):
 
 
 class YowProtocolLayer(YowLayer):
-    def __init__(self, handleMap = None):
+    def __init__(self, handleMap = None, handlers = None):
         super(YowProtocolLayer, self).__init__()
         self.handleMap = handleMap or {}
+        self.handlers = handlers or {}
         self.iqRegistry = {}
+
+
+    def getHandlers(self):
+        return self.handlers
 
     def receive(self, node):
         if not self.processIqRegistry(node):
@@ -182,6 +188,29 @@ class YowParallelLayer(YowLayer):
 
     def __str__(self):
         return " - ".join([l.__str__() for l in self.sublayers])
+
+class YowProtocolLayers(YowParallelLayer):
+    def receive(self, data):
+        handled = False
+        for s in self.sublayers:
+            mappings = s.getHandlers()
+            for cls, handlers in mappings.items():
+                try:
+                    # if data.getTag()  in ("success", "challenge"):
+                    entity = cls.fromXML(data.__str__())
+                    handlers[0](entity)
+                    handled = True
+                except etree.XMLSyntaxError:
+                    pass
+                except ValueError:
+                    pass
+
+                else:
+                    break
+
+        if not handled:
+            super(YowProtocolLayers, self).receive(data)
+
 
 
 class YowLayerTest(unittest.TestCase):
