@@ -1,4 +1,4 @@
-from yowsup.layers import YowParallelLayer
+from yowsup.layers import YowParallelLayer,     YowProtocolLayers
 import asyncore, time, logging
 from yowsup.layers import YowLayer
 from yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer
@@ -67,7 +67,7 @@ class YowStackBuilder(object):
         if axolotl:
             allLayers += (YowAxolotlLayer,)
 
-        allLayers += (YowParallelLayer(protocolLayers),)
+        allLayers += (YowProtocolLayers(protocolLayers),)
 
         return allLayers
 
