@@ -13,4 +13,4 @@ class ResultSyncIqProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
 
     def test_delta_result(self):
         del self.node.getChild("sync")["wait"]
-        self.test_generation()
+        self.test_forward_backward_converstion()

@@ -11,7 +11,6 @@ class ProtocolEntityMeta(type):
         </xs:schema>
 """
     def __new__(cls, clsname, bases, dct):
-
         if "schema" not in dct:
             dct["schema"] = bases[0].schema
         elif dct["schema"] is not None:
@@ -26,7 +25,6 @@ class ProtocolEntityMeta(type):
                 originalSchemaPathDir = os.path.dirname(dct["schema"])
                 targetPath = os.path.join(originalSchemaPathDir, parentSchemaPath)
                 parentSchemaNode.set("schemaLocation", targetPath)
-
             dct["schema"] = etree.XMLSchema(schemaXML)
 
         originalToProtocolTreeNode = dct["toProtocolTreeNode"] if "toProtocolTreeNode" in dct else None
@@ -106,8 +104,8 @@ class ProtocolEntity(object):
     def isValid(cls, xml):
         if not cls.schema:
             return False
-        parser = etree.XMLParser(schema = cls.schema)
-        etree.fromstring(xml, parser)
+        #parser = etree.XMLParser(schema = cls.schema)
+        #etree.fromstring(xml, parser)
         parsedXML = etree.XML(xml) if type(xml) in (str,unicode) else xml
         return cls.schema.validate(parsedXML)
 
@@ -116,19 +114,37 @@ class ProtocolEntityTest(object):
     def setUp(self):
         self.ProtocolEntity = None
         self.node = None
+        self.xml = None
 
     # def assertEqual(self, entity, node):
     #     raise AssertionError("Should never execute that")
 
-    def test_generation(self):
+    def test_forward_backward_converstion(self):
         if self.ProtocolEntity is None:
             raise ValueError("Test case not setup!")
-        entity = self.ProtocolEntity.fromProtocolTreeNode(self.node)
+
+        node = ProtocolTreeNode(xmlString = self.xml) if self.___hasXmlDefined() else self.node
+
+        entity = self.ProtocolEntity.fromProtocolTreeNode(node)
         try:
-            self.assertEqual(entity.toProtocolTreeNode(), self.node)
+            self.assertEqual(entity.toProtocolTreeNode(), node)
         except:
             print(entity.toProtocolTreeNode())
             print("\nNOTEQ\n")
-            print(self.node)
+            print(node)
             raise
+
+    def ___hasXmlDefined(self):
+        """
+        temporary check if xml instance variable
+        until all eentities are migrated to schema bades
+        """
+        try:
+            return self.xml is not None
+        except AttributeError:
+            return False
+
+    def test_valid(self):
+        if self.___hasXmlDefined():
+            self.assertTrue(self.ProtocolEntity.isValid(self.xml))
 
