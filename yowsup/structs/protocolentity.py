@@ -13,6 +13,7 @@ class ProtocolEntityMeta(type):
     def __new__(cls, clsname, bases, dct):
         if "schema" not in dct:
             dct["schema"] = bases[0].schema
+
         elif dct["schema"] is not None:
             schemaXML = cls.getSchemaXML(dct["schema"])
             baseSCHEMA = etree.XML(ProtocolEntityMeta.__BASE_SCHEMA)
@@ -35,14 +36,27 @@ class ProtocolEntityMeta(type):
                 raise ValueError("Schema and XML don't match")
 
             return result
+
+
+        originalFromProtocolTreeNode = dct["fromProtocolTreeNode"] if "fromProtocolTreeNode" in dct else None
+        @staticmethod
+        def fromProtocolTreeNodeWrapper(node):
+            if dct["schema"] and not cls.isValid(node, dct["schema"]):
+                raise ValueError("ProtocolTreeNode does not match Schema")
+            # print(vars(originalFromProtocolTreeNode))
+            return originalFromProtocolTreeNode.__func__(node)
+
         if originalToProtocolTreeNode:
             dct["toProtocolTreeNode"] = toProtocolTreeNodeWrapper
+
+        if originalFromProtocolTreeNode:
+            dct["fromProtocolTreeNode"] = fromProtocolTreeNodeWrapper
 
         return super(ProtocolEntityMeta, cls).__new__(cls, clsname, bases, dct)
 
     @classmethod
     def isValid(cls, xml, schema):
-        parsedXML = etree.fromstring(xml)
+        parsedXML = etree.fromstring(xml) if type(xml) in (str,unicode) else xml
         return schema.validate(parsedXML)
 
     @classmethod
