@@ -26,11 +26,5 @@ class AuthenticationProtocolLayerTest(YowLayerTest, YowAuthenticationProtocolLay
         self._sendAuth()
         self.assertEqual(self.lowerSink.pop(), AuthProtocolEntity(self.credentials[0]).toProtocolTreeNode())
 
-    def test_handle_challenge(self):
-        node = ProtocolTreeNode("challenge", {}, None, "salt")
-        self._handleChallenge(node)
-
-
-
     def test_login_onconnected(self):
         self.onEvent(YowLayerEvent("network.state.connected"))
