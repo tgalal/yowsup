@@ -1,7 +1,12 @@
 from .protocoltreenode import ProtocolTreeNode
-import unittest, time
+import time
 from lxml import etree
 import os
+from future.utils import with_metaclass
+import sys
+
+if sys.version_info >= (3,0):
+    unicode = str
 
 class ProtocolEntityMeta(type):
     __BASE_SCHEMA = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -74,7 +79,7 @@ class ProtocolEntityMeta(type):
 
         return etree.XML(schemaData)
 
-class ProtocolEntity(object):
+class ProtocolEntity(with_metaclass(ProtocolEntityMeta, object)):
     __metaclass__ = ProtocolEntityMeta
     schema = None
     __ID_GEN = 0
