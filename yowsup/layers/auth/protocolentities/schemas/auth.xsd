@@ -1,0 +1,9 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="auth">
+        <xs:complexType>
+            <xs:attribute name="passive" type="xs:boolean" use="required" />
+            <xs:attribute name="user" type="xs:string" use="required" />
+            <xs:attribute name="mechanism" type="xs:string" use="required" />
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

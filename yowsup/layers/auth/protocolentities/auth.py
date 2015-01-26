@@ -1,5 +1,6 @@
-from yowsup.structs import ProtocolEntity, ProtocolTreeNode
+from yowsup.structs import ProtocolEntity
 class AuthProtocolEntity(ProtocolEntity):
+    schema = (__file__, "schemas/auth.xsd")
     def __init__(self, user, mechanism = "WAUTH-2", passive = False):
         super(AuthProtocolEntity, self).__init__("auth")
         self.user = user
