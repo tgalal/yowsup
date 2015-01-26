@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 import yowsup
 import platform
 
-deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.1', 'pillow', 'lxml', 'future']
+deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.1', 'pillow', 'lxml', 'six']
 
 if platform.system().lower() == "windows":
     deps.append('pyreadline')

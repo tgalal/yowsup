@@ -2,7 +2,7 @@ from .protocoltreenode import ProtocolTreeNode
 import time
 from lxml import etree
 import os
-from future.utils import with_metaclass
+from six import with_metaclass
 import sys
 
 if sys.version_info >= (3,0):
