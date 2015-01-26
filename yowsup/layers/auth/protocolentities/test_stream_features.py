@@ -6,7 +6,5 @@ import unittest
 class StreamFeaturesProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
         self.ProtocolEntity = StreamFeaturesProtocolEntity
-        attribs = {
-        }
-        childNode = ProtocolTreeNode("receipt_acks", {}, None, None)
-        self.node = ProtocolTreeNode("stream:features", attribs, [childNode], ns=("stream", "stream"))
+        childNode = ProtocolTreeNode("readreceipts", {}, None, None)
+        self.node = ProtocolTreeNode("stream:features", None, [childNode], ns=("stream", "stream"))
