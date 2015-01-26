@@ -59,9 +59,9 @@ class YowStackBuilder(object):
         return YowStack(self.layers, reversed = False)
 
     @staticmethod
-    def getDefaultLayers(axolotl = False):
+    def getDefaultLayers(axolotl = False, groups = True, media = True, privacy = True):
         coreLayers = YowStackBuilder.getCoreLayers()
-        protocolLayers = YowStackBuilder.getProtocolLayers()
+        protocolLayers = YowStackBuilder.getProtocolLayers(groups = groups, media=media, privacy=privacy)
 
         allLayers = coreLayers
         if axolotl:
@@ -71,16 +71,18 @@ class YowStackBuilder(object):
 
         return allLayers
 
-    def getDefaultStack(self, layer = None, axolotl = False):
+    @staticmethod
+    def getDefaultStack(layer = None, axolotl = False, groups = True, media = True, privacy = True):
         """
         :param layer: An optional layer to put on top of default stack
         :param axolotl: E2E encryption enabled/ disabled
         :return: YowStack
         """
 
-        allLayers = YowStackBuilder.getDefaultLayers(axolotl)
+        allLayers = YowStackBuilder.getDefaultLayers(axolotl, groups = groups, media=media,privacy=privacy)
         if layer:
-            allLayers = (layer,) + allLayers
+            allLayers = allLayers + (layer,)
+
 
         return YowStack(allLayers, reversed = False)
 
