@@ -49,7 +49,7 @@ class ProtocolEntityMeta(type):
             if dct["schema"] and not cls.isValid(node, dct["schema"]):
                 raise ValueError("ProtocolTreeNode does not match Schema")
             # print(vars(originalFromProtocolTreeNode))
-            return originalFromProtocolTreeNode.__func__(node)
+            return originalFromProtocolTreeNode.__get__(True)(node)
 
         if originalToProtocolTreeNode:
             dct["toProtocolTreeNode"] = toProtocolTreeNodeWrapper
