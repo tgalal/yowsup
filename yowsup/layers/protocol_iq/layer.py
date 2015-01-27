@@ -43,33 +43,31 @@ class YowIqProtocolLayer(YowProtocolLayer):
             pass
         pingQueueSize = len(self._pingQueue)
         self._pingQueueLock.release()
-        self.__logger.debug("ping queue size: %d" % pingQueueSize)
 
     def waitPong(self, id):
         self._pingQueueLock.acquire()
         self._pingQueue[id] = None
         pingQueueSize = len(self._pingQueue)
         self._pingQueueLock.release()
+        self.__logger.debug("ping queue size: %d" % pingQueueSize)
         if pingQueueSize >= 2:
-            self.__logger.debug("ping queue size: %d" % pingQueueSize)
-            self.getStack().broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT))
-            time.sleep(1)
-            self.getStack().broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))
+            self.getStack().broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT, reason = "Ping Timeout"))
 
     def onEvent(self, event):
         name = event.getName()
         if name == YowNetworkLayer.EVENT_STATE_CONNECTED:
             if not self._pingThread:
+                self._pingQueue = {}
                 self._pingThread = YowPingThread(self)
                 self.__logger.debug("starting ping thread.")
                 self._pingThread.start()
-            self._pingQueue = {}
         elif name == YowNetworkLayer.EVENT_STATE_DISCONNECT or name == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
-            self.__logger.debug("stopping ping thread")
             if self._pingThread:
-                self._pingThread.stop()
-                self._pingThread = None
-            self._pingQueue = {}
+                self.__logger.debug("stopping ping thread")
+                if self._pingThread:
+                    self._pingThread.stop()
+                    self._pingThread = None
+                self._pingQueue = {}
 
 class YowPingThread(Thread):
     def __init__(self, layer):
@@ -78,6 +76,7 @@ class YowPingThread(Thread):
         self._stop = False
         self.__logger = logging.getLogger(__name__)
         super(YowPingThread, self).__init__()
+        self.name = "YowPing%s" % self.name
 
     def run(self):
         while not self._stop:
