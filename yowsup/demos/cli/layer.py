@@ -21,6 +21,7 @@ from yowsup.layers.protocol_chatstate.protocolentities   import *
 from yowsup.layers.protocol_privacy.protocolentities     import *
 from yowsup.layers.protocol_media.protocolentities       import *
 from yowsup.layers.protocol_media.mediauploader import MediaUploader
+from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
 from yowsup.layers.axolotl import YowAxolotlLayer
 
@@ -166,6 +167,13 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             self.toLower(entity)
 
     ######################################
+
+    ####### contacts/ profiles ####################
+    @clicmd("Get profile picture for contact")
+    def contact_picture(self, jid):
+        if self.assertConnected():
+            entity = PictureIqProtocolEntity(jid)
+            self.toLower(entity)
 
     @clicmd("List all groups you belong to", 5)
     def groups_list(self):
@@ -361,7 +369,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             messageOut = self.getMediaMessageBody(message)
         else:
             messageOut = "Unknown message type %s " % message.getType()
-            print(message.toProtocolTreeNode())
+            print(messageOut.toProtocolTreeNode())
 
 
         formattedDate = datetime.datetime.fromtimestamp(message.getTimestamp()).strftime('%d-%m-%Y %H:%M')
@@ -400,6 +408,8 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def doSendImage(self, filePath, url, to, ip = None):
         entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
         self.toLower(entity)
+    def __str__(self):
+        return "CLI Interface Layer"
 
     ########### callbacks ############
 
