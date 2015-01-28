@@ -49,7 +49,7 @@ class IqProtocolEntity(ProtocolEntity):
 
         if self.to:
             attribs["to"] = self.to
-        elif self.to:
+        elif self._from:
             attribs["from"] = self._from
 
         return self._createProtocolTreeNode(attribs, None, data = None)
