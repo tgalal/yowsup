@@ -113,7 +113,7 @@ class YowAxolotlLayer(YowProtocolLayer):
 
     def onMessage(self, protocolTreeNode):
         encNode = protocolTreeNode.getChild("enc")
-        if encNode:
+        if encNode is not None:
             self.handleEncMessage(protocolTreeNode)
         else:
             self.toUpper(protocolTreeNode)

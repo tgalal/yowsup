@@ -52,5 +52,5 @@ HEX:33089eb3c90312210510e0196be72fe65913c6a84e75a54f40a3ee290574d6a23f408df990e7
         entity.__class__ = EncryptedMessageProtocolEntity
         encNode = node.getChild("enc")
         entity.setEncProps(encNode["type"], encNode["av"], encNode["v"],
-                           encNode.data.encode('latin-1') if sys.version_info >= (3,0) else encNode.data)
+                           encNode.getData().encode('latin-1') if sys.version_info >= (3,0) else encNode.getData())
         return entity
