@@ -43,7 +43,7 @@ class EchoLayer(YowInterfaceLayer):
                 messageProtocolEntity.getCaption(),
                 to = messageProtocolEntity.getFrom(), preview = messageProtocolEntity.getPreview())
 
-            print("image %s:%s" % (messageProtocolEntity.getFrom(False),messageProtocolEntity.url))
+            print("image %s [%s]:%s" % (messageProtocolEntity.getFrom(False),datetime.datetime.fromtimestamp(messageProtocolEntity.getTimestamp()).strftime('%d-%m-%Y %H:%M'),messageProtocolEntity.url))
 
         elif messageProtocolEntity.getMediaType() == "location":
 
@@ -54,10 +54,10 @@ class EchoLayer(YowInterfaceLayer):
                 messageProtocolEntity.getLocationURL(), messageProtocolEntity.encoding,
                 to = messageProtocolEntity.getFrom(), preview=messageProtocolEntity.getPreview())
 
-            print("location %s:(%s, %s)" % (messageProtocolEntity.getFrom(False),messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude()))
+            print("location %s [%s]:(%s, %s)" % (messageProtocolEntity.getFrom(False),datetime.datetime.fromtimestamp(messageProtocolEntity.getTimestamp()).strftime('%d-%m-%Y %H:%M'),messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude()))
 
         elif messageProtocolEntity.getMediaType() == "vcard":
             receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())
             outVcard = VCardMediaMessageProtocolEntity(messageProtocolEntity.getName(),messageProtocolEntity.getCardData(),to = messageProtocolEntity.getFrom())
-            print("vcard %s:(%s, %s)" % (messageProtocolEntity.getFrom(False),messageProtocolEntity.getName(), messageProtocolEntity.getCardData()))
+            print("vcard %s [%s]:(%s, %s)" % (messageProtocolEntity.getFrom(False),datetime.datetime.fromtimestamp(messageProtocolEntity.getTimestamp()).strftime('%d-%m-%Y %H:%M'),messageProtocolEntity.getName(), messageProtocolEntity.getCardData()))
 
