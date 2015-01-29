@@ -212,6 +212,9 @@ class DemosArgParser(YowArgParser):
         echoOpts = self.add_argument_group("Echo client demo")
         echoOpts.add_argument('-e', '--echo', action = "store_true", help = "Start the Yowsup Echo client")
 
+        echoOpts = self.add_argument_group("Receive client demo")
+        echoOpts.add_argument('-r', '--receive', action = "store_true", help = "Simple receive client")
+
         sendOpts = self.add_argument_group("Send client demo")
         sendOpts.add_argument('-s', '--send', action="store", help = "Send a message to specified phone number, "
                                                                      "wait for server receipt and exit",
@@ -225,6 +228,8 @@ class DemosArgParser(YowArgParser):
             self.startEcho()
         elif self.args["send"]:
             self.startSendClient()
+        elif self.args["receive"]:
+            self.startReceiveClient()
         else:
             return False
         return True
@@ -256,6 +261,19 @@ class DemosArgParser(YowArgParser):
             sys.exit(1)
         try:
             stack = echoclient.YowsupEchoStack(credentials, self.args["moxie"])
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+    def startReceiveClient(self):
+        from yowsup.demos import receive
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+        try:
+            stack = receive.YowsupEchoStack(credentials, self.args["moxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
