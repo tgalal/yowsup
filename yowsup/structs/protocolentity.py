@@ -20,6 +20,7 @@ class ProtocolEntityMeta(type):
         </xs:complexType>
     </xs:schema>
 """
+
     def __new__(cls, clsname, bases, dct):
         if "schema" not in dct:
             dct["schema"] = bases[0].schema
@@ -33,9 +34,13 @@ class ProtocolEntityMeta(type):
             parentSchemaNode = schemaXML.find("xs:redefine", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"})
             if parentSchemaNode is not None:
                 parentSchemaPath = parentSchemaNode.get("schemaLocation")
-                originalSchemaPathDir = os.path.dirname(dct["schema"])
-                targetPath = os.path.join(originalSchemaPathDir, parentSchemaPath)
-                parentSchemaNode.set("schemaLocation", targetPath)
+
+                if parentSchemaPath.startswith("yowsup://"):
+                    parentSchemaNode.set("schemaLocation", cls.resolveYowsupURI(parentSchemaPath))
+                else:
+                    originalSchemaPathDir = os.path.dirname(os.path.join(dct["schema"][0]))
+                    targetPath = os.path.join(originalSchemaPathDir, parentSchemaPath)
+                    parentSchemaNode.set("schemaLocation", targetPath)
             dct["schema"] = etree.XMLSchema(schemaXML)
 
         originalToProtocolTreeNode = dct["toProtocolTreeNode"] if "toProtocolTreeNode" in dct else None
@@ -52,7 +57,9 @@ class ProtocolEntityMeta(type):
         @staticmethod
         def fromProtocolTreeNodeWrapper(node):
             if dct["schema"] and not cls.isValid(node, dct["schema"]):
-                raise ValueError("ProtocolTreeNode does not match Schema")
+                parser = etree.XMLParser(schema = dct["schema"])
+                etree.fromstring(etree.tostring(node), parser)
+                #raise ValueError("ProtocolTreeNode does not match Schema")
             # print(vars(originalFromProtocolTreeNode))
             return originalFromProtocolTreeNode.__get__(True)(node)
 
@@ -70,7 +77,14 @@ class ProtocolEntityMeta(type):
         return schema.validate(parsedXML)
 
     @classmethod
-    def getSchemaXML(cls, absPathOrTuple):
+    def resolveYowsupURI(cls, uri):
+        path = uri.split("yowsup://")[1]
+        pathDissect = path.split('/')
+        target = "%s/../layers/protocol_%s/protocolentities/schemas/%s.xsd" % (os.path.dirname(__file__), pathDissect[0], pathDissect[1])
+        return target
+
+    @classmethod
+    def resolveSchemaPath(cls, absPathOrTuple):
         if type(absPathOrTuple) is tuple:
             path = os.path.join(os.path.abspath(os.path.dirname(absPathOrTuple[0])), absPathOrTuple[1])
         else:
@@ -78,6 +92,12 @@ class ProtocolEntityMeta(type):
 
         if not os.path.exists(path):
             raise ValueError("%s does not exist" % path)
+
+        return path
+
+    @classmethod
+    def getSchemaXML(cls, absPathOrTuple):
+        path = cls.resolveSchemaPath(absPathOrTuple)
 
         with open(path) as schemaFile:
             schemaData = schemaFile.read()
