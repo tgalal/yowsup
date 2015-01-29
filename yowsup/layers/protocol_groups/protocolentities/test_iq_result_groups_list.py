@@ -8,10 +8,10 @@ entity = ListGroupsResultIqProtocolEntity(
     [
         Group("1234-456", "owner@s.whatsapp.net", "subject", "sOwnerJid@s.whatsapp.net", int(time.time()), int(time.time())),
         Group("4321-456", "owner@s.whatsapp.net", "subject", "sOwnerJid@s.whatsapp.net", int(time.time()), int(time.time()))
-    ]
+    ], _id="1234321"
 )
 
 class ListGroupsResultIqProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
         self.ProtocolEntity = ListGroupsResultIqProtocolEntity
-        self.node = entity.toProtocolTreeNode()
+        self.xml = entity.toProtocolTreeNode().__str__()
