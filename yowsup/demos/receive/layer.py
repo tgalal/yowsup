@@ -5,7 +5,7 @@ from yowsup.layers.protocol_receipts.protocolentities  import OutgoingReceiptPro
 from yowsup.layers.protocol_media.protocolentities  import LocationMediaMessageProtocolEntity
 from yowsup.layers.protocol_acks.protocolentities      import OutgoingAckProtocolEntity
 from yowsup.layers.protocol_media.protocolentities  import VCardMediaMessageProtocolEntity
-
+import datetime
 
 class EchoLayer(YowInterfaceLayer):
 
@@ -30,7 +30,7 @@ class EchoLayer(YowInterfaceLayer):
             messageProtocolEntity.getBody(),
             to = messageProtocolEntity.getFrom())
 
-        print("%s:%s" % (messageProtocolEntity.getFrom(False),messageProtocolEntity.getBody()))
+        print("%s [%s]:%s" % (messageProtocolEntity.getFrom(False),datetime.datetime.fromtimestamp(messageProtocolEntity.getTimestamp()).strftime('%d-%m-%Y %H:%M'),messageProtocolEntity.getBody()))
 
     def onMediaMessage(self, messageProtocolEntity):
         if messageProtocolEntity.getMediaType() == "image":
