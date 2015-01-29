@@ -1,8 +1,9 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 class ResponseProtocolEntity(ProtocolEntity):
-    def __init__(self, data, xmlns = "urn:ietf:params:xml:ns:xmpp-sasl"):
+    schema = (__file__, "schemas/response.xsd")
+    def __init__(self, data):
         super(ResponseProtocolEntity, self).__init__("response")
-        self.xmlns = xmlns
+        self.xmlns = "urn:ietf:params:xml:ns:xmpp-sasl"
         self.data = data
     
     def toProtocolTreeNode(self):
@@ -10,4 +11,4 @@ class ResponseProtocolEntity(ProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        return ResponseProtocolEntity(node.getData(), node.getAttributeValue("xmlns"))
+        return ResponseProtocolEntity(node.getData())

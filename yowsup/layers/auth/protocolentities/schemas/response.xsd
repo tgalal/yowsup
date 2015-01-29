@@ -1,0 +1,11 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="urn:ietf:params:xml:ns:xmpp-sasl" targetNamespace="urn:ietf:params:xml:ns:xmpp-sasl">
+    <xs:element name="response">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:restriction base="yowsup_encodable">
+                    <xs:pattern value=".+"></xs:pattern>
+                </xs:restriction>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+ </xs:schema>

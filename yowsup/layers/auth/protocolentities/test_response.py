@@ -9,4 +9,4 @@ class ResponseProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
         attribs = {
             "xmlns": "urn:ietf:params:xml:ns:xmpp-sasl"
         }
-        self.node = ProtocolTreeNode("response", attribs, None, "dummydata")
+        self.xml = '<response xmlns="urn:ietf:params:xml:ns:xmpp-sasl">aaaa</response>'
