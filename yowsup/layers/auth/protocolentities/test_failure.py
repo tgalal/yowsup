@@ -6,4 +6,4 @@ import unittest
 class FailureProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
         self.ProtocolEntity = FailureProtocolEntity
-        self.node = ProtocolTreeNode("failure", {}, [ProtocolTreeNode("not-authorized", {})])
+        self.xml = "<failure><not-authorized /></failure>"

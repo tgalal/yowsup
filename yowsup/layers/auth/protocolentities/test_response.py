@@ -6,7 +6,4 @@ import unittest
 class ResponseProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
         self.ProtocolEntity = ResponseProtocolEntity
-        attribs = {
-            "xmlns": "urn:ietf:params:xml:ns:xmpp-sasl"
-        }
         self.xml = '<response xmlns="urn:ietf:params:xml:ns:xmpp-sasl">aaaa</response>'

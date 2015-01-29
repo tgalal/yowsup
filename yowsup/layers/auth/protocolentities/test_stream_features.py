@@ -6,5 +6,4 @@ import unittest
 class StreamFeaturesProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
         self.ProtocolEntity = StreamFeaturesProtocolEntity
-        childNode = ProtocolTreeNode("readreceipts", {}, None, None)
-        self.node = ProtocolTreeNode("stream:features", None, [childNode], ns=("stream", "stream"))
+        self.xml = '<stream:features xmlns:stream="stream"><readreceipts /></stream:features>'
