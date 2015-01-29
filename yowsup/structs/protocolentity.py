@@ -9,11 +9,16 @@ if sys.version_info >= (3,0):
     unicode = str
 
 class ProtocolEntityMeta(type):
-    __BASE_SCHEMA = """<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-    <xs:complexType name="yowsup_encodable" xml:base="xs:string" mixed="true">
-            <xs:attribute name="meta-yowsup-encoding" use="optional" type="xs:string" />
+    __BASE_SCHEMA = """
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:complexType name="yowsup_encodable">
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute name="meta-yowsup-encoding" type="xs:string" use="optional" />
+                </xs:extension>
+            </xs:simpleContent>
         </xs:complexType>
-        </xs:schema>
+    </xs:schema>
 """
     def __new__(cls, clsname, bases, dct):
         if "schema" not in dct:

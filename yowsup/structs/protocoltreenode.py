@@ -40,7 +40,12 @@ class _ProtocolTreeNode(etree.ElementBase):
         return element
 
     def getTag(self):
-        return self.tag
+        tag = self.tag
+        nsmap = self.nsmap
+        if None in self.nsmap:
+            tag = tag.replace("{%s}" % nsmap[None], "")
+
+        return tag
 
     @staticmethod
     def __ensureParser():
@@ -79,7 +84,6 @@ class _ProtocolTreeNode(etree.ElementBase):
         :return: bool
         """
         #
-
         if protocolTreeNode.__class__ == _ProtocolTreeNode \
                 and self.getTag() == protocolTreeNode.getTag() \
                 and self.getData()  == protocolTreeNode.getData() \
@@ -116,7 +120,8 @@ class _ProtocolTreeNode(etree.ElementBase):
             if k.startswith("meta-yowsup"):
                 continue
             result[k] = self.getAttributeValue(k)
-
+        if None in self.nsmap:
+            result["xmlns"] = self.nsmap[None]
         return result
 
     def getLocalName(self):
