@@ -1,0 +1,22 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="w:g" xmlns="w:g" elementFormDefault="qualified">
+         <!--<iq type="set" id="{{id}}" xmlns="w:g", to="g.us">-->
+        <!--<group action="create" subject="{{subject}}"></group>-->
+    <!--</iq>-->
+    <xs:redefine schemaLocation="yowsup://iq/iq">
+        <xs:complexType name="iq">
+            <xs:complexContent>
+                <xs:extension base="xs:string">
+                    <xs:sequence minOccurs="1" maxOccurs="1">
+                        <xs:element name="group" xmlns="w:g">
+                            <xs:complexType>
+                                <xs:attribute name="action" type="xs:string" use="required" />
+                                <xs:attribute name="subject" type="xs:string" use="required" />
+                            </xs:complexType>
+                     </xs:element>
+                     </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+
+        </xs:complexType>
+    </xs:redefine>
+</xs:schema>

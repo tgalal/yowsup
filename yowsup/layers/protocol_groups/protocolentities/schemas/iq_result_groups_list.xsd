@@ -1,0 +1,23 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:redefine schemaLocation="yowsup://iq/iq">
+        <xs:complexType name="iq">
+            <xs:complexContent>
+                <xs:extension base="xs:string">
+                    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="group">
+                            <xs:complexType>
+                                <xs:attribute name="s_t" type="xs:long" use="required"/>
+                                <xs:attribute name="creation" type="xs:long" use="required"/>
+                                <xs:attribute name="owner" type="xs:string" use="required"/>
+                                <xs:attribute name="id" type="xs:string" use="required"/>
+                                <xs:attribute name="s_o" type="xs:string" use="required"/>
+                                <xs:attribute name="subject" type="xs:string" use="required" />
+                            </xs:complexType>
+                     </xs:element>
+                     </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+
+        </xs:complexType>
+    </xs:redefine>
+</xs:schema>

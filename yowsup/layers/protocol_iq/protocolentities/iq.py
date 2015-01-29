@@ -1,6 +1,6 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 class IqProtocolEntity(ProtocolEntity):
-
+    schema = (__file__, "schemas/iq.xsd")
     '''
     <iq type="{{get | set}}" id="{{id}}" xmlns="{{xmlns}}" to="{{TO}}" from="{{FROM}}">
     </iq>

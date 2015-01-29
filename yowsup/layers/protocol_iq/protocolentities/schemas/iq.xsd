@@ -1,0 +1,18 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:simpleType name="iq_type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="set" />
+            <xs:enumeration value="get" />
+            <xs:enumeration value="result" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="iq">
+        <xs:attribute name="id" type="xs:string" use="required" />
+        <xs:attribute name="type" type="iq_type" use="required" />
+        <xs:attribute name="from" type="xs:string" use="optional" />
+        <xs:attribute name="to" type="xs:string" use="optional" />
+    </xs:complexType>
+    
+    <xs:element name="iq" type="iq"/>
+</xs:schema>
