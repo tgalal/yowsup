@@ -84,6 +84,26 @@ class _ProtocolTreeNode(etree.ElementBase):
         :return: bool
         """
         #
+
+
+        #
+        # for debugging:
+        #
+        # if protocolTreeNode.getTag() == "iq" and protocolTreeNode["id"] == "111111":
+        #     me = self#.getChild(0)
+        #     them = protocolTreeNode#.getChild(0)
+        #
+        #     print(me.getAttributes())
+        #     print(them.getAttributes())
+        #
+        #     if them.__class__ == _ProtocolTreeNode \
+        #         and me.getTag() == them.getTag() \
+        #         and me.getData()  == them.getData() \
+        #         and me.getAttributes() == them.getAttributes():
+        #         # and len(me.getAllChildren()) == len(them.getAllChildren()):
+        #         print("OKKKKK")
+
+
         if protocolTreeNode.__class__ == _ProtocolTreeNode \
                 and self.getTag() == protocolTreeNode.getTag() \
                 and self.getData()  == protocolTreeNode.getData() \
@@ -114,13 +134,16 @@ class _ProtocolTreeNode(etree.ElementBase):
     def __hash__(self):
         return hash(self.tag) ^ hash(tuple(self.getAttributes().items())) ^ hash(self.getData())
 
-    def getAttributes(self):
+    def getAttributes(self, includeNamepsace = False):
         result = {}
         for k in self.attrib:
             if k.startswith("meta-yowsup"):
                 continue
+            if k == "xmlns" and not includeNamepsace:
+                continue
             result[k] = self.getAttributeValue(k)
-        if None in self.nsmap:
+
+        if includeNamepsace and None in self.nsmap:
             result["xmlns"] = self.nsmap[None]
         return result
 
@@ -157,6 +180,10 @@ class _ProtocolTreeNode(etree.ElementBase):
                 data = self.text.encode().decode(encoding)
             if sys.version_info < (3,0) and type(data) is unicode:
                 data = data.encode("latin-1")
+
+            if not data.strip():
+                return None
+
             return data
 
     def setData(self, data, dataEncoding = None):
