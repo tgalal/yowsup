@@ -1,10 +1,12 @@
-from yowsup.structs import ProtocolTreeNode
 from yowsup.layers.protocol_ib.protocolentities.clean_iq import CleanIqProtocolEntity
-from yowsup.layers.protocol_iq.protocolentities.test_iq import IqProtocolEntityTest
+from yowsup.structs.protocolentity import ProtocolEntityTest
+import unittest
 
-class CleanIqProtocolEntityTest(IqProtocolEntityTest):
+class CleanIqProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
-        super(CleanIqProtocolEntityTest, self).setUp()
         self.ProtocolEntity = CleanIqProtocolEntity
-        cleanNode = ProtocolTreeNode("clean", {"type": "groups"})
-        self.node.addChild(cleanNode)
+        self.xml = """
+            <iq id="1" type="set" to="s.whatsapp.net" xmlns="urn:xmpp:whatsapp:dirty">
+                <clean type="type_ditty"></clean>
+            </iq>
+        """

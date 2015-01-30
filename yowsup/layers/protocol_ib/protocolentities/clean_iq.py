@@ -6,9 +6,11 @@ class CleanIqProtocolEntity(IqProtocolEntity):
         <clean type="{{dirty_type}}"></clean>
     </iq>
     '''
+
+    schema = (__file__, "schemas/clean_iq.xsd")
+
     def __init__(self, cleanType, to, _id = None):
         super(CleanIqProtocolEntity, self).__init__(
-            "urn:xmpp:whatsapp:dirty",
             _id = _id,
             _type = "set",
             to = to
@@ -25,13 +27,12 @@ class CleanIqProtocolEntity(IqProtocolEntity):
 
     def toProtocolTreeNode(self):
         node = super(CleanIqProtocolEntity, self).toProtocolTreeNode()
+        node["xmlns"] = "urn:xmpp:whatsapp:dirty"
         cleanNode = ProtocolTreeNode("clean", {"type": self.cleanType})
         node.addChild(cleanNode)
         return node
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = IqProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = CleanIqProtocolEntity
-        entity.setProps(node.getChild("clean").getAttributeValue("type"))
+        entity = CleanIqProtocolEntity(node.getChild("clean")["type"], node["to"], _id=node["id"])
         return entity
