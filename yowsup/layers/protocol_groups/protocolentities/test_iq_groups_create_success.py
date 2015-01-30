@@ -7,4 +7,9 @@ entity = SuccessCreateGroupsIqProtocolEntity("123-456", "431-123")
 class SuccessCreateGroupsIqProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
         self.ProtocolEntity = SuccessCreateGroupsIqProtocolEntity
-        self.node = entity.toProtocolTreeNode()
+        # self.node = entity.toProtocolTreeNode()
+        self.xml = """
+            <iq type="result" id="group_id" from="g.us">
+                <group id="abc"></group>
+            </iq>
+        """

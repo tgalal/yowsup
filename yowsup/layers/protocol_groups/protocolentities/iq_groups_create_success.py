@@ -7,6 +7,8 @@ class SuccessCreateGroupsIqProtocolEntity(ResultIqProtocolEntity):
     </iq>
     '''
 
+    schema = (__file__, "schemas/iq_groups_create_success.xsd")
+
     def __init__(self, _id, groupId):
         super(SuccessCreateGroupsIqProtocolEntity, self).__init__(_from = "g.us", _id = _id)
         self.setProps(groupId)
@@ -21,7 +23,5 @@ class SuccessCreateGroupsIqProtocolEntity(ResultIqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = ResultIqProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = SuccessCreateGroupsIqProtocolEntity
-        entity.setProps(node.getChild("group").getAttributeValue("id"))
+        entity = SuccessCreateGroupsIqProtocolEntity(node["id"], node.getChild("group")["id"])
         return entity

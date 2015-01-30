@@ -1,4 +1,4 @@
-from yowsup.structs import ProtocolEntity, ProtocolTreeNode
+from yowsup.structs import ProtocolTreeNode
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 class CreateGroupsIqProtocolEntity(IqProtocolEntity):
     schema = (__file__, "schemas/iq_groups_create.xsd")

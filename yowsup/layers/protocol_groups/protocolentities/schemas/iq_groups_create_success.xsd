@@ -1,0 +1,23 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+    <!--<iq type="result" id="{{id}}" from="g.us">-->
+        <!--<group id="{group_id}"></group>-->
+    <!--</iq>-->
+
+    <xs:redefine schemaLocation="yowsup://iq/iq">
+        <xs:complexType name="iq">
+            <xs:complexContent>
+                <xs:extension base="xs:string">
+                    <xs:sequence minOccurs="1" maxOccurs="1">
+                        <xs:element name="group">
+                            <xs:complexType>
+                                <xs:attribute name="id" type="xs:string" use="required" />
+                            </xs:complexType>
+                     </xs:element>
+                     </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+
+        </xs:complexType>
+    </xs:redefine>
+</xs:schema>

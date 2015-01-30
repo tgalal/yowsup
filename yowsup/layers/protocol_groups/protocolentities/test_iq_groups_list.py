@@ -7,4 +7,8 @@ entity = ListGroupsIqProtocolEntity()
 class ListGroupsIqProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
         self.ProtocolEntity = ListGroupsIqProtocolEntity
-        self.node = entity.toProtocolTreeNode()
+        self.xml = """
+        <iq id="1234" type="get" to="g.us" xmlns="w:g">
+            <list type="owning"></list>
+        </iq>
+        """
