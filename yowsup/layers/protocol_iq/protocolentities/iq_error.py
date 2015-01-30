@@ -1,15 +1,15 @@
 from yowsup.structs import  ProtocolTreeNode
 from .iq import IqProtocolEntity
 class ErrorIqProtocolEntity(IqProtocolEntity):
+    schema = (__file__, "schemas/iq_error.xsd")
 
     '''<iq id="1417113419-0" from="{{jid}}" type="error">
-    <error text="not-acceptable" code="406" backoff="3600">
-    </error>
-    </iq>
+            <error text="not-acceptable" code="406" backoff="3600" />
+        </iq>
     '''
 
     def __init__(self, _id, _from, code, text, backoff= 0 ):
-        super(ErrorIqProtocolEntity, self).__init__(xmlns = None, _id = _id, _type = "error", _from = _from)
+        super(ErrorIqProtocolEntity, self).__init__(_id = _id, _type = "error", _from = _from)
         self.setErrorProps(code, text, backoff)
 
     def setErrorProps(self, code, text, backoff):
@@ -27,12 +27,8 @@ class ErrorIqProtocolEntity(IqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = IqProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = ErrorIqProtocolEntity
         errorNode = node.getChild("error")
-        entity.setErrorProps(errorNode.getAttributeValue("code"),
-                             errorNode.getAttributeValue("text"),
-                             errorNode.getAttributeValue("backoff"))
+        entity = ErrorIqProtocolEntity(node["id"], node["from"], errorNode["code"], errorNode["text"], errorNode["backoff"])
         return entity
 
 

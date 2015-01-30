@@ -4,6 +4,7 @@
             <xs:enumeration value="set" />
             <xs:enumeration value="get" />
             <xs:enumeration value="result" />
+            <xs:enumeration value="error" />
         </xs:restriction>
     </xs:simpleType>
 
