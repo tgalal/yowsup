@@ -1,0 +1,20 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:account="urn:xmpp:whatsapp:account">
+    <!--<iq id="1234" type="get" to="s.whatsapp.net">-->
+        <!--<remove xmlns="urn:xmpp:whatsapp:account" />-->
+    <!--</iq>-->
+    <xs:import namespace="urn:xmpp:whatsapp:account" schemaLocation="yowsup://profiles/remove"/>
+
+    <xs:redefine schemaLocation="yowsup://iq/iq">
+        <xs:complexType name="iq">
+            <xs:complexContent>
+                <xs:extension base="xs:string">
+                    <xs:sequence minOccurs="1" maxOccurs="1">
+                        <xs:element ref="account:remove" />
+                     </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+
+        </xs:complexType>
+    </xs:redefine>
+
+</xs:schema>

@@ -1,4 +1,4 @@
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!--<iq type="result" id="{{id}}" from="g.us">-->
         <!--<group id="{group_id}"></group>-->

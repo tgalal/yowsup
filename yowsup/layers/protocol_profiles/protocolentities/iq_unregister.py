@@ -2,11 +2,17 @@ from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 
 class UnregisterIqProtocolEntity(IqProtocolEntity):
+    schema = (__file__, "schemas/iq_unregister.xsd")
+    """
+    <iq id="1234" type="get" to="s.whatsapp.net">
+        <remove xmlns="urn:xmpp:whatsapp:account" />
+    </iq>
+    """
 
     XMLNS = "urn:xmpp:whatsapp:account"
 
-    def __init__(self):
-        super(UnregisterIqProtocolEntity, self).__init__(_type = "get", to = "s.whatsapp.net")
+    def __init__(self, _id = None):
+        super(UnregisterIqProtocolEntity, self).__init__(_type = "get", to = "s.whatsapp.net", _id = _id)
 
     def toProtocolTreeNode(self):
         node = super(UnregisterIqProtocolEntity, self).toProtocolTreeNode()
@@ -16,9 +22,5 @@ class UnregisterIqProtocolEntity(IqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = IqProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = UnregisterIqProtocolEntity
-        removeNode = node.getChild("remove")
-        assert removeNode["xmlns"] == UnregisterIqProtocolEntity.XMLNS, "Not an account delete xmlns, got %s" % removeNode["xmlns"]
-
+        entity = UnregisterIqProtocolEntity(node["id"])
         return entity
