@@ -1,0 +1,32 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="w:m" xmlns="w:m" elementFormDefault="qualified">
+    <!--<iq to="s.whatsapp.net" type="set" xmlns="w:m">-->
+    <!--<media hash="{{b64_hash}}" type="{{type}}" size="{{size_bytes}}" orighash={{b64_orighash?}}></media>-->
+<!--</iq>-->
+    <xs:redefine schemaLocation="yowsup://iq/iq">
+        <xs:complexType name="iq">
+            <xs:complexContent>
+                <xs:extension base="xs:string">
+                    <xs:sequence minOccurs="1" maxOccurs="1">
+                        <xs:element name="media" xmlns="w:m">
+                            <xs:complexType>
+                                <xs:attribute name="hash" type="xs:string" use="required" />
+                                <xs:attribute name="type" type="media_upload_type" use="required" />
+                                <xs:attribute name="size" type="xs:long" use="required" />
+                                <xs:attribute name="orighash" type="xs:string" use="required" />
+                            </xs:complexType>
+                     </xs:element>
+                     </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:redefine>
+
+    <xs:simpleType name="media_upload_type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="image" />
+            <xs:enumeration value="video" />
+            <xs:enumeration value="audio" />
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>
