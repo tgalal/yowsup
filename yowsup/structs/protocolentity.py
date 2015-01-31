@@ -180,6 +180,7 @@ class ProtocolEntity(with_metaclass(ProtocolEntityMeta, object)):
 
 
 class ProtocolEntityTest(object):
+
     def setUp(self):
         self.ProtocolEntity = None
         self.node = None
@@ -192,7 +193,15 @@ class ProtocolEntityTest(object):
         if self.ProtocolEntity is None:
             raise ValueError("Test case not setup!")
 
-        node = ProtocolTreeNode(xmlString = self.xml) if self.___hasXmlDefined() else self.node
+
+        selfNode = None
+
+        try:
+            selfNode = self.node
+        except AttributeError:
+            selfNode = None
+
+        node = ProtocolTreeNode(xmlString = self.xml) if self.___hasXmlDefined() else selfNode
 
         entity = self.ProtocolEntity.fromProtocolTreeNode(node)
         try:
@@ -202,6 +211,18 @@ class ProtocolEntityTest(object):
             print("\nNOTEQ\n")
             print(node)
             raise
+
+        if selfNode is not None:
+            try:
+                entity2 = self.ProtocolEntity.fromProtocolTreeNode(selfNode)
+                self.assertEqual(entity.toProtocolTreeNode(), selfNode)
+                self.assertEqual(entity.toProtocolTreeNode(), entity2.toProtocolTreeNode())
+            except:
+                print(entity.toProtocolTreeNode())
+                print("\nNOTEQ\n")
+                print(selfNode)
+                raise
+
 
     def ___hasXmlDefined(self):
         """
