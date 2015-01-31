@@ -16,9 +16,8 @@ class DeleteGroupsIqProtocolEntity(IqProtocolEntity):
         self.groupJid = groupJid
 
     def toProtocolTreeNode(self):
-        node = super(DeleteGroupsIqProtocolEntity, self).toProtocolTreeNode()
-        node["xmlns"] = "w:g"
-        node.addChild(ProtocolTreeNode("group", {"action": "delete"}))
+        node = super(DeleteGroupsIqProtocolEntity, self).getProtocolTreeNode("w:g")
+        node.addChild(ProtocolTreeNode("group", {"action": "delete"}, ns="w:g"))
         return node
 
     @staticmethod

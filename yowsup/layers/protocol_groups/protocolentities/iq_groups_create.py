@@ -16,9 +16,8 @@ class CreateGroupsIqProtocolEntity(IqProtocolEntity):
         self.subject = subject
 
     def toProtocolTreeNode(self):
-        node = super(CreateGroupsIqProtocolEntity, self).toProtocolTreeNode()
-        node["xmlns"] = "w:g"
-        node.addChild(ProtocolTreeNode("group",{"action": "create", "subject": self.subject}))
+        node = super(CreateGroupsIqProtocolEntity, self).getProtocolTreeNode("w:g")
+        node.addChild(ProtocolTreeNode("group",{"action": "create", "subject": self.subject}, ns="w:g"))
         return node
 
     @staticmethod

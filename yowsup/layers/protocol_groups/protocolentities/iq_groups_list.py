@@ -31,9 +31,8 @@ class ListGroupsIqProtocolEntity(IqProtocolEntity):
         self.groupsType = groupsType
 
     def toProtocolTreeNode(self):
-        node = super(ListGroupsIqProtocolEntity, self).toProtocolTreeNode()
-        node["xmlns"] = "w:g"
-        node.addChild(ProtocolTreeNode("list",{"type": self.groupsType}))
+        node = super(ListGroupsIqProtocolEntity, self).getProtocolTreeNode("w:g")
+        node.addChild(ProtocolTreeNode("list",{"type": self.groupsType}, ns="w:g"))
         return node
 
     @staticmethod
