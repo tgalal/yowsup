@@ -22,7 +22,7 @@ from yowsup.layers.protocol_privacy.protocolentities     import *
 from yowsup.layers.protocol_media.protocolentities       import *
 from yowsup.layers.protocol_media.mediauploader import MediaUploader
 from yowsup.layers.protocol_profiles.protocolentities    import *
-from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
+from yowsup.layers.axolotl.protocolentities.iq_keys_get import GetKeysIqProtocolEntity
 from yowsup.layers.axolotl import YowAxolotlLayer
 
 logger = logging.getLogger(__name__)
