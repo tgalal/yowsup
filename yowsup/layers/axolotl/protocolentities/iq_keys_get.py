@@ -1,8 +1,9 @@
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 class GetKeysIqProtocolEntity(IqProtocolEntity):
+    schema = (__file__, "schemas/iq_keys_get.xsd")
     def __init__(self, jids):
-        super(GetKeysIqProtocolEntity, self).__init__("encrypt", _type = "get", to = "s.whatsapp.net")
+        super(GetKeysIqProtocolEntity, self).__init__(_type = "get", to = "s.whatsapp.net")
         self.setJids(jids)
 
     def setJids(self, jids):
@@ -13,11 +14,9 @@ class GetKeysIqProtocolEntity(IqProtocolEntity):
         return self.jids
 
     def toProtocolTreeNode(self):
-        node = super(GetKeysIqProtocolEntity, self).toProtocolTreeNode()
-        keyNode = ProtocolTreeNode("key")
+        node = super(GetKeysIqProtocolEntity, self).getProtocolTreeNode("encrypt")
+        keyNode = ProtocolTreeNode("key", parent=node)
 
         for jid in self.getJids():
-            userNode = ProtocolTreeNode("user", { "jid": jid })
-            keyNode.addChild(userNode)
-        node.addChild(keyNode)
+            ProtocolTreeNode("user", { "jid": jid }, ns=(None, "encrypt"), parent=keyNode)
         return node
