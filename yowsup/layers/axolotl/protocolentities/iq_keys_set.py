@@ -1,9 +1,10 @@
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
-import os, time
+import os
 class SetKeysIqProtocolEntity(IqProtocolEntity):
-    def __init__(self, identityKey, signedPreKey, preKeys, djbType, registrationId = None):
-        super(SetKeysIqProtocolEntity, self).__init__("encrypt", _type = "set", to = "s.whatsapp.net")
+    schema = (__file__, "schemas/iq_keys_set.xsd")
+    def __init__(self, identityKey, signedPreKey, preKeys, djbType, registrationId = None, _id = None):
+        super(SetKeysIqProtocolEntity, self).__init__( _type = "set", to = "s.whatsapp.net", _id = _id)
         self.setProps(identityKey, signedPreKey, preKeys, djbType, registrationId)
 
     def setProps(self, identityKey, signedPreKey, preKeys, djbType, registrationId = None):
@@ -17,52 +18,43 @@ class SetKeysIqProtocolEntity(IqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = IqProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = SetKeysIqProtocolEntity
-        regVal = node.getChild("registration").data
-        typeVal = node.getChild("type").data
-        idVal = node.getChild("identity").data
+        regVal = node.getChild("registration").getData()
+        typeVal = ord(node.getChild("type").getData())
+        idVal = node.getChild("identity").getData()
 
         preKeys = {}
         for keyNode in node.getChild("list").getAllChildren():
-            preKeys[keyNode.getChild("id").data] = keyNode.getChild("value").data
+            preKeys[keyNode.getChild("id").getData()] = keyNode.getChild("value").getData()
 
 
         skeyNode = node.getChild("skey")
-        entity.setProps(idVal, (skeyNode.getChild("id").data, skeyNode.getChild("value").data,
-                                skeyNode.getChild("signature").data), preKeys, typeVal, regVal)
+
+
+        entity = SetKeysIqProtocolEntity(idVal, (skeyNode.getChild("id").getData(), skeyNode.getChild("value").getData(),
+                                skeyNode.getChild("signature").getData()), preKeys, typeVal, regVal, _id=node["id"])
 
         return entity
 
     def toProtocolTreeNode(self):
-        node = super(SetKeysIqProtocolEntity, self).toProtocolTreeNode()
-        identityNode = ProtocolTreeNode("identity", data = self.identityKey)
+        node = super(SetKeysIqProtocolEntity, self).getProtocolTreeNode("encrypt")
+        ProtocolTreeNode("identity", data = self.identityKey, parent=node)
 
-        listNode = ProtocolTreeNode("list")
-        keyNodes = []
+        listNode = ProtocolTreeNode("list", parent=node)
         for keyId, pk in self.preKeys.items():
-            keyNode = ProtocolTreeNode("key")
-            keyNode.addChild(ProtocolTreeNode("id", data = keyId))
-            keyNode.addChild(ProtocolTreeNode("value", data = pk))
-            keyNodes.append(keyNode)
+            keyNode = ProtocolTreeNode("key", parent=listNode)
+            ProtocolTreeNode("id", data = keyId, parent=keyNode)
+            ProtocolTreeNode("value", data = pk, parent=keyNode)
 
-        listNode.addChildren(keyNodes)
 
-        regNode = ProtocolTreeNode("registration", data = self.registration)
-        typeNode = ProtocolTreeNode("type", data = chr(self.djbType))
+        ProtocolTreeNode("registration", data = self.registration, parent=node)
+        ProtocolTreeNode("type", data = chr(self.djbType), parent=node)
         _id, val, signature = self.signedPreKey
-        skeyNode = ProtocolTreeNode("skey", children = [
-            ProtocolTreeNode("id", data = _id),
-            ProtocolTreeNode("value", data = val),
-            ProtocolTreeNode("signature", data = signature)
-        ])
 
-        node.addChildren([
-            listNode,
-            identityNode,
-            regNode,
-            typeNode,
-            skeyNode
-        ])
+
+        skeyNode = ProtocolTreeNode("skey", parent=node)
+        ProtocolTreeNode("id", data = _id, parent=skeyNode),
+        ProtocolTreeNode("value", data = val, parent=skeyNode),
+        ProtocolTreeNode("signature", data = signature, parent=skeyNode)
+
 
         return node

@@ -1,0 +1,27 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="encrypt" xmlns="encrypt" elementFormDefault="qualified">
+    <!--<iq id="" type="set" to="self.domain" xmlns="urn:xmpp:whatsapp:dirty">-->
+        <!--<clean type="{{dirty_type}}"></clean>-->
+    <!--</iq>-->
+    <xs:redefine schemaLocation="yowsup://iq/iq">
+        <xs:complexType name="iq">
+            <xs:complexContent>
+                <xs:extension base="xs:string">
+                    <xs:sequence minOccurs="1" maxOccurs="1">
+                        <xs:element name="key">
+                            <xs:complexType>
+                                <xs:sequence minOccurs="1" maxOccurs="1">
+                                    <xs:element name="user" maxOccurs="unbounded" minOccurs="1">
+                                        <xs:complexType>
+                                            <xs:attribute name="jid" type="xs:string" use="required" />
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                     </xs:element>
+                     </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+
+        </xs:complexType>
+    </xs:redefine>
+</xs:schema>
