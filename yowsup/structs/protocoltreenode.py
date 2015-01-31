@@ -9,14 +9,24 @@ def ProtocolTreeNode(tag = None, attributes = None, children = None , data = Non
     if type(ns) is str:
         ns = (None, ns)
 
+    if attributes:
+        attributes = attributes.copy()
+
     if tag and ":" in tag:
         tagNS, tagName = tag.split(':')
         tag = "{%s}%s" % (tagNS, tagName)
         if not ns:
             ns = (tagNS, tagNS)
     elif tag:
-        # if attributes and "xmlns" in attributes:
-        #     tag = "{%s}%s" % (attributes["xmlns"], tag)
+        if attributes and "xmlns" in attributes:
+            if ns:
+                if not ns[1] == attributes["xmlns"]:
+                    raise ValueError("Conflicting xml namespaces passed")
+            else:
+                ns = (None, attributes["xmlns"])
+
+            del attributes["xmlns"]
+            # tag = "{%s}%s" % (attributes["xmlns"], tag)
 
         if not ns and parent is not None and None in parent.nsmap:
             ns = (None, parent.nsmap[None])
