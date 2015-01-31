@@ -31,6 +31,31 @@ class ProtocolEntityMeta(type):
             for i in range(len(baseSCHEMA) -1, -1, -1):
                 schemaXML.append(baseSCHEMA[i])
 
+
+
+            imports = schemaXML.findall("xs:import", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"})
+            for i in imports:
+                importTarget = i.get("schemaLocation")
+                if not importTarget.startswith("yowsup://"):
+                    raise ValueError("Only yowsup URI is supported atm")
+
+
+                resolvedTarget = cls.resolveYowsupURI(importTarget)
+                i.set("schemaLocation", resolvedTarget)
+                print("IMPORTEDD %s" % resolvedTarget)
+
+
+            imports = schemaXML.findall("xs:include", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"})
+            for i in imports:
+                importTarget = i.get("schemaLocation")
+                if not importTarget.startswith("yowsup://"):
+                    raise ValueError("Only yowsup URI is supported atm")
+
+
+                resolvedTarget = cls.resolveYowsupURI(importTarget)
+                i.set("schemaLocation", resolvedTarget)
+                print("IMPORTEDD %s" % resolvedTarget)
+
             parentSchemaNode = schemaXML.find("xs:redefine", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"})
             if parentSchemaNode is not None:
                 parentSchemaPath = parentSchemaNode.get("schemaLocation")
