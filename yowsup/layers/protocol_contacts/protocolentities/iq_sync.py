@@ -15,8 +15,10 @@ class SyncIqProtocolEntity(IqProtocolEntity):
     </iq>
     '''
 
+    XMLNS = "urn:xmpp:whatsapp:sync"
+
     def __init__(self, _type, _id = None, sid = None, index = 0, last = True):
-        super(SyncIqProtocolEntity, self).__init__("urn:xmpp:whatsapp:sync", _id = _id, _type = _type)
+        super(SyncIqProtocolEntity, self).__init__(_id = _id, _type = _type)
         self.setSyncProps(sid, index, last)
 
     def setSyncProps(self, sid, index, last):
@@ -32,7 +34,7 @@ class SyncIqProtocolEntity(IqProtocolEntity):
         out += "last: %s\n" % self.last
         return out
 
-    def toProtocolTreeNode(self):
+    def getProtocolTreeNode(self):
         
         syncNodeAttrs = {
             "sid":      self.sid,
@@ -40,9 +42,8 @@ class SyncIqProtocolEntity(IqProtocolEntity):
             "last":     "true" if self.last else "false"
         }
 
-        syncNode = ProtocolTreeNode("sync", syncNodeAttrs)
-
-        node = super(SyncIqProtocolEntity, self).toProtocolTreeNode()
+        syncNode = ProtocolTreeNode("sync", syncNodeAttrs, ns=(None, "urn:xmpp:whatsapp:sync"))
+        node = super(SyncIqProtocolEntity, self).getProtocolTreeNode("urn:xmpp:whatsapp:sync")
         node.addChild(syncNode)
         return node
 

@@ -1,0 +1,78 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!--<iq type="result" from="491632092557@s.whatsapp.net" id="1417046561-4">-->
+        <!--<sync index="0" wait="166952" last="true" version="1417046548593182" sid="1.30615237617e+17">-->
+            <!--<in>-->
+                <!--<user jid="jid">number</user>-->
+            <!--</in>-->
+            <!--<out>-->
+                <!--<user jid="{{jid}}">-->
+                    <!--number-->
+                <!--</user>-->
+            <!--</out>-->
+            <!--<invalid>-->
+                <!--<user>-->
+                    <!--abcdefgh-->
+                <!--</user>-->
+            <!--</invalid>-->
+
+        <!--</sync>-->
+    <!--</iq>-->
+    <xs:redefine schemaLocation="yowsup://contacts/iq_sync">
+        <xs:complexType name="sync">
+            <xs:complexContent>
+                <xs:extension base="xs:string">
+                    <xs:all>
+                        <xs:element name="in" maxOccurs="1" minOccurs="0">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="user" maxOccurs="unbounded" minOccurs="1">
+                                        <xs:complexType>
+                                            <xs:simpleContent>
+                                                <xs:extension base="xs:string">
+                                                    <xs:attribute name="jid" type="xs:string" />
+                                                </xs:extension>
+                                            </xs:simpleContent>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="out" maxOccurs="1" minOccurs="0">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="user" maxOccurs="unbounded" minOccurs="1">
+                                        <xs:complexType>
+                                            <xs:simpleContent>
+                                                <xs:extension base="xs:string">
+                                                    <xs:attribute name="jid" type="xs:string" />
+                                                </xs:extension>
+                                            </xs:simpleContent>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="invalid" maxOccurs="1" minOccurs="0">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="user" maxOccurs="unbounded" minOccurs="1">
+                                        <xs:simpleType>
+                                            <xs:restriction base="xs:string" />
+                                        </xs:simpleType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:all>
+
+                    <xs:attribute name="index" type="xs:int" use="required" />
+                    <xs:attribute name="wait" type="xs:int" use="required" />
+                    <xs:attribute name="last" type="xs:boolean" use="required" />
+                    <xs:attribute name="version" type="xs:long" use="required" />
+                    <xs:attribute name="sid" type="xs:string" use="required" />
+                </xs:extension>
+            </xs:complexContent>
+
+        </xs:complexType>
+    </xs:redefine>
+</xs:schema>

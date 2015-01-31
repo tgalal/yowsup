@@ -1,7 +1,9 @@
 from yowsup.structs import ProtocolTreeNode
 from .iq_sync import SyncIqProtocolEntity
+from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 
 class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
+    schema = (__file__, "schemas/iq_sync_result.xsd")
     '''
     <iq type="result" from="491632092557@s.whatsapp.net" id="1417046561-4">
     <sync index="0" wait="166952" last="true" version="1417046548593182" sid="1.30615237617e+17">
@@ -52,11 +54,11 @@ class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
 
     def toProtocolTreeNode(self):
         
-        outUsers = [ProtocolTreeNode("user", {"jid": jid}, None, number) for number, jid in self.outNumbers.items()]
-        inUsers = [ProtocolTreeNode("user", {"jid": jid}, None, number) for number, jid in self.inNumbers.items()]
-        invalidUsers = [ProtocolTreeNode("user", {}, None, number) for number in self.invalidNumbers]
+        outUsers = [ProtocolTreeNode("user", {"jid": jid}, None, number, ns=(None, "urn:xmpp:whatsapp:sync")) for number, jid in self.outNumbers.items()]
+        inUsers = [ProtocolTreeNode("user", {"jid": jid}, None, number, ns=(None, "urn:xmpp:whatsapp:sync")) for number, jid in self.inNumbers.items()]
+        invalidUsers = [ProtocolTreeNode("user", {}, None, number, ns=(None, "urn:xmpp:whatsapp:sync")) for number in self.invalidNumbers]
 
-        node = super(ResultSyncIqProtocolEntity, self).toProtocolTreeNode()
+        node = super(ResultSyncIqProtocolEntity, self).getProtocolTreeNode()
         syncNode = node.getChild("sync")
         syncNode.setAttribute("version", self.version)
 
@@ -64,13 +66,13 @@ class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
             syncNode.setAttribute("wait", str(self.wait))
 
         if len(outUsers):
-            syncNode.addChild(ProtocolTreeNode("out", children = outUsers))
+            syncNode.addChild(ProtocolTreeNode("out", children = outUsers, ns=(None, "urn:xmpp:whatsapp:sync")))
 
         if len(inUsers):
-            syncNode.addChild(ProtocolTreeNode("in", children = inUsers))
+            syncNode.addChild(ProtocolTreeNode("in", children = inUsers, ns=(None, "urn:xmpp:whatsapp:sync")))
 
         if len(invalidUsers):
-            syncNode.addChildren([ProtocolTreeNode("invalid", children = invalidUsers)])
+            syncNode.addChildren([ProtocolTreeNode("invalid", children = invalidUsers, ns=(None,"urn:xmpp:whatsapp:sync"))])
 
         return node
 
@@ -92,14 +94,8 @@ class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
         for u in inUsers:
             inUsersDict[u.getData()] = u.getAttributeValue("jid")
 
-        entity           = SyncIqProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = ResultSyncIqProtocolEntity
 
-        entity.setResultSyncProps(syncNode.getAttributeValue("version"),
-            inUsersDict,
-            outUsersDict,
-            invalidUsers,
-            syncNode.getAttributeValue("wait")
-            )
-   
+        entity = ResultSyncIqProtocolEntity(node["id"], syncNode["sid"], syncNode["index"],
+                                            syncNode["last"], syncNode["version"],
+                                            inUsersDict, outUsersDict, invalidUsers, syncNode["wait"])
         return entity

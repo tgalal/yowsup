@@ -1,0 +1,20 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:redefine schemaLocation="yowsup://iq/iq">
+        <xs:complexType name="iq">
+            <xs:complexContent>
+                <xs:extension base="xs:string">
+                    <xs:sequence minOccurs="1" maxOccurs="1">
+                        <xs:element name="sync" type="sync" />
+                     </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+
+        </xs:complexType>
+    </xs:redefine>
+
+    <xs:complexType name="sync">
+        <xs:attribute name="index" type="xs:int" use="required" />
+        <xs:attribute name="last" type="xs:boolean" use="required" />
+        <xs:attribute name="sid" type="xs:string" use="required" />
+    </xs:complexType>
+</xs:schema>

@@ -1,0 +1,49 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:xmpp:whatsapp:sync"
+           xmlns="urn:xmpp:whatsapp:sync" elementFormDefault="qualified">
+    <!--<iq type="get" id="{{id}}" xmlns="urn:xmpp:whatsapp:sync">-->
+        <!--<sync mode="{{full | ?}}"-->
+            <!--context="{{registration | ?}}"-->
+            <!--sid="{{str((time.time() + 11644477200) * 10000000)}}"-->
+            <!--index="{{0 | ?}}"-->
+            <!--last="{{true | false?}}"-->
+        <!-->-->
+            <!--<user>-->
+                <!--{{num1}}-->
+            <!--</user>-->
+            <!--<user>-->
+                <!--{{num2}}-->
+            <!--</user>-->
+
+        <!--</sync>-->
+    <!--</iq>-->
+    <xs:redefine schemaLocation="yowsup://iq/iq">
+        <xs:complexType name="iq">
+            <xs:complexContent>
+                <xs:extension base="xs:string">
+                    <xs:sequence minOccurs="1" maxOccurs="1">
+                        <xs:element name="sync">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="user" maxOccurs="unbounded" minOccurs="1">
+                                        <xs:simpleType>
+                                            <xs:restriction base="xs:string">
+                                                <xs:pattern value=".+" />
+                                            </xs:restriction>
+                                        </xs:simpleType>
+                                    </xs:element>
+                                </xs:sequence>
+
+                                <xs:attribute name="index" type="xs:int" use="required" />
+                                <xs:attribute name="last" type="xs:boolean" use="required" />
+                                <xs:attribute name="sid" type="xs:string" use="required" />
+                                <xs:attribute name="context" type="xs:string" use="required" />
+                                <xs:attribute name="mode" type="xs:string" use="required" />
+                            </xs:complexType>
+                     </xs:element>
+                     </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+
+        </xs:complexType>
+    </xs:redefine>
+</xs:schema>

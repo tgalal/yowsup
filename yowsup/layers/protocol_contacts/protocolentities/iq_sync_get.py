@@ -1,9 +1,8 @@
 from yowsup.structs import ProtocolTreeNode
-from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 from .iq_sync import SyncIqProtocolEntity
 
 class GetSyncIqProtocolEntity(SyncIqProtocolEntity):
-
+    schema = (__file__, "schemas/iq_sync_get.xsd")
     MODE_FULL = "full"
     MODE_DELTA = "delta"
     CONTEXT_REGISTRATION = "registration"
@@ -32,14 +31,14 @@ class GetSyncIqProtocolEntity(SyncIqProtocolEntity):
     </iq>
     '''
 
-    def __init__(self, numbers, mode = MODE_FULL, context = CONTEXT_INTERACTIVE, sid = None, index = 0, last = True):
-        super(GetSyncIqProtocolEntity, self).__init__("get", sid = sid, index =  index, last = last)
+    def __init__(self, numbers, mode = MODE_FULL, context = CONTEXT_INTERACTIVE, sid = None, index = 0, last = True, _id = None):
+        super(GetSyncIqProtocolEntity, self).__init__("get", sid = sid, index =  index, last = last, _id=_id)
         self.setGetSyncProps(numbers, mode, context)
 
     def setGetSyncProps(self, numbers, mode, context):
         assert type(numbers) is list, "numbers must be a list"
-        assert mode in self.__class__.MODES, "mode must be in %s" % self.__class__.MODES
-        assert context in self.__class__.CONTEXTS, "context must be in %s" % self.__class__.CONTEXTS
+        assert mode in self.__class__.MODES, "mode must be in %s" % (self.__class__.MODES,)
+        assert context in self.__class__.CONTEXTS, "context must be in %s" % (self.__class__.CONTEXTS,)
 
         self.numbers = numbers
         self.mode = mode
@@ -54,9 +53,9 @@ class GetSyncIqProtocolEntity(SyncIqProtocolEntity):
 
     def toProtocolTreeNode(self):
         
-        users = [ProtocolTreeNode("user", {}, None, number) for number in self.numbers]
+        users = [ProtocolTreeNode("user", {}, None, number, ns=self.__class__.XMLNS) for number in self.numbers]
 
-        node = super(GetSyncIqProtocolEntity, self).toProtocolTreeNode()
+        node = super(GetSyncIqProtocolEntity, self).getProtocolTreeNode()
         syncNode = node.getChild("sync")
         syncNode.setAttribute("mode", self.mode)
         syncNode.setAttribute("context", self.context)
@@ -69,12 +68,14 @@ class GetSyncIqProtocolEntity(SyncIqProtocolEntity):
         syncNode         = node.getChild("sync")
         userNodes        = syncNode.getAllChildren()
         numbers          = [userNode.getData() for userNode in userNodes]
-        entity           = SyncIqProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = GetSyncIqProtocolEntity
 
-        entity.setGetSyncProps(numbers,
+        entity = GetSyncIqProtocolEntity(numbers,
             syncNode.getAttributeValue("mode"),
             syncNode.getAttributeValue("context"),
+            syncNode.getAttributeValue("sid"),
+            syncNode.getAttributeValue("index"),
+            syncNode.getAttributeValue("last"),
+            _id = node["id"]
             )
    
         return entity
