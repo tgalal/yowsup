@@ -6,6 +6,9 @@ def ProtocolTreeNode(tag = None, attributes = None, children = None , data = Non
     assert bool(tag) ^ bool(xmlString), "Must provide either tag or xmlString"
     assert bool(xmlString) ^ (bool(tag) or bool(attributes) or bool(children) or bool(data) or bool(data) or bool(dataEncoding)), "Either XML string or xml data"
 
+    if type(ns) is str:
+        ns = (None, ns)
+
     if tag and ":" in tag:
         tagNS, tagName = tag.split(':')
         tag = "{%s}%s" % (tagNS, tagName)
