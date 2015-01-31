@@ -26,7 +26,7 @@ class ListGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
         return self.groupsList
 
     def setProps(self, groupsList):
-        assert type(groupsList) is list and len(groupsList) > 0 and groupsList[0].__class__ is Group,\
+        assert type(groupsList) is list and (len(groupsList) == 0 or groupsList[0].__class__ is Group),\
             "groupList must be a list of Group instances"
         self.groupsList = groupsList
 
