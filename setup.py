@@ -8,7 +8,10 @@ deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.1', 'pillow']
 if platform.system().lower() == "windows":
     deps.append('pyreadline')
 else:
-    deps.append('readline')
+    try:
+        import readline
+    except ImportError:
+        deps.append('readline')
 
 setup(
     name='yowsup2',
