@@ -6,7 +6,7 @@ import unittest
 class IqProtocolEntityTest(unittest.TestCase, ProtocolEntityTest):
     def setUp(self):
         self.ProtocolEntity = IqProtocolEntity
-        self.node = ProtocolTreeNode("iq", {"id": "test_id", "type": "get", "xmlns": "iq_xmlns"}, None, None)
+        self.node = ProtocolTreeNode("iq", {"id": "iq_iid", "type": "get", "to": "to"}, None, None)
         self.xml = """
             <iq type="get" id="iq_iid"  to="to" />
             """

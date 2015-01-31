@@ -1,0 +1,23 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!--<iq id="1417113419-0" from="{{jid}}" type="error">-->
+        <!--<error text="not-acceptable" code="406" backoff="3600">-->
+        <!--</error>-->
+    <!--</iq>-->
+    <xs:redefine schemaLocation="yowsup://iq/iq">
+        <xs:complexType name="iq">
+            <xs:complexContent>
+                <xs:extension base="xs:string">
+                    <xs:sequence >
+                        <xs:element name="error" minOccurs="1" maxOccurs="1">
+                            <xs:complexType>
+                                <xs:attribute name="text" type="xs:string" use="required" />
+                                <xs:attribute name="code" type="xs:integer" use="required" />
+                                <xs:attribute name="backoff" type="xs:integer" use="optional" />
+                            </xs:complexType>
+                     </xs:element>
+                     </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:redefine>
+</xs:schema>

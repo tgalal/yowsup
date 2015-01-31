@@ -37,22 +37,26 @@ class IqProtocolEntity(ProtocolEntity):
 
     def getTo(self):
         return self.to
-    
-    def toProtocolTreeNode(self):
+
+    def getProtocolTreeNode(self, xmlns = None):
         attribs = {
             "id"          : self._id,
             "type"        : self._type
         }
-
-        if self.xmlns:
-            attribs["xmlns"] = self.xmlns
+        ns = None
+        if xmlns is not None:
+            # attribs["xmlns"] = xmlns
+            ns = (None, xmlns)
 
         if self.to:
             attribs["to"] = self.to
         elif self._from:
             attribs["from"] = self._from
 
-        return self._createProtocolTreeNode(attribs, None, data = None)
+        return self._createProtocolTreeNode(attribs, None, data = None, ns = ns)
+
+    def toProtocolTreeNode(self):
+        return self.getProtocolTreeNode()
 
     def __str__(self):
         out  = "Iq:\n"

@@ -26,9 +26,8 @@ class CleanIqProtocolEntity(IqProtocolEntity):
         return out
 
     def toProtocolTreeNode(self):
-        node = super(CleanIqProtocolEntity, self).toProtocolTreeNode()
-        node["xmlns"] = "urn:xmpp:whatsapp:dirty"
-        cleanNode = ProtocolTreeNode("clean", {"type": self.cleanType})
+        node = super(CleanIqProtocolEntity, self).getProtocolTreeNode("urn:xmpp:whatsapp:dirty")
+        cleanNode = ProtocolTreeNode("clean", {"type": self.cleanType}, ns = "urn:xmpp:whatsapp:dirty")
         node.addChild(cleanNode)
         return node
 
