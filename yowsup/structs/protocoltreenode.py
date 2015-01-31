@@ -2,7 +2,7 @@ from lxml import etree
 import binascii
 import sys
 
-def ProtocolTreeNode(tag = None, attributes = None, children = None , data = None, ns = None, dataEncoding = None, xmlString = None):
+def ProtocolTreeNode(tag = None, attributes = None, children = None , data = None, ns = None, dataEncoding = None, parent = None, xmlString = None):
     assert bool(tag) ^ bool(xmlString), "Must provide either tag or xmlString"
     assert bool(xmlString) ^ (bool(tag) or bool(attributes) or bool(children) or bool(data) or bool(data) or bool(dataEncoding)), "Either XML string or xml data"
 
@@ -11,19 +11,29 @@ def ProtocolTreeNode(tag = None, attributes = None, children = None , data = Non
         tag = "{%s}%s" % (tagNS, tagName)
         if not ns:
             ns = (tagNS, tagNS)
+    elif tag:
+        # if attributes and "xmlns" in attributes:
+        #     tag = "{%s}%s" % (attributes["xmlns"], tag)
 
-    return _ProtocolTreeNode.new(tag, attributes, children, data, ns, dataEncoding) if tag else _ProtocolTreeNode.fromXML(xmlString)
+        if not ns and parent is not None and None in parent.nsmap:
+            ns = (None, parent.nsmap[None])
+
+        if ns and ns[0] is None:
+            tag = "{%s}%s" % (ns[1], tag)
+
+    return _ProtocolTreeNode.new(tag, attributes, children, data, ns, dataEncoding, parent) if tag else _ProtocolTreeNode.fromXML(xmlString)
 
 class _ProtocolTreeNode(etree.ElementBase):
     parser = None
 
-    hexlify = ("response", "success", "challenge", "registration", "identity", "value", "id", "signature", "enc", "type")
+    hexlify = ("{urn:ietf:params:xml:ns:xmpp-sasl}response", "success", "challenge", "registration", "identity", "value", "id", "signature", "enc", "type")
 
     @staticmethod
-    def new(tag, attributes = None, children = None , data = None, ns = None, dataEncoding = None):
+    def new(tag, attributes = None, children = None , data = None, ns = None, dataEncoding = None, parent = None):
         _ProtocolTreeNode.__ensureParser()
         attributes = attributes or {}
         children = children or []
+
         if dataEncoding is None and tag in _ProtocolTreeNode.hexlify:
             dataEncoding = "hex"
         nsmap = {}
@@ -37,15 +47,20 @@ class _ProtocolTreeNode(etree.ElementBase):
         for k, v in attributes.items():
             element.setAttribute(k, v)
 
+
+
+        if parent is not None:
+            parent.addChild(element)
         return element
 
     def getTag(self):
-        tag = self.tag
-        nsmap = self.nsmap
-        if None in self.nsmap:
-            tag = tag.replace("{%s}" % nsmap[None], "")
+        # tag = self.tag
+        # nsmap = self.nsmap
+        # if None in self.nsmap:
+        #     tag = tag.replace("{%s}" % nsmap[None], "")
 
-        return tag
+        tag = etree.QName(self)
+        return tag.localname
 
     @staticmethod
     def __ensureParser():
@@ -89,12 +104,9 @@ class _ProtocolTreeNode(etree.ElementBase):
         #
         # for debugging:
         #
-        # if protocolTreeNode.getTag() == "iq" and protocolTreeNode["id"] == "111111":
+        # if self.getChild("media") is not None and self.getAttributeValue("id") == "1234":
         #     me = self#.getChild(0)
         #     them = protocolTreeNode#.getChild(0)
-        #
-        #     print(me.getAttributes())
-        #     print(them.getAttributes())
         #
         #     if them.__class__ == _ProtocolTreeNode \
         #         and me.getTag() == them.getTag() \
@@ -134,7 +146,7 @@ class _ProtocolTreeNode(etree.ElementBase):
     def __hash__(self):
         return hash(self.tag) ^ hash(tuple(self.getAttributes().items())) ^ hash(self.getData())
 
-    def getAttributes(self, includeNamepsace = False):
+    def getAttributes(self, includeNamepsace = True):
         result = {}
         for k in self.attrib:
             if k.startswith("meta-yowsup"):
@@ -143,8 +155,15 @@ class _ProtocolTreeNode(etree.ElementBase):
                 continue
             result[k] = self.getAttributeValue(k)
 
-        if includeNamepsace and None in self.nsmap:
-            result["xmlns"] = self.nsmap[None]
+        # if includeNamepsace and None in self.nsmap:
+        #     result["xmlns"] = self.nsmap[None]
+
+        if None in self.nsmap:
+            if self.getparent() is None or not self.nsmap == self.getparent().nsmap:
+                result["xmlns"] = self.nsmap[None]
+
+
+
         return result
 
     def getLocalName(self):
@@ -265,6 +284,8 @@ class _ProtocolTreeNode(etree.ElementBase):
 
     def addChild(self, childNode):
         self.append(childNode)
+        #n = etree.QName(childNode)
+        #childNode.tag = n.localname
 
     def addChildren(self, children):
         for c in children:
@@ -279,8 +300,14 @@ class _ProtocolTreeNode(etree.ElementBase):
             del self.attrib[key]
 
     def setAttribute(self, key, value):
+        if key == "xmlns":
+            raise ValueError("Don't set xmlns directly")
         if type(value) is int:
             value = str(value)
+        # if key == "xmlns":
+        #     self.nsmap[None] = value
+        #     self.tag = "{%s}%s" % (value, self.tag)
+        # else:
         self.set(key ,value)
 
     def getAllChildren(self,tag = None):
