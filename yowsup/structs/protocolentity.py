@@ -201,6 +201,9 @@ class ProtocolEntityTest(object):
         except AttributeError:
             selfNode = None
 
+        if selfNode is None and self.___hasXmlDefined():
+            selfNode = self.ProtocolEntity.fromXML(self.xml).toProtocolTreeNode()
+
         node = ProtocolTreeNode(xmlString = self.xml) if self.___hasXmlDefined() else selfNode
 
         entity = self.ProtocolEntity.fromProtocolTreeNode(node)
