@@ -1,9 +1,8 @@
-from yowsup.layers.protocol_iq.protocolentities.test_iq import IqProtocolEntityTest
 from yowsup.layers.protocol_media.protocolentities import RequestUploadIqProtocolEntity
-from yowsup.structs import ProtocolTreeNode
-class RequestUploadIqProtocolEntityTest(IqProtocolEntityTest):
+from yowsup.structs.protocolentity import ProtocolEntityTest
+import unittest
+class RequestUploadIqProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
-        super(RequestUploadIqProtocolEntityTest, self).setUp()
         self.ProtocolEntity = RequestUploadIqProtocolEntity
         self.xml = """
             <iq id="1234" to="s.whatsapp.net" type="set" xmlns="w:m">

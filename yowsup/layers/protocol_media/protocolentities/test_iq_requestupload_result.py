@@ -1,9 +1,11 @@
-from yowsup.layers.protocol_iq.protocolentities.test_iq_result import ResultIqProtocolEntityTest
 from yowsup.layers.protocol_media.protocolentities import ResultRequestUploadIqProtocolEntity
-from yowsup.structs import ProtocolTreeNode
-class ResultRequestUploadIqProtocolEntityTest(ResultIqProtocolEntityTest):
+from yowsup.structs.protocolentity import ProtocolEntityTest
+import  unittest
+class ResultRequestUploadIqProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
-        super(ResultRequestUploadIqProtocolEntityTest, self).setUp()
-        mediaNode = ProtocolTreeNode("media", {"url": "url", "ip": "1.2.3.4"})
         self.ProtocolEntity = ResultRequestUploadIqProtocolEntity
-        self.node.addChild(mediaNode)
+        self.xml = """
+        <iq id="1" from="s.whatsapp.net" type="result">
+            <duplicate mimetype="image/jpeg" width="672" type="image" size="52223" url="image_url" height="896" filehash="file_hash"/>
+        </iq>
+        """

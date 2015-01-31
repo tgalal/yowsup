@@ -7,12 +7,12 @@
             <xs:complexContent>
                 <xs:extension base="xs:string">
                     <xs:sequence minOccurs="1" maxOccurs="1">
-                        <xs:element name="media" xmlns="w:m">
+                        <xs:element name="media">
                             <xs:complexType>
                                 <xs:attribute name="hash" type="xs:string" use="required" />
                                 <xs:attribute name="type" type="media_upload_type" use="required" />
                                 <xs:attribute name="size" type="xs:long" use="required" />
-                                <xs:attribute name="orighash" type="xs:string" use="required" />
+                                <xs:attribute name="orighash" type="xs:string" use="optional" />
                             </xs:complexType>
                      </xs:element>
                      </xs:sequence>
@@ -20,6 +20,20 @@
             </xs:complexContent>
         </xs:complexType>
     </xs:redefine>
+
+    <!--<xs:include schemaLocation="yowsup://media/media" />-->
+
+    <!--<xs:redefine schemaLocation="yowsup://iq/iq">-->
+        <!--<xs:complexType name="iq">-->
+            <!--<xs:complexContent>-->
+                <!--<xs:extension base="xs:string">-->
+                    <!--<xs:sequence minOccurs="1" maxOccurs="1">-->
+                        <!--<xs:element ref="media" />-->
+                     <!--</xs:sequence>-->
+                <!--</xs:extension>-->
+            <!--</xs:complexContent>-->
+        <!--</xs:complexType>-->
+    <!--</xs:redefine>-->
 
     <xs:simpleType name="media_upload_type">
         <xs:restriction base="xs:string">

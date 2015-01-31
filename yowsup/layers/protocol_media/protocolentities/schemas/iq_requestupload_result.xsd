@@ -1,0 +1,44 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <!--<iq id="1" from="s.whatsapp.net" type="result">-->
+         <!--<duplicate mimetype="image/jpeg" width="672" type="image" size="52223" url="image_url" height="896" filehash="file_hash"/>-->
+            <!--OR-->
+         <!--<media ip="50.22.75.219" url="upload_url" />-->
+     <!--</iq>-->
+
+    <xs:redefine schemaLocation="yowsup://iq/iq">
+        <xs:complexType name="iq">
+            <xs:complexContent>
+                <xs:extension base="xs:string">
+                    <xs:choice minOccurs="1" maxOccurs="1">
+                        <xs:element name="media">
+                            <xs:complexType>
+                                <xs:attribute name="ip" type="xs:string" use="required" />
+                                <xs:attribute name="url" type="xs:string" use="required" />
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="duplicate">
+                            <xs:complexType>
+                                <xs:attribute name="mimetype" type="xs:string" use="required" />
+                                <xs:attribute name="width" type="xs:positiveInteger" use="optional" />
+                                <xs:attribute name="height" type="xs:positiveInteger" use="optional" />
+                                <xs:attribute name="type" type="media_upload_type" use="required" />
+                                <xs:attribute name="url" type="xs:string" use="required" />
+                                <xs:attribute name="filehash" type="xs:string" use="required" />
+                                <xs:attribute name="size" type="xs:long" use="required" />
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:choice>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:redefine>
+
+    <xs:simpleType name="media_upload_type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="image" />
+            <xs:enumeration value="video" />
+            <xs:enumeration value="audio" />
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>

@@ -14,6 +14,7 @@ class YowMediaProtocolLayer(YowProtocolLayer):
             "message": (self.recvMessageStanza, self.sendMessageEntity),
             "iq": (self.recvIq, self.sendIq)
         }
+        
         super(YowMediaProtocolLayer, self).__init__(handleMap)
 
     def __str__(self):
@@ -50,7 +51,7 @@ class YowMediaProtocolLayer(YowProtocolLayer):
         """
         :type entity: IqProtocolEntity
         """
-        if entity.getType() == IqProtocolEntity.TYPE_SET and entity.getXmlns() == "w:m":
+        if entity.__class__ == RequestUploadIqProtocolEntity:
             #media upload!
             self._sendIq(entity, self.onRequestUploadSuccess, self.onRequestUploadError)
 

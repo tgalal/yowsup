@@ -2,6 +2,7 @@ from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 import hashlib
 import base64
+from lxml import etree
 import os
 from yowsup.common.tools import WATools
 class RequestUploadIqProtocolEntity(IqProtocolEntity):
@@ -49,7 +50,7 @@ class RequestUploadIqProtocolEntity(IqProtocolEntity):
         return out
 
     def toProtocolTreeNode(self):
-        node = super(RequestUploadIqProtocolEntity, self).toProtocolTreeNode()
+        node = super(RequestUploadIqProtocolEntity, self).getProtocolTreeNode("w:m")
         attribs = {
             "hash": self.b64Hash,
             "type": self.mediaType,
@@ -57,9 +58,7 @@ class RequestUploadIqProtocolEntity(IqProtocolEntity):
         }
         if self.origHash:
             attribs["orighash"] = self.origHash
-        mediaNode = ProtocolTreeNode("media", attribs)
-        node["xmlns"] = "w:m"
-        node.addChild(mediaNode)
+        mediaNode = ProtocolTreeNode("media", attribs, parent=node)
         return node
 
     @staticmethod
