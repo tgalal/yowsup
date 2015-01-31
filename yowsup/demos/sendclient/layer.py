@@ -24,7 +24,6 @@ class SendLayer(YowInterfaceLayer):
                 messageEntity = TextMessageProtocolEntity(message, to = "%s@g.us" % phone)
             else:
                 messageEntity = TextMessageProtocolEntity(message, to = "%s@s.whatsapp.net" % phone)
-            print(phone)
             self.ackQueue.append(messageEntity.getId())
             self.toLower(messageEntity)
         self.lock.release()
