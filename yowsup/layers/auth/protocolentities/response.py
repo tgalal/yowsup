@@ -7,7 +7,7 @@ class ResponseProtocolEntity(ProtocolEntity):
         self.data = data
     
     def toProtocolTreeNode(self):
-        return self._createProtocolTreeNode({"xmlns": self.xmlns}, children = None, data = self.data)
+        return self._createProtocolTreeNode(attributes={"xmlns": self.xmlns}, children = None, data = self.data)
 
     @staticmethod
     def fromProtocolTreeNode(node):
