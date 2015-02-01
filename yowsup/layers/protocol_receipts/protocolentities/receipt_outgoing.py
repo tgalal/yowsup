@@ -15,18 +15,18 @@ class OutgoingReceiptProtocolEntity(ReceiptProtocolEntity):
     <receipt offline="0" from="4915225256022@s.whatsapp.net" id="1415577964-1" t="1415578027"></receipt>
     '''
 
-    def __init__(self, _id, to, _type = None):
+    def __init__(self, _id, to, read = False):
         super(OutgoingReceiptProtocolEntity, self).__init__(_id)
-        self.setOutgoingData(to, _type)
+        self.setOutgoingData(to, read)
 
-    def setOutgoingData(self, to, _type):
+    def setOutgoingData(self, to, read):
         self.to = to
-        self._type = _type
+        self.read = read
     
     def toProtocolTreeNode(self):
         node = super(OutgoingReceiptProtocolEntity, self).toProtocolTreeNode()
-        if self._type:
-            node.setAttribute("type", self._type)
+        if self.read:
+            node.setAttribute("type", "read")
 
         node.setAttribute("to", self.to)
 
@@ -35,8 +35,8 @@ class OutgoingReceiptProtocolEntity(ReceiptProtocolEntity):
     def __str__(self):
         out = super(OutgoingReceiptProtocolEntity, self).__str__()
         out  += "To: \n%s" % self.to
-        if self._type:
-            out += "Type: \n%s" % self._type
+        if self.read:
+            out += "Type: \n%s" % "read"
         return out
 
     @staticmethod
