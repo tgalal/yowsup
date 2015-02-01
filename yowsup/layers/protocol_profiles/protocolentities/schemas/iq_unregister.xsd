@@ -5,6 +5,11 @@
     <xs:import namespace="urn:xmpp:whatsapp:account" schemaLocation="yowsup://profiles/remove"/>
 
     <xs:redefine schemaLocation="yowsup://iq/iq">
+        <xs:simpleType name="iq_type">
+            <xs:restriction base="iq_type">
+                <xs:enumeration value="get" />
+            </xs:restriction>
+        </xs:simpleType>
         <xs:complexType name="iq">
             <xs:complexContent>
                 <xs:extension base="xs:string">

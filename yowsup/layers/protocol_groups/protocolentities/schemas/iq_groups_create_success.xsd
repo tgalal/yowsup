@@ -5,6 +5,11 @@
     <!--</iq>-->
 
     <xs:redefine schemaLocation="yowsup://iq/iq">
+        <xs:simpleType name="iq_type">
+            <xs:restriction base="iq_type">
+                <xs:enumeration value="result" />
+            </xs:restriction>
+        </xs:simpleType>
         <xs:complexType name="iq">
             <xs:complexContent>
                 <xs:extension base="xs:string">
