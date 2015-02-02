@@ -13,8 +13,8 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
         LeaveGroupsIqProtocolEntity,
         ListGroupsIqProtocolEntity,
         SubjectGroupsIqProtocolEntity,
-        ParticipantsGroupsIqProtocolEntity
-        #AddPariticipantsIqProtocolEntity,
+        ParticipantsGroupsIqProtocolEntity,
+        AddParticipantsIqProtocolEntity
         #RemoveParticipantsIqProtocolEntity
     )
 
