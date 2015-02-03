@@ -36,25 +36,27 @@ class ProtocolEntityMeta(type):
             imports = schemaXML.findall("xs:import", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"})
             for i in imports:
                 importTarget = i.get("schemaLocation")
-                if not importTarget.startswith("yowsup://"):
-                    raise ValueError("Only yowsup URI is supported atm")
 
-
-                resolvedTarget = cls.resolveYowsupURI(importTarget)
-                i.set("schemaLocation", resolvedTarget)
-                print("IMPORTEDD %s" % resolvedTarget)
-
+                if importTarget.startswith("yowsup://"):
+                    resolvedTarget = cls.resolveYowsupURI(importTarget)
+                    i.set("schemaLocation", resolvedTarget)
+                    print("IMPORTEDD %s" % resolvedTarget)
+                else:
+                    resolvedTarget = cls.resolveRelativeSchemaPath(importTarget, cls.resolveSchemaPath(dct["schema"]))
+                    i.set("schemaLocation", resolvedTarget)
+                    print("IMPORTEDD %s" % resolvedTarget)
 
             imports = schemaXML.findall("xs:include", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"})
             for i in imports:
                 importTarget = i.get("schemaLocation")
-                if not importTarget.startswith("yowsup://"):
-                    raise ValueError("Only yowsup URI is supported atm")
-
-
-                resolvedTarget = cls.resolveYowsupURI(importTarget)
-                i.set("schemaLocation", resolvedTarget)
-                print("IMPORTEDD %s" % resolvedTarget)
+                if importTarget.startswith("yowsup://"):
+                    resolvedTarget = cls.resolveYowsupURI(importTarget)
+                    i.set("schemaLocation", resolvedTarget)
+                    print("IMPORTEDD %s" % resolvedTarget)
+                else:
+                    resolvedTarget = cls.resolveRelativeSchemaPath(importTarget, cls.resolveSchemaPath(dct["schema"]))
+                    i.set("schemaLocation", resolvedTarget)
+                    print("IMPORTEDD %s" % resolvedTarget)
 
             parentSchemaNode = schemaXML.find("xs:redefine", namespaces={"xs": "http://www.w3.org/2001/XMLSchema"})
             if parentSchemaNode is not None:
@@ -63,9 +65,7 @@ class ProtocolEntityMeta(type):
                 if parentSchemaPath.startswith("yowsup://"):
                     parentSchemaNode.set("schemaLocation", cls.resolveYowsupURI(parentSchemaPath))
                 else:
-                    originalSchemaPathDir = os.path.dirname(os.path.join(dct["schema"][0]))
-                    targetPath = os.path.join(originalSchemaPathDir, parentSchemaPath)
-                    parentSchemaNode.set("schemaLocation", targetPath)
+                    parentSchemaNode.set("schemaLocation", cls.resolveRelativeSchemaPath(parentSchemaPath, cls.resolveSchemaPath(dct["schema"])))
             dct["schema"] = etree.XMLSchema(schemaXML)
 
         originalToProtocolTreeNode = dct["toProtocolTreeNode"] if "toProtocolTreeNode" in dct else None
@@ -100,6 +100,10 @@ class ProtocolEntityMeta(type):
     def isValid(cls, xml, schema):
         parsedXML = etree.fromstring(xml) if type(xml) in (str,unicode) else xml
         return schema.validate(parsedXML)
+
+    @classmethod
+    def resolveRelativeSchemaPath(cls, path, relativeTo):
+        return os.path.join(os.path.dirname(relativeTo), path)
 
     @classmethod
     def resolveYowsupURI(cls, uri):
@@ -167,6 +171,7 @@ class ProtocolEntity(with_metaclass(ProtocolEntityMeta, object)):
         if cls.isValid(xml):
             return cls.fromProtocolTreeNode(ProtocolTreeNode(xmlString = xml))
         else:
+            cls.fromProtocolTreeNode(ProtocolTreeNode(xmlString = xml))
             raise ValueError("Invalid XML for this schema")
 
     @classmethod
