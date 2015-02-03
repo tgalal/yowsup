@@ -469,6 +469,19 @@ class YowsupConnectionManager:
 				return messageNode.getAttributeValue("id")
 			
 			return wrapped
+
+	def sendMediaMessage(fn):
+			def wrapped(self, *args):
+				node = fn(self, *args)
+				jid = "broadcast" if type(args[0]) == list else args[0]
+				messageNode = self.getMessageNodeMedia(jid, node)
+				
+				self._writeNode(messageNode);
+
+				return messageNode.getAttributeValue("id")
+			
+			return wrapped
+
 		
 	def sendChangeStatus(self,status):
 		self._d("updating status to: %s"%(status))
@@ -488,17 +501,17 @@ class YowsupConnectionManager:
 	def sendText(self,jid, content):
 		return ProtocolTreeNode("body",None,None,content);
 
-	@sendMessage
+	@sendMediaMessage
 	@mediaNode
 	def sendImage(self, jid, url, name, size, preview):
 		return "image"
 	
-	@sendMessage
+	@sendMediaMessage
 	@mediaNode
 	def sendVideo(self, jid, url, name, size, preview):
 		return "video"
 	
-	@sendMessage
+	@sendMediaMessage
 	@mediaNode
 	def sendAudio(self, jid, url, name, size):
 		return "audio"
@@ -766,6 +779,26 @@ class YowsupConnectionManager:
 			msgId = str(int(time.time()))+"-"+ str(self.currKeyId)
 			
 			messageNode = ProtocolTreeNode("message",{"to":jid,"type":"text","id":msgId},messageChildren)
+			
+			self.currKeyId += 1
+
+
+			return messageNode;
+
+	def getMessageNodeMedia(self, jid, child):
+			serverNode = ProtocolTreeNode("server",None);
+			xNode = ProtocolTreeNode("x",{"xmlns":"jabber:x:event"},[serverNode]);
+			messageChildren = []
+			
+			if type(child) == list:
+				messageChildren = child
+			else:
+				messageChildren.append(child)
+			messageChildren.append(xNode)
+				
+			msgId = str(int(time.time()))+"-"+ str(self.currKeyId)
+			
+			messageNode = ProtocolTreeNode("message",{"to":jid,"type":"media","id":msgId},messageChildren)
 			
 			self.currKeyId += 1
 
