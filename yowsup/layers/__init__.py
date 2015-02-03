@@ -33,7 +33,6 @@ class YowLayer(object):
     #     self.setLayers(upperLayer, lowerLayer)
 
     def __init__(self):
-        super(YowLayer, self).__init__()
         self.setLayers(None, None)
 
     def setStack(self, stack):
