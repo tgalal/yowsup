@@ -37,7 +37,7 @@ class IqProtocolEntity(ProtocolEntity):
 
     def getTo(self):
         return self.to
-
+    
     def toProtocolTreeNode(self):
         attribs = {
             "id"          : self._id,

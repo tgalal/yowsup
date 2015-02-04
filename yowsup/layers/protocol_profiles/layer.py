@@ -1,5 +1,5 @@
 from yowsup.layers import YowProtocolLayer
-from yowsup.common import YowConstants
+
 from .protocolentities import *
 class YowProfilesProtocolLayer(YowProtocolLayer):
     def __init__(self):
