@@ -1,4 +1,4 @@
-from .yowstack import YowStack
+from .yowstack import YowStack, YowStackBuilder
 
 from yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer, AuthError
 from yowsup.layers.coder                       import YowCoderLayer
@@ -16,11 +16,13 @@ from yowsup.layers.protocol_notifications      import YowNotificationsProtocolLa
 from yowsup.layers.protocol_iq                 import YowIqProtocolLayer
 from yowsup.layers.protocol_contacts           import YowContactsIqProtocolLayer
 from yowsup.layers.protocol_chatstate          import YowChatstateProtocolLayer
+from yowsup.layers.protocol_privacy            import YowPrivacyProtocolLayer
 from yowsup.layers.protocol_profiles           import YowProfilesProtocolLayer
 
 
 
 YOWSUP_CORE_LAYERS = (
+    YowLoggerLayer,
     YowCoderLayer,
     YowCryptLayer,
     YowStanzaRegulator,
@@ -39,12 +41,9 @@ YOWSUP_PROTOCOL_LAYERS_BASIC = (
 YOWSUP_PROTOCOL_LAYERS_GROUPS = (YowGroupsProtocolLayer,) + YOWSUP_PROTOCOL_LAYERS_BASIC
 YOWSUP_PROTOCOL_LAYERS_MEDIA  = (YowMediaProtocolLayer,) + YOWSUP_PROTOCOL_LAYERS_BASIC
 YOWSUP_PROTOCOL_LAYERS_PROFILES  = (YowProfilesProtocolLayer,) + YOWSUP_PROTOCOL_LAYERS_BASIC
-YOWSUP_PROTOCOL_LAYERS_FULL = (YowGroupsProtocolLayer, YowMediaProtocolLayer, YowProfilesProtocolLayer) + YOWSUP_PROTOCOL_LAYERS_BASIC
+YOWSUP_PROTOCOL_LAYERS_FULL = (YowGroupsProtocolLayer, YowMediaProtocolLayer, YowPrivacyProtocolLayer, YowProfilesProtocolLayer)\
+                              + YOWSUP_PROTOCOL_LAYERS_BASIC
 
 
-YOWSUP_FULL_STACK_DEBUG = (YOWSUP_PROTOCOL_LAYERS_FULL,) +\
-                           (YowLoggerLayer,) +\
-                           YOWSUP_CORE_LAYERS
-
-YOWSUP_FULL_STACK = (YOWSUP_PROTOCOL_LAYERS_FULL) +\
+YOWSUP_FULL_STACK = (YOWSUP_PROTOCOL_LAYERS_FULL,) +\
                      YOWSUP_CORE_LAYERS

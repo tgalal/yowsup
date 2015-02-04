@@ -13,24 +13,27 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
     <receipt offline="0" from="xxxxxxxxxx@s.whatsapp.net" id="1415577964-1" t="1415578027"></receipt>
     '''
 
-    def __init__(self, _id, _from, timestamp, offline = None):
+    def __init__(self, _id, _from, timestamp, offline = None, type = None):
         super(IncomingReceiptProtocolEntity, self).__init__(_id)
-        self.setIncomingData(_from, timestamp, offline)
+        self.setIncomingData(_from, timestamp, offline, type)
 
-    def setIncomingData(self, _from, timestamp, offline):
+    def setIncomingData(self, _from, timestamp, offline, type = None):
         self._from = _from
         self.timestamp = timestamp
+        self.type = type
         if offline is not None:
             self.offline = True if offline == "1" else False
         else:
             self.offline = None
-    
+
     def toProtocolTreeNode(self):
         node = super(IncomingReceiptProtocolEntity, self).toProtocolTreeNode()
         node.setAttribute("from", self._from)
-        node.setAttribute("timestamp", self.timestamp)
+        node.setAttribute("timestamp", str(self.timestamp))
         if self.offline is not None:
             node.setAttribute("1" if self.offline else "0")
+        if self.type is not None:
+            node.setAttribute("type", self.type)
         return node
 
     def __str__(self):
@@ -39,6 +42,8 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
         out += "Timestamp: \n%s" % self.timestamp
         if self.offline is not None:
             out += "Offline: %s\n" % ("1" if self.offline else "0")
+        if self.type is not None:
+            out += "Type: %s\n" % (self.type)
         return out
 
     @staticmethod
@@ -47,5 +52,6 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
             node.getAttributeValue("id"),
             node.getAttributeValue("from"),
             node.getAttributeValue("timestamp"),
-            node.getAttributeValue("offline"    )
+            node.getAttributeValue("offline"    ),
+            node.getAttributeValue("type")
             )

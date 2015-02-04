@@ -8,8 +8,9 @@ from .protocolentities import *
 import base64
 class YowAuthenticationProtocolLayer(YowProtocolLayer):
     EVENT_LOGIN      = "org.openwhatsapp.yowsup.event.auth.login"
-    EVENT_AUTHED     = "org.openwhatsapp.yowsup.event.auth.authed"
+    EVENT_AUTHED  = "org.openwhatsapp.yowsup.event.auth.authed"
     PROP_CREDENTIALS = "org.openwhatsapp.yowsup.prop.auth.credentials"
+    PROP_PASSIVE = "org.openwhatsapp.yowsup.prop.auth.passive"
 
     def __init__(self):
         handleMap = {
@@ -19,7 +20,6 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
             "challenge": (self.handleChallenge, None)
         }
         super(YowAuthenticationProtocolLayer, self).__init__(handleMap)
-        self.supportsReceiptAcks = False
         self.credentials = None
 
     def __str__(self):
@@ -27,6 +27,8 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
 
     def __getCredentials(self):
         u, pb64 = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)
+        if type(pb64) is str:
+            pb64 = pb64.encode()
         password = base64.b64decode(pb64)
         return (u, bytearray(password))
 
@@ -47,10 +49,9 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
     ###recieved node handlers handlers
     def handleStreamFeatures(self, node):
         nodeEntity = StreamFeaturesProtocolEntity.fromProtocolTreeNode(node)
-        self.supportsReceiptAcks  = nodeEntity.supportsReceiptAcks()
 
     def handleSuccess(self, node):
-        successEvent = YowLayerEvent(self.__class__.EVENT_AUTHED)
+        successEvent = YowLayerEvent(self.__class__.EVENT_AUTHED, passive = self.getProp(self.__class__.PROP_PASSIVE))
         self.broadcastEvent(successEvent)
         nodeEntity = SuccessProtocolEntity.fromProtocolTreeNode(node)
         self.toUpper(nodeEntity)
@@ -67,10 +68,11 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
 
     ##senders
     def _sendFeatures(self):
-        self.entityToLower(StreamFeaturesProtocolEntity())
+        self.entityToLower(StreamFeaturesProtocolEntity(["readreceipts", "groups_v2", "privacy", "presence"]))
 
     def _sendAuth(self):
-        self.entityToLower(AuthProtocolEntity(self.credentials[0]))
+        passive = self.getProp(self.__class__.PROP_PASSIVE, False)
+        self.entityToLower(AuthProtocolEntity(self.credentials[0], passive=passive))
 
     def _sendResponse(self,nonce):
         keys = KeyStream.generateKeys(self.credentials[1], nonce)

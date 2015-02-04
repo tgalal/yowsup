@@ -18,6 +18,8 @@ class YowContactsIqProtocolLayer(YowProtocolLayer):
                 self.toUpper(RemoveContactNotificationProtocolEntity.fromProtocolTreeNode(node))
             elif node.getChild("add"):
                 self.toUpper(AddContactNotificationProtocolEntity.fromProtocolTreeNode(node))
+            elif node.getChild("update"):
+                self.toUpper(UpdateContactNotificationProtocolEntity.fromProtocolTreeNode(node))
             else:
                 self.raiseErrorForNode(node)
 

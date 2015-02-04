@@ -8,7 +8,7 @@ class DeleteGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     '''
 
     def __init__(self, groupJid):
-        super(InfoGroupsIqProtocolEntity, self).__init__(to = groupJid, _id = _id, _type = "set")
+        super(DeleteGroupsIqProtocolEntity, self).__init__(to = groupJid, _type = "set")
         self.setProps(groupJid)
 
     def setProps(self, groupJid):

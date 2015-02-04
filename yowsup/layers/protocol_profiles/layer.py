@@ -1,4 +1,4 @@
-from yowsup.layers import  YowProtocolLayer
+from yowsup.layers import YowProtocolLayer
 from yowsup.common import YowConstants
 from .protocolentities import *
 class YowProfilesProtocolLayer(YowProtocolLayer):
@@ -17,8 +17,7 @@ class YowProfilesProtocolLayer(YowProtocolLayer):
 
     def recvIq(self, node):
         if node["type"] == "result":
-        	pictureNode = node.getChild("picture")
-        	if pictureNode is not None:
-		        entity = PictureIqProtocolEntity.fromProtocolTreeNode(node)
-		        self.toUpper(entity)
-
+            pictureNode = node.getChild("picture")
+            if pictureNode is not None:
+                entity = PictureIqProtocolEntity.fromProtocolTreeNode(node)
+                self.toUpper(entity)

@@ -1,18 +1,10 @@
 from yowsup.layers.protocol_contacts.protocolentities.iq_sync_get import GetSyncIqProtocolEntity
-from yowsup.structs import ProtocolTreeNode
-from yowsup.layers.protocol_contacts.protocolentities.test_iq_sync import SyncIqProtocolEntityTest
+from yowsup.structs.protocolentity import ProtocolEntityTest
+import unittest
 
-class GetSyncIqProtocolEntityTest(SyncIqProtocolEntityTest):
+entity = GetSyncIqProtocolEntity(["12345678", "8764543121"])
+
+class GetSyncIqProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
-        super(GetSyncIqProtocolEntityTest, self).setUp()
         self.ProtocolEntity = GetSyncIqProtocolEntity
-
-        users = [
-            ProtocolTreeNode("user", data = "abc"),
-            ProtocolTreeNode("user", data =  "xyz")
-        ]
-
-        syncNode = self.node.getChild("sync")
-        syncNode.setAttribute("mode", GetSyncIqProtocolEntity.MODE_DELTA)
-        syncNode.setAttribute("context", GetSyncIqProtocolEntity.CONTEXT_INTERACTIVE)
-        syncNode.addChildren(users)
+        self.node = entity.toProtocolTreeNode()

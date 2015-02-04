@@ -4,7 +4,7 @@ class PictureIqProtocolEntity(IqProtocolEntity):
     '''
     When asking for a profile picture:
     <iq type="get" id="{{id}}" xmlns="w:profile:picture", to={{jid}}">
-        <picture type="image">
+        <picture type="image | preview">
         </picture>
     </iq>
 
@@ -25,11 +25,10 @@ class PictureIqProtocolEntity(IqProtocolEntity):
     '''
     XMLNS = "w:profile:picture"
 
-    def __init__(self, _id = None, _type = None, to = None, _from = None, pictureData = None,
-        pictureId = None):
-        super(PictureIqProtocolEntity, self).__init__(self.__class__.XMLNS, _id, _type, to, _from)
-        self.setPictureData(pictureData)
-        self.setPictureId(pictureId)
+    def __init__(self, jid):
+        super(PictureIqProtocolEntity, self).__init__(self.__class__.XMLNS, _type="get", to = jid)
+        self.pictureId = None
+        self.pictureData = None
 
     def __str__(self):
         out  = super(PictureIqProtocolEntity, self).__str__()
