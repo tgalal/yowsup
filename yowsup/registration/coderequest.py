@@ -20,15 +20,9 @@ class WACodeRequest(WARequest):
         self.addParam("in", p_in)
         self.addParam("lc", "GB")
         self.addParam("lg", "en")
-        self.addParam("mcc", "000")
-        self.addParam("mnc", "000")
         self.addParam("sim_mcc", sim_mcc.zfill(3))
         self.addParam("sim_mnc", sim_mnc.zfill(3))
         self.addParam("method", method)
-        #self.addParam("id", idx)
-        self.addParam("network_radio_type", "1")
-        self.addParam("reason", "self-send-jailbroken")
-
 
         self.addParam("token", CURRENT_ENV.getToken(p_in))
 
