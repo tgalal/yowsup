@@ -1,0 +1,24 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:simpleType name="message_type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="text" />
+            <xs:enumeration value="media" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="message">
+            <xs:attribute name="id"             type="xs:string"        use="required" />
+            <xs:attribute name="from"           type="xs:string"        use="optional" />
+            <xs:attribute name="offline"        type="xs:integer"       use="optional" />
+            <xs:attribute name="to"             type="xs:string"        use="optional" />
+            <xs:attribute name="type"           type="message_type"     use="required"/>
+            <xs:attribute name="t"              type="xs:long"          use="optional"/>
+            <xs:attribute name="notify"         type="xs:string"        use="optional"/>
+            <xs:attribute name="participant"     type="xs:string"       use="optional"/>
+            <xs:attribute name="phash"          type="xs:string"        use="optional" />
+            <xs:attribute name="retry"          type="xs:int"           use="optional" />
+    </xs:complexType>
+
+    <xs:element name="message" type="message" />
+
+ </xs:schema>

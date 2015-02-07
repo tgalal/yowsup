@@ -1,10 +1,13 @@
 from yowsup.layers.protocol_media.protocolentities.message_media import MediaMessageProtocolEntity
-from yowsup.layers.protocol_messages.protocolentities.test_message import MessageProtocolEntityTest
-from yowsup.structs import ProtocolTreeNode
+import unittest
+from yowsup.structs.protocolentity import ProtocolEntityTest
 
-class MediaMessageProtocolEntityTest(MessageProtocolEntityTest):
+class MediaMessageProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
         super(MediaMessageProtocolEntityTest, self).setUp()
         self.ProtocolEntity = MediaMessageProtocolEntity
-        mediaNode = ProtocolTreeNode("media", {"type":"MEDIA_TYPE"}, None, None)
-        self.node.addChild(mediaNode)
+        self.xml = """
+        <message participant="participant" t="123456" from="sender" offline="0" type="media" id="ID" notify="notify">
+            <media type="image">preview</media>
+        </message>
+        """

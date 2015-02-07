@@ -1,11 +1,13 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 class MessageProtocolEntity(ProtocolEntity):
 
+    schema = (__file__, "schemas/message.xsd")
+
     MESSAGE_TYPE_TEXT = "text"
     MESSAGE_TYPE_MEDIA = "media"
 
     def __init__(self, _type, _id = None,  _from = None, to = None, notify = None, timestamp = None, 
-        participant = None, offline = None, retry = None):
+        participant = None, offline = None, retry = None, phash = None):
 
         assert (to or _from), "Must specify either to or _from jids to create the message"
         assert not(to and _from), "Can't set both attributes to message at same time (to, _from)"
@@ -18,9 +20,13 @@ class MessageProtocolEntity(ProtocolEntity):
         self.to             = to
         self.timestamp      = int(timestamp) if timestamp else self._getCurrentTimestamp()
         self.notify         = notify
-        self.offline        = offline == "1" if offline is not None else offline
+        self.offline        = int(offline) if offline is not None else None
         self.retry          = int(retry) if retry else None
         self.participant    = participant
+        self.phash          = phash
+
+    def getPHash(self):
+        return self.phash
 
     def getType(self):
         return self._type
@@ -56,7 +62,7 @@ class MessageProtocolEntity(ProtocolEntity):
             attribs["t"] = str(self.timestamp)
 
         if self.offline is not None:
-            attribs["offline"] = "1" if self.offline else "0"
+            attribs["offline"] = str(self.offline)
 
         if self.isOutgoing():
             attribs["to"] = self.to
@@ -70,6 +76,10 @@ class MessageProtocolEntity(ProtocolEntity):
             attribs["retry"] = str(self.retry)
         if self.participant:
             attribs["participant"] = self.participant
+
+        if self.phash:
+            attribs["phash"] = self.phash
+
 
 
         xNode = None
@@ -109,5 +119,6 @@ class MessageProtocolEntity(ProtocolEntity):
             node.getAttributeValue("t"),
             node.getAttributeValue("participant"),
             node.getAttributeValue("offline"),
-            node.getAttributeValue("retry")
+            node.getAttributeValue("retry"),
+            node.getAttributeValue("phash")
             )

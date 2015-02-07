@@ -1,6 +1,7 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from yowsup.layers.protocol_messages.protocolentities import MessageProtocolEntity
 class MediaMessageProtocolEntity(MessageProtocolEntity):
+    schema = (__file__, "schemas/message_media.xsd")
     '''
     <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
         offline="{{OFFLINE}}" type="text" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
@@ -132,9 +133,8 @@ class MediaMessageProtocolEntity(MessageProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = MessageProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = MediaMessageProtocolEntity
-        entity.setMediaType(node.getChild("media").getAttributeValue("type"))
-        preview = node.getChild("media").getData()
-        entity.setPreview(preview)
+        mediaNode = node.getChild("media")
+        entity = MediaMessageProtocolEntity(mediaNode["type"],node["id"], node["from"], node["to"],
+                                           node["notify"], node["t"], node["participant"], mediaNode.getData(),
+                                           node["offline"], node["retry"])
         return entity

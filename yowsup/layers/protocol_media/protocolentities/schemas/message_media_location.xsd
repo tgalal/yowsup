@@ -1,0 +1,31 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <!--<message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" -->
+    <!--offline="{{OFFLINE}}" type="text" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">-->
+        <!--<media -->
+            <!--latitude="52.52393" -->
+            <!--type="location"-->
+            <!--longitude="13.41747"-->
+            <!--name="Location Name"-->
+            <!--url="http://www.foursquare.com/XXXX"-->
+            <!--encoding="raw"-->
+        <!-->{{THUMBNAIL_RAWDATA}}</media>-->
+    <!--</message>-->
+    <xs:redefine schemaLocation="message_media.xsd">
+        <xs:complexType name="media">
+            <xs:complexContent>
+                <xs:extension base="media">
+                    <xs:attribute name="latitude" type="xs:float" use="required" />
+                    <xs:attribute name="longitude" type="xs:float" use="required" />
+                    <xs:attribute name="name" type="xs:string" use="optional" />
+                    <xs:attribute name="url" type="xs:string" use="optional" />
+                    <xs:attribute name="encoding" type="xs:string" use="required" />
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+        <xs:simpleType name="media_type">
+            <xs:restriction base="media_type">
+                <xs:enumeration value="location" />
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:redefine>
+</xs:schema>

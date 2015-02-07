@@ -1,0 +1,28 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:redefine schemaLocation="message_text.xsd">
+        <xs:simpleType name="message_type">
+            <xs:restriction base="message_type">
+                <xs:pattern value="text" />
+            </xs:restriction>
+        </xs:simpleType>
+        <xs:complexType name="message">
+            <xs:complexContent>
+                <xs:extension base="message">
+                    <xs:sequence>
+                        <xs:element name="broadcast" maxOccurs="1" minOccurs="1">
+                            <xs:complexType>
+                                <xs:sequence minOccurs="1" maxOccurs="unbounded">
+                                    <xs:element name="to">
+                                        <xs:complexType>
+                                            <xs:attribute name="jid" type="xs:string" />
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:redefine>
+</xs:schema>

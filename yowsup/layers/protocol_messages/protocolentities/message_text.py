@@ -1,6 +1,7 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .message import MessageProtocolEntity
 class TextMessageProtocolEntity(MessageProtocolEntity):
+    schema = (__file__, "schemas/message_text.xsd")
     '''
     <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
         offline="{{OFFLINE}}" type="text" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
@@ -10,8 +11,8 @@ class TextMessageProtocolEntity(MessageProtocolEntity):
     </message>
     '''
     def __init__(self, body, _id = None,  _from = None, to = None, notify = None, 
-        timestamp = None, participant = None, offline = None, retry = None):
-        super(TextMessageProtocolEntity, self).__init__("text",_id, _from, to, notify, timestamp, participant, offline, retry)
+        timestamp = None, participant = None, offline = None, retry = None, phash = None):
+        super(TextMessageProtocolEntity, self).__init__("text",_id, _from, to, notify, timestamp, participant, offline, retry, phash)
         self.setBody(body)
 
     def __str__(self):
@@ -33,7 +34,8 @@ class TextMessageProtocolEntity(MessageProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = MessageProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = TextMessageProtocolEntity
-        entity.setBody(node.getChild("body").getData())
+        entity = TextMessageProtocolEntity(node.getChild("body").getData(),
+                                           node["id"], node["from"], node["to"],
+                                           node["notify"], node["t"], node["participant"],
+                                           node["offline"], node["retry"], node["phash"])
         return entity

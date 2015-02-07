@@ -1,0 +1,23 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:redefine schemaLocation="message_media.xsd">
+        <xs:complexType name="media">
+            <xs:complexContent>
+                <xs:extension base="media">
+                    <xs:attribute name="mimetype" type="xs:string" use="required" />
+                    <xs:attribute name="url" type="xs:string" use="required" />
+                    <xs:attribute name="filehash" type="xs:string" use="required" />
+                    <xs:attribute name="size" type="xs:long" use="required" />
+                    <xs:attribute name="file" type="xs:string" use="required" />
+                    <xs:attribute name="ip" type="xs:string" use="required" />
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+        <xs:simpleType name="media_type">
+            <xs:restriction base="media_type">
+                <xs:enumeration value="image" />
+                <xs:enumeration value="video" />
+                <xs:enumeration value="audio" />
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:redefine>
+</xs:schema>

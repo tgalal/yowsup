@@ -1,12 +1,14 @@
-from yowsup.layers.protocol_messages.protocolentities.test_message_text import TextMessageProtocolEntityTest
 from yowsup.layers.protocol_messages.protocolentities.message_text_broadcast import BroadcastTextMessage
-from yowsup.structs import ProtocolTreeNode
-class BroadcastTextMessageTest(TextMessageProtocolEntityTest):
+import unittest
+from yowsup.structs.protocolentity import ProtocolEntityTest
+class BroadcastTextMessageTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
-        super(BroadcastTextMessageTest, self).setUp()
         self.ProtocolEntity = BroadcastTextMessage
-        broadcastNode = ProtocolTreeNode("broadcast")
-        jids = ["jid1", "jid2"]
-        toNodes = [ProtocolTreeNode("to", {"jid" : jid}) for jid in jids]
-        broadcastNode.addChildren(toNodes)
-        self.node.addChild(broadcastNode)
+        self.xml = """
+        <message to="1422936169039@broadcast" type="text" id="1422936169-1">
+            <body>HELLO</body>
+            <broadcast>
+                <to jid="491632092557@s.whatsapp.net" />
+            </broadcast>
+        </message>
+        """

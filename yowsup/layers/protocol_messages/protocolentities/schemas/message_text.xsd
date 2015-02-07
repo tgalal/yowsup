@@ -1,0 +1,24 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:redefine schemaLocation="message.xsd">
+        <xs:simpleType name="message_type">
+            <xs:restriction base="message_type">
+                <xs:pattern value="text" />
+            </xs:restriction>
+        </xs:simpleType>
+        <xs:complexType name="message">
+            <xs:complexContent>
+                <xs:extension base="message">
+                    <xs:sequence>
+                        <xs:element name="body" type="message_body" maxOccurs="1" minOccurs="1" />
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:redefine>
+
+    <xs:simpleType name="message_body">
+        <xs:restriction base="xs:string">
+            <xs:pattern value=".+" />
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

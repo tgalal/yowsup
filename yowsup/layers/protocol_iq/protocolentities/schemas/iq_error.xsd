@@ -11,7 +11,7 @@
         </xs:simpleType>
         <xs:complexType name="iq">
             <xs:complexContent>
-                <xs:extension base="xs:string">
+                <xs:extension base="iq">
                     <xs:sequence >
                         <xs:element name="error" minOccurs="1" maxOccurs="1">
                             <xs:complexType>

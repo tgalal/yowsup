@@ -16,6 +16,7 @@ class LocationMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     </message>
     '''
 
+    schema = (__file__, "schemas/message_media_location.xsd")
 
     def __init__(self, latitude, longitude, name, url, encoding, _id = None, _from = None, to = None, notify = None, timestamp = None, participant = None,
             preview = None, offline = None, retry = None):
@@ -68,14 +69,16 @@ class LocationMediaMessageProtocolEntity(MediaMessageProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = MediaMessageProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = LocationMediaMessageProtocolEntity
         mediaNode = node.getChild("media")
-        entity.setLocationMediaProps(
+        entity = LocationMediaMessageProtocolEntity(
             mediaNode.getAttributeValue("latitude"),
             mediaNode.getAttributeValue("longitude"),
             mediaNode.getAttributeValue("name"),
             mediaNode.getAttributeValue("url"),
-            mediaNode.getAttributeValue("encoding")
-            )
+            mediaNode.getAttributeValue("encoding"),
+            node["id"], node["from"], node["to"],
+            node["notify"], node["t"], node["participant"], mediaNode.getData(),
+            node["offline"], node["retry"]
+        )
+
         return entity

@@ -1,14 +1,20 @@
 from yowsup.layers.protocol_media.protocolentities.message_media_downloadable import DownloadableMediaMessageProtocolEntity
-from yowsup.layers.protocol_media.protocolentities.test_message_media import MediaMessageProtocolEntityTest
-
-class DownloadableMediaMessageProtocolEntityTest(MediaMessageProtocolEntityTest):
+from yowsup.structs.protocolentity import ProtocolEntityTest
+import unittest
+class DownloadableMediaMessageProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
-        super(DownloadableMediaMessageProtocolEntityTest, self).setUp()
         self.ProtocolEntity = DownloadableMediaMessageProtocolEntity
-        mediaNode = self.node.getChild("media")
-        mediaNode.setAttribute("mimetype",  "MIMETYPE")
-        mediaNode.setAttribute("filehash",  "FILEHASH")
-        mediaNode.setAttribute("url",       "URL")
-        mediaNode.setAttribute("ip",        "IP")
-        mediaNode.setAttribute("size",      "123")
-        mediaNode.setAttribute("file",      "FILE")
+        self.xml = """
+            <message t="123456" from="jid"
+                offline="1" type="media" id="1234" notify="notify">
+                <media type="audio"
+                    mimetype="image/jpeg"
+                    filehash="FILE_HASH"
+                    url="DOWNLOAD_URL"
+                    ip="IP"
+                    size="12345"
+                    file="FILENAME">
+                    PREVIEW
+                </media>
+            </message>
+        """

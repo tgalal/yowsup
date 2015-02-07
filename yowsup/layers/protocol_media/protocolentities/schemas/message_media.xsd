@@ -1,0 +1,36 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:redefine schemaLocation="../../../protocol_messages/protocolentities/schemas/message.xsd">
+        <xs:simpleType name="message_type">
+            <xs:restriction base="message_type">
+                <xs:pattern value="media" />
+            </xs:restriction>
+        </xs:simpleType>
+        <xs:complexType name="message">
+            <xs:complexContent>
+                <xs:extension base="message">
+                    <xs:sequence>
+                        <xs:element name="media" maxOccurs="1" minOccurs="1" type="media" />
+                    </xs:sequence>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:redefine>
+
+    <xs:complexType name="media">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="type" type="media_type" use="required" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="media_type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="image" />
+            <xs:enumeration value="video" />
+            <xs:enumeration value="audio" />
+            <xs:enumeration value="location" />
+            <xs:enumeration value="vcard" />
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

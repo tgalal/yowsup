@@ -2,9 +2,10 @@ from .message_text import TextMessageProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 import time
 class BroadcastTextMessage(TextMessageProtocolEntity):
-    def __init__(self, jids, body):
-        broadcastTime = int(time.time() * 1000)
-        super(BroadcastTextMessage, self).__init__(body, to = "%s@broadcast" % broadcastTime)
+    schema = (__file__, "schemas/message_text_broadcast.xsd")
+    def __init__(self, jids, body, _id = None, broadcastTime = None):
+        broadcastTime = int(broadcastTime) or int(time.time() * 1000)
+        super(BroadcastTextMessage, self).__init__(body, to = "%s@broadcast" % broadcastTime, _id = _id)
         self.setBroadcastProps(jids)
 
     def setBroadcastProps(self, jids):
@@ -20,8 +21,6 @@ class BroadcastTextMessage(TextMessageProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = TextMessageProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = BroadcastTextMessage
         jids = [toNode.getAttributeValue("jid") for toNode in node.getChild("broadcast").getAllChildren()]
-        entity.setBroadcastProps(jids)
+        entity = BroadcastTextMessage(jids, node.getChild("body").getData(), node["id"], node["to"].split('@')[0])
         return entity
