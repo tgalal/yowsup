@@ -196,7 +196,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Invite to group")
     def group_invite(self, group_jid, jid):
         if self.assertConnected():
-            entity = AddParticipantsIqProtocolEntity(group_jid, jid)
+            entity = AddParticipantsIqProtocolEntity(self.aliasToJid(group_jid), self.aliasToJid(jid))
             self.toLower(entity)
 
     @clicmd("Get pariticipants in a group")
