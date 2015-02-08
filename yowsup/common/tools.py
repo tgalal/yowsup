@@ -64,6 +64,21 @@ class StorageTools:
                 out = idFile.read()
         return out
 
+    @staticmethod
+    def writeNonce(phone, Nonce):
+        path = StorageTools.getStorageForPhone(phone)
+        with open(path + "/Nonce", 'wb') as idFile:
+            idFile.write(Nonce)
+
+    @staticmethod
+    def getNonce(phone):
+        path = StorageTools.getStorageForPhone(phone)
+        out = None
+        idPath = path + "/Nonce"
+        if os.path.isfile(idPath):
+            with open(path + "/Nonce", 'rb') as idFile:
+                out = idFile.read()
+        return out
 
 class TimeTools:
     @staticmethod
