@@ -193,9 +193,11 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             self.addToIqs(entity)
             self.toLower(entity)
 
-    #@clicmd("Invite to group")
+    @clicmd("Invite to group")
     def group_invite(self, group_jid, jid):
-        pass
+        if self.assertConnected():
+            entity = AddParticipantsIqProtocolEntity(self.aliasToJid(group_jid), self.aliasToJid(jid))
+            self.toLower(entity)
 
     @clicmd("Get pariticipants in a group")
     def group_participants(self, group_jid):
