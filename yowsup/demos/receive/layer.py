@@ -17,7 +17,7 @@ class EchoLayer(YowInterfaceLayer):
                 self.onTextMessage(messageProtocolEntity)
             elif messageProtocolEntity.getType() == 'media':
                 self.onMediaMessage(messageProtocolEntity)
-    
+	
     @ProtocolEntityCallback("receipt")
     def onReceipt(self, entity):
         ack = OutgoingAckProtocolEntity(entity.getId(), "receipt", "delivery")
@@ -26,11 +26,11 @@ class EchoLayer(YowInterfaceLayer):
     def onTextMessage(self,messageProtocolEntity):
         receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())
             
-        outgoingMessageProtocolEntity = TextMessageProtocolEntity(
-            messageProtocolEntity.getBody(),
-            to = messageProtocolEntity.getFrom())
-
         print("%s [%s]:%s" % (messageProtocolEntity.getFrom(False),datetime.datetime.fromtimestamp(messageProtocolEntity.getTimestamp()).strftime('%d-%m-%Y %H:%M'),messageProtocolEntity.getBody()))
+	
+	outgoingMessageProtocolEntity = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())
+	self.toLower(receipt)
+	print("Sent delivered receipt Message %s" % messageProtocolEntity.getId())
 
     def onMediaMessage(self, messageProtocolEntity):
         if messageProtocolEntity.getMediaType() == "image":
@@ -60,4 +60,8 @@ class EchoLayer(YowInterfaceLayer):
             receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())
             outVcard = VCardMediaMessageProtocolEntity(messageProtocolEntity.getName(),messageProtocolEntity.getCardData(),to = messageProtocolEntity.getFrom())
             print("vcard %s [%s]:(%s, %s)" % (messageProtocolEntity.getFrom(False),datetime.datetime.fromtimestamp(messageProtocolEntity.getTimestamp()).strftime('%d-%m-%Y %H:%M'),messageProtocolEntity.getName(), messageProtocolEntity.getCardData()))
+
+	outgoingMessageProtocolEntity = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())
+	self.toLower(receipt)
+	print("Sent delivered receipt Message %s" % messageProtocolEntity.getId())
 
