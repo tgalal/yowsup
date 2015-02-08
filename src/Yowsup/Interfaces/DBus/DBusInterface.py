@@ -240,7 +240,7 @@ class DBusSignalInterface(SignalInterfaceBase, dbus.service.Object):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def audio_received(self, messageId, jid, url, size, wantsReceipt, isBroadcast):
+	def audio_received(self, messageId, jid, url, size, timestamp, wantsReceipt, pushName, isBroadcast):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
