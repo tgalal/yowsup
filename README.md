@@ -1,10 +1,20 @@
-# Yowsup 2.0
+# Yowsup 2 [![Build Status](https://travis-ci.org/tgalal/yowsup.svg?branch=master)](https://travis-ci.org/tgalal/yowsup)
 
-## Updates (January 1, 2015) 
+<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z9KKEUVYEY6BN" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
+
+## Updates (January 12, 2015)
+
+Yowsup 2.2.15 is out.
+
+Image upload and send is now implemented. [Read here](https://github.com/tgalal/yowsup/wiki/Yowsup2:-Upload-and-send-Media) how to integrate in your code, or try it out with yowsup-cli
+
+[Read full release notes](https://github.com/tgalal/yowsup/releases/tag/v2.2.15)
+
+### Updates (January 1, 2015) 
 
 Happy new year!
 
-P.S: Yowsup's license changed to GPLv3
+P.S: Yowsup's [license changed](https://github.com/tgalal/yowsup#license) to GPLv3 (previously the MIT License was used).
 
 ### (December 31, 2014)
 
@@ -52,26 +62,33 @@ Here is what you need to know about Yowsup 2.0 to get started: (Or quickly [jump
  * **[Yowsup development, debugging, maintainance and sanity](https://github.com/tgalal/yowsup/wiki/Yowsup-development,-debugging,-maintainance-and-sanity)**
 
 
-## Installation (Updated Dec 31, 2014)
+## Installation 
+(Updated Jan 12, 2015)
 
  - Requires python2.6+, or python3.0 +
  - Required python packages: python-dateutil, 
  - Required python packages for end-to-end encryption: protobuf, pycrypto, python-axolotl-curve25519
- - Required python packages for yowsup-cli: argparse, readline (or pyreadline for windows)
+ - Required python packages for yowsup-cli: argparse, readline (or pyreadline for windows), pillow (for sending images)
 
-Install using setup.py to pull all python dependencies
+Install using setup.py to pull all python dependencies, or using pip:
+
+```
+pip install yowsup2
+```
 
 ### Linux
 
 You need to have installed python headers (from probably python-dev package) and ncurses-dev, then run
 ```
-sudo python setup.py install
+python setup.py install
 ```
 Because of a bug with python-dateutil package you might get permission error for some dateutil file called requires.txt when you use yowsup (see [this bug report](https://bugs.launchpad.net/dateutil/+bug/1243202)) to fix you'll need to chmod 644 that file.
 
 ### Mac
-
-I don't have mac to test. Send me instructions or a MacBook.
+```
+python setup.py install
+```
+Administrators privileges might be required, if so then run with 'sudo' 
 
 ### Windows
 
@@ -89,6 +106,11 @@ compiler=mingw32
 
 If pycrypto fails to install with some "chmod error". You can install it separately using something like 
 ```easy_install http://www.voidspace.org.uk/downloads/pycrypto26/pycrypto-2.6.win32-py2.7.exe```
+
+or for python3 from:
+
+ > [https://github.com/axper/python3-pycrypto-windows-installer](https://github.com/axper/python3-pycrypto-windows-installer)
+
 and then rerun the install command again
 
 # Special thanks
@@ -112,4 +134,6 @@ Thanks!
 
 # License:
 
-Licensed under the GPLv3: http://www.gnu.org/licenses/gpl-3.0.html
+As of January 1, 2015 yowsup is licensed under the GPLv3: http://www.gnu.org/licenses/gpl-3.0.html. 
+
+Earlier versions were licensed under the MIT License and the reason for the change is the new dependency on [python-axolotl](https://github.com/tgalal/python-axolotl) (GPLv3) which provides us with End-to-End encryption, without which yowsup would have been unusable in the near future.

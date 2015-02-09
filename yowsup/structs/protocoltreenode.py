@@ -16,12 +16,32 @@ class ProtocolTreeNode(object):
         :return: bool
         """
         #
-
-        return protocolTreeNode.__class__ == ProtocolTreeNode\
+        if protocolTreeNode.__class__ == ProtocolTreeNode\
             and self.tag == protocolTreeNode.tag\
             and self.data == protocolTreeNode.data\
-            and set(self.children) == set(protocolTreeNode.children)\
-            and self.attributes == protocolTreeNode.attributes
+            and self.attributes == protocolTreeNode.attributes\
+            and len(self.getAllChildren()) == len(protocolTreeNode.getAllChildren()):
+                found = False
+                for c in self.getAllChildren():
+                    for c2 in protocolTreeNode.getAllChildren():
+                        if c == c2:
+                            found = True
+                            break
+                    if not found:
+                        return False
+
+                found = False
+                for c in protocolTreeNode.getAllChildren():
+                    for c2 in self.getAllChildren():
+                        if c == c2:
+                            found = True
+                            break
+                    if not found:
+                        return False
+
+                return True
+
+        return False
 
     def __hash__(self):
         return hash(self.tag) ^ hash(tuple(self.attributes.items())) ^ hash(self.data)
@@ -42,14 +62,17 @@ class ProtocolTreeNode(object):
             else:
                 out += "%s" % self.data
 
+
             if type(self.data) is str and sys.version_info >= (3,0):
-                out += "\nHEX3:%s" % binascii.hexlify(self.data.encode('latin-1'))
+                out += "\nHEX3:%s\n" % binascii.hexlify(self.data.encode('latin-1'))
             else:
-                out += "\nHEX:%s" % binascii.hexlify(self.data)
+                out += "\nHEX:%s\n" % binascii.hexlify(self.data)
         
         for c in self.children:
-           out += c.toString()
-        #print sel
+            try:
+                out += c.toString()
+            except UnicodeDecodeError:
+                out += "[ENCODED DATA]\n"
         out+= "</"+self.tag+">\n"
         return out
 

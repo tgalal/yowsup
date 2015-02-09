@@ -1,6 +1,8 @@
 import json, sys
 from xml.dom import minidom
 import plistlib
+import logging
+logger = logging.getLogger(__name__)
 
 class ResponseParser(object):
     def __init__(self):
@@ -59,7 +61,7 @@ class XMLResponseParser(ResponseParser):
                 elif r.type == 'attribute':
                     vals[k].append(r.content)
                 else:
-                    print("UNKNOWN TYPE")
+                    logger.error("UNKNOWN TYPE")
             
             if len(vals[k]) == 1:
                 vals[k] = vals[k][0]

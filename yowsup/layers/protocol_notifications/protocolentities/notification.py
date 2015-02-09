@@ -12,11 +12,17 @@ class NotificationProtocolEntity(ProtocolEntity):
         self._type      = _type
         self._id        = _id
         self._from      =_from
-        self.timestmap  = int(timestamp)
+        self.timestamp  = int(timestamp)
         self.notify     = notify
         self.offline    = offline == "1"
    
-    
+
+    def __str__(self):
+        out = "Notification\n"
+        out += "From: %s\n" % self.getFrom()
+        out += "Type: %s\n" % self.getType()
+        return out
+
     def getFrom(self):
         return self._from
 
@@ -26,9 +32,12 @@ class NotificationProtocolEntity(ProtocolEntity):
     def getId(self):
         return self._id
 
+    def getTimestamp(self):
+        return self.timestamp
+
     def toProtocolTreeNode(self):
         attribs = {
-            "t"         : str(self.timestmap),
+            "t"         : str(self.timestamp),
             "from"      : self._from,
             "offline"   : "1" if self.offline else "0",
             "type"      : self._type,

@@ -61,7 +61,7 @@ class LiteIdentityKeyStore(IdentityKeyStore):
     def isTrustedIdentity(self, recipientId, identityKey):
         q = "SELECT public_key from identities WHERE recipient_id = ?"
         c = self.dbConn.cursor()
-        c.execute(q, (identityKey.getPublicKey().serialize(),))
+        c.execute(q, (recipientId,))
         result = c.fetchone()
         if not result:
             return True

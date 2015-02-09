@@ -122,7 +122,7 @@ class Cli(object):
             args = cmdInputDissect[1:] if len(cmdInputDissect) > 1 else []
         else:
             args = cmdInputDissect[2:] if len(cmdInputDissect) > 2 else []
-            subcmd = cmdInputDissect[1]
+            subcmd = cmdInputDissect[1] if len(cmdInputDissect) > 1 else ""
             if subcmd not in cmdData:
                 return self.print_usage()
 

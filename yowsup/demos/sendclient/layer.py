@@ -1,9 +1,8 @@
 from yowsup.layers.interface                           import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.protocol_messages.protocolentities  import TextMessageProtocolEntity
-from yowsup.layers.protocol_receipts.protocolentities  import OutgoingReceiptProtocolEntity
-from yowsup.layers.protocol_acks.protocolentities      import OutgoingAckProtocolEntity
 import threading
-
+import logging
+logger = logging.getLogger(__name__)
 
 class SendLayer(YowInterfaceLayer):
 
@@ -19,7 +18,12 @@ class SendLayer(YowInterfaceLayer):
         self.lock.acquire()
         for target in self.getProp(self.__class__.PROP_MESSAGES, []):
             phone, message = target
-            messageEntity = TextMessageProtocolEntity(message, to = "%s@s.whatsapp.net" % phone)
+            if '@' in phone:
+                messageEntity = TextMessageProtocolEntity(message, to = phone)
+            elif '-' in phone:
+                messageEntity = TextMessageProtocolEntity(message, to = "%s@g.us" % phone)
+            else:
+                messageEntity = TextMessageProtocolEntity(message, to = "%s@s.whatsapp.net" % phone)
             self.ackQueue.append(messageEntity.getId())
             self.toLower(messageEntity)
         self.lock.release()
@@ -32,6 +36,7 @@ class SendLayer(YowInterfaceLayer):
 
         if not len(self.ackQueue):
             self.lock.release()
+            logger.info("Message sent")
             raise KeyboardInterrupt()
 
         self.lock.release()

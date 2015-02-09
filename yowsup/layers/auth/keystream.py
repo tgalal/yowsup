@@ -98,6 +98,10 @@ class KeyStream:
 
         return resultBytes
 
+    #@staticmethod  ##use if drop python-2.6 support
+    #def pbkdf2( password, salt, itercount, keylen):
+    #    return bytearray(hashlib.pbkdf2_hmac('sha1', password, salt, itercount, keylen))
+
     @staticmethod
     def pbkdf2( password, salt, itercount, keylen, hashfn = hashlib.sha1 ):
         def pbkdf2_F( h, salt, itercount, blocknum ):

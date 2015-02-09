@@ -1,5 +1,7 @@
-from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .message_media import MediaMessageProtocolEntity
+from yowsup.common.tools import WATools
+import mimetypes
+import os
 class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     '''
     <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
@@ -57,7 +59,8 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         mediaNode.setAttribute("mimetype",  self.mimeType)
         mediaNode.setAttribute("filehash",  self.fileHash)
         mediaNode.setAttribute("url",       self.url)
-        mediaNode.setAttribute("ip",        self.ip)
+        if self.ip:
+            mediaNode.setAttribute("ip",        self.ip)
         mediaNode.setAttribute("size",      str(self.size))
         mediaNode.setAttribute("file",      self.fileName)
 
@@ -77,3 +80,14 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
             mediaNode.getAttributeValue("file")
             )
         return entity
+
+    @staticmethod
+    def fromFilePath(fpath, url, mediaType, ip, to, mimeType = None, preview = None, filehash = None, filesize = None):
+        mimeType = mimeType or mimetypes.guess_type(fpath)[0]
+        filehash = filehash or WATools.getFileHashForUpload(fpath)
+        size = filesize or os.path.getsize(fpath)
+        fileName = os.path.basename(fpath)
+
+        return DownloadableMediaMessageProtocolEntity(mediaType, mimeType, filehash, url, ip, size, fileName, to = to, preview = preview)
+
+

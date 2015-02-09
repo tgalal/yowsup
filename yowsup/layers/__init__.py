@@ -32,7 +32,6 @@ class YowLayer(object):
     #     self.setLayers(upperLayer, lowerLayer)
 
     def __init__(self):
-        super(YowLayer, self).__init__()
         self.setLayers(None, None)
 
     def setStack(self, stack):
@@ -187,28 +186,29 @@ class YowParallelLayer(YowLayer):
 class YowLayerTest(unittest.TestCase):
     def __init__(self, *args):
         super(YowLayerTest, self).__init__(*args)
-
-class YowLayerTest(unittest.TestCase):
-    def __init__(self, *args):
-        super(YowLayerTest, self).__init__(*args)
-        self.dataSink = None
+        self.upperSink = []
+        self.lowerSink = []
         self.toUpper = self.receiveOverrider
         self.toLower = self.sendOverrider
 
     def receiveOverrider(self, data):
-        self.dataSink = data
+        self.upperSink.append(data)
 
     def sendOverrider(self, data):
-        self.dataSink = data
+        self.lowerSink.append(data)
 
-    def targetReceive(self, data):
-        self.targetLayer.receive(data)
+class YowProtocolLayerTest(YowLayerTest):
+    def assertSent(self, entity):
+        self.send(entity)
+        try:
+            self.assertEqual(entity.toProtocolTreeNode(), self.lowerSink.pop())
+        except IndexError:
+            raise AssertionError("Entity '%s' was not sent through this layer" % (entity.getTag()))
 
-    def targetSend(self, data):
-        self.targetLayer.send(data)
-
-
-    def setTargetLayer(self, targetLayer):
-        self.targetLayer = targetLayer
-        self.targetLayer.setLayers(self.sinkLayer, self.sinkLayer)
-        self.sinkLayer.setLayers(self.targetLayer, self.targetLayer)
+    def assertReceived(self, entity):
+        node = entity.toProtocolTreeNode()
+        self.receive(node)
+        try:
+            self.assertEqual(node, self.upperSink.pop().toProtocolTreeNode())
+        except IndexError:
+            raise AssertionError("'%s' was not received through this layer" % (entity.getTag()))

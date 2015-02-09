@@ -56,7 +56,7 @@ class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
 
     @staticmethod
     def _intToBytes(val):
-        return binascii.unhexlify(format(val, 'x').zfill(8))
+        return binascii.unhexlify(format(val, 'x').zfill(8).encode())
 
     @staticmethod
     def _bytesToInt(val):

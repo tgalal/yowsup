@@ -24,8 +24,5 @@ class CryptLayerTest(YowLayerTest, YowCryptLayer):
 
     def test_00send(self):
         self.send(self.inputMessage)
-        self.assertEqual(self.dataSink, self.inputMessageCrypted)
-
-    def test_10receive(self):
-        self.skipTest("TODO") 
+        self.assertEqual(self.lowerSink.pop(), self.inputMessageCrypted)
 

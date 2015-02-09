@@ -17,7 +17,6 @@ from yowsup import env
 class YowsupEchoStack(object):
     def __init__(self, credentials, encryptionEnabled = False):
         if encryptionEnabled:
-            env.CURRENT_ENV = env.S40YowsupEnv()
             layers = (
                 EchoLayer,
                 (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer),
@@ -29,6 +28,7 @@ class YowsupEchoStack(object):
                 YowNetworkLayer
             )
         else:
+            env.CURRENT_ENV = env.S40YowsupEnv()
             layers = (
                 EchoLayer,
                 (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer),

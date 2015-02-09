@@ -1,8 +1,10 @@
 from yowsup.layers.protocol_chatstate.protocolentities.chatstate_incoming import IncomingChatstateProtocolEntity
-from yowsup.layers.protocol_chatstate.protocolentities.test_chatstate import ChatstateProtocolEntityTest
+from yowsup.structs.protocolentity import ProtocolEntityTest
+import unittest
 
-class IncomingChatstateProtocolEntityTest(ChatstateProtocolEntityTest):
+entity = IncomingChatstateProtocolEntity(IncomingChatstateProtocolEntity.STATE_TYPING, "jid@s.whatsapp.net")
+
+class IncomingChatstateProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
-        super(IncomingChatstateProtocolEntityTest, self).setUp()
         self.ProtocolEntity = IncomingChatstateProtocolEntity
-        self.node.setAttribute("from", "chatstate_from")
+        self.node = entity.toProtocolTreeNode()

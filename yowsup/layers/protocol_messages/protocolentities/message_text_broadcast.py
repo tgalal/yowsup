@@ -1,8 +1,10 @@
 from .message_text import TextMessageProtocolEntity
 from yowsup.structs import ProtocolTreeNode
+import time
 class BroadcastTextMessage(TextMessageProtocolEntity):
     def __init__(self, jids, body):
-        super(BroadcastTextMessage, self).__init__(body, to = "broadcast")
+        broadcastTime = int(time.time() * 1000)
+        super(BroadcastTextMessage, self).__init__(body, to = "%s@broadcast" % broadcastTime)
         self.setBroadcastProps(jids)
 
     def setBroadcastProps(self, jids):

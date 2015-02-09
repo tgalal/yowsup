@@ -1,25 +1,15 @@
 from yowsup.layers.protocol_contacts.protocolentities.iq_sync_result import ResultSyncIqProtocolEntity
-from yowsup.structs import ProtocolTreeNode
-from yowsup.layers.protocol_contacts.protocolentities.test_iq_sync import SyncIqProtocolEntityTest
+from yowsup.structs.protocolentity import ProtocolEntityTest
+import unittest
 
-class ResultSyncIqProtocolEntityTest(SyncIqProtocolEntityTest):
+entity = ResultSyncIqProtocolEntity("123", "1.30615237617e+17", 0,
+                                            True, "123456", {"12345678": "12345678@s.whatsapp.net"},
+                                            {"12345678": "12345678@s.whatsapp.net"}, ["1234"])
+
+class ResultSyncIqProtocolEntityTest(ProtocolEntityTest, unittest.TestCase):
     def setUp(self):
-        super(ResultSyncIqProtocolEntityTest, self).setUp()
         self.ProtocolEntity = ResultSyncIqProtocolEntity
-
-        users = [
-            ProtocolTreeNode("user", {"jid": "abc"}, data = "abc"),
-            ProtocolTreeNode("user", {"jid": "xyz"}, data =  "xyz")
-        ]
-        invalids = ["aaaaa", "bbbbb"]
-
-        self.node["type"] = "result"
-        syncNode = self.node.getChild("sync")
-        syncNode.setAttribute("wait", "123456")
-        syncNode.setAttribute("version", "654321")
-        syncNode.addChild(ProtocolTreeNode("out", children = users))
-        syncNode.addChild(ProtocolTreeNode("in", children = users))
-        syncNode.addChild(ProtocolTreeNode("invalid", children = [ProtocolTreeNode("user", data = inv) for inv in invalids]))
+        self.node = entity.toProtocolTreeNode()
 
     def test_delta_result(self):
         del self.node.getChild("sync")["wait"]

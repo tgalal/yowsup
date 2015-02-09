@@ -1,14 +1,18 @@
+#!/usr/bin/env python
 from __future__ import print_function
 from setuptools import setup, find_packages
 import yowsup
 import platform
 
-deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.1']
+deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.1', 'pillow']
 
 if platform.system().lower() == "windows":
     deps.append('pyreadline')
 else:
-    deps.append('readline')
+    try:
+        import readline
+    except ImportError:
+        deps.append('readline')
 
 setup(
     name='yowsup2',

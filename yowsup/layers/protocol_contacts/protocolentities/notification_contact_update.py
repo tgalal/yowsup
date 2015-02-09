@@ -8,7 +8,7 @@ class UpdateContactNotificationProtocolEntity(ContactNotificationProtocolEntity)
     </notification>
     '''
 
-    def __init__(self, _id,  _from, status, timestamp, notify, offline, contactJid):
+    def __init__(self, _id,  _from, timestamp, notify, offline, contactJid):
         super(UpdateContactNotificationProtocolEntity, self).__init__(_id, _from, timestamp, notify, offline)
         self.setData(contactJid)
 
