@@ -172,7 +172,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Get profile picture for contact")
     def contact_picture(self, jid):
         if self.assertConnected():
-            entity = PictureIqProtocolEntity(jid)
+            entity = PictureIqProtocolEntity(self.aliasToJid(jid))
             self.toLower(entity)
 
     @clicmd("List all groups you belong to", 5)
