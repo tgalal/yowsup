@@ -6,7 +6,7 @@ from .iq_groups_list        import ListGroupsIqProtocolEntity
 from .iq_groups_info        import InfoGroupsIqProtocolEntity
 from .iq_groups_subject     import SubjectGroupsIqProtocolEntity
 from .iq_groups_participants import ParticipantsGroupsIqProtocolEntity
-#from .iq_groups_participants_add import AddParticipantsIqProtocolEntity
+from .iq_groups_participants_add import AddParticipantsIqProtocolEntity
 #from .iq_groups_participants_remove import RemoveParticipantsIqProtocolEntity
 from .iq_result_groups_list import ListGroupsResultIqProtocolEntity
 from .iq_result_participants_list import ListParticipantsResultIqProtocolEntity
