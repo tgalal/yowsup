@@ -4,6 +4,7 @@ from threading import Thread, Lock
 from yowsup.layers import YowProtocolLayer, YowLayerEvent
 from yowsup.common import YowConstants
 from yowsup.layers.network import YowNetworkLayer
+from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from .protocolentities import *
 
 
@@ -55,7 +56,7 @@ class YowIqProtocolLayer(YowProtocolLayer):
 
     def onEvent(self, event):
         name = event.getName()
-        if name == YowNetworkLayer.EVENT_STATE_CONNECTED:
+        if name == YowAuthenticationProtocolLayer.EVENT_AUTHED:
             if not self._pingThread:
                 self._pingQueue = {}
                 self._pingThread = YowPingThread(self)
@@ -76,6 +77,7 @@ class YowPingThread(Thread):
         self._stop = False
         self.__logger = logging.getLogger(__name__)
         super(YowPingThread, self).__init__()
+        self.daemon = True
         self.name = "YowPing%s" % self.name
 
     def run(self):
