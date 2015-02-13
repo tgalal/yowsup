@@ -39,7 +39,7 @@ def ProtocolTreeNode(tag = None, attributes = None, children = None , data = Non
 class _ProtocolTreeNode(etree.ElementBase):
     parser = None
 
-    hexlify = ("{urn:ietf:params:xml:ns:xmpp-sasl}response", "success", "challenge",
+    hexlify = ("{urn:ietf:params:xml:ns:xmpp-sasl}response", "success", "auth", "challenge",
                "{encrypt}registration", "{encrypt}identity", "{encrypt}value",
                "{encrypt}id", "{encrypt}signature", "{encrypt}enc", "{encrypt}type")
 

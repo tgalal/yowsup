@@ -5,6 +5,7 @@ from .layer_crypt import YowCryptLayer
 from yowsup.layers.network import YowNetworkLayer
 from .autherror import AuthError
 from .protocolentities import *
+from yowsup.common.tools import StorageTools
 import base64
 class YowAuthenticationProtocolLayer(YowProtocolLayer):
     EVENT_LOGIN      = "org.openwhatsapp.yowsup.event.auth.login"
@@ -53,10 +54,11 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         pass
 
 
-    def handleSuccess(self, xentity):
+    def handleSuccess(self, successEntity):
+        if successEntity.nonce is not None:StorageTools.writeNonce(self.credentials[0], successEntity.nonce)
         successEvent = YowLayerEvent(self.__class__.EVENT_AUTHED, passive = self.getProp(self.__class__.PROP_PASSIVE))
         self.broadcastEvent(successEvent)
-        self.toUpper(xentity)
+        self.toUpper(successEntity)
 
     def handleChallenge(self, challengeEntity):
         self._sendResponse(challengeEntity.getNonce())
@@ -72,9 +74,30 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
 
     def _sendAuth(self):
         passive = self.getProp(self.__class__.PROP_PASSIVE, False)
-        self.entityToLower(AuthProtocolEntity(self.credentials[0], passive=passive))
+        nonce = StorageTools.getNonce(self.credentials[0])
+
+        if nonce == None:
+            self.entityToLower(AuthProtocolEntity(self.credentials[0], passive=passive))
+        else:
+            inputKey, outputKey, authBlob = self.generateAuthBlob(nonce)
+            #to prevent enr whole response
+            self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, None)))
+            self.entityToLower(AuthProtocolEntity(self.credentials[0], passive=passive, nonce=authBlob))
+            self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, outputKey)))
+
 
     def _sendResponse(self,nonce):
+        inputKey, outputKey, authBlob = self.generateAuthBlob(nonce)
+        responseEntity = ResponseProtocolEntity(authBlob)
+
+        #to prevent enr whole response
+        self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, None))) 
+        self.entityToLower(responseEntity)
+        self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, outputKey)))
+        #YowCryptLayer.setProp("outputKey", outputKey)
+
+
+    def generateAuthBlob(self, nonce):
         keys = KeyStream.generateKeys(self.credentials[1], nonce)
 
         inputKey = KeyStream(keys[2], keys[3])
@@ -101,12 +124,4 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         encoded = outputKey.encodeMessage(nums, 0, 4, len(nums) - 4)
         authBlob = "".join(map(chr, encoded))
 
-        responseEntity = ResponseProtocolEntity(authBlob)
-
-        #to prevent enr whole response
-        self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, None))) 
-        self.entityToLower(responseEntity)
-        self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, outputKey)))
-        #YowCryptLayer.setProp("outputKey", outputKey)
-
-
+        return (inputKey, outputKey, authBlob)
