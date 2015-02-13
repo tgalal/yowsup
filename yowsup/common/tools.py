@@ -51,19 +51,34 @@ class StorageTools:
     @staticmethod
     def writeIdentity(phone, identity):
         path = StorageTools.getStorageForPhone(phone)
-        with open(path + "/id", 'wb') as idFile:
+        with open(os.path.join(path, "id"), 'wb') as idFile:
             idFile.write(identity)
 
     @staticmethod
     def getIdentity(phone):
         path = StorageTools.getStorageForPhone(phone)
         out = None
-        idPath = path + "/id"
+        idPath = os.path.join(path, "id")
         if os.path.isfile(idPath):
-            with open(path + "/id", 'rb') as idFile:
+            with open(idPath, 'rb') as idFile:
                 out = idFile.read()
         return out
 
+    @staticmethod
+    def writeNonce(phone, Nonce):
+        path = StorageTools.getStorageForPhone(phone)
+        with open(os.path.join(path, "nonce"), 'wb') as idFile:
+            idFile.write(Nonce)
+
+    @staticmethod
+    def getNonce(phone):
+        path = StorageTools.getStorageForPhone(phone)
+        out = None
+        noncePath = os.path.join(path, "nonce")
+        if os.path.isfile(noncePath):
+            with open(noncePath, 'rb') as idFile:
+                out = idFile.read()
+        return out
 
 class TimeTools:
     @staticmethod
