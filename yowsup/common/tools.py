@@ -65,10 +65,10 @@ class StorageTools:
         return out
 
     @staticmethod
-    def writeNonce(phone, Nonce):
+    def writeNonce(phone, nonce):
         path = StorageTools.getStorageForPhone(phone)
         with open(os.path.join(path, "nonce"), 'wb') as idFile:
-            idFile.write(Nonce)
+            idFile.write(nonce.encode("latin-1") if sys.version_info >= (3,0) else nonce)
 
     @staticmethod
     def getNonce(phone):
