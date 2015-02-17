@@ -3,8 +3,8 @@ from yowsup.layers.protocol_iq.protocolentities import ResultIqProtocolEntity
 class SuccessRemoveParticipantsIqProtocolEntity(ResultIqProtocolEntity):
     '''
     <iq type="result" from="{{group_jid}}" id="{{id}}">
-	<remove type="success" participant="{{jid}}"></remove>
-	<remove type="success" participant="{{jid}}"></remove>
+        <remove type="success" participant="{{jid}}"></remove>
+        <remove type="success" participant="{{jid}}"></remove>
     </iq>
     '''
 
@@ -14,17 +14,17 @@ class SuccessRemoveParticipantsIqProtocolEntity(ResultIqProtocolEntity):
 
     def setProps(self, groupId, participantList):
         self.groupId = groupId
-	self.participantList = participantList
-	self.action = 'remove'
+        self.participantList = participantList
+        self.action = 'remove'
 
     def getAction(self):
-	return self.action
+        return self.action
 
     def toProtocolTreeNode(self):
         node = super(SuccessRemoveParticipantsIqProtocolEntity, self).toProtocolTreeNode()
-	participantNodes = [
+        participantNodes = [
             ProtocolTreeNode("remove", {
-		"type":		     "success",
+                "type":                     "success",
                 "participant":       participant
             })
             for participant in self.participantList
@@ -37,9 +37,9 @@ class SuccessRemoveParticipantsIqProtocolEntity(ResultIqProtocolEntity):
     def fromProtocolTreeNode(node):
         entity = ResultIqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = SuccessRemoveParticipantsIqProtocolEntity
-	participantList = []
+        participantList = []
         for participantNode in node.getAllChildren():
             if participantNode["type"]=="success":
                 participantList.append(participantNode["participant"])
-	entity.setProps(node.getAttributeValue("from"), participantList)
+        entity.setProps(node.getAttributeValue("from"), participantList)
         return entity

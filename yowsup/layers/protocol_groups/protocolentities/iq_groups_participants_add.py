@@ -14,15 +14,15 @@ class AddParticipantsIqProtocolEntity(GroupsIqProtocolEntity):
 
     def __init__(self, group_jid, participantList, _id = None):
         super(AddParticipantsIqProtocolEntity, self).__init__(to = group_jid, _id = _id, _type = "set")
-	self.setProps(group_jid, participantList)
+        self.setProps(group_jid, participantList)
 
     def setProps(self, group_jid, participantList):
         self.group_jid = group_jid
-	self.participantList = participantList
+        self.participantList = participantList
 
     def toProtocolTreeNode(self):
         node = super(AddParticipantsIqProtocolEntity, self).toProtocolTreeNode()
-	participantNodes = [
+        participantNodes = [
             ProtocolTreeNode("participant", {
                 "jid":       participant
             })
