@@ -181,10 +181,11 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             entity = ListGroupsIqProtocolEntity()
             self.toLower(entity)
 
-    #@clicmd("Leave a group you belong to", 4)
+    @clicmd("Leave a group you belong to", 4)
     def group_leave(self, jid):
-        #entity = LeaveGroupIqProtocolEntity([jid])
-        print("LEAVE GROUP %s" % jid)
+        if self.assertConnected():
+            entity = LeaveGroupsIqProtocolEntity([self.aliasToJid(jid)])
+            self.toLower(entity)
 
     @clicmd("Create a new group with the specified subject", 3)
     def groups_create(self, subject):
