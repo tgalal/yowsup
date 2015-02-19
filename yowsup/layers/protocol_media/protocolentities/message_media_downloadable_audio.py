@@ -25,11 +25,11 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
             mimeType, fileHash, url, ip, size, fileName, 
             abitrate, acodec, asampfreq, duration, encoding, origin, seconds, 
             _id = None, _from = None, to = None, notify = None, timestamp = None, 
-            participant = None, offline = None, retry = None):
+            participant = None, preview = None, offline = None, retry = None):
 
         super(AudioDownloadableMediaMessageProtocolEntity, self).__init__("audio",
             mimeType, fileHash, url, ip, size, fileName,
-            _id, _from, to, notify, timestamp, participant, offline, retry)
+            _id, _from, to, notify, timestamp, participant, preview, offline, retry)
         self.setAudioProps(abitrate, acodec, asampfreq, duration, encoding, origin, seconds)
 
     def __str__(self):

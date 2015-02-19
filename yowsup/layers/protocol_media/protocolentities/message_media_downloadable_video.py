@@ -23,14 +23,15 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
     '''
     def __init__(self,
             mimeType, fileHash, url, ip, size, fileName, 
-            abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, height, preview, seconds, vbitrate, vcodec, width, 
+            abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, 
+            height, seconds, vbitrate, vcodec, width, 
             _id = None, _from = None, to = None, notify = None, timestamp = None, 
-            participant = None, offline = None, retry = None):
+            participant = None, preview = None, offline = None, retry = None):
 
         super(VideoDownloadableMediaMessageProtocolEntity, self).__init__("video",
             mimeType, fileHash, url, ip, size, fileName,
-            _id, _from, to, notify, timestamp, participant, offline, retry)
-        self.setVideoProps(abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, height, preview, seconds, vbitrate, vcodec, width)
+            _id, _from, to, notify, timestamp, participant, preview, offline, retry)
+        self.setVideoProps(abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, height, seconds, vbitrate, vcodec, width)
 
     def __str__(self):
         out  = super(VideoDownloadableMediaMessageProtocolEntity, self).__str__()
@@ -47,7 +48,7 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         out += "Width: %s\n" % self.width
         return out
 
-    def setVideoProps(self, abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, height, preview, seconds, vbitrate, vcodec, width):
+    def setVideoProps(self, abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, height, seconds, vbitrate, vcodec, width):
         self.abitrate  = abitrate
         self.acodec    = acodec
         self.asampfmt  = asampfmt
@@ -56,7 +57,6 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         self.encoding  = encoding
         self.fps       = fps
         self.height    = height
-        self.preview   = preview
         self.seconds   = seconds
         self.vbitrate  = vbitrate
         self.vcodec    = vcodec
@@ -100,7 +100,6 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
             mediaNode.getAttributeValue("encoding"),
             mediaNode.getAttributeValue("fps"),
             mediaNode.getAttributeValue("height"),
-            mediaNode.getData(),
             mediaNode.getAttributeValue("seconds"),
             mediaNode.getAttributeValue("vbitrate"),
             mediaNode.getAttributeValue("vcodec"),
