@@ -7,6 +7,7 @@ import logging
 import tempfile
 import base64
 import hashlib
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -114,6 +115,13 @@ class ModuleTools:
         except ImportError:
             return False
 
+    @staticmethod
+    def which(file):
+        for path in os.environ["PATH"].split(":"):
+            if os.path.exists(path + "/" + file):
+                    return path + "/" + file
+        return None
+
 class ImageTools:
 
     @staticmethod
@@ -148,3 +156,49 @@ class ImageTools:
             preview = fileObj.read()
         fileObj.close()
         return preview
+
+
+class VideoTools:
+
+    @staticmethod
+    def getVideoFormat(video):
+        if not os.path.isfile(video):
+            return None
+
+        if not ModuleTools.which('avprobe'):
+            logger.warn("libav-tools not installed (only on linux)")
+            return None
+
+        if not os.path.isfile(video + '.info'):
+            os.system('avprobe -of json -show_streams -show_format ' + video + ' > ' + video + '.info')
+
+        if os.path.isfile(video + '.info'):
+            with open(video + '.info', 'rb') as infoFile:
+                return json.loads(infoFile.read())
+        else:
+            return None
+
+
+    @staticmethod
+    def generatePreviewFromVideo(video):
+        if not os.path.isfile(video):
+            return None
+
+        if os.path.isfile(video + '.jpg'):
+            with open(video + '.jpg', 'rb') as vidFile:
+                return vidFile.read()
+
+        if not ModuleTools.which('avconv'):
+            logger.warn("libav not installed (only on linux)")
+            return None
+
+        #logger.debug('avconv -y -i ' + video + ' -vframes 1 ' + video + '.jpg')
+        logger.debug(os.system('avconv -y -i ' + video + ' -vframes 1 ' + video + '.jpg'))
+
+        if os.path.isfile(video + '.jpg'):
+            with open(video + '.jpg', 'rb') as vidFile:
+                return vidFile.read()
+        else:
+            logger.warn("Can't find preview video output file")
+            return None
+

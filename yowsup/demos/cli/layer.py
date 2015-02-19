@@ -3,7 +3,7 @@ from yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.network import YowNetworkLayer
-import sys
+import sys, mimetypes
 from yowsup.common import YowConstants
 import datetime
 import os
@@ -266,11 +266,21 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def message_delivered(self, message_id):
         pass
 
-    @clicmd("Send and image")
+    @clicmd("Send an image")
     def image_send(self, number, path):
         if self.assertConnected():
             jid = self.aliasToJid(number)
             entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE, filePath=path)
+            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity)
+            errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
+
+            self._sendIq(entity, successFn, errorFn)
+
+    @clicmd("Send a video")
+    def video_send(self, number, path):
+        if self.assertConnected():
+            jid = self.aliasToJid(number)
+            entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO, filePath=path)
             successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity)
             errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
 
@@ -410,6 +420,11 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def doSendImage(self, filePath, url, to, ip = None):
         entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
         self.toLower(entity)
+
+    def doSendVideo(self, filePath, url, to, ip = None):
+        entity = VideoDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
+        self.toLower(entity)
+
     def __str__(self):
         return "CLI Interface Layer"
 
@@ -417,21 +432,30 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     def onRequestUploadResult(self, jid, filePath, resultRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity):
         if resultRequestUploadIqProtocolEntity.isDuplicate():
-            self.doSendImage(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid,
-                             resultRequestUploadIqProtocolEntity.getIp())
+            if requestUploadIqProtocolEntity.mediaType == 'image':
+                self.doSendImage(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid, resultRequestUploadIqProtocolEntity.getIp())
+            elif requestUploadIqProtocolEntity.mediaType == 'video':
+                self.doSendVideo(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid, resultRequestUploadIqProtocolEntity.getIp())
+            else:
+                logger.error('Media Type not known')
         else:
             # successFn = lambda filePath, jid, url: self.onUploadSuccess(filePath, jid, url, resultRequestUploadIqProtocolEntity.getIp())
             mediaUploader = MediaUploader(jid, self.getOwnJid(), filePath,
                                       resultRequestUploadIqProtocolEntity.getUrl(),
                                       resultRequestUploadIqProtocolEntity.getResumeOffset(),
-                                      self.onUploadSuccess, self.onUploadError, self.onUploadProgress, async=False)
+                                      self.onUploadSuccess, self.onUploadError, self.onUploadProgress, async=False, mediaType=requestUploadIqProtocolEntity.mediaType)
             mediaUploader.start()
 
     def onRequestUploadError(self, jid, path, errorRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity):
         logger.error("Request upload for file %s for %s failed" % (path, jid))
 
-    def onUploadSuccess(self, filePath, jid, url):
-        self.doSendImage(filePath, url, jid)
+    def onUploadSuccess(self, filePath, jid, url, mediaType):
+        if mediaType == 'image':
+            self.doSendImage(filePath, url, jid)
+        elif mediaType == 'video':
+            self.doSendVideo(filePath, url, jid)
+        else:
+            logger.error('Media Type not known')
 
     def onUploadError(self, filePath, jid, url):
         logger.error("Upload file %s to %s for %s failed!" % (filePath, url, jid))

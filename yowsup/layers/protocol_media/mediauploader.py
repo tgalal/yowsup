@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class MediaUploader(WARequest, threading.Thread):
-    def __init__(self, jid, accountJid, sourcePath, uploadUrl, resumeOffset = 0, successClbk = None, errorClbk = None, progressCallback = None, async = True):
+    def __init__(self, jid, accountJid, sourcePath, uploadUrl, resumeOffset = 0, successClbk = None, errorClbk = None, progressCallback = None, async = True, mediaType=None):
         WARequest.__init__(self)
 
         self.async = async
@@ -17,6 +17,7 @@ class MediaUploader(WARequest, threading.Thread):
         self.sourcePath = sourcePath
         self.uploadUrl = uploadUrl
         self.resumeOffset = resumeOffset
+        self.mediaType = mediaType
 
         self.successCallback = successClbk
         self.errorCallback = errorClbk
@@ -134,7 +135,7 @@ class MediaUploader(WARequest, threading.Thread):
 
             if result["url"] is not None:
                 if self.successCallback:
-                    self.successCallback(sourcePath, self.jid, result["url"])
+                    self.successCallback(sourcePath, self.jid, result["url"], self.mediaType)
             else:
                 self.errorCallback(uploadUrl)
 

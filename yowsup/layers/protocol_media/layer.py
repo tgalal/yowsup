@@ -1,10 +1,11 @@
 from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from .protocolentities import ImageDownloadableMediaMessageProtocolEntity
+from .protocolentities import VideoDownloadableMediaMessageProtocolEntity
 from .protocolentities import LocationMediaMessageProtocolEntity
 from .protocolentities import RequestUploadIqProtocolEntity, ResultRequestUploadIqProtocolEntity
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity, ErrorIqProtocolEntity
-
 from .protocolentities import VCardMediaMessageProtocolEntity
+
 class YowMediaProtocolLayer(YowProtocolLayer):
 
     # EVENT_REQUEST_UPLOAD = "org.openwhatsapp.org.yowsup.event.protocol_media.request_upload"
@@ -45,6 +46,11 @@ class YowMediaProtocolLayer(YowProtocolLayer):
             elif mediaNode.getAttributeValue("type") == "vcard":
                 entity = VCardMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
+            elif mediaNode.getAttributeValue("type") == "video":
+                entity = VideoDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
+                self.toUpper(entity)
+            else:
+                self.raiseErrorForNode(node)
 
     def sendIq(self, entity):
         """
