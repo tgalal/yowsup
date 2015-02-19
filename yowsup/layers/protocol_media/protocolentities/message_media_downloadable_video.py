@@ -130,12 +130,12 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         width = format['streams'][0]['width']
         height = format['streams'][0]['height']
         vcodec =format['streams'][0]['codec_name']
-        abitrate= int(format['streams'][1]['bit_rate'])
-        vbitrate= int(format['streams'][0]['bit_rate'])
-        seconds= int(format['format']['duration'])
+        abitrate= int(float(format['streams'][1]['bit_rate']))
+        vbitrate= int(float(format['streams'][0]['bit_rate']))
+        seconds= int(float(format['format']['duration']))
         asampfmt='flt'
-        duration= math.floor(format['format']['duration'])
-        asampfreq=int(format['streams'][1]['sample_rate'])
+        duration= math.floor(float(format['format']['duration']))
+        asampfreq=int(float(format['streams'][1]['sample_rate']))
         acodec=format['streams'][1]['codec_name']
 
         entity.setVideoProps("raw", width, height, caption, vcodec, abitrate, vbitrate, seconds, asampfmt, duration, asampfreq, acodec)
