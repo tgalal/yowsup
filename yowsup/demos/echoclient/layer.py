@@ -5,7 +5,7 @@ from yowsup.layers.protocol_receipts.protocolentities  import OutgoingReceiptPro
 from yowsup.layers.protocol_media.protocolentities  import LocationMediaMessageProtocolEntity
 from yowsup.layers.protocol_acks.protocolentities      import OutgoingAckProtocolEntity
 from yowsup.layers.protocol_media.protocolentities  import VCardMediaMessageProtocolEntity
-
+import sys
 
 class EchoLayer(YowInterfaceLayer):
 
@@ -24,11 +24,15 @@ class EchoLayer(YowInterfaceLayer):
         self.toLower(ack)
 
     def onTextMessage(self,messageProtocolEntity):
-        receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())
-            
+        receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())	
+			
         outgoingMessageProtocolEntity = TextMessageProtocolEntity(
             messageProtocolEntity.getBody(),
             to = messageProtocolEntity.getFrom())
+		
+		jid = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0]
+		if to == jid:
+			sys.exit("You cannot send a message to yourself")
 
         print("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))
 
