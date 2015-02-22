@@ -174,10 +174,9 @@ class VideoTools:
 
         if os.path.isfile(video + '.info'):
             with open(video + '.info', 'rb') as infoFile:
-                return json.loads(infoFile.read())
+                return json.loads(infoFile.read().decode('utf-8'))
         else:
             return None
-
 
     @staticmethod
     def generatePreviewFromVideo(video):
