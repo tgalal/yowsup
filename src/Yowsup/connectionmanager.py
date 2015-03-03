@@ -214,6 +214,7 @@ class YowsupConnectionManager:
 		if self.state == 2:
 			try:
 				self.out.write(node)
+				self.readerThread.lastPongTime = int(time.time());
 				return True
 			except ConnectionClosedException:
 				self._d("CONNECTION DOWN")
@@ -469,31 +470,17 @@ class YowsupConnectionManager:
 				return messageNode.getAttributeValue("id")
 			
 			return wrapped
-
-	def sendMediaMessage(fn):
-			def wrapped(self, *args):
-				node = fn(self, *args)
-				jid = "broadcast" if type(args[0]) == list else args[0]
-				messageNode = self.getMessageNodeMedia(jid, node)
-				
-				self._writeNode(messageNode);
-
-				return messageNode.getAttributeValue("id")
-			
-			return wrapped
-
 		
 	def sendChangeStatus(self,status):
 		self._d("updating status to: %s"%(status))
 
 		idx = self.makeId("send_status_")
-		#TODO: self.readerThread.requests[idx] = self.readerThread.parseSendChangeStatus
 		statusNode = ProtocolTreeNode("status", None, None, status)
-		iqNode = ProtocolTreeNode("iq", {"to": self.domain, "type": "set", "id": idx, "xmlns": "status"}, [statusNode])
+		iqNode = ProtocolTreeNode("iq", {"to": self.domain, "type": "set", "id": idx, "xmlns": "status"}, [statusNode]);
 		
-		self._writeNode(iqNode)
+		self._writeNode(iqNode);
 		
-		return iqNode.getAttributeValue("id")
+		return statusNode.getAttributeValue("id")
 		
 		
 	
@@ -501,17 +488,17 @@ class YowsupConnectionManager:
 	def sendText(self,jid, content):
 		return ProtocolTreeNode("body",None,None,content);
 
-	@sendMediaMessage
+	@sendMessage
 	@mediaNode
 	def sendImage(self, jid, url, name, size, preview):
 		return "image"
 	
-	@sendMediaMessage
+	@sendMessage
 	@mediaNode
 	def sendVideo(self, jid, url, name, size, preview):
 		return "video"
 	
-	@sendMediaMessage
+	@sendMessage
 	@mediaNode
 	def sendAudio(self, jid, url, name, size):
 		return "audio"
@@ -785,26 +772,6 @@ class YowsupConnectionManager:
 
 			return messageNode;
 
-	def getMessageNodeMedia(self, jid, child):
-			serverNode = ProtocolTreeNode("server",None);
-			xNode = ProtocolTreeNode("x",{"xmlns":"jabber:x:event"},[serverNode]);
-			messageChildren = []
-			
-			if type(child) == list:
-				messageChildren = child
-			else:
-				messageChildren.append(child)
-			messageChildren.append(xNode)
-				
-			msgId = str(int(time.time()))+"-"+ str(self.currKeyId)
-			
-			messageNode = ProtocolTreeNode("message",{"to":jid,"type":"media","id":msgId},messageChildren)
-			
-			self.currKeyId += 1
-
-
-			return messageNode;
-
 	def sendSyncContacts(self, numbers):
 		print("sendSyncContacts")
 		syncNodes = []
@@ -897,7 +864,8 @@ class ReaderThread(threading.Thread):
 		self.disconnectedCallback = None
 		self.autoPong = True
 		self.onPing = self.ping = None
-
+		
+		self.lastPongTime = int(time.time())
 		super(ReaderThread,self).__init__();
 
 		self.daemon = True
@@ -925,6 +893,24 @@ class ReaderThread(threading.Thread):
 	def run(self):
 		self._d("Read thread startedX");
 		while True:
+			countdown = self.timeout - ((int(time.time()) - self.lastPongTime))
+
+                        remainder = countdown % self.selectTimeout
+                        countdown = countdown - remainder
+
+                        if countdown <= 0:
+                                self._d("No hope, dying!")
+                                self.sendDisconnected("closed")
+                                return
+                        else:
+                                if countdown < 11 or (countdown != self.timeout and countdown % (self.selectTimeout*10) == 0):
+                                        self._d("Waiting, time to die: T-%i seconds" % countdown)
+
+                                if self.timeout - countdown == 150 and self.ping and self.autoPong:
+                                        self.ping()
+
+                                self.selectTimeout = 1 if countdown < 11 else 3
+
 			try:
 				ready = select.select([self.socket.reader.rawIn], [], [], self.selectTimeout)
 			except:
@@ -1061,6 +1047,8 @@ class ReaderThread(threading.Thread):
 							addSubject = None
 							removeSubject = None
 							author = None
+                                                        fromAttribute = node.getAttributeValue("from");
+
 
 							bodyNode = node.getChild("add");
 							if bodyNode is not None:
@@ -1100,7 +1088,9 @@ class ReaderThread(threading.Thread):
 
 							bodyNode = node.getChild("body");
 							newSubject = None if bodyNode is None else (bodyNode.data if sys.version_info < (3, 0) else bodyNode.data.encode('latin-1').decode());
-							
+							fromAttribute = node.getAttributeValue("from");
+							author = node.getAttributeValue("author");
+							attribute_t = node.getAttributeValue("t");	
 							if newSubject is not None:
 								self.signalInterface.send("group_subjectReceived",(msgId, fromAttribute, author, newSubject, int(attribute_t),  receiptRequested))
 
@@ -1173,6 +1163,7 @@ class ReaderThread(threading.Thread):
 
 	def parsePingResponse(self, node):
 		idx = node.getAttributeValue("id")
+		self.lastPongTime = int(time.time())
 
 
 	def parseLastOnline(self,node):
@@ -1325,6 +1316,7 @@ class ReaderThread(threading.Thread):
 	
 	def parseGetPicture(self,node):
 		jid = node.getAttributeValue("from");
+	#	if "error" in node.toString():
 		if node.getAttributeValue("type") == "error":
 			return;
 
@@ -1503,6 +1495,7 @@ class ReaderThread(threading.Thread):
 		if pushName is None and notifNode is not None:
 			pushName = notifNode.getAttributeValue("name");
 
+
 		msgId = messageNode.getAttributeValue("id");
 
 		if typeAttribute == "error":
@@ -1532,7 +1525,6 @@ class ReaderThread(threading.Thread):
 					mediaType = messageNode.getChild("media").getAttributeValue("type")
 					mediaSize = messageNode.getChild("media").getAttributeValue("size")
 					encoding = messageNode.getChild("media").getAttributeValue("encoding")
-					caption = messageNode.getChild("media").getAttributeValue("caption")
 					mediaPreview = None
 
 
@@ -1543,9 +1535,9 @@ class ReaderThread(threading.Thread):
 							mediaPreview = base64.b64encode(mediaPreview) if sys.version_info < (3, 0) else base64.b64encode(mediaPreview.encode('latin-1')).decode()
 
 						if isGroup:
-							self.signalInterface.send("group_imageReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, caption, timestamp, wantsReceipt, pushName))
+							self.signalInterface.send("group_imageReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, wantsReceipt))
 						else:
-							self.signalInterface.send("image_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize, caption, timestamp, wantsReceipt, pushName, isBroadcast))
+							self.signalInterface.send("image_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize,  wantsReceipt, isBroadcast))
 
 					elif mediaType == "video":
 						mediaPreview = messageNode.getChild("media").data
@@ -1554,17 +1546,17 @@ class ReaderThread(threading.Thread):
 							mediaPreview = base64.b64encode(mediaPreview) if sys.version_info < (3, 0) else base64.b64encode(mediaPreview.encode('latin-1')).decode()
 
 						if isGroup:
-							self.signalInterface.send("group_videoReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, caption, timestamp, wantsReceipt, pushName))
+							self.signalInterface.send("group_videoReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, wantsReceipt))
 						else:
-							self.signalInterface.send("video_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize, caption, timestamp, wantsReceipt, pushName, isBroadcast))
+							self.signalInterface.send("video_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize, wantsReceipt, isBroadcast))
 
 					elif mediaType == "audio":
 						mediaPreview = messageNode.getChild("media").data
 
 						if isGroup:
-							self.signalInterface.send("group_audioReceived", (msgId, fromAttribute, author, mediaUrl, mediaSize, timestamp, wantsReceipt, pushName))
+							self.signalInterface.send("group_audioReceived", (msgId, fromAttribute, author, mediaUrl, mediaSize, wantsReceipt))
 						else:
-							self.signalInterface.send("audio_received", (msgId, fromAttribute, mediaUrl, mediaSize, timestamp, wantsReceipt, pushName, isBroadcast))
+							self.signalInterface.send("audio_received", (msgId, fromAttribute, mediaUrl, mediaSize, wantsReceipt, isBroadcast))
 
 					elif mediaType == "location":
 						mlatitude = messageNode.getChild("media").getAttributeValue("latitude")
@@ -1580,9 +1572,9 @@ class ReaderThread(threading.Thread):
 							mediaPreview = base64.b64encode(mediaPreview) if sys.version_info < (3, 0) else base64.b64encode(mediaPreview.encode('latin-1')).decode()
 
 						if isGroup:
-							self.signalInterface.send("group_locationReceived", (msgId, fromAttribute, author, name or "", mediaPreview, mlatitude, mlongitude, timestamp, wantsReceipt, pushName))
+							self.signalInterface.send("group_locationReceived", (msgId, fromAttribute, author, name or "", mediaPreview, mlatitude, mlongitude, wantsReceipt))
 						else:
-							self.signalInterface.send("location_received", (msgId, fromAttribute, name or "", mediaPreview, mlatitude, mlongitude, timestamp, wantsReceipt, pushName, isBroadcast))
+							self.signalInterface.send("location_received", (msgId, fromAttribute, name or "", mediaPreview, mlatitude, mlongitude, wantsReceipt, isBroadcast))
 		
 					elif mediaType =="vcard":
 						#return
@@ -1599,9 +1591,9 @@ class ReaderThread(threading.Thread):
 							vcardData = vcardData.replace("</vcard>","")
 
 							if isGroup:
-								self.signalInterface.send("group_vcardReceived", (msgId, fromAttribute, author, vcardName, vcardData, timestamp, wantsReceipt, pushName))
+								self.signalInterface.send("group_vcardReceived", (msgId, fromAttribute, author, vcardName, vcardData, wantsReceipt))
 							else:
-								self.signalInterface.send("vcard_received", (msgId, fromAttribute, vcardName, vcardData, timestamp, wantsReceipt, pushName, isBroadcast))
+								self.signalInterface.send("vcard_received", (msgId, fromAttribute, vcardName, vcardData, wantsReceipt, isBroadcast))
 							
 					else:
 						self._d("Unknown media type")
@@ -1670,8 +1662,11 @@ class ReaderThread(threading.Thread):
 
 			if msgData:
 				msgData = msgData if sys.version_info < (3, 0) else msgData.encode('latin-1').decode()
+
+                                #fromAttribute = node.getAttributeValue("from");
 				if isGroup:
 					self.signalInterface.send("group_messageReceived", (msgId, fromAttribute, author, msgData, timestamp, wantsReceipt, pushName))
+
 				else:
 					self.signalInterface.send("message_received", (msgId, fromAttribute, msgData, timestamp, wantsReceipt, pushName, isBroadcast))
 
