@@ -89,6 +89,15 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         mediaNode.setAttribute("encoding",  self.encoding)
         mediaNode.setAttribute("width",     str(self.width))
         mediaNode.setAttribute("height",    str(self.height))
+        mediaNode.setAttribute("vcodec",  self.vcodec)
+        mediaNode.setAttribute("abitrate",  str(self.abitrate))
+        mediaNode.setAttribute("vbitrate",  str(self.vbitrate))
+        mediaNode.setAttribute("seconds",  str(self.seconds))
+        mediaNode.setAttribute("asampfmt",  self.asampfmt)
+        mediaNode.setAttribute("duration",  str(self.duration))
+        mediaNode.setAttribute("asampfreq",  str(self.asampfreq))
+        mediaNode.setAttribute("acodec",  self.acodec)
+
         if self.caption:
             mediaNode.setAttribute("caption", self.caption)
 

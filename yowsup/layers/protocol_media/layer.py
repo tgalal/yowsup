@@ -1,6 +1,7 @@
 from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from .protocolentities import ImageDownloadableMediaMessageProtocolEntity
 from .protocolentities import VideoDownloadableMediaMessageProtocolEntity
+from .protocolentities import AudioDownloadableMediaMessageProtocolEntity
 from .protocolentities import LocationMediaMessageProtocolEntity
 from .protocolentities import RequestUploadIqProtocolEntity, ResultRequestUploadIqProtocolEntity
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity, ErrorIqProtocolEntity
@@ -48,6 +49,9 @@ class YowMediaProtocolLayer(YowProtocolLayer):
                 self.toUpper(entity)
             elif mediaNode.getAttributeValue("type") == "video":
                 entity = VideoDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
+                self.toUpper(entity)
+            elif mediaNode.getAttributeValue("type") == "audio":
+                entity = AudioDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
             else:
                 self.raiseErrorForNode(node)

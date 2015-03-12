@@ -201,3 +201,22 @@ class VideoTools:
             logger.warn("Can't find preview video output file")
             return None
 
+class AudioTools:
+
+    @staticmethod
+    def getAudioFormat(audio):
+        if not os.path.isfile(audio):
+            return None
+
+        if not ModuleTools.which('avprobe'):
+            logger.warn("libav-tools not installed (only on linux)")
+            return None
+
+        if not os.path.isfile(audio + '.info'):
+            os.system('avprobe -of json -show_streams -show_format ' + audio + ' > ' + audio + '.info')
+
+        if os.path.isfile(audio + '.info'):
+            with open(audio + '.info', 'rb') as infoFile:
+                return json.loads(infoFile.read().decode('utf-8'))
+        else:
+            return None

@@ -287,6 +287,16 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
             self._sendIq(entity, successFn, errorFn)
 
+    @clicmd("Send an audio")
+    def audio_send(self, number, path):
+        if self.assertConnected():
+            jid = self.aliasToJid(number)
+            entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO, filePath=path)
+            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity)
+            errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
+
+            self._sendIq(entity, successFn, errorFn)
+
     @clicmd("Send typing state")
     def state_typing(self, jid):
         if self.assertConnected():
@@ -426,6 +436,10 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         entity = VideoDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
         self.toLower(entity)
 
+    def doSendAudio(self, filePath, url, to, ip = None):
+        entity = AudioDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
+        self.toLower(entity)
+
     def __str__(self):
         return "CLI Interface Layer"
 
@@ -437,6 +451,8 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
                 self.doSendImage(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid, resultRequestUploadIqProtocolEntity.getIp())
             elif requestUploadIqProtocolEntity.mediaType == 'video':
                 self.doSendVideo(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid, resultRequestUploadIqProtocolEntity.getIp())
+            elif requestUploadIqProtocolEntity.mediaType == 'audio':
+                self.doSendAudio(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid, resultRequestUploadIqProtocolEntity.getIp())
             else:
                 logger.error('Media Type not known')
         else:
@@ -455,6 +471,8 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             self.doSendImage(filePath, url, jid)
         elif mediaType == 'video':
             self.doSendVideo(filePath, url, jid)
+        elif mediaType == 'audio':
+            self.doSendAudio(filePath, url, jid)
         else:
             logger.error('Media Type not known')
 

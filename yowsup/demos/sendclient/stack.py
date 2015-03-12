@@ -22,7 +22,7 @@ class YowsupSendStack(object):
         :return:
         """
         if encryptionEnabled:
-            env.CURRENT_ENV = env.S40YowsupEnv()
+            env.CURRENT_ENV = env.AndroidYowsupEnv()
             layers = (
                 SendLayer,
                 (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
