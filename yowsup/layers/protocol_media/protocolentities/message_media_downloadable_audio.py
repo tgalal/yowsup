@@ -59,10 +59,11 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         self.setAudioProps(abitrate, seconds, duration, asampfreq, acodec, origin)
 
     def __str__(self):
-        out  = super(VideoDownloadableMediaMessageProtocolEntity, self).__str__()
-        out += "Encoding: %s\n" % self.encoding
-        out += "Width: %s\n" % self.width
-        out += "Height: %s\n" % self.height
+        out  = super(AudioDownloadableMediaMessageProtocolEntity, self).__str__()
+        out += "Abitate: %s\n" % self.abitrate
+        out += "Seconds: %s\n" % self.seconds
+        out += "Duration: %s\n" % self.duration
+        out += "Acodec: %s\n" % self.acodec        
         return out
 
     def setAudioProps(self, abitrate, seconds, duration, asampfreq, acodec, origin):
@@ -104,7 +105,7 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
 
 
     @staticmethod
-    def fromFilePath(path, url, ip, to, mimeType = None):
+    def fromFilePath(path, url, ip, to, mimeType):
         entity = DownloadableMediaMessageProtocolEntity.fromFilePath(path, url, DownloadableMediaMessageProtocolEntity.MEDIA_TYPE_AUDIO, ip, to, mimeType)
         entity.__class__ = AudioDownloadableMediaMessageProtocolEntity
 
