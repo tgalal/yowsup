@@ -105,7 +105,7 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
 
 
     @staticmethod
-    def fromFilePath(path, url, ip, to, mimeType):
+    def fromFilePath(path, url, ip, to, mimeType="audio/acc"):
         entity = DownloadableMediaMessageProtocolEntity.fromFilePath(path, url, DownloadableMediaMessageProtocolEntity.MEDIA_TYPE_AUDIO, ip, to, mimeType)
         entity.__class__ = AudioDownloadableMediaMessageProtocolEntity
 
