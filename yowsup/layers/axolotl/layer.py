@@ -177,22 +177,32 @@ class YowAxolotlLayer(YowProtocolLayer):
             logger.error("Invalid message from %s!! Your axololtl database data might be inconsistent with WhatsApp, or with what that contact has" % node["from"])
             sys.exit(1)
     def handlePreKeyWhisperMessage(self, node):
-        pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
+        plaintext = None
+        try:
+            pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
 
-        preKeyWhisperMessage = PreKeyWhisperMessage(serialized=pkMessageProtocolEntity.getEncData())
-        sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getFrom(False))
-        plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
+            preKeyWhisperMessage = PreKeyWhisperMessage(serialized=pkMessageProtocolEntity.getEncData())
+            sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getFrom(False))
+            plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
+        except Exception as e:
+            print (str(e))
+            logger.error(str(e))
 
         bodyNode = ProtocolTreeNode("body", data = plaintext)
         node.addChild(bodyNode)
         self.toUpper(node)
 
     def handleWhisperMessage(self, node):
-        encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
+        plaintext = None
+        try:
+            encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
 
-        whisperMessage = WhisperMessage(serialized=encMessageProtocolEntity.getEncData())
-        sessionCipher = self.getSessionCipher(encMessageProtocolEntity.getFrom(False))
-        plaintext = sessionCipher.decryptMsg(whisperMessage)
+            whisperMessage = WhisperMessage(serialized=encMessageProtocolEntity.getEncData())
+            sessionCipher = self.getSessionCipher(encMessageProtocolEntity.getFrom(False))
+            plaintext = sessionCipher.decryptMsg(whisperMessage)
+        except Exception as e:
+            print(str(e))
+            logger.error(str(e))
 
         bodyNode = ProtocolTreeNode("body", data = plaintext)
         node.addChild(bodyNode)
