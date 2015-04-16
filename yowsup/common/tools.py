@@ -157,6 +157,19 @@ class ImageTools:
         fileObj.close()
         return preview
 
+    @staticmethod
+    def getPictureData(filePath):
+        out = None
+        if os.path.isfile(filePath):
+            with open(filePath, 'rb') as idFile:
+                out = idFile.read()
+        return out
+
+    @staticmethod
+    def writePictureData(filePath, data):
+        with open(filePath, 'wb') as idFile:
+            idFile.write(data.encode("latin-1") if sys.version_info >= (3,0) else data)
+
 
 class VideoTools:
 

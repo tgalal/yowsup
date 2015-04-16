@@ -39,9 +39,3 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
 
         ack = OutgoingAckProtocolEntity(node["id"], "notification", node["type"])
         self.toLower(ack.toProtocolTreeNode())
-
-
-
-
-
-

@@ -24,6 +24,9 @@ from yowsup.layers.protocol_media.mediauploader import MediaUploader
 from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
 from yowsup.layers.axolotl import YowAxolotlLayer
+from yowsup.common.tools import ImageTools
+from yowsup.common.tools import StorageTools
+
 
 logger = logging.getLogger(__name__)
 
@@ -170,9 +173,17 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     ####### contacts/ profiles ####################
     @clicmd("Get profile picture for contact")
-    def contact_picture(self, jid):
+    def contact_picture(self, jid, isLargeFormat):
         if self.assertConnected():
-            entity = PictureIqProtocolEntity(self.aliasToJid(jid))
+            entity = PictureIqProtocolEntity(self.aliasToJid(jid), "get", True if isLargeFormat == "yes" else False)
+            self.toLower(entity)
+
+    @clicmd("Set profile picture for me or group")
+    def profile_setPicture(self, jid, filePath, previewPath):
+        if self.assertConnected():
+            entity = PictureIqProtocolEntity(self.aliasToJid(jid), "set")
+            entity.setPictureData(ImageTools.getPictureData(filePath))
+            entity.setPreviewData(ImageTools.getPictureData(previewPath))
             self.toLower(entity)
 
     @clicmd("List all groups you belong to", 5)
@@ -345,7 +356,12 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @ProtocolEntityCallback("iq")
     def onIq(self, entity):
-        print(entity)
+        if isinstance(entity,PictureIqProtocolEntity):
+            if entity.previewData is not None or entity.pictureData is not None:
+                path = StorageTools.constructPath(entity._from + ("_large" if entity.largeFormat else "_thumb") + ".jpg")
+                ImageTools.writePictureData(path, entity.pictureData if entity.largeFormat else entity.previewData)
+                print("Profile Picture has been saved to: " + path)
+
 
     @ProtocolEntityCallback("receipt")
     def onReceipt(self, entity):
