@@ -29,7 +29,7 @@ class YowIqProtocolLayer(YowProtocolLayer):
     def sendIq(self, entity):
         if entity.getXmlns() == "w:p":
             self._sendIq(entity, self.onPong)
-        elif entity.getXmlns() in ("urn:xmpp:whatsapp:push", "w", "urn:xmpp:whatsapp:account", "w:profile:picture", "encrypt"):
+        elif entity.getXmlns() in ("urn:xmpp:whatsapp:push", "w", "urn:xmpp:whatsapp:account", "encrypt"):
             self.toLower(entity.toProtocolTreeNode())
 
     def recvIq(self, node):

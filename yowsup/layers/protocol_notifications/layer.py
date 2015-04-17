@@ -20,6 +20,8 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
         if node["type"] == "picture":
             if node.getChild("set"):
                 self.toUpper(PictureNotificationProtocolEntity.fromProtocolTreeNode(node))
+            elif node.getChild("delete"):
+                self.toUpper(PictureNotificationProtocolEntity.fromProtocolTreeNode(node))
             else:
                 self.raiseErrorForNode(node)
         elif node["type"] == "status":
@@ -37,9 +39,3 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
 
         ack = OutgoingAckProtocolEntity(node["id"], "notification", node["type"])
         self.toLower(ack.toProtocolTreeNode())
-
-
-
-
-
-

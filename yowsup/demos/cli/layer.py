@@ -3,7 +3,7 @@ from yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.network import YowNetworkLayer
-import sys
+import sys, mimetypes
 from yowsup.common import YowConstants
 import datetime
 import os
@@ -24,6 +24,9 @@ from yowsup.layers.protocol_media.mediauploader import MediaUploader
 from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
 from yowsup.layers.axolotl import YowAxolotlLayer
+from yowsup.common.tools import ImageTools
+from yowsup.common.tools import StorageTools
+
 
 logger = logging.getLogger(__name__)
 
@@ -170,9 +173,17 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     ####### contacts/ profiles ####################
     @clicmd("Get profile picture for contact")
-    def contact_picture(self, jid):
+    def contact_picture(self, jid, isLargeFormat):
         if self.assertConnected():
-            entity = PictureIqProtocolEntity(self.aliasToJid(jid))
+            entity = PictureIqProtocolEntity(self.aliasToJid(jid), "get", True if isLargeFormat == "yes" else False)
+            self.toLower(entity)
+
+    @clicmd("Set profile picture for me or group")
+    def profile_setPicture(self, jid, filePath, previewPath):
+        if self.assertConnected():
+            entity = PictureIqProtocolEntity(self.aliasToJid(jid), "set")
+            entity.setPictureData(ImageTools.getPictureData(filePath))
+            entity.setPreviewData(ImageTools.getPictureData(previewPath))
             self.toLower(entity)
 
     @clicmd("List all groups you belong to", 5)
@@ -267,11 +278,31 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def message_delivered(self, message_id):
         pass
 
-    @clicmd("Send and image")
+    @clicmd("Send an image")
     def image_send(self, number, path):
         if self.assertConnected():
             jid = self.aliasToJid(number)
             entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE, filePath=path)
+            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity)
+            errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
+
+            self._sendIq(entity, successFn, errorFn)
+
+    @clicmd("Send a video")
+    def video_send(self, number, path):
+        if self.assertConnected():
+            jid = self.aliasToJid(number)
+            entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO, filePath=path)
+            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity)
+            errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
+
+            self._sendIq(entity, successFn, errorFn)
+
+    @clicmd("Send an audio")
+    def audio_send(self, number, path):
+        if self.assertConnected():
+            jid = self.aliasToJid(number)
+            entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO, filePath=path)
             successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity)
             errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
 
@@ -325,7 +356,12 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @ProtocolEntityCallback("iq")
     def onIq(self, entity):
-        print(entity)
+        if isinstance(entity,PictureIqProtocolEntity):
+            if entity.previewData is not None or entity.pictureData is not None:
+                path = StorageTools.constructPath(entity._from + ("_large" if entity.largeFormat else "_thumb") + ".jpg")
+                ImageTools.writePictureData(path, entity.pictureData if entity.largeFormat else entity.previewData)
+                print("Profile Picture has been saved to: " + path)
+
 
     @ProtocolEntityCallback("receipt")
     def onReceipt(self, entity):
@@ -411,6 +447,15 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def doSendImage(self, filePath, url, to, ip = None):
         entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
         self.toLower(entity)
+
+    def doSendVideo(self, filePath, url, to, ip = None):
+        entity = VideoDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
+        self.toLower(entity)
+
+    def doSendAudio(self, filePath, url, to, ip = None):
+        entity = AudioDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
+        self.toLower(entity)
+
     def __str__(self):
         return "CLI Interface Layer"
 
@@ -418,21 +463,34 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     def onRequestUploadResult(self, jid, filePath, resultRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity):
         if resultRequestUploadIqProtocolEntity.isDuplicate():
-            self.doSendImage(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid,
-                             resultRequestUploadIqProtocolEntity.getIp())
+            if requestUploadIqProtocolEntity.mediaType == 'image':
+                self.doSendImage(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid, resultRequestUploadIqProtocolEntity.getIp())
+            elif requestUploadIqProtocolEntity.mediaType == 'video':
+                self.doSendVideo(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid, resultRequestUploadIqProtocolEntity.getIp())
+            elif requestUploadIqProtocolEntity.mediaType == 'audio':
+                self.doSendAudio(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid, resultRequestUploadIqProtocolEntity.getIp())
+            else:
+                logger.error('Media Type not known')
         else:
             # successFn = lambda filePath, jid, url: self.onUploadSuccess(filePath, jid, url, resultRequestUploadIqProtocolEntity.getIp())
             mediaUploader = MediaUploader(jid, self.getOwnJid(), filePath,
                                       resultRequestUploadIqProtocolEntity.getUrl(),
                                       resultRequestUploadIqProtocolEntity.getResumeOffset(),
-                                      self.onUploadSuccess, self.onUploadError, self.onUploadProgress, async=False)
+                                      self.onUploadSuccess, self.onUploadError, self.onUploadProgress, async=False, mediaType=requestUploadIqProtocolEntity.mediaType)
             mediaUploader.start()
 
     def onRequestUploadError(self, jid, path, errorRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity):
         logger.error("Request upload for file %s for %s failed" % (path, jid))
 
-    def onUploadSuccess(self, filePath, jid, url):
-        self.doSendImage(filePath, url, jid)
+    def onUploadSuccess(self, filePath, jid, url, mediaType):
+        if mediaType == 'image':
+            self.doSendImage(filePath, url, jid)
+        elif mediaType == 'video':
+            self.doSendVideo(filePath, url, jid)
+        elif mediaType == 'audio':
+            self.doSendAudio(filePath, url, jid)
+        else:
+            logger.error('Media Type not known')
 
     def onUploadError(self, filePath, jid, url):
         logger.error("Upload file %s to %s for %s failed!" % (filePath, url, jid))

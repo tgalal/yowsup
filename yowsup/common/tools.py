@@ -7,6 +7,7 @@ import logging
 import tempfile
 import base64
 import hashlib
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -114,6 +115,13 @@ class ModuleTools:
         except ImportError:
             return False
 
+    @staticmethod
+    def which(file):
+        for path in os.environ["PATH"].split(":"):
+            if os.path.exists(path + "/" + file):
+                    return path + "/" + file
+        return None
+
 class ImageTools:
 
     @staticmethod
@@ -148,3 +156,80 @@ class ImageTools:
             preview = fileObj.read()
         fileObj.close()
         return preview
+
+    @staticmethod
+    def getPictureData(filePath):
+        out = None
+        if os.path.isfile(filePath):
+            with open(filePath, 'rb') as idFile:
+                out = idFile.read()
+        return out
+
+    @staticmethod
+    def writePictureData(filePath, data):
+        with open(filePath, 'wb') as idFile:
+            idFile.write(data.encode("latin-1") if sys.version_info >= (3,0) else data)
+
+
+class VideoTools:
+
+    @staticmethod
+    def getVideoFormat(video):
+        if not os.path.isfile(video):
+            return None
+
+        if not ModuleTools.which('avprobe'):
+            logger.warn("libav-tools not installed (only on linux)")
+            return None
+
+        if not os.path.isfile(video + '.info'):
+            os.system('avprobe -of json -show_streams -show_format ' + video + ' > ' + video + '.info')
+
+        if os.path.isfile(video + '.info'):
+            with open(video + '.info', 'rb') as infoFile:
+                return json.loads(infoFile.read().decode('utf-8'))
+        else:
+            return None
+
+    @staticmethod
+    def generatePreviewFromVideo(video):
+        if not os.path.isfile(video):
+            return None
+
+        if os.path.isfile(video + '.jpg'):
+            with open(video + '.jpg', 'rb') as vidFile:
+                return vidFile.read()
+
+        if not ModuleTools.which('avconv'):
+            logger.warn("libav not installed (only on linux)")
+            return None
+
+        #logger.debug('avconv -y -i ' + video + ' -vframes 1 ' + video + '.jpg')
+        logger.debug(os.system('avconv -y -i ' + video + ' -vframes 1 ' + video + '.jpg'))
+
+        if os.path.isfile(video + '.jpg'):
+            with open(video + '.jpg', 'rb') as vidFile:
+                return vidFile.read()
+        else:
+            logger.warn("Can't find preview video output file")
+            return None
+
+class AudioTools:
+
+    @staticmethod
+    def getAudioFormat(audio):
+        if not os.path.isfile(audio):
+            return None
+
+        if not ModuleTools.which('avprobe'):
+            logger.warn("libav-tools not installed (only on linux)")
+            return None
+
+        if not os.path.isfile(audio + '.info'):
+            os.system('avprobe -of json -show_streams -show_format ' + audio + ' > ' + audio + '.info')
+
+        if os.path.isfile(audio + '.info'):
+            with open(audio + '.info', 'rb') as infoFile:
+                return json.loads(infoFile.read().decode('utf-8'))
+        else:
+            return None
