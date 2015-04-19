@@ -20,8 +20,8 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     '''
     def __init__(self, mediaType,
             mimeType, fileHash, url, ip, size, fileName, 
-            _id = None, _from = None, to = None, notify = None, timestamp = None, participant = None,
-            preview = None, offline = None, retry = None):
+            _id = None, _from = None, to = None, notify = None, timestamp = None, 
+            participant = None, preview = None, offline = None, retry = None):
 
         super(DownloadableMediaMessageProtocolEntity, self).__init__(mediaType, _id, _from, to, notify, timestamp, participant, preview, offline, retry)
         self.setDownloadableMediaProps(mimeType, fileHash, url, ip, size, fileName)

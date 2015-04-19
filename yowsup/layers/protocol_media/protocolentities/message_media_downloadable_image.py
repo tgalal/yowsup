@@ -24,9 +24,9 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
     '''
     def __init__(self,
             mimeType, fileHash, url, ip, size, fileName,
-            encoding, width, height, caption = None,
-            _id = None, _from = None, to = None, notify = None, timestamp = None, participant = None,
-            preview = None, offline = None, retry = None):
+            encoding, width, height, caption = None, 
+            _id = None, _from = None, to = None, notify = None, timestamp = None, 
+            participant = None, preview = None, offline = None, retry = None):
 
         super(ImageDownloadableMediaMessageProtocolEntity, self).__init__("image",
             mimeType, fileHash, url, ip, size, fileName,
@@ -38,6 +38,8 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         out += "Encoding: %s\n" % self.encoding
         out += "Width: %s\n" % self.width
         out += "Height: %s\n" % self.height
+        if self.caption:
+            out += "Caption: %s\n" % self.caption
         return out
 
     def setImageProps(self, encoding, width, height, caption):
@@ -48,7 +50,7 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
 
     def getCaption(self):
         return self.caption
-
+        
     def toProtocolTreeNode(self):
         node = super(ImageDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
         mediaNode = node.getChild("media")
@@ -70,8 +72,8 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
             mediaNode.getAttributeValue("encoding"),
             mediaNode.getAttributeValue("width"),
             mediaNode.getAttributeValue("height"),
-            mediaNode.getAttributeValue("caption")
-            )
+            mediaNode.getAttributeValue("caption"),
+        )
         return entity
 
 
