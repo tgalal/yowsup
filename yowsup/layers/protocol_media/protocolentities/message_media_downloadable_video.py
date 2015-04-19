@@ -24,14 +24,14 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
     def __init__(self,
             mimeType, fileHash, url, ip, size, fileName, 
             abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, 
-            height, seconds, vbitrate, vcodec, width, 
+            width, height, seconds, vbitrate, vcodec, caption = None,
             _id = None, _from = None, to = None, notify = None, timestamp = None, 
             participant = None, preview = None, offline = None, retry = None):
 
         super(VideoDownloadableMediaMessageProtocolEntity, self).__init__("video",
             mimeType, fileHash, url, ip, size, fileName,
             _id, _from, to, notify, timestamp, participant, preview, offline, retry)
-        self.setVideoProps(abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, height, seconds, vbitrate, vcodec, width)
+        self.setVideoProps(abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, width, height, seconds, vbitrate, vcodec, caption)
 
     def __str__(self):
         out  = super(VideoDownloadableMediaMessageProtocolEntity, self).__str__()
@@ -42,13 +42,15 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         out += "Duration: %s\n" % self.duration
         out += "Encoding: %s\n" % self.encoding
         out += "Fps: %s\n" % self.fps
+        out += "Width: %s\n" % self.width
         out += "Height: %s\n" % self.height
         out += "Video bitrate: %s\n" % self.vbitrate
         out += "Video codec: %s\n" % self.vcodec
-        out += "Width: %s\n" % self.width
+        if self.caption:
+            out += "Caption: %s\n" % self.caption
         return out
 
-    def setVideoProps(self, abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, height, seconds, vbitrate, vcodec, width):
+    def setVideoProps(self, abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, width, height, seconds, vbitrate, vcodec, caption  = None):
         self.abitrate  = abitrate
         self.acodec    = acodec
         self.asampfmt  = asampfmt
@@ -61,6 +63,7 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         self.vbitrate  = vbitrate
         self.vcodec    = vcodec
         self.width     = width
+        self.caption   = caption
         
     def toProtocolTreeNode(self):
         node = super(VideoDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
@@ -78,6 +81,8 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         mediaNode.setAttribute("vbitrate",  self.vbitrate)
         mediaNode.setAttribute("vcodec",    self.vcodec)
         mediaNode.setAttribute("width",     self.width)
+        if self.caption:
+            mediaNode.setAttribute("caption", self.caption)
         
         return node
 
@@ -94,10 +99,11 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
             mediaNode.getAttributeValue("duration"),
             mediaNode.getAttributeValue("encoding"),
             mediaNode.getAttributeValue("fps"),
+            mediaNode.getAttributeValue("width"),
             mediaNode.getAttributeValue("height"),
             mediaNode.getAttributeValue("seconds"),
             mediaNode.getAttributeValue("vbitrate"),
             mediaNode.getAttributeValue("vcodec"),
-            mediaNode.getAttributeValue("width"),
+            mediaNode.getAttributeValue("caption")
         )
         return entity
