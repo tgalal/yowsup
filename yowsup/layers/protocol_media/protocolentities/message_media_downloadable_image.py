@@ -51,9 +51,6 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
     def getCaption(self):
         return self.caption
         
-    def getPreview(self):
-        return self.preview
-
     def toProtocolTreeNode(self):
         node = super(ImageDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
         mediaNode = node.getChild("media")
@@ -63,8 +60,7 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         mediaNode.setAttribute("height",    str(self.height))
         if self.caption:
             mediaNode.setAttribute("caption", self.caption)
-        mediaNode.setData(self.preview)
-        
+
         return node
 
     @staticmethod

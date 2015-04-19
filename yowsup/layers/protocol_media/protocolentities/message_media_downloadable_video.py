@@ -62,9 +62,6 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         self.vcodec    = vcodec
         self.width     = width
         
-    def getPreview(self):
-        return self.preview
-
     def toProtocolTreeNode(self):
         node = super(VideoDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
         mediaNode = node.getChild("media")
@@ -82,8 +79,6 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         mediaNode.setAttribute("vcodec",    self.vcodec)
         mediaNode.setAttribute("width",     self.width)
         
-        mediaNode.setData(self.preview)
-
         return node
 
     @staticmethod
