@@ -5,7 +5,7 @@ from yowsup.layers.protocol_receipts.protocolentities  import OutgoingReceiptPro
 from yowsup.layers.protocol_media.protocolentities  import LocationMediaMessageProtocolEntity
 from yowsup.layers.protocol_acks.protocolentities      import OutgoingAckProtocolEntity
 from yowsup.layers.protocol_media.protocolentities  import VCardMediaMessageProtocolEntity
-
+import sys
 
 class EchoLayer(YowInterfaceLayer):
 
@@ -24,17 +24,21 @@ class EchoLayer(YowInterfaceLayer):
         self.toLower(ack)
 
     def onTextMessage(self,messageProtocolEntity):
-        receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())
-            
+        receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())	
+			
         outgoingMessageProtocolEntity = TextMessageProtocolEntity(
             messageProtocolEntity.getBody(),
             to = messageProtocolEntity.getFrom())
 
-        print("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))
-
-        #send receipt otherwise we keep receiving the same message over and over
-        self.toLower(receipt)
-        self.toLower(outgoingMessageProtocolEntity)
+		jid = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0]
+		if to == jid:
+			sys.exit("You cannot send a message to yourself")
+		else:
+			print("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))
+			
+			#send receipt otherwise we keep receiving the same message over and over
+			self.toLower(receipt)
+			self.toLower(outgoingMessageProtocolEntity)
 
     def onMediaMessage(self, messageProtocolEntity):
         if messageProtocolEntity.getMediaType() == "image":
@@ -47,11 +51,15 @@ class EchoLayer(YowInterfaceLayer):
                 messageProtocolEntity.getCaption(),
                 to = messageProtocolEntity.getFrom(), preview = messageProtocolEntity.getPreview())
 
+		jid = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0]
+		if to == jid:
+			sys.exit("You cannot send a message to yourself")
+		else:
             print("Echoing image %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
-
-            #send receipt otherwise we keep receiving the same message over and over
-            self.toLower(receipt)
-            self.toLower(outImage)
+			
+			#send receipt otherwise we keep receiving the same message over and over
+			self.toLower(receipt)
+			self.toLower(outImage)
 
         elif messageProtocolEntity.getMediaType() == "location":
 
@@ -62,15 +70,25 @@ class EchoLayer(YowInterfaceLayer):
                 messageProtocolEntity.getLocationURL(), messageProtocolEntity.encoding,
                 to = messageProtocolEntity.getFrom(), preview=messageProtocolEntity.getPreview())
 
-            print("Echoing location (%s, %s) to %s" % (messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude(), messageProtocolEntity.getFrom(False)))
+			jid = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0]
+			if to == jid:
+				sys.exit("You cannot send a message to yourself")
+			else:
+				print("Echoing location (%s, %s) to %s" % (messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude(), messageProtocolEntity.getFrom(False)))
 
-            #send receipt otherwise we keep receiving the same message over and over
-            self.toLower(outLocation)
-            self.toLower(receipt)
+				#send receipt otherwise we keep receiving the same message over and over
+				self.toLower(outLocation)
+				self.toLower(receipt)
         elif messageProtocolEntity.getMediaType() == "vcard":
             receipt = OutgoingReceiptProtocolEntity(messageProtocolEntity.getId(), messageProtocolEntity.getFrom())
             outVcard = VCardMediaMessageProtocolEntity(messageProtocolEntity.getName(),messageProtocolEntity.getCardData(),to = messageProtocolEntity.getFrom())
-            print("Echoing vcard (%s, %s) to %s" % (messageProtocolEntity.getName(), messageProtocolEntity.getCardData(), messageProtocolEntity.getFrom(False)))
-            #send receipt otherwise we keep receiving the same message over and over
-            self.toLower(outVcard)
-            self.toLower(receipt)
+            
+			jid = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0]
+			if to == jid:
+				sys.exit("You cannot send a message to yourself")
+			else:
+				print("Echoing vcard (%s, %s) to %s" % (messageProtocolEntity.getName(), messageProtocolEntity.getCardData(), messageProtocolEntity.getFrom(False)))
+				
+				#send receipt otherwise we keep receiving the same message over and over
+				self.toLower(outVcard)
+				self.toLower(receipt)
