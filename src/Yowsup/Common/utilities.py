@@ -20,6 +20,7 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 import hashlib, string, os, base64, ast, sys
+import random
 from Yowsup.Common.constants import Constants
 class Utilities:
 
@@ -27,16 +28,17 @@ class Utilities:
 
 	@staticmethod
 	def processIdentity(identifier):
-		try:
-			identifier.index(":")
-			identifier = identifier.upper()
-			identifier = identifier + identifier
+		return ''.join(random.choice(string.ascii_uppercase + string.digits + string.ascii_lowercase) for _ in range(20))
+		#try:
+		#	identifier.index(":")
+		#	identifier = identifier.upper()
+		#	identifier = identifier + identifier
 
-		except:
-			identifier = identifier[::-1]
+		#except:
+		#	identifier = identifier[::-1]
 
-		digest = hashlib.md5(identifier.encode("utf-8"))
-		return digest.hexdigest()
+		#digest = hashlib.md5(identifier.encode("utf-8"))
+		#return digest.hexdigest()
 
 	@staticmethod
 	def decodeString(encoded):
