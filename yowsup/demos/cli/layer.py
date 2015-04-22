@@ -169,6 +169,12 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     ######################################
 
     ####### contacts/ profiles ####################
+    @clicmd("Set status text")
+    def status_set(self, text):
+        if self.assertConnected():
+            entity = SetStatusIqProtocolEntity(msg=text)
+            self.toLower(entity)
+
     @clicmd("Get profile picture for contact")
     def contact_picture(self, jid):
         if self.assertConnected():
