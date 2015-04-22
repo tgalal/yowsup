@@ -15,6 +15,8 @@ class RemoveParticipantsIqProtocolEntity(GroupsIqProtocolEntity):
         self.setProps(participantList)
 
     def setProps(self, participantList):
+        assert type(participantList) is list, "Must be a list of jids, got %s instead." % type(participantList)
+        assert len(participantList), "Participant list cannot be empty"
         self.participantList = participantList
 
     def toProtocolTreeNode(self):

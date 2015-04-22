@@ -17,6 +17,8 @@ class AddParticipantsIqProtocolEntity(GroupsIqProtocolEntity):
         self.setProps(group_jid, participantList)
 
     def setProps(self, group_jid, participantList):
+        assert type(participantList) is list, "Must be a list of jids, got %s instead." % type(participantList)
+        assert len(participantList), "Participant list cannot be empty"
         self.group_jid = group_jid
         self.participantList = participantList
 
