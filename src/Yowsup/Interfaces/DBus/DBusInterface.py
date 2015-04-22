@@ -232,7 +232,7 @@ class DBusSignalInterface(SignalInterfaceBase, dbus.service.Object):
 
 
 	@dbus.service.signal(DBUS_INTERFACE)
-	def image_received(self, messageId, jid, preview, url, size, wantsReceipt, isBroadcast):
+	def image_received(self, messageId, jid, preview, url, size, caption, timestamp, wantsReceipt, pushName, isBroadcast):
 		pass
 
 	@dbus.service.signal(DBUS_INTERFACE)
