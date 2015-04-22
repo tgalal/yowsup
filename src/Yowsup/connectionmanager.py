@@ -1074,10 +1074,10 @@ class ReaderThread(threading.Thread):
 
 							if addSubject is not None:
 								
-								self.signalInterface.send("notification_groupParticipantAdded", (fromAttribute, addSubject, author, timestamp, msgId, receiptRequested))
+								self.signalInterface.send("notification_groupParticipantAdded", (fromJid, addSubject, author, timestamp, msgId, receiptRequested))
 								
 							if removeSubject is not None:
-								self.signalInterface.send("notification_groupParticipantRemoved", (fromAttribute, removeSubject, author, timestamp, msgId, receiptRequested))
+								self.signalInterface.send("notification_groupParticipantRemoved", (fromJid, removeSubject, author, timestamp, msgId, receiptRequested))
 
 							#self.sendNotificationReceived(notificationTo, notificationId, fromJid, participant, notificationType, None)
 
@@ -1102,7 +1102,7 @@ class ReaderThread(threading.Thread):
 							newSubject = None if bodyNode is None else (bodyNode.data if sys.version_info < (3, 0) else bodyNode.data.encode('latin-1').decode());
 							
 							if newSubject is not None:
-								self.signalInterface.send("group_subjectReceived",(msgId, fromAttribute, author, newSubject, int(attribute_t),  receiptRequested))
+								self.signalInterface.send("group_subjectReceived",(msgId, fromJid, author, newSubject, int(attribute_t),  receiptRequested))
 
 							#self.sendNotificationReceived(notificationTo, notificationId, fromJid, participant, notificationType, None)
 
