@@ -18,6 +18,7 @@ from yowsup.layers.protocol_iq                 import YowIqProtocolLayer
 from yowsup.layers.protocol_contacts           import YowContactsIqProtocolLayer
 from yowsup.layers.protocol_chatstate          import YowChatstateProtocolLayer
 from yowsup.layers.protocol_privacy            import YowPrivacyProtocolLayer
+from yowsup.layers.protocol_profiles           import YowProfilesProtocolLayer
 from yowsup.layers.axolotl import YowAxolotlLayer
 from yowsup import env
 from yowsup.common.constants import YowConstants
@@ -59,9 +60,9 @@ class YowStackBuilder(object):
         return YowStack(self.layers, reversed = False)
 
     @staticmethod
-    def getDefaultLayers(axolotl = False, groups = True, media = True, privacy = True):
+    def getDefaultLayers(axolotl = False, groups = True, media = True, privacy = True, profiles = True):
         coreLayers = YowStackBuilder.getCoreLayers()
-        protocolLayers = YowStackBuilder.getProtocolLayers(groups = groups, media=media, privacy=privacy)
+        protocolLayers = YowStackBuilder.getProtocolLayers(groups = groups, media=media, privacy=privacy, profiles=profiles)
 
         allLayers = coreLayers
         if axolotl:
@@ -72,14 +73,14 @@ class YowStackBuilder(object):
         return allLayers
 
     @staticmethod
-    def getDefaultStack(layer = None, axolotl = False, groups = True, media = True, privacy = True):
+    def getDefaultStack(layer = None, axolotl = False, groups = True, media = True, privacy = True, profiles = True):
         """
         :param layer: An optional layer to put on top of default stack
         :param axolotl: E2E encryption enabled/ disabled
         :return: YowStack
         """
 
-        allLayers = YowStackBuilder.getDefaultLayers(axolotl, groups = groups, media=media,privacy=privacy)
+        allLayers = YowStackBuilder.getDefaultLayers(axolotl, groups = groups, media=media,privacy=privacy, profiles=profiles)
         if layer:
             allLayers = allLayers + (layer,)
 
@@ -97,7 +98,7 @@ class YowStackBuilder(object):
         )[::-1]
 
     @staticmethod
-    def getProtocolLayers(groups = True, media = True, privacy = True):
+    def getProtocolLayers(groups = True, media = True, privacy = True, profiles = True):
         layers = YOWSUP_PROTOCOL_LAYERS_BASIC
         if groups:
             layers += (YowGroupsProtocolLayer,)
@@ -107,6 +108,9 @@ class YowStackBuilder(object):
 
         if privacy:
             layers += (YowPrivacyProtocolLayer, )
+
+        if profiles:
+            layers += (YowProfilesProtocolLayer, )
 
         return layers
 
