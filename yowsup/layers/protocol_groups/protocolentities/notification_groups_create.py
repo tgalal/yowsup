@@ -96,7 +96,7 @@ class CreateGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
     @staticmethod
     def fromProtocolTreeNode(node):
         createNode = node.getChild("create")
-        groupNode = createNode.getChil("group")
+        groupNode = createNode.getChild("group")
         participants = {}
         for p in groupNode.getAllChildren("participant"):
             participants[p["jid"]] = p["type"]
