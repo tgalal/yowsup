@@ -172,7 +172,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Set status text")
     def status_set(self, text):
         if self.assertConnected():
-            entity = SetStatusIqProtocolEntity(msg=text)
+            entity = SetStatusIqProtocolEntity(text)
             self.toLower(entity)
 
     @clicmd("Get profile picture for contact")
