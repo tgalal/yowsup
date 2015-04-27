@@ -44,6 +44,8 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
                 self._sendIq(entity, self.onListGroupsResult)
             elif entity.__class__ == LeaveGroupsIqProtocolEntity:
                 self._sendIq(entity, self.onLeaveGroupSuccess, self.onLeaveGroupFailed)
+            elif entity.__class__ == InfoGroupsIqProtocolEntity:
+                self._sendIq(entity, self.onInfoGroupSuccess, self.onInfoGroupFailed)
             else:
                 self.entityToLower(entity)
 
@@ -82,12 +84,17 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
 
     def onLeaveGroupSuccess(self, node, originalIqEntity):
         logger.info("Group leave success")
-        self.toUpper(
-            SuccessLeaveGroupsIqProtocolEntity.fromProtocolTreeNode(node)
-        )
+        self.toUpper(SuccessLeaveGroupsIqProtocolEntity.fromProtocolTreeNode(node))
 
     def onLeaveGroupFailed(self, node, originalIqEntity):
         logger.error("Group leave failed")
+
+    def onInfoGroupSuccess(self, node, originalIqEntity):
+        logger.info("Group info success")
+        self.toUpper(InfoResultIqProtocolEntity.fromProtocolTreeNode(node))
+
+    def onInfoGroupFailed(self, node, originalIqEntity):
+        logger.error("Group info failed")
 
     def recvNotification(self, node):
         if node["type"] == "w:gp2":
