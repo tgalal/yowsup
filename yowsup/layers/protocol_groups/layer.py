@@ -91,7 +91,7 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
 
     def onInfoGroupSuccess(self, node, originalIqEntity):
         logger.info("Group info success")
-        self.toUpper(InfoResultIqProtocolEntity.fromProtocolTreeNode(node))
+        self.toUpper(InfoGroupsResultIqProtocolEntity.fromProtocolTreeNode(node))
 
     def onInfoGroupFailed(self, node, originalIqEntity):
         logger.error("Group info failed")

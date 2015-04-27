@@ -1,6 +1,6 @@
 from yowsup.structs import ProtocolTreeNode
 from yowsup.layers.protocol_iq.protocolentities import ResultIqProtocolEntity
-class InfoResultIqProtocolEntity(ResultIqProtocolEntity):
+class InfoGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
     '''
 <iq type="result" from="{{GROUP_ID}}" id="{{IQ_ID}}">
   <group subject="{{GROUPSUBJ}}" creation="{{GROUP_CREATION_TYIME}}"
@@ -17,7 +17,7 @@ class InfoResultIqProtocolEntity(ResultIqProtocolEntity):
                  groupId, creationTimestamp, creatorJid,
                  subject, subjectTime, subjectOwnerJid,
                  participants):
-        super(InfoResultIqProtocolEntity, self).__init__(_id, _from)
+        super(InfoGroupsResultIqProtocolEntity, self).__init__(_id, _from)
         self.setGroupProps(groupId, creationTimestamp, creatorJid,
                            subject, subjectTime, subjectOwnerJid, participants)
 
@@ -62,7 +62,7 @@ class InfoResultIqProtocolEntity(ResultIqProtocolEntity):
                 return jid if full else jid.split('@')[0]
 
     def toProtocolTreeNode(self):
-        node = super(InfoResultIqProtocolEntity, self).toProtocolTreeNode()
+        node = super(InfoGroupsResultIqProtocolEntity, self).toProtocolTreeNode()
         groupNode = ProtocolTreeNode("group", {
             "subject": self.getSubject(),
             "creation": str(self.getCreationTimestamp()),
@@ -91,7 +91,7 @@ class InfoResultIqProtocolEntity(ResultIqProtocolEntity):
         for p in groupNode.getAllChildren("participant"):
             participants[p["jid"]] = p["type"]
 
-        return InfoResultIqProtocolEntity(
+        return InfoGroupsResultIqProtocolEntity(
             node["id"], node["from"],
             groupNode["id"], groupNode["creation"], groupNode["creator"], groupNode["subject"],
             groupNode["s_t"], groupNode["s_o"], participants
