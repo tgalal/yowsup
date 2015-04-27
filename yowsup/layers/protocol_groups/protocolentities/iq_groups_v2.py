@@ -6,4 +6,4 @@ class GroupsV2IqProtocolEntity(IqProtocolEntity):
     </iq>
     '''
     def __init__(self, to = None, _from  = None, _id = None, _type = None):
-        super(GroupsIqProtocolEntity, self).__init__("w:g2", _id, _type, to = to, _from = _from)
+        super(GroupsV2IqProtocolEntity, self).__init__("w:g2", _id, _type, to = to, _from = _from)
