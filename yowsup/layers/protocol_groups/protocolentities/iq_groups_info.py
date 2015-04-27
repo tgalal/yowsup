@@ -18,7 +18,7 @@ class InfoGroupsIqProtocolEntity(GroupsV2IqProtocolEntity):
 
     def toProtocolTreeNode(self):
         node = super(InfoGroupsIqProtocolEntity, self).toProtocolTreeNode()
-        node.addChild(ProtocolTreeNode("query"), {"request": "interactive"})
+        node.addChild(ProtocolTreeNode("query", {"request": "interactive"}))
         return node
 
     @staticmethod
