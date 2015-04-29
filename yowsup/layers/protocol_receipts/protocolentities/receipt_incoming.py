@@ -51,7 +51,7 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
         return IncomingReceiptProtocolEntity(
             node.getAttributeValue("id"),
             node.getAttributeValue("from"),
-            node.getAttributeValue("t"),
+            node.getAttributeValue("timestamp"),
             node.getAttributeValue("offline"),
             node.getAttributeValue("type")
             )
