@@ -50,6 +50,7 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
     ###recieved node handlers handlers
     def handleStreamFeatures(self, node):
         nodeEntity = StreamFeaturesProtocolEntity.fromProtocolTreeNode(node)
+        self.toUpper(nodeEntity)
 
     def handleSuccess(self, node):
         if(node.data != None): StorageTools.writeNonce(self.credentials[0],node.data)
