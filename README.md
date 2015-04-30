@@ -1,6 +1,15 @@
-# Yowsup 2 [![Build Status](https://travis-ci.org/tgalal/yowsup.svg?branch=master)](https://travis-ci.org/tgalal/yowsup)
+# Yowsup 2 [![Build Status](https://travis-ci.org/dinhoabreu/yowsup.svg?branch=master)](https://travis-ci.org/dinhoabreu/yowsup)
 
-<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z9KKEUVYEY6BN" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
+### HTTP Proxy (April 30, 2015)
+
+Yowsup 2.2.78 - Support connection behind proxy
+
+Example:
+```bash
+export http_proxy="http://yourproxy:8080/" # or
+export http_proxy="http://username:password@yourproxy:8080/" # for authenticated proxies
+./yowsup-cli
+```
 
 ## Updates (January 12, 2015)
 
@@ -83,6 +92,27 @@ You need to have installed python headers (from probably python-dev package) and
 python setup.py install
 ```
 Because of a bug with python-dateutil package you might get permission error for some dateutil file called requires.txt when you use yowsup (see [this bug report](https://bugs.launchpad.net/dateutil/+bug/1243202)) to fix you'll need to chmod 644 that file.
+
+#### CentOS 6/7 with [isolated Python enviroments](http://docs.python-guide.org/en/latest/dev/virtualenvs/)
+
+Install
+```bash
+yum install gcc git python-setuptools python-devel
+git clone --depth 1 https://github.com/dinhoabreu/yowsup.git
+cd yowsup
+easy_install virtualenv
+virtualenv --no-pip yowsup-env
+source yowsup-env/bin/activate # Activate enviroment
+python setup.py install
+deactivate
+```
+
+Run yowsup-cli
+```bash
+source yowsup-env/bin/activate
+yowsup-cli ...
+deactivate
+```
 
 ### Mac
 ```
