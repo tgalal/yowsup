@@ -20,7 +20,11 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 '''
 
 import os, base64
-from urlparse import urlparse
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
 class HttpProxy:
 
@@ -62,12 +66,13 @@ class HttpProxyHandler:
         proxy = self.proxy
         authHeader = None
         if proxy.username and proxy.password:
-            auth = base64.b64encode(proxy.username + ':' + proxy.password)
-            authHeader = 'Proxy-Authorization: Basic ' + auth + '\r\n'
-        data = 'CONNECT %s:%d HTTP/1.1\r\nHost: %s:%d\r\n' % (2 * pair)
+            key = bytearray(proxy.username, 'ascii') + b':' + bytearray(proxy.password, 'ascii')
+            auth = base64.b64encode(key)
+            authHeader = b'Proxy-Authorization: Basic ' + auth + b'\r\n'
+        data = bytearray('CONNECT %s:%d HTTP/1.1\r\nHost: %s:%d\r\n' % (2 * pair), 'ascii')
         if authHeader:
             data += authHeader
-        data += '\r\n'
+        data += b'\r\n'
         self.state = 'connect'
         self.data = data
         socket.connect(proxy.address)
@@ -80,7 +85,7 @@ class HttpProxyHandler:
     def recv(self, socket, size):
         if self.state == 'sent':
             data = socket.recv(size)
-            status = data.split(' ', 2)
+            status = data.decode('ascii').split(' ', 2)
             if status[1] != '200':
                 raise Exception('%s' % (data[:data.index('\r\n')]))
             self.state = 'end'
