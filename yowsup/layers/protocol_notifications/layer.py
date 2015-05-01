@@ -35,7 +35,7 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
         else:
             self.raiseErrorForNode(node)
 
-        ack = OutgoingAckProtocolEntity(node["id"], "notification", node["type"])
+        ack = OutgoingAckProtocolEntity(node["id"], "notification", node["type"], node["from"])
         self.toLower(ack.toProtocolTreeNode())
 
 
