@@ -17,6 +17,12 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
         super(IncomingReceiptProtocolEntity, self).__init__(_id)
         self.setIncomingData(_from, timestamp, offline, type)
 
+    def getType(self):
+        return self.type
+
+    def getFrom(self):
+        return self._from
+
     def setIncomingData(self, _from, timestamp, offline, type = None):
         self._from = _from
         self.timestamp = timestamp
