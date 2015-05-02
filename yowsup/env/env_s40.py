@@ -4,8 +4,8 @@ import hashlib
 class S40YowsupEnv(YowsupEnv):
     _VERSION = "2.12.68"
     _OS_NAME= "S40"
-    _OS_VERSION = "08.71"
-    _DEVICE_NAME = "NokiaX2-01"
+    _OS_VERSION = "14.26"
+    _DEVICE_NAME = "Nokia302"
     _TOKEN_STRING  = "PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk1425519315543{phone}"
     _AXOLOTL = False
 
@@ -34,3 +34,4 @@ class S40YowsupEnv(YowsupEnv):
             OS_VERSION = self.getOSVersion(),
             DEVICE_NAME = self.getDeviceName()
         )
+

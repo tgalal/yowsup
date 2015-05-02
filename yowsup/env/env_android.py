@@ -15,10 +15,10 @@ class AndroidYowsupEnv(YowsupEnv):
                 "YHNtYoIvt5R3X6YZylbPftF/8ayWTALBgcqhkjOOAQDBQADLwAwLAIUAKYCp0d6z4QQdyN74JDfQ2WCyi8CFDUM4CaNB+ceVXd" \
                 "KtOrNTQcc0e+t"
 
-    _MD5_CLASSES = "zkrJMO7CuBg3gV4h3ZPrbg=="
+    _MD5_CLASSES = "SAWdLhtSAVjhxU2boRP5OA=="
     _KEY = "/UIGKU1FVQa+ATM2A0za7G2KI9S/CwPYjgAbc67v7ep42eO/WeTLx1lb1cHwxpsEgF4+PmYpLd2YpGUdX/A2JQitsHzDwgcdBpUf7psX1BU="
 
-    _VERSION = "2.11.471"
+    _VERSION = "2.12.67"
     _OS_NAME= "Android"
     _OS_VERSION = "4.3"
     _DEVICE_NAME = "GalaxyS3"
