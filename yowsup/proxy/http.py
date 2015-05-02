@@ -66,7 +66,7 @@ class HttpProxyHandler:
         proxy = self.proxy
         authHeader = None
         if proxy.username and proxy.password:
-            key = bytearray(proxy.username, 'ascii') + b':' + bytearray(proxy.password, 'ascii')
+            key = bytes(proxy.username, 'ascii') + b':' + bytes(proxy.password, 'ascii') if (bytes != str) else bytes(proxy.username) + b':' + proxy.password
             auth = base64.b64encode(key)
             authHeader = b'Proxy-Authorization: Basic ' + auth + b'\r\n'
         data = bytearray('CONNECT %s:%d HTTP/1.1\r\nHost: %s:%d\r\n' % (2 * pair), 'ascii')
@@ -85,7 +85,8 @@ class HttpProxyHandler:
     def recv(self, socket, size):
         if self.state == 'sent':
             data = socket.recv(size)
-            status = data.decode('ascii').split(' ', 2)
+            data = data.decode('ascii')
+            status = data.split(' ', 2)
             if status[1] != '200':
                 raise Exception('%s' % (data[:data.index('\r\n')]))
             self.state = 'end'
