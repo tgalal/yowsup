@@ -93,7 +93,15 @@ class WAuth2():
 
 
   def sendFeatures(self):
-    toWrite = ProtocolTreeNode("stream:features",None)
+    features = []
+    features.append(ProtocolTreeNode("readreceipts",None))
+    features.append(ProtocolTreeNode("groups_v2",None))
+    features.append(ProtocolTreeNode("privacy",None))
+    features.append(ProtocolTreeNode("presence",None))
+
+
+    toWrite = ProtocolTreeNode("stream:features",None,features)
+    #toWrite = ProtocolTreeNode("stream:features",None,None,"readreceipts,groups_v2,privacy,presence")
 
 
     self.conn.writer.write(toWrite);

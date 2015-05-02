@@ -181,6 +181,7 @@ class YowsupConnectionManager:
 
 		self.methodInterface.registerCallback("subscription_generateLink", self.generateSubscriptionLink)
 
+		self.methodInterface.registerCallback("clean_dirty", self.sendCleanDirty)
 
 	def disconnect(self, reason=""):
 		self._d("Disconnect sequence initiated")
@@ -297,6 +298,7 @@ class YowsupConnectionManager:
 			self.readerThread.sendReceiptAck = self.sendReceiptAck
 			self.readerThread.onPing = self.sendPong
 			self.readerThread.ping = self.sendPing
+			self.readerThread.sendCleanDirty = self.sendCleanDirty
 			self.readerThread.sendNotificationReceived = self.sendNotificationReceived
 			
 	
@@ -323,6 +325,7 @@ class YowsupConnectionManager:
 
 	def sendMessageReceipt(self, jid, msgId):
 		self.sendReceipt(jid, "chat", msgId)
+		self.sendReceipt(jid, "read", msgId)
 
 	def sendNotificationReceipt(self, jid, notificationId):
 		self.sendReceipt(jid, "notification", notificationId)
@@ -347,8 +350,8 @@ class YowsupConnectionManager:
 		messageNode = ProtocolTreeNode("message",{"to":to,"type":"chat","id":msg_id},[ackNode]);
 		return messageNode;
 
-	def sendReceiptAck(self, msg_id, receiptType):
-		ackNode = ProtocolTreeNode("ack",{"class": "receipt", "type": "delivery" if receiptType is None else receiptType, "id": msg_id})
+	def sendReceiptAck(self, jid, msg_id, receiptType):
+		ackNode = ProtocolTreeNode("ack",{"class": "receipt", "type": "delivery" if receiptType is None else receiptType, "id": msg_id, "to": jid})
 		self._writeNode(ackNode);
 
 	def sendMessageReceived(self, jid, msg_id):
@@ -722,9 +725,13 @@ class YowsupConnectionManager:
 		self.readerThread.requests[idx] = self.readerThread.parseSync
 		
 		users = []
-		
-		for c in contacts:
-			users.append(ProtocolTreeNode("user",None,None,'+' + c.replace('+', '')))
+		contactlist = contacts.split('\', \'')
+		for number in contactlist:
+			number = number.replace('[', '')
+			number = number.replace(']', '')
+			number = number.replace('\'', '')
+			users.append(ProtocolTreeNode("user",None,None,'+' + number.replace('+', '')))
+			self._d(number)
 
 		node = ProtocolTreeNode(
 			"iq", 
@@ -749,6 +756,7 @@ class YowsupConnectionManager:
 			  ),
 		]
 		, None)
+		
 		self._writeNode(node)
 
 
@@ -864,6 +872,7 @@ class ReaderThread(threading.Thread):
 		self.disconnectedCallback = None
 		self.autoPong = True
 		self.onPing = self.ping = None
+		self.sendCleanDirty = None
 		
 		self.lastPongTime = int(time.time())
 		super(ReaderThread,self).__init__();
@@ -908,6 +917,14 @@ class ReaderThread(threading.Thread):
 
                                 if self.timeout - countdown == 150 and self.ping and self.autoPong:
                                         self.ping()
+
+                                if self.timeout - countdown == 160 and self.ping and self.autoPong:
+                                        self.ping()
+
+                                if self.timeout - countdown == 170 and self.ping and self.autoPong:
+                                        self.ping()
+
+
 
                                 self.selectTimeout = 1 if countdown < 11 else 3
 
@@ -992,7 +1009,8 @@ class ReaderThread(threading.Thread):
 						if dirtyNode is not None:
 							dirtyType = dirtyNode.getAttributeValue("type")
 							self.signalInterface.send("ib_dirty", (dirtyType,))
-                            ##sendCleanDirty(dirtyType)
+                            				#self.signalInterface.send("clean_dirty",(dirtyType))
+							self.sendCleanDirty(dirtyType)
 
 					elif ProtocolTreeNode.tagEquals(node,"presence"):
 						jid = node.getAttributeValue("from")
@@ -1110,7 +1128,7 @@ class ReaderThread(threading.Thread):
 						msg_id = node.getAttributeValue("id")
 						if fromJid[-9:] == "broadcast":
 							fromJid = node.getAttributeValue("participant")
-						self.sendReceiptAck(msg_id, receiptType)
+						self.sendReceiptAck(fromJid, msg_id, receiptType)
 						if receiptType != "delivered" and receiptType != "played":
 							self.signalInterface.send("receipt_messageDelivered", (fromJid, msg_id))
 							groupNode = node.getChild("list")
@@ -1554,9 +1572,9 @@ class ReaderThread(threading.Thread):
 						mediaPreview = messageNode.getChild("media").data
 
 						if isGroup:
-							self.signalInterface.send("group_audioReceived", (msgId, fromAttribute, author, mediaUrl, mediaSize, wantsReceipt))
+							self.signalInterface.send("group_audioReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, wantsReceipt))
 						else:
-							self.signalInterface.send("audio_received", (msgId, fromAttribute, mediaUrl, mediaSize, wantsReceipt, isBroadcast))
+							self.signalInterface.send("audio_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize, wantsReceipt, isBroadcast))
 
 					elif mediaType == "location":
 						mlatitude = messageNode.getChild("media").getAttributeValue("latitude")
