@@ -37,15 +37,15 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
         node.setAttribute("from", self._from)
         node.setAttribute("timestamp", str(self.timestamp))
         if self.offline is not None:
-            node.setAttribute("1" if self.offline else "0")
+            node.setAttribute("offline", "1" if self.offline else "0")
         if self.type is not None:
             node.setAttribute("type", self.type)
         return node
 
     def __str__(self):
         out = super(IncomingReceiptProtocolEntity, self).__str__()
-        out += "From: \n%s" % self._from
-        out += "Timestamp: \n%s" % self.timestamp
+        out += "From: %s\n" % self._from
+        out += "Timestamp: %s\n" % self.timestamp
         if self.offline is not None:
             out += "Offline: %s\n" % ("1" if self.offline else "0")
         if self.type is not None:
@@ -58,6 +58,6 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
             node.getAttributeValue("id"),
             node.getAttributeValue("from"),
             node.getAttributeValue("timestamp"),
-            node.getAttributeValue("offline"    ),
+            node.getAttributeValue("offline"),
             node.getAttributeValue("type")
             )
