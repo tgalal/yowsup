@@ -181,7 +181,6 @@ class YowsupConnectionManager:
 
 		self.methodInterface.registerCallback("subscription_generateLink", self.generateSubscriptionLink)
 
-
 	def disconnect(self, reason=""):
 		self._d("Disconnect sequence initiated")
 		self._d("Sending term signal to reader thread")
@@ -214,6 +213,7 @@ class YowsupConnectionManager:
 		if self.state == 2:
 			try:
 				self.out.write(node)
+				self.readerThread.lastPongTime = int(time.time());
 				return True
 			except ConnectionClosedException:
 				self._d("CONNECTION DOWN")
@@ -296,6 +296,7 @@ class YowsupConnectionManager:
 			self.readerThread.sendReceiptAck = self.sendReceiptAck
 			self.readerThread.onPing = self.sendPong
 			self.readerThread.ping = self.sendPing
+			self.readerThread.sendCleanDirty = self.sendCleanDirty
 			self.readerThread.sendNotificationReceived = self.sendNotificationReceived
 			
 	
@@ -322,6 +323,7 @@ class YowsupConnectionManager:
 
 	def sendMessageReceipt(self, jid, msgId):
 		self.sendReceipt(jid, "chat", msgId)
+		self.sendReceipt(jid, "read", msgId)
 
 	def sendNotificationReceipt(self, jid, notificationId):
 		self.sendReceipt(jid, "notification", notificationId)
@@ -346,8 +348,8 @@ class YowsupConnectionManager:
 		messageNode = ProtocolTreeNode("message",{"to":to,"type":"chat","id":msg_id},[ackNode]);
 		return messageNode;
 
-	def sendReceiptAck(self, msg_id, receiptType):
-		ackNode = ProtocolTreeNode("ack",{"class": "receipt", "type": "delivery" if receiptType is None else receiptType, "id": msg_id})
+	def sendReceiptAck(self, jid, msg_id, receiptType):
+		ackNode = ProtocolTreeNode("ack",{"class": "receipt", "type": "delivery" if receiptType is None else receiptType, "id": msg_id, "to": jid})
 		self._writeNode(ackNode);
 
 	def sendMessageReceived(self, jid, msg_id):
@@ -482,7 +484,6 @@ class YowsupConnectionManager:
 			
 			return wrapped
 
-		
 	def sendChangeStatus(self,status):
 		self._d("updating status to: %s"%(status))
 
@@ -735,9 +736,13 @@ class YowsupConnectionManager:
 		self.readerThread.requests[idx] = self.readerThread.parseSync
 		
 		users = []
-		
-		for c in contacts:
-			users.append(ProtocolTreeNode("user",None,None,'+' + c.replace('+', '')))
+		contactlist = contacts.split('\', \'')
+		for number in contactlist:
+			number = number.replace('[', '')
+			number = number.replace(']', '')
+			number = number.replace('\'', '')
+			users.append(ProtocolTreeNode("user",None,None,'+' + number.replace('+', '')))
+			self._d(number)
 
 		node = ProtocolTreeNode(
 			"iq", 
@@ -762,6 +767,7 @@ class YowsupConnectionManager:
 			  ),
 		]
 		, None)
+		
 		self._writeNode(node)
 
 
@@ -897,7 +903,9 @@ class ReaderThread(threading.Thread):
 		self.disconnectedCallback = None
 		self.autoPong = True
 		self.onPing = self.ping = None
-
+		self.sendCleanDirty = None
+		
+		self.lastPongTime = int(time.time())
 		super(ReaderThread,self).__init__();
 
 		self.daemon = True
@@ -925,6 +933,32 @@ class ReaderThread(threading.Thread):
 	def run(self):
 		self._d("Read thread startedX");
 		while True:
+			countdown = self.timeout - ((int(time.time()) - self.lastPongTime))
+
+                        remainder = countdown % self.selectTimeout
+                        countdown = countdown - remainder
+
+                        if countdown <= 0:
+                                self._d("No hope, dying!")
+                                self.sendDisconnected("closed")
+                                return
+                        else:
+                                if countdown < 11 or (countdown != self.timeout and countdown % (self.selectTimeout*10) == 0):
+                                        self._d("Waiting, time to die: T-%i seconds" % countdown)
+
+                                if self.timeout - countdown == 150 and self.ping and self.autoPong:
+                                        self.ping()
+
+                                if self.timeout - countdown == 160 and self.ping and self.autoPong:
+                                        self.ping()
+
+                                if self.timeout - countdown == 170 and self.ping and self.autoPong:
+                                        self.ping()
+
+
+
+                                self.selectTimeout = 1 if countdown < 11 else 3
+
 			try:
 				ready = select.select([self.socket.reader.rawIn], [], [], self.selectTimeout)
 			except:
@@ -1006,7 +1040,7 @@ class ReaderThread(threading.Thread):
 						if dirtyNode is not None:
 							dirtyType = dirtyNode.getAttributeValue("type")
 							self.signalInterface.send("ib_dirty", (dirtyType,))
-                            ##sendCleanDirty(dirtyType)
+                            				self.sendCleanDirty(dirtyType)
 
 					elif ProtocolTreeNode.tagEquals(node,"presence"):
 						jid = node.getAttributeValue("from")
@@ -1061,6 +1095,8 @@ class ReaderThread(threading.Thread):
 							addSubject = None
 							removeSubject = None
 							author = None
+                                                        fromAttribute = node.getAttributeValue("from");
+
 
 							bodyNode = node.getChild("add");
 							if bodyNode is not None:
@@ -1100,7 +1136,9 @@ class ReaderThread(threading.Thread):
 
 							bodyNode = node.getChild("body");
 							newSubject = None if bodyNode is None else (bodyNode.data if sys.version_info < (3, 0) else bodyNode.data.encode('latin-1').decode());
-							
+							fromAttribute = node.getAttributeValue("from");
+							author = node.getAttributeValue("author");
+							attribute_t = node.getAttributeValue("t");	
 							if newSubject is not None:
 								self.signalInterface.send("group_subjectReceived",(msgId, fromJid, author, newSubject, int(attribute_t),  receiptRequested))
 
@@ -1120,7 +1158,7 @@ class ReaderThread(threading.Thread):
 						msg_id = node.getAttributeValue("id")
 						if fromJid[-9:] == "broadcast":
 							fromJid = node.getAttributeValue("participant")
-						self.sendReceiptAck(msg_id, receiptType)
+						self.sendReceiptAck(fromJid, msg_id, receiptType)
 						if receiptType != "delivered" and receiptType != "played":
 							self.signalInterface.send("receipt_messageDelivered", (fromJid, msg_id))
 							groupNode = node.getChild("list")
@@ -1173,6 +1211,7 @@ class ReaderThread(threading.Thread):
 
 	def parsePingResponse(self, node):
 		idx = node.getAttributeValue("id")
+		self.lastPongTime = int(time.time())
 
 
 	def parseLastOnline(self,node):
@@ -1502,6 +1541,7 @@ class ReaderThread(threading.Thread):
 		notifNode = messageNode.getChild("notify")
 		if pushName is None and notifNode is not None:
 			pushName = notifNode.getAttributeValue("name");
+
 
 		msgId = messageNode.getAttributeValue("id");
 

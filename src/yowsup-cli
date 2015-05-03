@@ -297,7 +297,7 @@ else:
 
 			if result["pw"] is not None:
 				print("\n=========\nWARNING: %s%s's has changed by server to \"%s\", you must update your config file with the new password\n=========" %(countryCode, phoneNumber, result["pw"]))
-
+	
 		elif args["status"]:
 			message = args["status"]
 			print("FIXME: option not implemented yet.") #Need to do module and class...
@@ -313,7 +313,7 @@ else:
 			print(resultToString(result))
 
 	#elif args["dbus"]:
-        #    startDbusInterface()
+            #startDbusInterface()
 	elif args["generatepassword"]:
 		print(Utilities.processIdentity(args["generatepassword"]));
 	elif args["decodestring"]:

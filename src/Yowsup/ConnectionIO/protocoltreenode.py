@@ -24,7 +24,7 @@ from Yowsup.Common.debugger import Debugger
 
 class ProtocolTreeNode():
 	
-	def __init__(self,tag,attributes = None,children=None,data=None):
+	def __init__(self,tag,attributes=None,children=None,data=None):
 
 		Debugger.attach(self)
 
