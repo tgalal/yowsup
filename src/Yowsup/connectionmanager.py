@@ -181,8 +181,6 @@ class YowsupConnectionManager:
 
 		self.methodInterface.registerCallback("subscription_generateLink", self.generateSubscriptionLink)
 
-		self.methodInterface.registerCallback("clean_dirty", self.sendCleanDirty)
-
 	def disconnect(self, reason=""):
 		self._d("Disconnect sequence initiated")
 		self._d("Sending term signal to reader thread")
@@ -484,7 +482,7 @@ class YowsupConnectionManager:
 
 				return messageNode.getAttributeValue("id")
 			
-			return wrapped	
+			return wrapped
 
 	def sendChangeStatus(self,status):
 		self._d("updating status to: %s"%(status))
@@ -1042,8 +1040,7 @@ class ReaderThread(threading.Thread):
 						if dirtyNode is not None:
 							dirtyType = dirtyNode.getAttributeValue("type")
 							self.signalInterface.send("ib_dirty", (dirtyType,))
-                            				#self.signalInterface.send("clean_dirty",(dirtyType))
-							self.sendCleanDirty(dirtyType)
+                            				self.sendCleanDirty(dirtyType)
 
 					elif ProtocolTreeNode.tagEquals(node,"presence"):
 						jid = node.getAttributeValue("from")
@@ -1605,9 +1602,9 @@ class ReaderThread(threading.Thread):
 						mediaPreview = messageNode.getChild("media").data
 
 						if isGroup:
-							self.signalInterface.send("group_audioReceived", (msgId, fromAttribute, author, mediaPreview, mediaUrl, mediaSize, timestamp, wantsReceipt, pushName))
+							self.signalInterface.send("group_audioReceived", (msgId, fromAttribute, author, mediaUrl, mediaSize, timestamp, wantsReceipt, pushName))
 						else:
-							self.signalInterface.send("audio_received", (msgId, fromAttribute, mediaPreview, mediaUrl, mediaSize, timestamp, wantsReceipt, pushName, isBroadcast))
+							self.signalInterface.send("audio_received", (msgId, fromAttribute, mediaUrl, mediaSize, timestamp, wantsReceipt, pushName, isBroadcast))
 
 					elif mediaType == "location":
 						mlatitude = messageNode.getChild("media").getAttributeValue("latitude")
@@ -1713,10 +1710,8 @@ class ReaderThread(threading.Thread):
 
 			if msgData:
 				msgData = msgData if sys.version_info < (3, 0) else msgData.encode('latin-1').decode()
-
 				if isGroup:
 					self.signalInterface.send("group_messageReceived", (msgId, fromAttribute, author, msgData, timestamp, wantsReceipt, pushName))
-
 				else:
 					self.signalInterface.send("message_received", (msgId, fromAttribute, msgData, timestamp, wantsReceipt, pushName, isBroadcast))
 
