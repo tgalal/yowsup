@@ -13,6 +13,16 @@ class StreamErrorConflictProtocolEntity(ProtocolEntity):
     def setText(self, text = None):
         self.text = text or ''
 
+    def getText(self):
+        return self.text
+
+    def __str__(self):
+        out  = "Conflict Stream Error\n"
+        if self.text:
+            out += "Text: %s\n" % self.getText()
+
+        return out
+
     def toProtocolTreeNode(self):
         node = super(StreamErrorConflictProtocolEntity, self).toProtocolTreeNode()
         node.addChild(ProtocolTreeNode("conflict"))

@@ -13,6 +13,10 @@ class StreamErrorAckProtocolEntity(ProtocolEntity):
         node.addChild(ProtocolTreeNode("ack"))
         return node
 
+    def __str__(self):
+        out = "Ack Stream Error\n"
+        return out
+
     @staticmethod
     def fromProtocolTreeNode(node):
         return StreamErrorAckProtocolEntity()

@@ -61,6 +61,17 @@ class InfoGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
             if _type == self.__class__.TYPE_PARTICIPANT_ADMIN:
                 return jid if full else jid.split('@')[0]
 
+    def __str__(self):
+        out = super(InfoGroupsResultIqProtocolEntity, self).__str__()
+        out += "Group ID: %s\n" % self.groupId
+        out += "Created: %s\n" % self.creationTimestamp
+        out += "Creator JID: %s\n" % self.creatorJid
+        out += "Subject: %s\n" % self.subject
+        out += "Subject Timestamp: %s\n" % self.subjectTime
+        out += "Subject owner JID: %s\n" % self.subjectOwnerJid
+        out += "Participants: %s\n" % self.participants
+        return out
+
     def toProtocolTreeNode(self):
         node = super(InfoGroupsResultIqProtocolEntity, self).toProtocolTreeNode()
         groupNode = ProtocolTreeNode("group", {

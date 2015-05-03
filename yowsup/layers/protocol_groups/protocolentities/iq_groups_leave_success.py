@@ -19,6 +19,11 @@ class SuccessLeaveGroupsIqProtocolEntity(ResultIqProtocolEntity):
     def setProps(self, groupId):
         self.groupId = groupId
 
+    def __str__(self):
+        out = super(SuccessLeaveGroupsIqProtocolEntity, self).__str__()
+        out += "Group Id: %s\n" % self.groupId
+        return out
+
     def toProtocolTreeNode(self):
         node = super(SuccessLeaveGroupsIqProtocolEntity, self).\
             toProtocolTreeNode()

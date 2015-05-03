@@ -16,6 +16,11 @@ class InfoGroupsIqProtocolEntity(GroupsV2IqProtocolEntity):
     def setProps(self, group_jid):
         self.group_jid = group_jid
 
+    def __str__(self):
+        out = super(GroupsV2IqProtocolEntity, self).__str__()
+        out += "Group JID: %s\n" % self.group_jid
+        return out
+
     def toProtocolTreeNode(self):
         node = super(InfoGroupsIqProtocolEntity, self).toProtocolTreeNode()
         node.addChild(ProtocolTreeNode("query", {"request": "interactive"}))
