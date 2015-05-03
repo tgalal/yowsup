@@ -2,7 +2,11 @@
 
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z9KKEUVYEY6BN" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
 
-## Updates (January 12, 2015)
+## Updates (February 17, 2015)
+
+Yowsup 2.2.78 is out, see [release notes](https://github.com/tgalal/yowsup/releases/tag/v2.2.78).
+
+### Updates (January 12, 2015)
 
 Yowsup 2.2.15 is out.
 
@@ -134,6 +138,4 @@ Thanks!
 
 # License:
 
-As of January 1, 2015 yowsup is licensed under the GPLv3: http://www.gnu.org/licenses/gpl-3.0.html. 
-
-Earlier versions were licensed under the MIT License and the reason for the change is the new dependency on [python-axolotl](https://github.com/tgalal/python-axolotl) (GPLv3) which provides us with End-to-End encryption, without which yowsup would have been unusable in the near future.
+As of January 1, 2015 yowsup is licensed under the GPLv3+: http://www.gnu.org/licenses/gpl-3.0.html.

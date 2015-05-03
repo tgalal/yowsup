@@ -19,7 +19,8 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
             SuccessProtocolEntity: (self.handleSuccess, None),
             ChallengeProtocolEntity: (self.handleChallenge, None),
             StreamFeaturesProtocolEntity: (self.handleStreamFeatures, None),
-            FailureProtocolEntity: (self.handleFailure, None)
+            FailureProtocolEntity: (self.handleFailure, None),
+            #"stream:error": (self.handleStreamError, None)
         }
 
         super(YowAuthenticationProtocolLayer, self).__init__( handlers = handlers)
@@ -51,6 +52,8 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
 
     ###recieved node handlers handlers
     def handleStreamFeatures(self, node):
+        #nodeEntity = StreamFeaturesProtocolEntity.fromProtocolTreeNode(node)
+		#self.toUpper(nodeEntity)
         pass
 
 
@@ -67,6 +70,15 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         self.toUpper(nodeEntity)
         self.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT, reason = "Authentication Failure"))
         raise AuthError(nodeEntity.getReason())
+
+    def handleStreamError(self, node):
+        if node.getChild("text"):
+            nodeEntity = StreamErrorConflictProtocolEntity.fromProtocolTreeNode(node)
+        elif node.getChild("ack"):
+            nodeEntity = StreamErrorAckProtocolEntity.fromProtocolTreeNode(node)
+        else:
+            raise AuthError("Unhandled stream:error node:\n%s" % node)
+        self.toUpper(nodeEntity)
 
     ##senders
     def _sendFeatures(self):

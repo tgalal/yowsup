@@ -7,6 +7,12 @@ CURRENT_ENV = S40YowsupEnv()
 if sys.version_info < (3, 0):
     import httplib
     from urllib import urlencode
+
+    if sys.version_info >= (2, 7, 9):
+        #see https://github.com/tgalal/yowsup/issues/677
+        import ssl
+        ssl._create_default_https_context = ssl._create_unverified_context
+
 else:
     from http import client as httplib
     from urllib.parse import urlencode

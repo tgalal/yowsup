@@ -1,36 +1,32 @@
-from .notification_groups import GroupsNotificationProtocolEntity
 from yowsup.structs import ProtocolTreeNode
-class CreateGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
+from yowsup.layers.protocol_iq.protocolentities import ResultIqProtocolEntity
+class InfoGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
     '''
-<notification notify="WhatsApp" id="{{id}}" t="1420402514" participant="{{participant_jiid}}" from="{{group_jid}}" type="w:gp2">
-<create type="new">
-<group subject="{{GROUPSUBJ}}" creation="{{GROUP_CREATION_TYIME}}" creator="{{CREATOR_JID}}"
-    s_t="{{SUBJECT_SET_TIMESTAMP}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}">
-<participant type="admin" jid="{{JID_1}}">
-</participant>
-<participant jid="{{JID_2}}">
-</participant>
-</group>
-</create>
-</notification>
+<iq type="result" from="{{GROUP_ID}}" id="{{IQ_ID}}">
+  <group subject="{{GROUPSUBJ}}" creation="{{GROUP_CREATION_TYIME}}"
+      creator="{{CREATOR_JID}}" s_t="{{SUBJECT_SET_TIMESTAMP}}" id="{{GROUP_ID}}"
+      s_o="{{SUBJECT_OWNER_JID}}">
+    <participant jid="{{PARTICIPANT_JID}}" type="admin"></participant>
+    <participant jid="{{PARTICIPANT_JID}}"></participant>
+    <participant jid="{{PARTICIPANT_JID}}"></participant>
+  </group>
+</iq>
     '''
-    TYPE_CREATE_NEW = "new"
     TYPE_PARTICIPANT_ADMIN = "admin"
-    def __init__(self, _id, _from, timestamp, notify, participant, offline,
-                 createType, groupId, creationTimestamp, creatorJid,
+    def __init__(self, _id, _from,
+                 groupId, creationTimestamp, creatorJid,
                  subject, subjectTime, subjectOwnerJid,
                  participants):
-        super(CreateGroupsNotificationProtocolEntity, self).__init__(_id, _from, timestamp, notify, participant, offline)
-        self.setGroupProps(createType, groupId, creationTimestamp, creatorJid,
+        super(InfoGroupsResultIqProtocolEntity, self).__init__(_id, _from)
+        self.setGroupProps(groupId, creationTimestamp, creatorJid,
                            subject, subjectTime, subjectOwnerJid, participants)
 
-    def setGroupProps(self, createType, groupId, creationTimestamp, creatorJid,
+    def setGroupProps(self, groupId, creationTimestamp, creatorJid,
                       subject, subjectTime, subjectOwnerJid,
                       participants):
 
         assert type(participants) is dict, "Participants must be a dict {jid => type?}"
 
-        self.createType = createType
         self.groupId = groupId
         self.creationTimestamp = int(creationTimestamp)
         self.creatorJid = creatorJid
@@ -60,17 +56,24 @@ class CreateGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
     def getSubjectOwnerJid(self, full = True):
         return self.subjectOwnerJid if full else self.subjectOwnerJid.split('@')[0]
 
-    def getCreatetype(self):
-        return self.createType
-
     def getGroupAdmin(self, full = True):
         for jid, _type in self.participants.items():
             if _type == self.__class__.TYPE_PARTICIPANT_ADMIN:
                 return jid if full else jid.split('@')[0]
 
+    def __str__(self):
+        out = super(InfoGroupsResultIqProtocolEntity, self).__str__()
+        out += "Group ID: %s\n" % self.groupId
+        out += "Created: %s\n" % self.creationTimestamp
+        out += "Creator JID: %s\n" % self.creatorJid
+        out += "Subject: %s\n" % self.subject
+        out += "Subject Timestamp: %s\n" % self.subjectTime
+        out += "Subject owner JID: %s\n" % self.subjectOwnerJid
+        out += "Participants: %s\n" % self.participants
+        return out
+
     def toProtocolTreeNode(self):
-        node = super(CreateGroupsNotificationProtocolEntity, self).toProtocolTreeNode()
-        createNode = ProtocolTreeNode("create", {"type": self.getCreatetype()})
+        node = super(InfoGroupsResultIqProtocolEntity, self).toProtocolTreeNode()
         groupNode = ProtocolTreeNode("group", {
             "subject": self.getSubject(),
             "creation": str(self.getCreationTimestamp()),
@@ -88,21 +91,19 @@ class CreateGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
             participants.append(pnode)
 
         groupNode.addChildren(participants)
-        createNode.addChild(groupNode)
-        node.addChild(createNode)
+        node.addChild(groupNode)
 
         return node
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        createNode = node.getChild("create")
-        groupNode = createNode.getChild("group")
+        groupNode = node.getChild("group")
         participants = {}
         for p in groupNode.getAllChildren("participant"):
             participants[p["jid"]] = p["type"]
 
-        return CreateGroupsNotificationProtocolEntity(
-            node["id"], node["from"], node["t"], node["notify"], node["participant"], node["offline"],
-            createNode["type"], groupNode["id"], groupNode["creation"], groupNode["creator"], groupNode["subject"],
+        return InfoGroupsResultIqProtocolEntity(
+            node["id"], node["from"],
+            groupNode["id"], groupNode["creation"], groupNode["creator"], groupNode["subject"],
             groupNode["s_t"], groupNode["s_o"], participants
         )
