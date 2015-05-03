@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 import yowsup
 import platform
 
-deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.7', 'pillow', lxml', 'six']
+deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.7', 'pillow', 'lxml', 'six']
 
 if platform.system().lower() == "windows":
     deps.append('pyreadline')
@@ -37,7 +37,7 @@ setup(
         'Natural Language :: English',
         #'Environment :: Web Environment',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
+         'License :: OSI Approved ::  GPL-3+  License',
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Libraries :: Python Modules'
         ],
