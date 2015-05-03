@@ -1,5 +1,5 @@
 from yowsup.layers import YowLayer, YowLayerEvent
-from yowsup.proxy import HttpProxy
+from yowsup.common.http.httpproxy import HttpProxy
 import asyncore, socket, logging
 logger = logging.getLogger(__name__)
 
