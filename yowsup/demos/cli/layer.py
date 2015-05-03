@@ -214,7 +214,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             entity = RemoveParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
             self.toLower(entity)
 
-    @clicmd("Get pariticipants in a group")
+    @clicmd("Get participants in a group")
     def group_participants(self, group_jid):
         if self.assertConnected():
             entity = ParticipantsGroupsIqProtocolEntity(self.aliasToJid(group_jid))
@@ -224,6 +224,12 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def group_setSubject(self, jid, subject):
         if self.assertConnected():
             entity = SubjectGroupsIqProtocolEntity(self.aliasToJid(jid), subject)
+            self.toLower(entity)
+
+    @clicmd("Get group info")
+    def group_info(self, group_jid):
+        if self.assertConnected():
+            entity = InfoGroupsIqProtocolEntity(self.aliasToJid(group_jid))
             self.toLower(entity)
 
     @clicmd("Get shared keys")
