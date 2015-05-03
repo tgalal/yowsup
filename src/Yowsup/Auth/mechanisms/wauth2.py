@@ -99,11 +99,8 @@ class WAuth2():
     features.append(ProtocolTreeNode("privacy",None))
     features.append(ProtocolTreeNode("presence",None))
 
-
     toWrite = ProtocolTreeNode("stream:features",None,features)
-    #toWrite = ProtocolTreeNode("stream:features",None,None,"readreceipts,groups_v2,privacy,presence")
-
-
+    
     self.conn.writer.write(toWrite);
 
   def sendAuth(self):
@@ -269,8 +266,6 @@ class KeyStream:
     mac = hmac.new(self.macKey, None, sha1)
     mac.update(buffer(_bytearray(bytes_buffer[int_offset:])))
     numArray = "%s%s%s%s" % (chr((self.seq >> 24) & 255), chr((self.seq >> 16) & 255), chr((self.seq >> 8) & 255), chr(self.seq & 255))
-    #numArray = "%s%s%s%s" % (chr(self.seq >> 24), chr(self.seq >> 16), chr(self.seq >> 8), chr(self.seq))
-
     mac.update(buffer(_bytearray(numArray)))
 
     self.seq += 1

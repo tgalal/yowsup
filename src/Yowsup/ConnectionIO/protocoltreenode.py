@@ -28,9 +28,9 @@ class ProtocolTreeNode():
 
 		Debugger.attach(self)
 
-		self.tag = tag;
-		self.attributes = attributes;
-		self.children = children;
+		self.tag = tag
+		self.attributes = attributes
+		self.children = children
 		self.data = data
 
 	def toString(self, depth = 0):
