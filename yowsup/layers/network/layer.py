@@ -1,4 +1,5 @@
 from yowsup.layers import YowLayer, YowLayerEvent
+from yowsup.common.http.httpproxy import HttpProxy
 import asyncore, socket, logging
 logger = logging.getLogger(__name__)
 
@@ -19,19 +20,39 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
     def __init__(self):
         YowLayer.__init__(self)
         asyncore.dispatcher.__init__(self)
+        httpProxy = HttpProxy.getFromEnviron()
+        proxyHandler = None
+        if httpProxy != None:
+            logger.debug("HttpProxy initialize: %s" % httpProxy)
+            def onConnect():
+                logger.debug("HttpProxy connected")
+                self.proxyHandler = None
+                self.handle_connect()
+            proxyHandler = httpProxy.handler()
+            proxyHandler.onConnect = onConnect
+        self.proxyHandler = proxyHandler
         
     def onEvent(self, ev):
         if ev.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
             self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
             self.out_buffer = bytearray()
-            self.connect(self.getProp(self.__class__.PROP_ENDPOINT))
+            endpoint = self.getProp(self.__class__.PROP_ENDPOINT)
+            if self.proxyHandler != None:
+                logger.debug("HttpProxy connect: %s:%d" % endpoint)
+                self.proxyHandler.connect(self, endpoint)
+            else:
+                self.connect(endpoint)
             return True
         elif ev.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECT:
             self.handle_close(ev.getArg("reason") or "Requested")
             return True
 
     def handle_connect(self):
-        self.emitEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECTED))
+        if self.proxyHandler != None:
+            logger.debug("HttpProxy handle connect")
+            self.proxyHandler.send(self)
+        else:
+            self.emitEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECTED))
 
     def handle_close(self, reason = "Connection Closed"):
         logger.debug("Disconnected, reason: %s" % reason)
@@ -44,8 +65,12 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
 
     def handle_read(self):
         readSize = self.getProp(self.__class__.PROP_NET_READSIZE, 1024)
-        data = self.recv(readSize)
-        self.receive(data)
+        if self.proxyHandler != None:
+            data = self.proxyHandler.recv(self, readSize)
+            logger.debug("HttpProxy handle read: %s" % data)
+        else:
+            data = self.recv(readSize)
+            self.receive(data)
 
     def send(self, data):
         self.out_buffer = self.out_buffer + data
