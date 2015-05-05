@@ -17,14 +17,15 @@ class OutgoingReceiptProtocolEntity(ReceiptProtocolEntity):
     <receipt offline="0" from="4915225256022@s.whatsapp.net" id="1415577964-1" t="1415578027"></receipt>
     '''
 
-    def __init__(self, _id, to, read = False, participant = None):
+    def __init__(self, _id, to, read = False, participant = None, callId = None):
         super(OutgoingReceiptProtocolEntity, self).__init__(_id)
-        self.setOutgoingData(to, read, participant)
+        self.setOutgoingData(to, read, participant, callId)
 
-    def setOutgoingData(self, to, read, participant):
+    def setOutgoingData(self, to, read, participant, callId):
         self.to = to
         self.read = read
         self.participant = participant
+        self.callId = callId
     
     def toProtocolTreeNode(self):
         node = super(OutgoingReceiptProtocolEntity, self).toProtocolTreeNode()
@@ -32,6 +33,9 @@ class OutgoingReceiptProtocolEntity(ReceiptProtocolEntity):
             node.setAttribute("type", "read")
         if self.participant:
             node.setAttribute("participant", self.participant)
+        if self.callId:
+            offer = ProtocolTreeNode("offer", {"call-id": self.callId})
+            node.addChild(offer)
 
         node.setAttribute("to", self.to)
         node.setAttribute("t", str(int(time.time())))
