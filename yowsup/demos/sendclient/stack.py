@@ -22,7 +22,6 @@ class YowsupSendStack(object):
         :return:
         """
         if encryptionEnabled:
-            env.CURRENT_ENV = env.S40YowsupEnv()
             layers = (
                 SendLayer,
                 (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
@@ -34,6 +33,7 @@ class YowsupSendStack(object):
                 YowNetworkLayer
             )
         else:
+            env.CURRENT_ENV = env.S40YowsupEnv()
             layers = (
                 SendLayer,
                 (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
