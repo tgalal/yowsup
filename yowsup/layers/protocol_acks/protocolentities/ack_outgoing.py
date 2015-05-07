@@ -3,7 +3,7 @@ from .ack import AckProtocolEntity
 class OutgoingAckProtocolEntity(AckProtocolEntity):
 
     '''
-    <ack type="{{delivery | ?}}" class="{{message | receipt | ?}}" id="{{MESSAGE_ID}} to={{TO_JID}}">
+    <ack type="{{delivery | read}}" class="{{message | receipt | ?}}" id="{{MESSAGE_ID}} to={{TO_JID}}">
     </ack>
     '''
 
@@ -12,12 +12,13 @@ class OutgoingAckProtocolEntity(AckProtocolEntity):
         self.setOutgoingData(_type, _to)
 
     def setOutgoingData(self, _type, _to):
-        self._type = _type if _type is not None else ""
+        self._type = _type
         self._to = _to
     
     def toProtocolTreeNode(self):
         node = super(OutgoingAckProtocolEntity, self).toProtocolTreeNode()
-        node.setAttribute("type", self._type)
+        if self._type:
+            node.setAttribute("type", self._type)
         node.setAttribute("to", self._to)
         return node
 
