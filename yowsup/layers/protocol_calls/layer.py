@@ -1,4 +1,4 @@
-from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
+from yowsup.layers import YowProtocolLayer
 from .protocolentities import *
 from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
 from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity

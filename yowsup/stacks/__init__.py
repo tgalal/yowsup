@@ -18,7 +18,7 @@ from yowsup.layers.protocol_contacts           import YowContactsIqProtocolLayer
 from yowsup.layers.protocol_chatstate          import YowChatstateProtocolLayer
 from yowsup.layers.protocol_privacy            import YowPrivacyProtocolLayer
 from yowsup.layers.protocol_profiles           import YowProfilesProtocolLayer
-from yowsup.layers.protocol_calls           import YowCallsProtocolLayer
+from yowsup.layers.protocol_calls              import YowCallsProtocolLayer
 
 
 

@@ -20,6 +20,7 @@ from yowsup.layers.protocol_chatstate          import YowChatstateProtocolLayer
 from yowsup.layers.protocol_privacy            import YowPrivacyProtocolLayer
 from yowsup.layers.protocol_profiles           import YowProfilesProtocolLayer
 from yowsup.layers.axolotl import YowAxolotlLayer
+from yowsup.layers.protocol_calls import YowCallsProtocolLayer
 from yowsup import env
 from yowsup.common.constants import YowConstants
 import inspect
@@ -34,7 +35,7 @@ YOWSUP_PROTOCOL_LAYERS_BASIC = (
     YowAuthenticationProtocolLayer, YowMessagesProtocolLayer,
     YowReceiptProtocolLayer, YowAckProtocolLayer, YowPresenceProtocolLayer,
     YowIbProtocolLayer, YowIqProtocolLayer, YowNotificationsProtocolLayer,
-    YowContactsIqProtocolLayer, YowChatstateProtocolLayer
+    YowContactsIqProtocolLayer, YowChatstateProtocolLayer, YowCallsProtocolLayer
 
 )
 
