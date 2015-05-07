@@ -12,6 +12,7 @@ from yowsup.layers.protocol_acks               import YowAckProtocolLayer
 from yowsup.layers.logger                      import YowLoggerLayer
 from yowsup.layers.axolotl                     import YowAxolotlLayer
 from yowsup.layers.protocol_iq                 import YowIqProtocolLayer
+from yowsup.layers.protocol_calls              import YowCallsProtocolLayer
 from yowsup.common import YowConstants
 from yowsup import env
 
@@ -20,7 +21,7 @@ class YowsupEchoStack(object):
         if encryptionEnabled:
             layers = (
                 EchoLayer,
-                (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer, YowIqProtocolLayer),
+                (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer, YowIqProtocolLayer, YowCallsProtocolLayer),
                 YowAxolotlLayer,
                 YowLoggerLayer,
                 YowCoderLayer,
@@ -32,7 +33,7 @@ class YowsupEchoStack(object):
             env.CURRENT_ENV = env.S40YowsupEnv()
             layers = (
                 EchoLayer,
-                (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer, YowIqProtocolLayer),
+                (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer, YowIqProtocolLayer, YowCallsProtocolLayer),
                 YowLoggerLayer,
                 YowCoderLayer,
                 YowCryptLayer,
