@@ -178,8 +178,14 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Get profile picture for contact")
     def contact_picture(self, jid):
         if self.assertConnected():
-            entity = PictureIqProtocolEntity(self.aliasToJid(jid))
-            self.toLower(entity)
+            entity = GetPictureIqProtocolEntity(self.aliasToJid(jid), preview=False)
+            self._sendIq(entity, self.onGetContactPictureResult)
+
+    @clicmd("Get profile picture preview for contact")
+    def contact_picturePreview(self, jid):
+        if self.assertConnected():
+            entity = GetPictureIqProtocolEntity(self.aliasToJid(jid), preview=True)
+            self._sendIq(entity, self.onGetContactPictureResult)
 
     @clicmd("Set profile picture")
     def profile_setPicture(self, path):
@@ -188,9 +194,9 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             #modified to support python3
             from PIL import Image
             src = Image.open(path)
-            iq = PictureIqProtocolEntity(self.getOwnJid(), type="set")
-            iq.setPictureData(src.resize((640, 640)).tobytes("jpeg", "RGB"))
-            iq.setPreviewData(src.resize((96, 96)).tobytes("jpeg", "RGB"))
+            pictureData = src.resize((640, 640)).tobytes("jpeg", "RGB")
+            picturePreview = src.resize((96, 96)).tobytes("jpeg", "RGB")
+            iq = SetPictureIqProtocolEntity(self.getOwnJid(), picturePreview, pictureData)
             self.toLower(iq)
         else:
             logger.error("Python PIL library is not installed, can't set profile picture")
@@ -477,6 +483,15 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def onUploadProgress(self, filePath, jid, url, progress):
         sys.stdout.write("%s => %s, %d%% \r" % (os.path.basename(filePath), jid, progress))
         sys.stdout.flush()
+
+    def onGetContactPictureResult(self, resultGetPictureIqProtocolEntiy, getPictureIqProtocolEntity):
+        # do here whatever you want
+        # write to a file
+        # or open
+        # or do nothing
+        # write to file example:
+        #resultGetPictureIqProtocolEntiy.writeToFile("/tmp/yowpics/%s_%s.jpg" % (getPictureIqProtocolEntity.getTo(), "preview" if resultGetPictureIqProtocolEntiy.isPreview() else "full"))
+        pass
 
     def __str__(self):
         return "CLI Interface Layer"

@@ -20,6 +20,6 @@ class YowProfilesProtocolLayer(YowProtocolLayer):
         if node["type"] == "result":
             pictureNode = node.getChild("picture")
             if pictureNode is not None:
-                entity = PictureIqProtocolEntity.fromProtocolTreeNode(node)
+                entity = ResultGetPictureIqProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
 
