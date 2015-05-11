@@ -1,5 +1,6 @@
-from yowsup.structs import ProtocolEntity, ProtocolTreeNode
+from yowsup.structs import ProtocolTreeNode
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
+import time
 class PictureIqProtocolEntity(IqProtocolEntity):
     '''
     When asking for a profile picture:
@@ -62,7 +63,7 @@ class PictureIqProtocolEntity(IqProtocolEntity):
     def toProtocolTreeNode(self):
         node = super(PictureIqProtocolEntity, self).toProtocolTreeNode()
         if self._type == "set" and self.pictureId is None:
-            self.pictureId = self._generateId(True)
+            self.pictureId = str(int(time.time()))
         if self.pictureId is not None:
             attribs = {"type": "image", "id": self.pictureId}
         else:
