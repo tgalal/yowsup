@@ -6,5 +6,5 @@ class SetPictureNotificationProtocolEntityTest(PictureNotificationProtocolEntity
     def setUp(self):
         super(SetPictureNotificationProtocolEntityTest, self).setUp()
         self.ProtocolEntity = SetPictureNotificationProtocolEntity
-        setNode = ProtocolTreeNode("set", {"id": "SET_JID", "jid": "123"}, None, None)
+        setNode = ProtocolTreeNode("set", {"jid": "SET_JID", "id": "123"}, None, None)
         self.node.addChild(setNode)
