@@ -15,6 +15,11 @@ class DeletePictureNotificationProtocolEntity(PictureNotificationProtocolEntity)
 
     def setData(self, deleteJid):
         self.deleteJid =   deleteJid
+
+    def __str__(self):
+        out = super(DeletePictureNotificationProtocolEntity, self).__str__()
+        out += "Type: Delete"
+        return out
     
     def toProtocolTreeNode(self):
         node = super(DeletePictureNotificationProtocolEntity, self).toProtocolTreeNode()
