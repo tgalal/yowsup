@@ -16,7 +16,6 @@ from yowsup.layers.protocol_acks.protocolentities        import *
 from yowsup.layers.protocol_ib.protocolentities          import *
 from yowsup.layers.protocol_iq.protocolentities          import *
 from yowsup.layers.protocol_contacts.protocolentities    import *
-from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.layers.protocol_chatstate.protocolentities   import *
 from yowsup.layers.protocol_privacy.protocolentities     import *
 from yowsup.layers.protocol_media.protocolentities       import *
@@ -24,6 +23,7 @@ from yowsup.layers.protocol_media.mediauploader import MediaUploader
 from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
 from yowsup.layers.axolotl import YowAxolotlLayer
+from yowsup.common.tools import ModuleTools
 
 logger = logging.getLogger(__name__)
 
@@ -180,6 +180,22 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         if self.assertConnected():
             entity = PictureIqProtocolEntity(self.aliasToJid(jid))
             self.toLower(entity)
+
+    @clicmd("Set profile picture")
+    def profile_setPicture(self, path):
+        if ModuleTools.INSTALLED_PIL():
+            #example by @aesedepece in https://github.com/tgalal/yowsup/pull/781
+            #modified to support python3
+            from PIL import Image
+            src = Image.open(path)
+            iq = PictureIqProtocolEntity(self.getOwnJid(), type="set")
+            iq.setPictureData(src.resize((640, 640)).tobytes("jpeg", "RGB"))
+            iq.setPreviewData(src.resize((96, 96)).tobytes("jpeg", "RGB"))
+            self.toLower(iq)
+        else:
+            logger.error("Python PIL library is not installed, can't set profile picture")
+
+    ########### groups
 
     @clicmd("List all groups you belong to", 5)
     def groups_list(self):
