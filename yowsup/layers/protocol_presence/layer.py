@@ -14,5 +14,4 @@ class YowPresenceProtocolLayer(YowProtocolLayer):
         self.entityToLower(entity)
 
     def recvPresence(self, node):
-        pass
-        #self.toUpper(IncomingAckProtocolEntity.fromProtocolTreeNode(node))
+        self.toUpper(PresenceProtocolEntity.fromProtocolTreeNode(node))
