@@ -9,6 +9,9 @@ from .protocolentities import *
 
 
 class YowIqProtocolLayer(YowProtocolLayer):
+    
+    PROP_PING_INTERVAL               = "org.openwhatsapp.yowsup.prop.pinginterval"
+    
     def __init__(self):
         handleMap = {
             "iq": (self.recvIq, self.sendIq)
@@ -59,7 +62,7 @@ class YowIqProtocolLayer(YowProtocolLayer):
         if name == YowAuthenticationProtocolLayer.EVENT_AUTHED:
             if not self._pingThread:
                 self._pingQueue = {}
-                self._pingThread = YowPingThread(self)
+                self._pingThread = YowPingThread(self, self.getProp(self.__class__.PROP_PING_INTERVAL, 50))
                 self.__logger.debug("starting ping thread.")
                 self._pingThread.start()
         elif name == YowNetworkLayer.EVENT_STATE_DISCONNECT or name == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
@@ -71,9 +74,10 @@ class YowIqProtocolLayer(YowProtocolLayer):
                 self._pingQueue = {}
 
 class YowPingThread(Thread):
-    def __init__(self, layer):
+    def __init__(self, layer, interval):
         assert type(layer) is YowIqProtocolLayer, "layer must be a YowIqProtocolLayer, got %s instead." % type(layer)
         self._layer = layer
+        self._interval = interval
         self._stop = False
         self.__logger = logging.getLogger(__name__)
         super(YowPingThread, self).__init__()
@@ -82,8 +86,8 @@ class YowPingThread(Thread):
 
     def run(self):
         while not self._stop:
-            for i in range(1, 24):
-                time.sleep(5)
+            for i in range(0, self._interval):
+                time.sleep(1)
                 if self._stop:
                     self.__logger.debug("%s - ping thread stopped" % self.name)
                     return
