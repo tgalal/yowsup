@@ -58,8 +58,7 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
         logger.debug("Disconnected, reason: %s" % reason)
         self.emitEvent(YowLayerEvent(self.__class__.EVENT_STATE_DISCONNECTED, reason = reason, detached=True))
         self.close()
-        return False
-
+        
     def handle_error(self):
         raise
 
