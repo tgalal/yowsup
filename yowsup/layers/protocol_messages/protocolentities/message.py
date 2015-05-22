@@ -93,6 +93,7 @@ class MessageProtocolEntity(ProtocolEntity):
         out += "ID: %s\n" % self._id
         out += "To: %s\n" % self.to  if self.isOutgoing() else "From: %s\n" % self._from 
         out += "Type:  %s\n" % self._type
+        out += "Timestamp: %s\n" % self.timestamp
         if self.participant:
             out += "Participant: %s\n" % self.participant
         return out

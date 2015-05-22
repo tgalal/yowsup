@@ -35,7 +35,7 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
     def toProtocolTreeNode(self):
         node = super(IncomingReceiptProtocolEntity, self).toProtocolTreeNode()
         node.setAttribute("from", self._from)
-        node.setAttribute("timestamp", str(self.timestamp))
+        node.setAttribute("t", str(self.timestamp))
         if self.offline is not None:
             node.setAttribute("offline", "1" if self.offline else "0")
         if self.type is not None:
@@ -57,7 +57,7 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
         return IncomingReceiptProtocolEntity(
             node.getAttributeValue("id"),
             node.getAttributeValue("from"),
-            node.getAttributeValue("timestamp"),
+            node.getAttributeValue("t"),
             node.getAttributeValue("offline"),
             node.getAttributeValue("type")
             )
