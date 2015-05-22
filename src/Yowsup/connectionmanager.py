@@ -1146,9 +1146,13 @@ class ReaderThread(threading.Thread):
 
 						elif notificationType == "contacts":
 							contactNode = node.getChild("add")
-							contactJid = contactNode.getAttributeValue("jid")
-							self.signalInterface.send("notification_contactAdded", (contactJid, ))
-								
+							if contactNode is not None:
+								contactJid = contactNode.getAttributeValue("jid")
+								self.signalInterface.send("notification_contactAdded", (contactJid, ))
+							else:
+								contactNode = node.getChild("update")
+								contactJid = contactNode.getAttributeValue("jid")
+								self.signalInterface.send("notification_contactUpdated", (contactJid, ))
 							contactsNode = ProtocolTreeNode("sync", {"contacts": "out"})
 							#self.sendNotificationReceived(fromJid, notificationId, notificationTo, participant, notificationType, contactsNode)
 
