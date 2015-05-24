@@ -18,7 +18,7 @@ class AndroidYowsupEnv(YowsupEnv):
     _MD5_CLASSES = "8RLCruK6a3ctyiITKjeE5Q=="
     _KEY = "/UIGKU1FVQa+ATM2A0za7G2KI9S/CwPYjgAbc67v7ep42eO/WeTLx1lb1cHwxpsEgF4+PmYpLd2YpGUdX/A2JQitsHzDwgcdBpUf7psX1BU="
 
-    _VERSION = "2.12.84"
+    _VERSION = "2.12.94"
     _OS_NAME= "Android"
     _OS_VERSION = "4.3"
     _DEVICE_NAME = "GalaxyS3"
