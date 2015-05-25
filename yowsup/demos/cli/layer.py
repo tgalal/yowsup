@@ -255,9 +255,10 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             self.toLower(entity)
 
     @clicmd("Get shared keys")
-    def keys_get(self, jid):
+    def keys_get(self, jids):
         if self.assertConnected():
-            entity = GetKeysIqProtocolEntity(self.aliasToJid(jid))
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')]
+            entity = GetKeysIqProtocolEntity(jids)
             self.toLower(entity)
 
     @clicmd("Send prekeys")
