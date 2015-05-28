@@ -1,4 +1,5 @@
 from yowsup.layers import  YowProtocolLayer
+from yowsup.layers.protocol_iq.protocolentities import ErrorIqProtocolEntity
 from .protocolentities import *
 class YowProfilesProtocolLayer(YowProtocolLayer):
     def __init__(self):
@@ -22,4 +23,8 @@ class YowProfilesProtocolLayer(YowProtocolLayer):
             if pictureNode is not None:
                 entity = ResultGetPictureIqProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
+        elif node["type"] == "error":
+            entity = ErrorIqProtocolEntity.fromProtocolTreeNode(node)
+            self.toUpper(entity)
+
 
