@@ -20,7 +20,7 @@ class YowProfilesProtocolLayer(YowProtocolLayer):
             elif entity.getType() == "delete":
                 self._sendIq(entity, self.onDeletePictureResult, self.onDeletePictureError)
         elif entity.getXmlns() == "status":
-            self._sendIq(entity, self.onSetStatusResult, self.onSetPictureError)
+            self._sendIq(entity, self.onSetStatusResult, self.onSetStatusError)
 
     def recvIq(self, node):
         pass
