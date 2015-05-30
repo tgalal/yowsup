@@ -170,10 +170,17 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     ####### contacts/ profiles ####################
     @clicmd("Set status text")
-    def status_set(self, text):
+    def profile_setStatus(self, text):
         if self.assertConnected():
+
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("Status updated successfully")
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error updating status")
+
             entity = SetStatusIqProtocolEntity(text)
-            self.toLower(entity)
+            self._sendIq(entity, onSuccess, onError)
 
     @clicmd("Get profile picture for contact")
     def contact_picture(self, jid):
@@ -189,7 +196,14 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @clicmd("Set profile picture")
     def profile_setPicture(self, path):
-        if ModuleTools.INSTALLED_PIL():
+        if self.assertConnected() and ModuleTools.INSTALLED_PIL():
+
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("Profile picture updated successfully")
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error updating profile picture")
+
             #example by @aesedepece in https://github.com/tgalal/yowsup/pull/781
             #modified to support python3
             from PIL import Image
@@ -197,7 +211,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             pictureData = src.resize((640, 640)).tobytes("jpeg", "RGB")
             picturePreview = src.resize((96, 96)).tobytes("jpeg", "RGB")
             iq = SetPictureIqProtocolEntity(self.getOwnJid(), picturePreview, pictureData)
-            self.toLower(iq)
+            self._sendIq(iq, onSuccess, onError)
         else:
             logger.error("Python PIL library is not installed, can't set profile picture")
 
