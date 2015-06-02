@@ -21,7 +21,6 @@ class YowsupSyncStack(object):
         :param encryptionEnabled:
         :return:
         """
-        print type(credentials), credentials, type(contacts),  contacts
         if encryptionEnabled:
             layers = (
                 SyncLayer,
