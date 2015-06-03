@@ -27,7 +27,7 @@ class SyncLayer(YowInterfaceLayer):
         self.lock.release()	
 
     #after receiving the message from the target number, target number will send a ack to sender(us)
-    @ProtocolEntityCallback("ack")
+    @ProtocolEntityCallback("iq")
     def onAck(self, entity):
         self.lock.acquire()
         #if the id match the id in ackQueue, then pop the id of the message out
@@ -36,7 +36,7 @@ class SyncLayer(YowInterfaceLayer):
             
         if not len(self.ackQueue):
             self.lock.release()
-            logger.info("Message sent")
+            logger.info("contacts sync")
             raise KeyboardInterrupt()
 
         self.lock.release()

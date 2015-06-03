@@ -287,7 +287,7 @@ class DemosArgParser(YowArgParser):
             print("Error: You must specify a configuration method")
             sys.exit(1)
         try:
-            stack = contacts.YowsupSyncStack(credentials,[self.args["sync"]],self.args["moxie"])
+            stack = contacts.YowsupSyncStack(credentials,self.args["sync"].split(','),self.args["moxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
