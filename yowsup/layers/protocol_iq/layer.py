@@ -44,8 +44,6 @@ class YowIqProtocolLayer(YowProtocolLayer):
         self._pingQueueLock.acquire()
         if pingId in self._pingQueue:
             self._pingQueue = {}
-            pass
-        pingQueueSize = len(self._pingQueue)
         self._pingQueueLock.release()
 
     def waitPong(self, id):
