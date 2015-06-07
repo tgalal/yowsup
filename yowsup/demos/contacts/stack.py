@@ -45,7 +45,7 @@ class YowsupSyncStack(object):
             )
 
         self.stack = YowStack(layers)
-        self.stack.setProp(SyncLayer.PROP_MESSAGES, contacts)
+        self.stack.setProp(SyncLayer.PROP_CONTACTS, contacts)
         self.stack.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
         self.stack.setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, credentials)
         self.stack.setProp(YowNetworkLayer.PROP_ENDPOINT, YowConstants.ENDPOINTS[0])

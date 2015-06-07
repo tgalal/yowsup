@@ -1,42 +1,28 @@
 from yowsup.layers.interface                           import YowInterfaceLayer, ProtocolEntityCallback
-from yowsup.layers.protocol_contacts.protocolentities  import GetSyncIqProtocolEntity
+from yowsup.layers.protocol_contacts.protocolentities  import GetSyncIqProtocolEntity, ResultSyncIqProtocolEntity
+from yowsup.layers.protocol_iq.protocolentities import ErrorIqProtocolEntity
 import threading
 import logging
 logger = logging.getLogger(__name__)
 
 class SyncLayer(YowInterfaceLayer):
 
-    #This message is going to be replaced by the @param message in YowsupSendStack construction
-    #i.e. list of (jid, message) tuples
-    PROP_MESSAGES = "org.openwhatsapp.yowsup.prop.sendclient.queue"
-    
-    
+    PROP_CONTACTS = "org.openwhatsapp.yowsup.prop.syncdemo.contacts"
+
     def __init__(self):
         super(SyncLayer, self).__init__()
-        self.ackQueue = []
-        self.lock = threading.Condition()
 
     #call back function when there is a successful connection to whatsapp server
     @ProtocolEntityCallback("success")
     def onSuccess(self, successProtocolEntity):
-        self.lock.acquire()
-        contacts= self.getProp(self.__class__.PROP_MESSAGES, [])
+        contacts= self.getProp(self.__class__.PROP_CONTACTS, [])
         contactEntity = GetSyncIqProtocolEntity(contacts)
-        self.ackQueue.append(contactEntity.getId())
-        self.toLower(contactEntity)
-        self.lock.release()	
+        self._sendIq(contactEntity, self.onGetSyncResult, self.onGetSyncError)
 
-    #after receiving the message from the target number, target number will send a ack to sender(us)
-    @ProtocolEntityCallback("iq")
-    def onAck(self, entity):
-        self.lock.acquire()
-        #if the id match the id in ackQueue, then pop the id of the message out
-        if entity.getId() in self.ackQueue:
-            self.ackQueue.pop(self.ackQueue.index(entity.getId()))
-            
-        if not len(self.ackQueue):
-            self.lock.release()
-            logger.info("contacts sync")
-            raise KeyboardInterrupt()
+    def onGetSyncResult(self, resultSyncIqProtocolEntity, originalIqProtocolEntity):
+        print(resultSyncIqProtocolEntity)
+        raise KeyboardInterrupt()
 
-        self.lock.release()
+    def onGetSyncError(self, errorSyncIqProtocolEntity, originalIqProtocolEntity):
+        print(errorSyncIqProtocolEntity)
+        raise KeyboardInterrupt()
