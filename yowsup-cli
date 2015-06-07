@@ -216,6 +216,8 @@ class DemosArgParser(YowArgParser):
         sendOpts.add_argument('-s', '--send', action="store", help = "Send a message to specified phone number, "
                                                                      "wait for server receipt and exit",
                               metavar=("phone", "message"), nargs = 2)
+        syncContacts = self.add_argument_group("Sync contacts")
+        syncContacts.add_argument('-S','--sync', action = "store" , help = "Sync ( check valid ) whatsapp contacts",metavar =("contacts"))
 
     def process(self):
         super(DemosArgParser, self).process()
@@ -225,6 +227,8 @@ class DemosArgParser(YowArgParser):
             self.startEcho()
         elif self.args["send"]:
             self.startSendClient()
+        elif self.args["sync"]:
+            self.startSyncContacts()
         else:
             return False
         return True
@@ -271,6 +275,19 @@ class DemosArgParser(YowArgParser):
         try:
             stack = sendclient.YowsupSendStack(credentials, [([self.args["send"][0], self.args["send"][1]])],
                                                self.args["moxie"])
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+    def startSyncContacts(self):
+        from yowsup.demos import contacts
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+        try:
+            stack = contacts.YowsupSyncStack(credentials,self.args["sync"].split(','),self.args["moxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
