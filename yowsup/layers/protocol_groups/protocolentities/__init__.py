@@ -18,4 +18,5 @@ from .iq_result_groups_info import InfoGroupsResultIqProtocolEntity
 from .notification_groups    import GroupsNotificationProtocolEntity
 from .notification_groups_subject  import SubjectGroupsNotificationProtocolEntity
 from .notification_groups_create import CreateGroupsNotificationProtocolEntity
+from .notification_groups_add import AddGroupsNotificationProtocolEntity
 from .notification_groups_remove import RemoveGroupsNotificationProtocolEntity

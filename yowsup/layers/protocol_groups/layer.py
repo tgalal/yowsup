@@ -121,3 +121,5 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
                 self.toUpper(CreateGroupsNotificationProtocolEntity.fromProtocolTreeNode(node))
             elif node.getChild("remove"):
                 self.toUpper(RemoveGroupsNotificationProtocolEntity.fromProtocolTreeNode(node))
+            elif node.getChild("add"):
+                self.toUpper(AddGroupsNotificationProtocolEntity.fromProtocolTreeNode(node))
