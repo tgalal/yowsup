@@ -95,6 +95,7 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
 
     def onAddParticipantsFailed(self, node, originalIqEntity):
         logger.error("Group add participants failed")
+        self.toUpper(FailureAddParticipantsIqProtocolEntity.fromProtocolTreeNode(node))
 
     def onListGroupsResult(self, node, originalIqEntity):
         self.toUpper(ListGroupsResultIqProtocolEntity.fromProtocolTreeNode(node))
