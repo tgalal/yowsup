@@ -12,12 +12,20 @@ class GroupsNotificationProtocolEntity(NotificationProtocolEntity):
     def __init__(self, _id,  _from, timestamp, notify, participant, offline):
         super(GroupsNotificationProtocolEntity, self).__init__("w:gp2", _id, _from, timestamp, notify, offline)
         self.setParticipant(participant)
+        self.setGroupId(_from)
 
     def setParticipant(self, participant):
         self._participant = participant
 
     def getParticipant(self, full = True):
         return self._participant if full else self._participant.split('@')[0]
+
+    def getGroupId(self):
+        return self._id
+
+    def setGroupId(self, groupId):
+        self._id = groupId
+
 
     def __str__(self):
         out = super(GroupsNotificationProtocolEntity, self).__str__()
@@ -34,4 +42,5 @@ class GroupsNotificationProtocolEntity(NotificationProtocolEntity):
         entity = NotificationProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = GroupsNotificationProtocolEntity
         entity.setParticipant(node.getAttributeValue("participant"))
+        entity.setGroupId(node.getAttributeValue("from"))
         return entity
