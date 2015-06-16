@@ -29,7 +29,7 @@ class InfoGroupsIqProtocolEntity(GroupsV2IqProtocolEntity):
     @staticmethod
     def fromProtocolTreeNode(node):
         assert node.getChild("query") is not None, "Not a groups info iq node %s" % node
-        entity = GroupsV2IqProtocolEntity.fromProtocolTreeNode(node)
+        entity = super(InfoGroupsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = InfoGroupsIqProtocolEntity
         entity.setProps(node.getAttributeValue("to"))
         return entity

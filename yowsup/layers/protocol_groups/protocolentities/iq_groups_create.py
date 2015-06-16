@@ -35,7 +35,7 @@ class CreateGroupsIqProtocolEntity(GroupsV2IqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = GroupsIqProtocolEntity.fromProtocolTreeNode(node)
+        entity = super(CreateGroupsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = CreateGroupsIqProtocolEntity
         entity.setProps(node.getChild("create").getAttributeValue("subject"))
         participantList = []

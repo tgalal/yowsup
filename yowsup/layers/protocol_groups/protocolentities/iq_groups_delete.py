@@ -23,6 +23,6 @@ class DeleteGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     def fromProtocolTreeNode(node):
         assert node.getChild("group") is not None, "Not a group delete iq node %s" % node
         assert node.getChild("group").getAttributeValue("action") == "delete", "Not a group delete action %s" % node
-        entity = GroupsIqProtocolEntity.fromProtocolTreeNode(node)
+        entity = super(DeleteGroupsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = DeleteGroupsIqProtocolEntity
         return entity
