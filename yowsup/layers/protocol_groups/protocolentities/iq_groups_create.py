@@ -41,5 +41,5 @@ class CreateGroupsIqProtocolEntity(GroupsV2IqProtocolEntity):
         participantList = []
         for participantNode in node.getChild("create").getAllChildren():
             participantList.append(participantNode["jid"])
-	entity.setParticipants(participantList)
+        entity.setParticipants(participantList)
         return entity
