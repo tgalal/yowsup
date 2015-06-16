@@ -32,8 +32,8 @@ class IqProtocolEntity(ProtocolEntity):
     def getXmlns(self):
         return self.xmlns
 
-    def getFrom(self):
-        return self._from
+    def getFrom(self, full = True):
+        return self._from if full else self._from.split('@')[0]
 
     def getTo(self):
         return self.to
