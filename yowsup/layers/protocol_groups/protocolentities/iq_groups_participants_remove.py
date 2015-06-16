@@ -16,10 +16,10 @@ class RemoveParticipantsIqProtocolEntity(ParticipantsGroupsIqProtocolEntity):
         
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = super(RemoveParticipantsIqProtocolEntity, self).fromProtocolTreeNode(node)
+        entity = super(RemoveParticipantsIqProtocolEntity, RemoveParticipantsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = RemoveParticipantsIqProtocolEntity
         participantList = []
-        for participantNode in node.getChild("remove").node.getAllChildren():
+        for participantNode in node.getChild("remove").getAllChildren():
             participantList.append(participantNode["jid"])
         entity.setProps(node.getAttributeValue("to"), participantList)
         return entity

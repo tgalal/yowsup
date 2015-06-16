@@ -33,6 +33,6 @@ class ParticipantsGroupsIqProtocolEntity(GroupsV2IqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = super(ParticipantsGroupsIqProtocolEntity, self).fromProtocolTreeNode(node)
+        entity = super(ParticipantsGroupsIqProtocolEntity, ParticipantsGroupsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = ParticipantsGroupsIqProtocolEntity
         return entity

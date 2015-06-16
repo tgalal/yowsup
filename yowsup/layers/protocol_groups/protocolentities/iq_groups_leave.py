@@ -24,7 +24,7 @@ class LeaveGroupsIqProtocolEntity(GroupsIqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = super(LeaveGroupsIqProtocolEntity).fromProtocolTreeNode(node)
+        entity = super(LeaveGroupsIqProtocolEntity, LeaveGroupsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = LeaveGroupsIqProtocolEntity
         entity.setProps([group.getAttributeValue("id") for group in node.getChild("leave").getAllChildren()])
         return entity

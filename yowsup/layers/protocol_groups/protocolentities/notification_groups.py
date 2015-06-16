@@ -39,7 +39,7 @@ class GroupsNotificationProtocolEntity(NotificationProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = super(GroupsNotificationProtocolEntity).fromProtocolTreeNode(node)
+        entity = super(GroupsNotificationProtocolEntity, GroupsNotificationProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = GroupsNotificationProtocolEntity
         entity.setParticipant(node.getAttributeValue("participant"))
         entity.setGroupId(node.getAttributeValue("from"))

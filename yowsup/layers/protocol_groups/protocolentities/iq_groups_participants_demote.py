@@ -16,10 +16,10 @@ class DemoteParticipantsIqProtocolEntity(ParticipantsGroupsIqProtocolEntity):
     
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = super(DemoteParticipantsIqProtocolEntity, self).fromProtocolTreeNode(node)
+        entity = super(DemoteParticipantsIqProtocolEntity, DemoteParticipantsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = DemoteParticipantsIqProtocolEntity
         participantList = []
-        for participantNode in node.getChild("demote").node.getAllChildren():
+        for participantNode in node.getChild("demote").getAllChildren():
             participantList.append(participantNode["jid"])
         entity.setProps(node.getAttributeValue("to"), participantList)
         return entity

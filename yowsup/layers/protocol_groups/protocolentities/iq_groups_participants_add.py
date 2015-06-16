@@ -16,10 +16,10 @@ class AddParticipantsIqProtocolEntity(ParticipantsGroupsIqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = super(AddParticipantsIqProtocolEntity, self).fromProtocolTreeNode(node)
+        entity = super(AddParticipantsIqProtocolEntity, AddParticipantsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = AddParticipantsIqProtocolEntity
         participantList = []
-        for participantNode in node.getChild("add").node.getAllChildren():
+        for participantNode in node.getChild("add").getAllChildren():
             participantList.append(participantNode["jid"])
         entity.setProps(node.getAttributeValue("to"), participantList)
         return entity

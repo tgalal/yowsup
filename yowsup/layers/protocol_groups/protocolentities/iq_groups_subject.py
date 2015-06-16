@@ -20,7 +20,7 @@ class SubjectGroupsIqProtocolEntity(GroupsIqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = super(SubjectGroupsIqProtocolEntity).fromProtocolTreeNode(node)
+        entity = super(SubjectGroupsIqProtocolEntity, SubjectGroupsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = SubjectGroupsIqProtocolEntity
         entity.setProps(node.getChild("subject").getAttributeValue("value"))
         return entity

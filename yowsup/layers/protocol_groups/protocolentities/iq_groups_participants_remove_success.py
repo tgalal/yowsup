@@ -35,7 +35,7 @@ class SuccessRemoveParticipantsIqProtocolEntity(ResultIqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = super(SuccessRemoveParticipantsIqProtocolEntity).fromProtocolTreeNode(node)
+        entity = super(SuccessRemoveParticipantsIqProtocolEntity, SuccessRemoveParticipantsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = SuccessRemoveParticipantsIqProtocolEntity
         participantList = []
         for participantNode in node.getAllChildren():
