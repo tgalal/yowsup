@@ -1,5 +1,5 @@
 from yowsup.layers import YowParallelLayer
-import asyncore, time, logging
+import time, logging
 from yowsup.layers import YowLayer
 from yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer
 from yowsup.layers.coder                       import YowCoderLayer
@@ -24,6 +24,7 @@ from yowsup.layers.protocol_calls import YowCallsProtocolLayer
 from yowsup import env
 from yowsup.common.constants import YowConstants
 import inspect
+from twisted.internet import reactor
 try:
     import Queue
 except ImportError:
@@ -160,19 +161,8 @@ class YowStack(object):
         self.__class__.__detachedQueue.put(fn)
 
     def loop(self, *args, **kwargs):
-        if "discrete" in kwargs:
-            discreteVal = kwargs["discrete"]
-            del kwargs["discrete"]
-            while True:
-                asyncore.loop(*args, **kwargs)
-                time.sleep(discreteVal)
-                try:
-                    callback = self.__class__.__detachedQueue.get(False) #doesn't block
-                    callback()
-                except Queue.Empty:
-                    pass
-        else:
-            asyncore.loop(*args, **kwargs)
+        logger.debug("transferring control to reactor")
+        reactor.run()
 
     def _construct(self):
         logger.debug("Initializing stack")

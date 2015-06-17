@@ -272,13 +272,11 @@ class DemosArgParser(YowArgParser):
             print("Error: You must specify a configuration method")
             sys.exit(1)
 
-        try:
-            stack = sendclient.YowsupSendStack(credentials, [([self.args["send"][0], self.args["send"][1]])],
+        stack = sendclient.YowsupSendStack(credentials, [([self.args["send"][0], self.args["send"][1]])],
                                                self.args["moxie"])
-            stack.start()
-        except KeyboardInterrupt:
-            print("\nYowsdown")
-            sys.exit(0)
+        stack.start()
+        print("\nYowsdown")
+        sys.exit(0)
 
     def startSyncContacts(self):
         from yowsup.demos import contacts

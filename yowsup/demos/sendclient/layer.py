@@ -1,5 +1,7 @@
 from yowsup.layers.interface                           import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.protocol_messages.protocolentities  import TextMessageProtocolEntity
+from twisted.internet import reactor
+
 import threading
 import logging
 logger = logging.getLogger(__name__)
@@ -46,6 +48,6 @@ class SendLayer(YowInterfaceLayer):
         if not len(self.ackQueue):
             self.lock.release()
             logger.info("Message sent")
-            raise KeyboardInterrupt()
-
-        self.lock.release()
+            reactor.stop()
+        else:
+            self.lock.release()
