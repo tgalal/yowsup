@@ -1,4 +1,7 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
+from yowsup.layers.protocol_receipts.protocolentities  import OutgoingReceiptProtocolEntity
+from copy import deepcopy
+
 class MessageProtocolEntity(ProtocolEntity):
 
     MESSAGE_TYPE_TEXT = "text"
@@ -93,9 +96,20 @@ class MessageProtocolEntity(ProtocolEntity):
         out += "ID: %s\n" % self._id
         out += "To: %s\n" % self.to  if self.isOutgoing() else "From: %s\n" % self._from 
         out += "Type:  %s\n" % self._type
+        out += "Timestamp: %s\n" % self.timestamp
         if self.participant:
             out += "Participant: %s\n" % self.participant
         return out
+
+    def ack(self, read=False):
+        return OutgoingReceiptProtocolEntity(self.getId(), self.getFrom(), read, participant=self.getParticipant())
+
+    def forward(self, to, _id = None):
+        OutgoingMessage = deepcopy(self)
+        OutgoingMessage.to = to
+        OutgoingMessage._from = None
+        OutgoingMessage._id = self._generateId() if _id is None else _id
+        return OutgoingMessage
 
     @staticmethod
     def fromProtocolTreeNode(node):
