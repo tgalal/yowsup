@@ -1,6 +1,6 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
-from .iq_groups_v2 import GroupsV2IqProtocolEntity
-class CreateGroupsIqProtocolEntity(GroupsV2IqProtocolEntity):
+from .iq_groups import GroupsIqProtocolEntity
+class CreateGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     '''
     <iq type="set" id="{{id}}" xmlns="w:g2", to="g.us">
         <create subject="{{subject}}">

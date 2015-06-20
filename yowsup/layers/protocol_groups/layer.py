@@ -8,7 +8,6 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
 
     HANDLE = (
         CreateGroupsIqProtocolEntity,
-        DeleteGroupsIqProtocolEntity,
         InfoGroupsIqProtocolEntity,
         LeaveGroupsIqProtocolEntity,
         ListGroupsIqProtocolEntity,

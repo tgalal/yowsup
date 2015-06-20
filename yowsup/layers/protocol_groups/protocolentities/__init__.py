@@ -1,6 +1,5 @@
 from .iq_groups_create      import CreateGroupsIqProtocolEntity
 from .iq_groups_create_success import SuccessCreateGroupsIqProtocolEntity
-from .iq_groups_delete      import DeleteGroupsIqProtocolEntity
 from .iq_groups_leave       import LeaveGroupsIqProtocolEntity
 from .iq_groups_leave_success import SuccessLeaveGroupsIqProtocolEntity
 from .iq_groups_list        import ListGroupsIqProtocolEntity
