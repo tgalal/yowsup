@@ -59,7 +59,6 @@ class ListGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
     def fromProtocolTreeNode(node):
         entity = super(ListGroupsResultIqProtocolEntity, ListGroupsResultIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = ListGroupsResultIqProtocolEntity
-        print node
         groups = [
             Group(groupNode["id"], groupNode["creator"], groupNode["subject"], groupNode["s_o"], groupNode["s_t"], groupNode["creation"])
             for groupNode in node.getChild("groups").getAllChildren()
