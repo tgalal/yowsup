@@ -2,16 +2,20 @@ from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .iq_groups import GroupsIqProtocolEntity
 class ListGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     '''
-    <iq id="{{id}}"" type="get" to="g.us" xmlns="w:g">
-        <list type="{{participating | owning}}"></list>
+    <iq id="{{id}}"" type="get" to="g.us" xmlns="w:g2">
+        <{{participating | owning}} />
     </iq>
     
     result (processed in iq_result_groups_list.py):
     <iq type="result" from="g.us" id="{{IQ_ID}}">
-        <group s_t="{{SUBJECT_TIME}}" creation="{{CREATING_TIME}}" owner="{{OWNER_JID}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
-        </group>
-        <group s_t="{{SUBJECT_TIME}}" creation="{{CREATING_TIME}}" owner="{{OWNER_JID}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
-        </group>
+       <groups>
+          <group s_t="{{SUBJECT_TIME}}" creator="{{OWNER_JID}}" creation="{{CREATING_TIME}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
+            <participant jid="{{ ADMIN_JID }}" type="admin"></participant>
+            <participant jid="{{ PARTICIPANT_JID }}"></participant>
+            ...
+          </group>
+          ...
+       </groups>
     </iq>
     '''
 
@@ -31,12 +35,12 @@ class ListGroupsIqProtocolEntity(GroupsIqProtocolEntity):
 
     def toProtocolTreeNode(self):
         node = super(ListGroupsIqProtocolEntity, self).toProtocolTreeNode()
-        node.addChild(ProtocolTreeNode("list",{"type": self.groupsType}))
+        node.addChild(ProtocolTreeNode(self.groupsType,{}))
         return node
 
     @staticmethod
     def fromProtocolTreeNode(node):
         entity = GroupsIqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = ListGroupsIqProtocolEntity
-        entity.setProps(node.getChild("list").getAttributeValue("type"))
+        entity.setProps(node.getChild(0).tag)
         return entity
