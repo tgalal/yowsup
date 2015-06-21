@@ -20,8 +20,8 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
     def getType(self):
         return self.type
 
-    def getFrom(self):
-        return self._from
+    def getFrom(self, full = True):
+        return self._from if full else self._from.split('@')[0]
 
     def setIncomingData(self, _from, timestamp, offline, type = None):
         self._from = _from

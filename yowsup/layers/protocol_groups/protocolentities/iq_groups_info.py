@@ -1,6 +1,6 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
-from .iq_groups_v2 import GroupsV2IqProtocolEntity
-class InfoGroupsIqProtocolEntity(GroupsV2IqProtocolEntity):
+from .iq_groups import GroupsIqProtocolEntity
+class InfoGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     '''
     <iq id="{{id}}"" type="get" to="{{group_jid}}" xmlns="w:g2">
         <query request="interactive"></query>
@@ -17,7 +17,7 @@ class InfoGroupsIqProtocolEntity(GroupsV2IqProtocolEntity):
         self.group_jid = group_jid
 
     def __str__(self):
-        out = super(GroupsV2IqProtocolEntity, self).__str__()
+        out = super(InfoGroupsIqProtocolEntity, self).__str__()
         out += "Group JID: %s\n" % self.group_jid
         return out
 
@@ -29,7 +29,7 @@ class InfoGroupsIqProtocolEntity(GroupsV2IqProtocolEntity):
     @staticmethod
     def fromProtocolTreeNode(node):
         assert node.getChild("query") is not None, "Not a groups info iq node %s" % node
-        entity = GroupsV2IqProtocolEntity.fromProtocolTreeNode(node)
+        entity = super(InfoGroupsIqProtocolEntity, InfoGroupsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = InfoGroupsIqProtocolEntity
         entity.setProps(node.getAttributeValue("to"))
         return entity

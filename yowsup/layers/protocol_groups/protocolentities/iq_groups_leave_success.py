@@ -35,9 +35,9 @@ class SuccessLeaveGroupsIqProtocolEntity(ResultIqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = ResultIqProtocolEntity.fromProtocolTreeNode(node)
+        entity = super(SuccessLeaveGroupsIqProtocolEntity, SuccessLeaveGroupsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = SuccessLeaveGroupsIqProtocolEntity
         entity.setProps(
-            node.getChild("leave").getChild("group").getAttributeValue("id")
+            node.getChild("leave")#.getChild("group").getAttributeValue("id")
         )
         return entity

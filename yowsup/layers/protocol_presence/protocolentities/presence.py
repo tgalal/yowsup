@@ -27,8 +27,8 @@ class PresenceProtocolEntity(ProtocolEntity):
     def getName(self):
         return self.name
 
-    def getFrom(self):
-        return self._from
+    def getFrom(self, full = True):
+        return self._from if full else self._from.split('@')[0]
 
     def getLast(self):
         return self.last
