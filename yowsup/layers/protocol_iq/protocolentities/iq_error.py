@@ -25,6 +25,13 @@ class ErrorIqProtocolEntity(IqProtocolEntity):
         node.addChild(errorNode)
         return node
 
+    def __str__(self):
+        out = super(ErrorIqProtocolEntity, self).__str__()
+        out += "Code: %s\n" % self.code
+        out += "Text: %s\n" % self.text
+        out += "Backoff: %s\n" % self.backoff
+        return out
+
     @staticmethod
     def fromProtocolTreeNode(node):
         entity = IqProtocolEntity.fromProtocolTreeNode(node)
