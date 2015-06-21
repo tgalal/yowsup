@@ -9,10 +9,10 @@ class CreateGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     </iq>
     '''
 
-    def __init__(self, subject, _id = None, participants = []):
+    def __init__(self, subject, _id = None, participants = None):
         super(CreateGroupsIqProtocolEntity, self).__init__(to = "g.us", _id = _id, _type = "set")
         self.setProps(subject)
-        self.setParticipants(participants)
+        self.setParticipants(participants or [])
 
     def setProps(self, subject):
         self.subject = subject
