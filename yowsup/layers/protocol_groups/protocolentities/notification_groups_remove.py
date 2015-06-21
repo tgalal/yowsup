@@ -39,7 +39,7 @@ class RemoveGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
             pnode = ProtocolTreeNode("participant", {"jid": jid})
             participants.append(pnode)
 
-        createNode.addChild(participants)
+        createNode.addChildren(participants)
         node.addChild(createNode)
 
         return node
