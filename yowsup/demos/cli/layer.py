@@ -417,8 +417,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @ProtocolEntityCallback("receipt")
     def onReceipt(self, entity):
-        ack = OutgoingAckProtocolEntity(entity.getId(), "receipt", entity.getType(), entity.getFrom())
-        self.toLower(ack)
+        self.toLower(entity.ack())
 
     @ProtocolEntityCallback("ack")
     def onAck(self, entity):
@@ -447,8 +446,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         else:
             self.output("From :%s, Type: %s" % (self.jidToAlias(notification.getFrom()), notification.getType()), tag = "Notification")
         if self.sendReceipts:
-            receipt = OutgoingReceiptProtocolEntity(notification.getId(), notification.getFrom())
-            self.toLower(receipt)
+            self.toLower(notification.ack())
 
     @ProtocolEntityCallback("message")
     def onMessage(self, message):
@@ -474,8 +472,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
         self.output(output, tag = None, prompt = not self.sendReceipts)
         if self.sendReceipts:
-            receipt = OutgoingReceiptProtocolEntity(message.getId(), message.getFrom())
-            self.toLower(receipt)
+            self.toLower(message.ack())
             self.output("Sent delivered receipt", tag = "Message %s" % message.getId())
 
 

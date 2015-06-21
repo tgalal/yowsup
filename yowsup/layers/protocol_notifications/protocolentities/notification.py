@@ -1,4 +1,6 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
+from yowsup.layers.protocol_receipts.protocolentities  import OutgoingReceiptProtocolEntity
+
 class NotificationProtocolEntity(ProtocolEntity):
     '''
     <notification offline="0" id="{{NOTIFICATION_ID}}" notify="{{NOTIFY_NAME}}" type="{{NOTIFICATION_TYPE}}" 
@@ -46,6 +48,9 @@ class NotificationProtocolEntity(ProtocolEntity):
         }
        
         return self._createProtocolTreeNode(attribs, children = None, data = None)
+
+    def ack(self):
+        return OutgoingReceiptProtocolEntity(self.getId(), self.getFrom())
 
     @staticmethod
     def fromProtocolTreeNode(node):
