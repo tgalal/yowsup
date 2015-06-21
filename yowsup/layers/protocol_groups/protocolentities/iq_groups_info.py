@@ -17,7 +17,7 @@ class InfoGroupsIqProtocolEntity(GroupsIqProtocolEntity):
         self.group_jid = group_jid
 
     def __str__(self):
-        out = super(GroupsIqProtocolEntity, self).__str__()
+        out = super(InfoGroupsIqProtocolEntity, self).__str__()
         out += "Group JID: %s\n" % self.group_jid
         return out
 
@@ -29,7 +29,7 @@ class InfoGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     @staticmethod
     def fromProtocolTreeNode(node):
         assert node.getChild("query") is not None, "Not a groups info iq node %s" % node
-        entity = GroupsIqProtocolEntity.fromProtocolTreeNode(node)
+        entity = super(InfoGroupsIqProtocolEntity, InfoGroupsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = InfoGroupsIqProtocolEntity
         entity.setProps(node.getAttributeValue("to"))
         return entity

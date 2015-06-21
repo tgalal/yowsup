@@ -23,8 +23,8 @@ class NotificationProtocolEntity(ProtocolEntity):
         out += "Type: %s\n" % self.getType()
         return out
 
-    def getFrom(self):
-        return self._from
+    def getFrom(self, full = True):
+        return self._from if full else self._from.split('@')[0]
 
     def getType(self):
         return self._type

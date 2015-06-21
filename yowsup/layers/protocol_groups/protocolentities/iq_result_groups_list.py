@@ -4,14 +4,18 @@ from ..structs import Group
 class ListGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
     '''
     <iq type="result" from="g.us" id="{{IQ_ID}}">
-       <groups>
-          <group s_t="{{SUBJECT_TIME}}" creator="{{OWNER_JID}}" creation="{{CREATING_TIME}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
-            <participant jid="{{ ADMIN_JID }}" type="admin"></participant>
-            <participant jid="{{ PARTICIPANT_JID }}"></participant>
-            ...
+      <groups>
+          <group s_t="{{SUBJECT_TIME}}" creation="{{CREATING_TIME}}" creator="{{OWNER_JID}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
+            <participant jid="{{JID}}" type="admin">
+            </participant>
+            <participant jid="{{JID}}">
+            </participant>
           </group>
-          ...
-       </groups>
+          <group s_t="{{SUBJECT_TIME}}" creation="{{CREATING_TIME}}" creator="{{OWNER_JID}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
+            <participant jid="{{JID}}" type="admin">
+            </participant>
+          </group>
+      <groups>
     </iq>
     '''
 
@@ -42,7 +46,7 @@ class ListGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
         for group in self.groupsList:
             groupNode = ProtocolTreeNode("group", {
                 "id":       group.getId(),
-                "creator":  group.getOwner(),
+                "creator":    group.getCreator(),
                 "subject":  group.getSubject(),
                 "s_o":      group.getSubjectOwner(),
                 "s_t":      str(group.getSubjectTime()),
@@ -62,7 +66,7 @@ class ListGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = ResultIqProtocolEntity.fromProtocolTreeNode(node)
+        entity = super(ListGroupsResultIqProtocolEntity, ListGroupsResultIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = ListGroupsResultIqProtocolEntity
         groups = []
         for groupNode in node.getChild("groups").getAllChildren():

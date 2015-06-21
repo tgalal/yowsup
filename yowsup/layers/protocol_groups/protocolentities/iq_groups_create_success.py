@@ -21,7 +21,7 @@ class SuccessCreateGroupsIqProtocolEntity(ResultIqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = ResultIqProtocolEntity.fromProtocolTreeNode(node)
+        entity = super(SuccessCreateGroupsIqProtocolEntity, SuccessCreateGroupsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = SuccessCreateGroupsIqProtocolEntity
         entity.setProps(node.getChild("group").getAttributeValue("id"))
         return entity

@@ -224,26 +224,41 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             self.toLower(entity)
 
     @clicmd("Leave a group you belong to", 4)
-    def group_leave(self, jid):
+    def group_leave(self, group_jid):
         if self.assertConnected():
-            entity = LeaveGroupsIqProtocolEntity([self.aliasToJid(jid)])
+            entity = LeaveGroupsIqProtocolEntity([self.aliasToJid(group_jid)])
             self.toLower(entity)
 
-    @clicmd("Create a new group with the specified subject", 3)
-    def groups_create(self, subject):
+    @clicmd("Create a new group with the specified subject and participants. Jids are a comma separated list. Use '-' to keep group without participants but you.", 3)
+    def groups_create(self, subject, jids):
         if self.assertConnected():
-            entity = CreateGroupsIqProtocolEntity(subject)
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')] if jids != '-' else []
+            entity = CreateGroupsIqProtocolEntity(subject, participants=jids)
             self.addToIqs(entity)
             self.toLower(entity)
 
-    @clicmd("Invite to group")
+    @clicmd("Invite to group. Jids are a comma separated list")
     def group_invite(self, group_jid, jids):
         if self.assertConnected():
             jids = [self.aliasToJid(jid) for jid in jids.split(',')]
             entity = AddParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
             self.toLower(entity)
 
-    @clicmd("Kick from group")
+    @clicmd("Promote admin of a group. Jids are a comma separated list")
+    def group_promote(self, group_jid, jids):
+        if self.assertConnected():
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')]
+            entity = PromoteParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
+            self.toLower(entity)
+
+    @clicmd("Remove admin of a group. Jids are a comma separated list")
+    def group_demote(self, group_jid, jids):
+        if self.assertConnected():
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')]
+            entity = DemoteParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
+            self.toLower(entity)
+
+    @clicmd("Kick from group. Jids are a comma separated list")
     def group_kick(self, group_jid, jids):
         if self.assertConnected():
             jids = [self.aliasToJid(jid) for jid in jids.split(',')]
@@ -257,10 +272,32 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             self.toLower(entity)
 
     @clicmd("Change group subject")
-    def group_setSubject(self, jid, subject):
+    def group_setSubject(self, group_jid, subject):
         if self.assertConnected():
-            entity = SubjectGroupsIqProtocolEntity(self.aliasToJid(jid), subject)
+            entity = SubjectGroupsIqProtocolEntity(self.aliasToJid(group_jid), subject)
             self.toLower(entity)
+
+    @clicmd("Set group picture")
+    def group_picture(self, group_jid, path):
+        if self.assertConnected() and ModuleTools.INSTALLED_PIL():
+
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("Group picture updated successfully")
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error updating Group picture")
+
+            #example by @aesedepece in https://github.com/tgalal/yowsup/pull/781
+            #modified to support python3
+            from PIL import Image
+            src = Image.open(path)
+            pictureData = src.resize((640, 640)).tobytes("jpeg", "RGB")
+            picturePreview = src.resize((96, 96)).tobytes("jpeg", "RGB")
+            iq = SetPictureIqProtocolEntity(self.aliasToJid(group_jid), picturePreview, pictureData)
+            self._sendIq(iq, onSuccess, onError)
+        else:
+            logger.error("Python PIL library is not installed, can't set profile picture")
+
 
     @clicmd("Get group info")
     def group_info(self, group_jid):
