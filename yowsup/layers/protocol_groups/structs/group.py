@@ -13,6 +13,9 @@ class Group(object):
     def getCreator(self):
         return self._creatorJid
 
+    def getOwner(self):
+        return self.getCreator()
+
     def getSubject(self):
         return self._subject
 
