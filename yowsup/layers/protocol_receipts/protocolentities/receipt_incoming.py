@@ -1,5 +1,7 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .receipt import ReceiptProtocolEntity
+from yowsup.layers.protocol_acks.protocolentities  import OutgoingAckProtocolEntity
+
 class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
 
     '''
@@ -51,6 +53,9 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
         if self.type is not None:
             out += "Type: %s\n" % (self.type)
         return out
+
+    def ack(self):
+        return OutgoingAckProtocolEntity(self.getId(), "receipt", self.getType(), self.getFrom())
 
     @staticmethod
     def fromProtocolTreeNode(node):
