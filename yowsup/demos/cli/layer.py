@@ -194,6 +194,18 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             entity = GetPictureIqProtocolEntity(self.aliasToJid(jid), preview=True)
             self._sendIq(entity, self.onGetContactPictureResult)
 
+    @clicmd("Get lastseen for contact")
+    def contact_lastseen(self, jid):
+        if self.assertConnected():
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("%s lastseen %s seconds ago" % (resultIqEntity.getFrom(), resultIqEntity.getSeconds()))
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error getting lastseen information for %s" % originalIqEntity.getTo())
+
+            entity = LastseenIqProtocolEntity(self.aliasToJid(jid))
+            self._sendIq(entity, onSuccess, onError)
+
     @clicmd("Set profile picture")
     def profile_setPicture(self, path):
         if self.assertConnected() and ModuleTools.INSTALLED_PIL():
@@ -402,7 +414,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         connectEvent = YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT)
         self.broadcastEvent(connectEvent)
         return True #prompt will wait until notified
-
 
 
     ######## receive #########
