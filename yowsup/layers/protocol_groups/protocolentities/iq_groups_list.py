@@ -28,8 +28,8 @@ class ListGroupsIqProtocolEntity(GroupsIqProtocolEntity):
 
     GROUPS_TYPES = (GROUP_TYPE_PARTICIPATING, GROUP_TYPE_OWNING)
 
-    def __init__(self, groupsType = GROUP_TYPE_PARTICIPATING):
-        super(ListGroupsIqProtocolEntity, self).__init__(to = "g.us", _type = "get")
+    def __init__(self, groupsType = GROUP_TYPE_PARTICIPATING, _id = None):
+        super(ListGroupsIqProtocolEntity, self).__init__(_id=_id, to = "g.us", _type = "get")
         self.setProps(groupsType)
 
     def setProps(self, groupsType):
