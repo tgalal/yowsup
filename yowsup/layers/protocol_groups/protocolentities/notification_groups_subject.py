@@ -48,7 +48,7 @@ class SubjectGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = GroupsNotificationProtocolEntity.fromProtocolTreeNode(node)
+        entity = super(SubjectGroupsNotificationProtocolEntity, SubjectGroupsNotificationProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = SubjectGroupsNotificationProtocolEntity
         subjectNode = node.getChild("subject")
         entity.setSubjectData(subjectNode["subject"], subjectNode["s_o"], subjectNode["s_t"])

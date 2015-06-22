@@ -194,6 +194,18 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             entity = GetPictureIqProtocolEntity(self.aliasToJid(jid), preview=True)
             self._sendIq(entity, self.onGetContactPictureResult)
 
+    @clicmd("Get lastseen for contact")
+    def contact_lastseen(self, jid):
+        if self.assertConnected():
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("%s lastseen %s seconds ago" % (resultIqEntity.getFrom(), resultIqEntity.getSeconds()))
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error getting lastseen information for %s" % originalIqEntity.getTo())
+
+            entity = LastseenIqProtocolEntity(self.aliasToJid(jid))
+            self._sendIq(entity, onSuccess, onError)
+
     @clicmd("Set profile picture")
     def profile_setPicture(self, path):
         if self.assertConnected() and ModuleTools.INSTALLED_PIL():
@@ -224,43 +236,74 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             self.toLower(entity)
 
     @clicmd("Leave a group you belong to", 4)
-    def group_leave(self, jid):
+    def group_leave(self, group_jid):
         if self.assertConnected():
-            entity = LeaveGroupsIqProtocolEntity([self.aliasToJid(jid)])
+            entity = LeaveGroupsIqProtocolEntity([self.aliasToJid(group_jid)])
             self.toLower(entity)
 
-    @clicmd("Create a new group with the specified subject", 3)
-    def groups_create(self, subject):
+    @clicmd("Create a new group with the specified subject and participants. Jids are a comma separated list. Use '-' to keep group without participants but you.", 3)
+    def groups_create(self, subject, jids):
         if self.assertConnected():
-            entity = CreateGroupsIqProtocolEntity(subject)
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')] if jids != '-' else []
+            entity = CreateGroupsIqProtocolEntity(subject, participants=jids)
             self.addToIqs(entity)
             self.toLower(entity)
 
-    @clicmd("Invite to group")
+    @clicmd("Invite to group. Jids are a comma separated list")
     def group_invite(self, group_jid, jids):
         if self.assertConnected():
             jids = [self.aliasToJid(jid) for jid in jids.split(',')]
             entity = AddParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
             self.toLower(entity)
 
-    @clicmd("Kick from group")
+    @clicmd("Promote admin of a group. Jids are a comma separated list")
+    def group_promote(self, group_jid, jids):
+        if self.assertConnected():
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')]
+            entity = PromoteParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
+            self.toLower(entity)
+
+    @clicmd("Remove admin of a group. Jids are a comma separated list")
+    def group_demote(self, group_jid, jids):
+        if self.assertConnected():
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')]
+            entity = DemoteParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
+            self.toLower(entity)
+
+    @clicmd("Kick from group. Jids are a comma separated list")
     def group_kick(self, group_jid, jids):
         if self.assertConnected():
             jids = [self.aliasToJid(jid) for jid in jids.split(',')]
             entity = RemoveParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
             self.toLower(entity)
 
-    @clicmd("Get participants in a group")
-    def group_participants(self, group_jid):
+    @clicmd("Change group subject")
+    def group_setSubject(self, group_jid, subject):
         if self.assertConnected():
-            entity = ParticipantsGroupsIqProtocolEntity(self.aliasToJid(group_jid))
+            entity = SubjectGroupsIqProtocolEntity(self.aliasToJid(group_jid), subject)
             self.toLower(entity)
 
-    @clicmd("Change group subject")
-    def group_setSubject(self, jid, subject):
-        if self.assertConnected():
-            entity = SubjectGroupsIqProtocolEntity(self.aliasToJid(jid), subject)
-            self.toLower(entity)
+    @clicmd("Set group picture")
+    def group_picture(self, group_jid, path):
+        if self.assertConnected() and ModuleTools.INSTALLED_PIL():
+
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("Group picture updated successfully")
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error updating Group picture")
+
+            #example by @aesedepece in https://github.com/tgalal/yowsup/pull/781
+            #modified to support python3
+            from PIL import Image
+            src = Image.open(path)
+            pictureData = src.resize((640, 640)).tobytes("jpeg", "RGB")
+            picturePreview = src.resize((96, 96)).tobytes("jpeg", "RGB")
+            iq = SetPictureIqProtocolEntity(self.aliasToJid(group_jid), picturePreview, pictureData)
+            self._sendIq(iq, onSuccess, onError)
+        else:
+            logger.error("Python PIL library is not installed, can't set profile picture")
+
 
     @clicmd("Get group info")
     def group_info(self, group_jid):
@@ -373,7 +416,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         return True #prompt will wait until notified
 
 
-
     ######## receive #########
 
     @ProtocolEntityCallback("chatstate")
@@ -386,8 +428,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @ProtocolEntityCallback("receipt")
     def onReceipt(self, entity):
-        ack = OutgoingAckProtocolEntity(entity.getId(), "receipt", entity.getType(), entity.getFrom())
-        self.toLower(ack)
+        self.toLower(entity.ack())
 
     @ProtocolEntityCallback("ack")
     def onAck(self, entity):
@@ -416,8 +457,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         else:
             self.output("From :%s, Type: %s" % (self.jidToAlias(notification.getFrom()), notification.getType()), tag = "Notification")
         if self.sendReceipts:
-            receipt = OutgoingReceiptProtocolEntity(notification.getId(), notification.getFrom())
-            self.toLower(receipt)
+            self.toLower(notification.ack())
 
     @ProtocolEntityCallback("message")
     def onMessage(self, message):
@@ -443,8 +483,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
         self.output(output, tag = None, prompt = not self.sendReceipts)
         if self.sendReceipts:
-            receipt = OutgoingReceiptProtocolEntity(message.getId(), message.getFrom())
-            self.toLower(receipt)
+            self.toLower(message.ack())
             self.output("Sent delivered receipt", tag = "Message %s" % message.getId())
 
 

@@ -1,6 +1,5 @@
 from .iq_groups_create      import CreateGroupsIqProtocolEntity
 from .iq_groups_create_success import SuccessCreateGroupsIqProtocolEntity
-from .iq_groups_delete      import DeleteGroupsIqProtocolEntity
 from .iq_groups_leave       import LeaveGroupsIqProtocolEntity
 from .iq_groups_leave_success import SuccessLeaveGroupsIqProtocolEntity
 from .iq_groups_list        import ListGroupsIqProtocolEntity
@@ -8,7 +7,10 @@ from .iq_groups_info        import InfoGroupsIqProtocolEntity
 from .iq_groups_subject     import SubjectGroupsIqProtocolEntity
 from .iq_groups_participants import ParticipantsGroupsIqProtocolEntity
 from .iq_groups_participants_add import AddParticipantsIqProtocolEntity
+from .iq_groups_participants_promote import PromoteParticipantsIqProtocolEntity
+from .iq_groups_participants_demote import DemoteParticipantsIqProtocolEntity
 from .iq_groups_participants_add_success import SuccessAddParticipantsIqProtocolEntity
+from .iq_groups_participants_add_failure import FailureAddParticipantsIqProtocolEntity
 from .iq_groups_participants_remove import RemoveParticipantsIqProtocolEntity
 from .iq_groups_participants_remove_success import SuccessRemoveParticipantsIqProtocolEntity
 from .iq_result_groups_list import ListGroupsResultIqProtocolEntity
@@ -17,3 +19,5 @@ from .iq_result_groups_info import InfoGroupsResultIqProtocolEntity
 from .notification_groups    import GroupsNotificationProtocolEntity
 from .notification_groups_subject  import SubjectGroupsNotificationProtocolEntity
 from .notification_groups_create import CreateGroupsNotificationProtocolEntity
+from .notification_groups_add import AddGroupsNotificationProtocolEntity
+from .notification_groups_remove import RemoveGroupsNotificationProtocolEntity
