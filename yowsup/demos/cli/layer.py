@@ -242,7 +242,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Create a new group with the specified subject and participants. Jids are a comma separated list but optional.", 3)
     def groups_create(self, subject, jids = None):
         if self.assertConnected():
-            jids = [self.aliasToJid(jid) for jid in jids.split(',')] if jids != '-' else []
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')] if jids else []
             entity = CreateGroupsIqProtocolEntity(subject, participants=jids)
             self.addToIqs(entity)
             self.toLower(entity)
