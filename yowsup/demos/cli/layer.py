@@ -362,11 +362,11 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         pass
 
     @clicmd("Send an image with caption. Use '-' to avoid caption use.")
-    def image_send(self, number, path, caption):
+    def image_send(self, number, path, caption=None):
         if self.assertConnected():
             jid = self.aliasToJid(number)
             entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE, filePath=path)
-            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity, caption if caption != '-' else None)
+            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity, caption)
             errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
 
             self._sendIq(entity, successFn, errorFn)
