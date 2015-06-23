@@ -361,7 +361,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def message_delivered(self, message_id):
         pass
 
-    @clicmd("Send an image with caption. Use '-' to avoid caption use.")
+    @clicmd("Send an image with caption (optional).")
     def image_send(self, number, path, caption=None):
         if self.assertConnected():
             jid = self.aliasToJid(number)
