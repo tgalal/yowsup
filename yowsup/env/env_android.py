@@ -52,7 +52,11 @@ class AndroidYowsupEnv(YowsupEnv):
             ipad.append(0x36 ^ keyDecoded[i])
         hash = hashlib.sha1()
         subHash = hashlib.sha1()
-        subHash.update(ipad + data)
-        hash.update(opad + subHash.digest())
+        try:
+            subHash.update(ipad + data)
+            hash.update(opad + subHash.digest())
+        except TypeError:
+            subHash.update(bytes(ipad + data))
+            hash.update(bytes(opad + subHash.digest()))
         result = base64.b64encode(hash.digest())
         return result
