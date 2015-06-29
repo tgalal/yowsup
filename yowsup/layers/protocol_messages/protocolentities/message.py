@@ -109,6 +109,7 @@ class MessageProtocolEntity(ProtocolEntity):
         OutgoingMessage.to = to
         OutgoingMessage._from = None
         OutgoingMessage._id = self._generateId() if _id is None else _id
+        OutgoingMessage.participant = None # very strange issue with group messages otherwise
         return OutgoingMessage
 
     @staticmethod
