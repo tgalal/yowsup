@@ -19,7 +19,6 @@ from yowsup.layers.protocol_contacts           import YowContactsIqProtocolLayer
 from yowsup.layers.protocol_chatstate          import YowChatstateProtocolLayer
 from yowsup.layers.protocol_privacy            import YowPrivacyProtocolLayer
 from yowsup.layers.protocol_profiles           import YowProfilesProtocolLayer
-from yowsup.layers.axolotl import YowAxolotlLayer
 from yowsup.layers.protocol_calls import YowCallsProtocolLayer
 from yowsup import env
 from yowsup.common.constants import YowConstants
@@ -67,6 +66,7 @@ class YowStackBuilder(object):
 
         allLayers = coreLayers
         if axolotl:
+            from yowsup.layers.axolotl import YowAxolotlLayer
             allLayers += (YowAxolotlLayer,)
 
         allLayers += (YowParallelLayer(protocolLayers),)
