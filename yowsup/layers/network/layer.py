@@ -34,6 +34,7 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
         
     def onEvent(self, ev):
         if ev.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
+            self.close()
             self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
             self.out_buffer = bytearray()
             endpoint = self.getProp(self.__class__.PROP_ENDPOINT)
