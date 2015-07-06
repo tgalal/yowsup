@@ -47,6 +47,7 @@ class Cli(object):
 
                 self.commands[cmd][subcommand] = {
                    "args": inspect.getargspec(fn)[0][1:],
+                   "optional": len(inspect.getargspec(fn)[3]) if inspect.getargspec(fn)[3] else 0,
                    "desc": fn.clidesc,
                    "fn": fn,
                    "order": fn.cliorder
@@ -129,7 +130,7 @@ class Cli(object):
             subcmdData = cmdData[subcmd]
 
         targetFn = subcmdData["fn"]
-        if len(subcmdData["args"]) != len(args):
+        if len(subcmdData["args"]) < len(args) or len(subcmdData["args"]) - subcmdData["optional"] > len(args):
             return self.print_usage()
 
         return self.doExecCmd(lambda :targetFn(*args))
