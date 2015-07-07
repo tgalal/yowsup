@@ -34,7 +34,17 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
         
     def onEvent(self, ev):
         if ev.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
-            self.close()
+            #in case the socket as already been opened but is an invalid state - reset it
+            self.connected = False
+            self.accepting = False
+            self.connecting = False
+            self.del_channel()
+            try:
+                if self.socket is not None:
+                    self.socket.close()
+            except Exception:
+                pass
+
             self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
             self.out_buffer = bytearray()
             endpoint = self.getProp(self.__class__.PROP_ENDPOINT)
