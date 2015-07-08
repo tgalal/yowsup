@@ -3,8 +3,8 @@ from yowsup.structs import ProtocolTreeNode
 class RemoveGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
     '''
 <notification notify="{{NOTIFY_NAME}}" id="{{id}}" t="{{TIMESTAMP}}" participant="{{participant_jiid}}" from="{{group_jid}}" type="w:gp2">
-<remove subject="{{GROUPSUBJ}}">
-<participant jid="{{participant_jiid}}">
+<remove subject="{{subject}}">
+<participant jid="{{participant_jid}}">
 </participant>
 </remove>
 </notification>
@@ -33,25 +33,25 @@ class RemoveGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
 
     def toProtocolTreeNode(self):
         node = super(RemoveGroupsNotificationProtocolEntity, self).toProtocolTreeNode()
-        createNode = ProtocolTreeNode("remove", {"subject": self.getSubject()})
+        removeNode = ProtocolTreeNode("remove", {"subject": self.subject})
         participants = []
-        for jid, _type in self.getParticipants().items():
+        for jid in self.getParticipants():
             pnode = ProtocolTreeNode("participant", {"jid": jid})
             participants.append(pnode)
 
-        createNode.addChildren(participants)
-        node.addChild(createNode)
+        removeNode.addChildren(participants)
+        node.addChild(removeNode)
 
         return node
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        createNode = node.getChild("remove")
+        removeNode = node.getChild("remove")
         participants = {}
-        for p in createNode.getAllChildren("participant"):
+        for p in removeNode.getAllChildren("participant"):
             participants[p["jid"]] = p["type"]
 
         return RemoveGroupsNotificationProtocolEntity(
             node["id"], node["from"], node["t"], node["notify"], node["participant"], node["offline"],
-            createNode["subject"], participants
+            removeNode["subject"], participants
         )

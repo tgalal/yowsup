@@ -95,6 +95,7 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
 
     def onAddParticipantsFailed(self, node, originalIqEntity):
         logger.error("Group add participants failed")
+        self.toUpper(FailureAddParticipantsIqProtocolEntity.fromProtocolTreeNode(node))
 
     def onListGroupsResult(self, node, originalIqEntity):
         self.toUpper(ListGroupsResultIqProtocolEntity.fromProtocolTreeNode(node))
@@ -121,3 +122,5 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
                 self.toUpper(CreateGroupsNotificationProtocolEntity.fromProtocolTreeNode(node))
             elif node.getChild("remove"):
                 self.toUpper(RemoveGroupsNotificationProtocolEntity.fromProtocolTreeNode(node))
+            elif node.getChild("add"):
+                self.toUpper(AddGroupsNotificationProtocolEntity.fromProtocolTreeNode(node))

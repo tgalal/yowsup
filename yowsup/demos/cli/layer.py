@@ -194,6 +194,18 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             entity = GetPictureIqProtocolEntity(self.aliasToJid(jid), preview=True)
             self._sendIq(entity, self.onGetContactPictureResult)
 
+    @clicmd("Get lastseen for contact")
+    def contact_lastseen(self, jid):
+        if self.assertConnected():
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("%s lastseen %s seconds ago" % (resultIqEntity.getFrom(), resultIqEntity.getSeconds()))
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error getting lastseen information for %s" % originalIqEntity.getTo())
+
+            entity = LastseenIqProtocolEntity(self.aliasToJid(jid))
+            self._sendIq(entity, onSuccess, onError)
+
     @clicmd("Set profile picture")
     def profile_setPicture(self, path):
         if self.assertConnected() and ModuleTools.INSTALLED_PIL():
@@ -410,7 +422,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         return True #prompt will wait until notified
 
 
-
     ######## receive #########
 
     @ProtocolEntityCallback("chatstate")
@@ -423,8 +434,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @ProtocolEntityCallback("receipt")
     def onReceipt(self, entity):
-        ack = OutgoingAckProtocolEntity(entity.getId(), "receipt", entity.getType(), entity.getFrom())
-        self.toLower(ack)
+        self.toLower(entity.ack())
 
     @ProtocolEntityCallback("ack")
     def onAck(self, entity):
@@ -453,8 +463,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         else:
             self.output("From :%s, Type: %s" % (self.jidToAlias(notification.getFrom()), notification.getType()), tag = "Notification")
         if self.sendReceipts:
-            receipt = OutgoingReceiptProtocolEntity(notification.getId(), notification.getFrom())
-            self.toLower(receipt)
+            self.toLower(notification.ack())
 
     @ProtocolEntityCallback("message")
     def onMessage(self, message):
@@ -480,8 +489,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
         self.output(output, tag = None, prompt = not self.sendReceipts)
         if self.sendReceipts:
-            receipt = OutgoingReceiptProtocolEntity(message.getId(), message.getFrom())
-            self.toLower(receipt)
+            self.toLower(message.ack())
             self.output("Sent delivered receipt", tag = "Message %s" % message.getId())
 
 
