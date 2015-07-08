@@ -59,8 +59,13 @@ class ListGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
     def fromProtocolTreeNode(node):
         entity = super(ListGroupsResultIqProtocolEntity, ListGroupsResultIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = ListGroupsResultIqProtocolEntity
+        def _parseParticipants(node):
+            ret = {}
+            for p in node.getAllChildren("participant"):
+                ret[p["jid"]] = p["type"]
+            return ret
         groups = [
-            Group(groupNode["id"], groupNode["creator"], groupNode["subject"], groupNode["s_o"], groupNode["s_t"], groupNode["creation"])
+            Group(groupNode["id"], groupNode["creator"], groupNode["subject"], groupNode["s_o"], groupNode["s_t"], groupNode["creation"], _parseParticipants(groupNode))
             for groupNode in node.getChild("groups").getAllChildren()
         ]
         entity.setProps(groups)

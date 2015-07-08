@@ -17,7 +17,7 @@ class GetSyncIqProtocolEntity(SyncIqProtocolEntity):
     <iq type="get" id="{{id}}" xmlns="urn:xmpp:whatsapp:sync">
         <sync mode="{{full | ?}}"
             context="{{registration | ?}}"
-            sid="{{str((time.time() + 11644477200) * 10000000)}}"
+            sid="{{str((int(time.time()) + 11644477200) * 10000000)}}"
             index="{{0 | ?}}"
             last="{{true | false?}}"
         >
