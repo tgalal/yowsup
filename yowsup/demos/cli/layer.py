@@ -277,12 +277,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             entity = RemoveParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
             self.toLower(entity)
 
-    @clicmd("Get participants in a group")
-    def group_participants(self, group_jid):
-        if self.assertConnected():
-            entity = ParticipantsGroupsIqProtocolEntity(self.aliasToJid(group_jid))
-            self.toLower(entity)
-
     @clicmd("Change group subject")
     def group_setSubject(self, group_jid, subject):
         if self.assertConnected():
