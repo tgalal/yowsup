@@ -1,12 +1,12 @@
 class Group(object):
-    def __init__(self, groupId, creatorJid, subject, subjectOwnerJid, subjectTime, creationTime, participants):
+    def __init__(self, groupId, creatorJid, subject, subjectOwnerJid, subjectTime, creationTime, participants=None):
         self._groupId           = groupId
         self._creatorJid        = creatorJid
         self._subject           = subject
         self._subjectOwnerJid   = subjectOwnerJid
         self._subjectTime       = int(subjectTime)
         self._creationTime      = int(creationTime)
-        self._participants      = participants
+        self._participants      = participants or {}
 
     def getId(self):
         return self._groupId
