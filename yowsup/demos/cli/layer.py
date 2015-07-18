@@ -47,7 +47,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         self.connected = False
         self.username = None
         self.sendReceipts = True
-        self.iqs = {}
         self.disconnectAction = self.__class__.DISCONNECT_ACTION_PROMPT
 
         #add aliases to make it user to use commands. for example you can then do:
@@ -103,11 +102,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         else:
             self.output("Not connected", tag = "Error", prompt = False)
             return False
-
-    def addToIqs(self, iqEntity):
-        self.iqs[iqEntity.getId()] = iqEntity
-
-
 
     #### batch cmds #####
     def sendMessageAndDisconnect(self, credentials, jid, message):
@@ -244,7 +238,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         if self.assertConnected():
             jids = [self.aliasToJid(jid) for jid in jids.split(',')] if jids else []
             entity = CreateGroupsIqProtocolEntity(subject, participants=jids)
-            self.addToIqs(entity)
             self.toLower(entity)
 
     @clicmd("Invite to group. Jids are a comma separated list")
