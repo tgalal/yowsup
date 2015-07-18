@@ -30,7 +30,6 @@ class YowsupEchoStack(object):
                 YowNetworkLayer
             )
         else:
-            env.CURRENT_ENV = env.S40YowsupEnv()
             layers = (
                 EchoLayer,
                 (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer, YowIqProtocolLayer, YowCallsProtocolLayer),
