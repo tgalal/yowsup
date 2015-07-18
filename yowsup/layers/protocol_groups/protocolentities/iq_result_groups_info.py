@@ -17,7 +17,7 @@ class InfoGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
                  groupId, creationTimestamp, creatorJid,
                  subject, subjectTime, subjectOwnerJid,
                  participants):
-        super(InfoGroupsResultIqProtocolEntity, self).__init__(_id, _from)
+        super(InfoGroupsResultIqProtocolEntity, self).__init__(_id = _id, _from = _from)
         self.setGroupProps(groupId, creationTimestamp, creatorJid,
                            subject, subjectTime, subjectOwnerJid, participants)
 
