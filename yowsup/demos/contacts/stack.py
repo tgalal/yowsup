@@ -33,7 +33,6 @@ class YowsupSyncStack(object):
                 YowNetworkLayer
             )
         else:
-            env.CURRENT_ENV = env.S40YowsupEnv()
             layers = (
                 SyncLayer,
                 (YowAuthenticationProtocolLayer, YowContactsIqProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
