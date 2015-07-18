@@ -4,3 +4,4 @@ from .iq_sync_result import ResultSyncIqProtocolEntity
 from .notification_contact_add import AddContactNotificationProtocolEntity
 from .notification_contact_remove import RemoveContactNotificationProtocolEntity
 from .notification_contact_update import UpdateContactNotificationProtocolEntity
+from .notificiation_contacts_sync import ContactsSyncNotificationProtocolEntity
