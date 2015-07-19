@@ -12,26 +12,22 @@ HEX:33089eb3c90312210510e0196be72fe65913c6a84e75a54f40a3ee290574d6a23f408df990e7
     TYPE_PKMSG = "pkmsg"
     TYPE_MSG = "msg"
 
-    def __init__(self, encType, encAv, encVersion, encData, _type, _id = None,  _from = None, to = None, notify = None, timestamp = None,
+    def __init__(self, encType, encVersion, encData, _type, _id = None,  _from = None, to = None, notify = None, timestamp = None,
             participant = None, offline = None, retry = None ):
         super(EncryptedMessageProtocolEntity, self).__init__(_type, _id = _id,  _from = _from, to = to, notify = notify,
                                                       timestamp = timestamp, participant = participant, offline = offline,
                                                       retry = retry)
 
-        self.setEncProps(encType, encAv, encVersion, encData)
+        self.setEncProps(encType, encVersion, encData)
 
-    def setEncProps(self, encType, encAv, encVersion, encData):
+    def setEncProps(self, encType, encVersion, encData):
         assert encType in "pkmsg", "msg"
         self.encType = encType
-        self.encAv = encAv
         self.encVersion = int(encVersion)
         self.encData = encData
 
     def getEncType(self):
         return self.encType
-
-    def getEncAv(self):
-        return self.encAv
 
     def getEncData(self):
         return self.encData
@@ -40,7 +36,6 @@ HEX:33089eb3c90312210510e0196be72fe65913c6a84e75a54f40a3ee290574d6a23f408df990e7
         node = super(EncryptedMessageProtocolEntity, self).toProtocolTreeNode()
         encNode = ProtocolTreeNode("enc", data = self.encData)
         encNode["type"] = self.encType
-        encNode["av"] = self.encAv
         encNode["v"] = str(self.encVersion)
 
         node.addChild(encNode)
@@ -51,6 +46,6 @@ HEX:33089eb3c90312210510e0196be72fe65913c6a84e75a54f40a3ee290574d6a23f408df990e7
         entity = MessageProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = EncryptedMessageProtocolEntity
         encNode = node.getChild("enc")
-        entity.setEncProps(encNode["type"], encNode["av"], encNode["v"],
+        entity.setEncProps(encNode["type"], encNode["v"],
                            encNode.data.encode('latin-1') if sys.version_info >= (3,0) else encNode.data)
         return entity
