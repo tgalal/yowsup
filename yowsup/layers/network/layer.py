@@ -37,6 +37,7 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
             self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
             self.out_buffer = bytearray()
             endpoint = self.getProp(self.__class__.PROP_ENDPOINT)
+            logger.debug("Connecting to %s:%s" % endpoint)
             if self.proxyHandler != None:
                 logger.debug("HttpProxy connect: %s:%d" % endpoint)
                 self.proxyHandler.connect(self, endpoint)
