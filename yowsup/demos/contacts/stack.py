@@ -8,7 +8,6 @@ from yowsup.layers.stanzaregulator             import YowStanzaRegulator
 from yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
 from yowsup.layers.protocol_acks               import YowAckProtocolLayer
 from yowsup.layers.logger                      import YowLoggerLayer
-from yowsup.layers.axolotl                     import YowAxolotlLayer
 from yowsup.layers.protocol_contacts           import YowContactsIqProtocolLayer
 from yowsup.common import YowConstants
 from yowsup import env
@@ -22,6 +21,7 @@ class YowsupSyncStack(object):
         :return:
         """
         if encryptionEnabled:
+            from yowsup.layers.axolotl                     import YowAxolotlLayer
             layers = (
                 SyncLayer,
                 (YowAuthenticationProtocolLayer, YowContactsIqProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
@@ -33,7 +33,6 @@ class YowsupSyncStack(object):
                 YowNetworkLayer
             )
         else:
-            env.CURRENT_ENV = env.S40YowsupEnv()
             layers = (
                 SyncLayer,
                 (YowAuthenticationProtocolLayer, YowContactsIqProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),

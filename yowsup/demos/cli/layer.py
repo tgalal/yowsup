@@ -21,8 +21,6 @@ from yowsup.layers.protocol_privacy.protocolentities     import *
 from yowsup.layers.protocol_media.protocolentities       import *
 from yowsup.layers.protocol_media.mediauploader import MediaUploader
 from yowsup.layers.protocol_profiles.protocolentities    import *
-from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
-from yowsup.layers.axolotl import YowAxolotlLayer
 from yowsup.common.tools import ModuleTools
 
 logger = logging.getLogger(__name__)
@@ -49,7 +47,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         self.connected = False
         self.username = None
         self.sendReceipts = True
-        self.iqs = {}
         self.disconnectAction = self.__class__.DISCONNECT_ACTION_PROMPT
 
         #add aliases to make it user to use commands. for example you can then do:
@@ -105,11 +102,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         else:
             self.output("Not connected", tag = "Error", prompt = False)
             return False
-
-    def addToIqs(self, iqEntity):
-        self.iqs[iqEntity.getId()] = iqEntity
-
-
 
     #### batch cmds #####
     def sendMessageAndDisconnect(self, credentials, jid, message):
@@ -241,12 +233,11 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             entity = LeaveGroupsIqProtocolEntity([self.aliasToJid(group_jid)])
             self.toLower(entity)
 
-    @clicmd("Create a new group with the specified subject and participants. Jids are a comma separated list. Use '-' to keep group without participants but you.", 3)
-    def groups_create(self, subject, jids):
+    @clicmd("Create a new group with the specified subject and participants. Jids are a comma separated list but optional.", 3)
+    def groups_create(self, subject, jids = None):
         if self.assertConnected():
-            jids = [self.aliasToJid(jid) for jid in jids.split(',')] if jids != '-' else []
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')] if jids else []
             entity = CreateGroupsIqProtocolEntity(subject, participants=jids)
-            self.addToIqs(entity)
             self.toLower(entity)
 
     @clicmd("Invite to group. Jids are a comma separated list")
@@ -313,15 +304,23 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @clicmd("Get shared keys")
     def keys_get(self, jids):
-        if self.assertConnected():
-            jids = [self.aliasToJid(jid) for jid in jids.split(',')]
-            entity = GetKeysIqProtocolEntity(jids)
-            self.toLower(entity)
+        if ModuleTools.INSTALLED_AXOLOTL():
+            from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
+            if self.assertConnected():
+                jids = [self.aliasToJid(jid) for jid in jids.split(',')]
+                entity = GetKeysIqProtocolEntity(jids)
+                self.toLower(entity)
+        else:
+            logger.error("Axolotl is not installed")
 
     @clicmd("Send prekeys")
     def keys_set(self):
-        if self.assertConnected():
-            self.broadcastEvent(YowLayerEvent(YowAxolotlLayer.EVENT_PREKEYS_SET))
+        if ModuleTools.INSTALLED_AXOLOTL():
+            from yowsup.layers.axolotl import YowAxolotlLayer
+            if self.assertConnected():
+                self.broadcastEvent(YowLayerEvent(YowAxolotlLayer.EVENT_PREKEYS_SET))
+        else:
+            logger.error("Axolotl is not installed")
 
     @clicmd("Send init seq")
     def seq(self):

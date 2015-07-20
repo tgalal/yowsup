@@ -60,8 +60,9 @@ class ListGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
                     pnode["type"] = _type
                 participants.append(pnode)
             groupNode.addChildren(participants)
+            groupsNodes.append(groupNode)
 
-        node.addChildren(ProtocolTreeNode("groups", groupsNodes))
+        node.addChild(ProtocolTreeNode("groups", children = groupsNodes))
         return node
 
     @staticmethod
