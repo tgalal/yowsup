@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class MediaUploader(WARequest, threading.Thread):
-    def __init__(self, jid, accountJid, sourcePath, uploadUrl, resumeOffset = 0, successClbk = None, errorClbk = None, progressCallback = None, async = True):
+    def __init__(self, jid, accountJid, sourcePath, uploadUrl, resumeOffset = 0, successClbk = None, errorClbk = None, progressCallback = None, async = True, userData=None):
         WARequest.__init__(self)
 
         self.async = async
@@ -17,6 +17,7 @@ class MediaUploader(WARequest, threading.Thread):
         self.sourcePath = sourcePath
         self.uploadUrl = uploadUrl
         self.resumeOffset = resumeOffset
+        self.userData = userData
 
         self.successCallback = successClbk
         self.errorCallback = errorClbk
@@ -98,7 +99,7 @@ class MediaUploader(WARequest, threading.Thread):
                 status = totalsent * 100 / filesize
                 if lastEmit!=status and status!=100 and filesize>12288:
                     if self.progressCallback:
-                        self.progressCallback(self.sourcePath, self.jid, uploadUrl, int(status))
+                        self.progressCallback(self.sourcePath, self.jid, uploadUrl, int(status), self.userData)
                 lastEmit = status
                 stream = stream[buf:]
                 totalsent = totalsent + buf
@@ -115,7 +116,7 @@ class MediaUploader(WARequest, threading.Thread):
             data += ssl_sock.recv(8192)
 
             if self.progressCallback:
-                self.progressCallback(self.sourcePath, self.jid, uploadUrl, 100)
+                self.progressCallback(self.sourcePath, self.jid, uploadUrl, 100, self.userData)
 
 
             lines = data.decode().splitlines()
@@ -134,13 +135,13 @@ class MediaUploader(WARequest, threading.Thread):
 
             if result["url"] is not None:
                 if self.successCallback:
-                    self.successCallback(sourcePath, self.jid, result["url"])
+                    self.successCallback(sourcePath, self.jid, result["url"], self.userData)
             else:
                 logger.exception("uploadUrl: %s, result of uploading media has no url" % uploadUrl)
                 if self.errorCallback:
-                    self.errorCallback(sourcePath, self.jid, uploadUrl)
+                    self.errorCallback(sourcePath, self.jid, uploadUrl, self.userData)
 
         except:
             logger.exception("Error occured at transfer %s"%sys.exc_info()[1])
             if self.errorCallback:
-                self.errorCallback(sourcePath, self.jid, uploadUrl)
+                self.errorCallback(sourcePath, self.jid, uploadUrl, self.userData)
