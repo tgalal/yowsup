@@ -366,12 +366,12 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def message_delivered(self, message_id):
         pass
 
-    @clicmd("Send and image")
-    def image_send(self, number, path):
+    @clicmd("Send an image with optional caption")
+    def image_send(self, number, path, caption = None):
         if self.assertConnected():
             jid = self.aliasToJid(number)
             entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE, filePath=path)
-            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity)
+            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity, caption)
             errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
 
             self._sendIq(entity, successFn, errorFn)
@@ -504,31 +504,28 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             )
 
 
-    def doSendImage(self, filePath, url, to, ip = None):
-        entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
+    def doSendImage(self, filePath, url, to, ip = None, caption = None):
+        entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to, caption = caption)
         self.toLower(entity)
     def __str__(self):
         return "CLI Interface Layer"
 
     ########### callbacks ############
 
-    def onRequestUploadResult(self, jid, filePath, resultRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity):
+    def onRequestUploadResult(self, jid, filePath, resultRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity, caption = None):
         if resultRequestUploadIqProtocolEntity.isDuplicate():
             self.doSendImage(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid,
-                             resultRequestUploadIqProtocolEntity.getIp())
+                             resultRequestUploadIqProtocolEntity.getIp(), caption)
         else:
-            # successFn = lambda filePath, jid, url: self.onUploadSuccess(filePath, jid, url, resultRequestUploadIqProtocolEntity.getIp())
+            successFn = lambda filePath, jid, url: self.doSendImage(filePath, url, jid, resultRequestUploadIqProtocolEntity.getIp(), caption)
             mediaUploader = MediaUploader(jid, self.getOwnJid(), filePath,
                                       resultRequestUploadIqProtocolEntity.getUrl(),
                                       resultRequestUploadIqProtocolEntity.getResumeOffset(),
-                                      self.onUploadSuccess, self.onUploadError, self.onUploadProgress, async=False)
+                                      successFn, self.onUploadError, self.onUploadProgress, async=False)
             mediaUploader.start()
 
     def onRequestUploadError(self, jid, path, errorRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity):
         logger.error("Request upload for file %s for %s failed" % (path, jid))
-
-    def onUploadSuccess(self, filePath, jid, url):
-        self.doSendImage(filePath, url, jid)
 
     def onUploadError(self, filePath, jid, url):
         logger.error("Upload file %s to %s for %s failed!" % (filePath, url, jid))
