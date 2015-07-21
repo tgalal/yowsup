@@ -2,7 +2,11 @@
 
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z9KKEUVYEY6BN" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
 
-## Updates (June 23, 2015)
+
+## Updates (July 21, 2015)
+Yowsup v2.3.167, see [release notes](https://github.com/tgalal/yowsup/releases/tag/v2.3.167)
+
+### Updates (June 23, 2015)
 Yowsup v2.3.123, see [release notes](https://github.com/tgalal/yowsup/releases/tag/v2.3.123)
 
 ### Updates (May 29, 2015)
