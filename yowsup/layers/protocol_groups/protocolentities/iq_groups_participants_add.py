@@ -12,7 +12,7 @@ class AddParticipantsIqProtocolEntity(ParticipantsGroupsIqProtocolEntity):
     '''
 
     def __init__(self, group_jid, participantList, _id = None):
-        super(AddParticipantsIqProtocolEntity, self).__init__(jid = group_jid, _id = _id, _type = "set", _mode="add", _participantList = participantList)
+        super(AddParticipantsIqProtocolEntity, self).__init__(group_jid, participantList, "add", _id = _id)
 
     @staticmethod
     def fromProtocolTreeNode(node):

@@ -7,11 +7,8 @@ from yowsup.env import S40YowsupEnv
 import sys
 
 class YowsupCliStack(object):
-    def __init__(self, credentials, encryptionEnabled = False):
+    def __init__(self, credentials, encryptionEnabled = True):
         stackBuilder = YowStackBuilder()
-
-        if not encryptionEnabled:
-            env.CURRENT_ENV = S40YowsupEnv()
 
         self.stack = stackBuilder\
             .pushDefaultLayers(encryptionEnabled)\

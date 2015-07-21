@@ -68,6 +68,17 @@ class CreateGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
             if _type == self.__class__.TYPE_PARTICIPANT_ADMIN:
                 return jid if full else jid.split('@')[0]
 
+    def __str__(self):
+        out = super(CreateGroupsNotificationProtocolEntity, self).__str__()
+        out += "Creator: %s\n" % self.getCreatorJid()
+        out += "Create type: %s\n" % self.getCreatetype()
+        out += "Creation timestamp: %s\n" % self.getCreationTimestamp()
+        out += "Subject: %s\n" % self.getSubject()
+        out += "Subject owner: %s\n" % self.getSubjectOwnerJid()
+        out += "Subject timestamp: %s\n" % self.getSubjectTimestamp()
+        out += "Participants: %s\n" % self.getParticipants()
+        return out
+
     def toProtocolTreeNode(self):
         node = super(CreateGroupsNotificationProtocolEntity, self).toProtocolTreeNode()
         createNode = ProtocolTreeNode("create", {"type": self.getCreatetype()})

@@ -153,7 +153,6 @@ class YowAxolotlLayer(YowProtocolLayer):
             ciphertext = sessionCipher.encrypt(plaintext)
             encEntity = EncryptedMessageProtocolEntity(
                 EncryptedMessageProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncryptedMessageProtocolEntity.TYPE_PKMSG ,
-                                                   "%s/%s" % (CURRENT_ENV.getOSName(), CURRENT_ENV.getVersion()),
                                                    1,
                                                    ciphertext.serialize(),
                                                    MessageProtocolEntity.MESSAGE_TYPE_TEXT,

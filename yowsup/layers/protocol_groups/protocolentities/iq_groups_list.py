@@ -46,5 +46,5 @@ class ListGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     def fromProtocolTreeNode(node):
         entity = super(ListGroupsIqProtocolEntity, ListGroupsIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = ListGroupsIqProtocolEntity
-        entity.setProps(node.getAllChildren()[0].tag)
+        entity.setProps(node.getChild(0).tag)
         return entity

@@ -17,7 +17,7 @@ class InfoGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
                  groupId, creationTimestamp, creatorJid,
                  subject, subjectTime, subjectOwnerJid,
                  participants):
-        super(InfoGroupsResultIqProtocolEntity, self).__init__(_id, _from)
+        super(InfoGroupsResultIqProtocolEntity, self).__init__(_id = _id, _from = _from)
         self.setGroupProps(groupId, creationTimestamp, creatorJid,
                            subject, subjectTime, subjectOwnerJid, participants)
 
@@ -56,10 +56,12 @@ class InfoGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
     def getSubjectOwnerJid(self, full = True):
         return self.subjectOwnerJid if full else self.subjectOwnerJid.split('@')[0]
 
-    def getGroupAdmin(self, full = True):
+    def getGroupAdmins(self, full = True):
+        admins = []
         for jid, _type in self.participants.items():
             if _type == self.__class__.TYPE_PARTICIPANT_ADMIN:
-                return jid if full else jid.split('@')[0]
+                admins.append(jid if full else jid.split('@')[0])
+        return admins
 
     def __str__(self):
         out = super(InfoGroupsResultIqProtocolEntity, self).__str__()

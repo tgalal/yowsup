@@ -7,14 +7,14 @@ class ParticipantsGroupsIqProtocolEntity(GroupsIqProtocolEntity):
         <list></list>
     </iq>
     '''
-    modes=["list","add","promote","remove","demote"]
-    def __init__(self, jid, _id = None, _type = "get", _participantList = [], _mode = "list"):
-        super(ParticipantsGroupsIqProtocolEntity, self).__init__(to = jid, _id = _id, _type = _type)
-        self.setProps(_type=_type, group_jid = jid, participantList = _participantList, mode = _mode)
 
-    def setProps(self, _type, group_jid, participantList, mode):
+    modes=["add","promote","remove","demote"]
+    def __init__(self, jid, participantList, _mode, _id = None):
+        super(ParticipantsGroupsIqProtocolEntity, self).__init__(to = jid, _id = _id, _type = "set")
+        self.setProps(group_jid = jid, participantList = participantList, mode = _mode)
+
+    def setProps(self, group_jid, participantList, mode):
         assert type(participantList) is list, "Must be a list of jids, got %s instead." % type(participantList)
-        assert _type == "get" or len(participantList), "Participant list cannot be empty on get type"
         assert mode in self.modes, "Mode should be in: '" + "', '".join(self.modes) + "' but is '" + mode + "'"
         self.group_jid = group_jid
         self.participantList = participantList
