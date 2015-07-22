@@ -104,10 +104,11 @@ class MessageProtocolEntity(ProtocolEntity):
     def ack(self, read=False):
         return OutgoingReceiptProtocolEntity(self.getId(), self.getFrom(), read, participant=self.getParticipant())
 
-    def forward(self, to, _id = None):
+    def forward(self, to, _id = None, notify = None):
         OutgoingMessage = deepcopy(self)
         OutgoingMessage.to = to
         OutgoingMessage._from = None
+        OutgoingMessage.notify = notify
         OutgoingMessage._id = self._generateId() if _id is None else _id
         OutgoingMessage.participant = None # very strange issue with group messages otherwise
         return OutgoingMessage
