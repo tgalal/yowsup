@@ -1,5 +1,5 @@
 from yowsup.layers import YowParallelLayer
-import asyncore, time, logging
+import asyncore, time, logging, random
 from yowsup.layers import YowLayer
 from yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer
 from yowsup.layers.coder                       import YowCoderLayer
@@ -126,7 +126,7 @@ class YowStack(object):
         self._construct()
         self._props = {}
 
-        self.setProp(YowNetworkLayer.PROP_ENDPOINT, YowConstants.ENDPOINTS[0])
+        self.setProp(YowNetworkLayer.PROP_ENDPOINT, YowConstants.ENDPOINTS[random.randint(0,len(YowConstants.ENDPOINTS)-1)])
         self.setProp(YowCoderLayer.PROP_DOMAIN, YowConstants.DOMAIN)
         self.setProp(YowCoderLayer.PROP_RESOURCE, env.CURRENT_ENV.getResource())
 
