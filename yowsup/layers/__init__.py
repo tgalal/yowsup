@@ -33,6 +33,13 @@ class YowLayer(object):
 
     def __init__(self):
         self.setLayers(None, None)
+        self.interface = None
+
+    def getInterface(self):
+        return self.interface
+
+    def getLayerInterface(self, YowLayerClass):
+        return self.__stack.getLayerInterface(YowLayerClass)
 
     def setStack(self, stack):
         self.__stack = stack
@@ -149,6 +156,11 @@ class YowParallelLayer(YowLayer):
             s.emitEvent = self.subEmitEvent
 
 
+    def getLayerInterface(self, YowLayerClass):
+        for s in self.sublayers:
+            if s.__class__ == YowLayerClass:
+                return s
+
     def setStack(self, stack):
         super(YowParallelLayer, self).setStack(stack)
         for s in self.sublayers:
@@ -181,6 +193,10 @@ class YowParallelLayer(YowLayer):
 
     def __str__(self):
         return " - ".join([l.__str__() for l in self.sublayers])
+
+class YowLayerInterface(object):
+    def __init__(self, layer):
+        self._layer = layer
 
 
 class YowLayerTest(unittest.TestCase):

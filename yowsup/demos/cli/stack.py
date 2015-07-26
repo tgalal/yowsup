@@ -1,9 +1,8 @@
-from yowsup.stacks import YowStack, YowStackBuilder
+from yowsup.stacks import  YowStackBuilder
 from .layer import YowsupCliLayer
 from yowsup.layers.auth import AuthError
 from yowsup.layers import YowLayerEvent
-from yowsup import env
-from yowsup.env import S40YowsupEnv
+from yowsup.layers.auth import YowAuthenticationProtocolLayer
 import sys
 
 class YowsupCliStack(object):
@@ -15,7 +14,8 @@ class YowsupCliStack(object):
             .push(YowsupCliLayer)\
             .build()
 
-        self.stack.setCredentials(credentials)
+        # self.stack.setCredentials(credentials)
+        self.stack.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(credentials)
 
     def start(self):
         print("Yowsup Cli client\n==================\nType /help for available commands\n")
