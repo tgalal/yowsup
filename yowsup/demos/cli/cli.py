@@ -90,7 +90,9 @@ class Cli(object):
                 out = ""
                 out += ("/%s " % cmd).ljust(15)
                 out += ("%s " % subcmd if subcmd != "_" else "").ljust(15)
-                out += ("%s " % " ".join(["[%s]" % c for c in subcmdDetails["args"]])).ljust(30)
+                args = ("%s " % " ".join(["<%s>" % c for c in subcmdDetails["args"][0:len(subcmdDetails["args"])-subcmdDetails["optional"]]]))
+                args += ("%s " % " ".join(["[%s]" % c for c in subcmdDetails["args"][len(subcmdDetails["args"])-subcmdDetails["optional"]:]]))
+                out += args.ljust(30)
                 out += subcmdDetails["desc"].ljust(20)
                 addToOut(subcmdDetails["order"], out)
 
