@@ -40,6 +40,10 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
     def setCredentials(self, credentials):
         self._credentials = self.__getCredentials(credentials)
 
+    def getUsername(self, full = False):
+        if self._credentials:
+            return self._credentials[0] if not full else ("%s@s.whatsapp.net" % self._credentials[0])
+
     def onEvent(self, event):
         if event.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
             self.login()
