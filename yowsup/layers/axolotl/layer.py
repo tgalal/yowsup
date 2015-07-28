@@ -44,6 +44,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         self.pendingMessages = {}
         self.pendingIncomingMessages = {}
         self.skipEncJids = []
+        self.v2Jids = [] #people we're going to send v2 enc messages
 
     def __str__(self):
         return "Axolotl Layer"
@@ -162,12 +163,20 @@ class YowAxolotlLayer(YowProtocolLayer):
 
             sessionCipher = self.getSessionCipher(recipient_id)
 
-
-
+            if node["to"] in self.v2Jids:
+                version = 2
+                padded = bytearray()
+                padded.append(ord("\n"))
+                padded.extend(self.encodeInt7bit(len(plaintext)))
+                padded.extend(plaintext)
+                padded.append(ord("\x01"))
+                plaintext = padded
+            else:
+                version = 1
             ciphertext = sessionCipher.encrypt(plaintext)
             encEntity = EncryptedMessageProtocolEntity(
                 EncryptedMessageProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncryptedMessageProtocolEntity.TYPE_PKMSG ,
-                                                   1,
+                                                   version,
                                                    ciphertext.serialize(),
                                                    MessageProtocolEntity.MESSAGE_TYPE_TEXT,
                                                    _id= node["id"],
@@ -180,8 +189,21 @@ class YowAxolotlLayer(YowProtocolLayer):
                                                    )
             self.toLower(encEntity.toProtocolTreeNode())
 
+    def encodeInt7bit(self, value):
+        v = value
+        out = bytearray()
+        while v >= 0x80:
+          out.append((v | 0x80) % 256)
+          v >>= 7
+        out.append(v % 256)
+
+        return out
+
     def handleEncMessage(self, node):
         try:
+            if node.getChild("enc")["v"] == "2" and node["from"] not in self.v2Jids:
+                self.v2Jids.append(node["from"])
+
             if node.getChild("enc")["type"] == "pkmsg":
                 self.handlePreKeyWhisperMessage(node)
             else:
@@ -216,6 +238,10 @@ class YowAxolotlLayer(YowProtocolLayer):
         sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getFrom(False))
         plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
 
+        if pkMessageProtocolEntity.getVersion() == 2:
+            plaintext = self.unpadV2Plaintext(plaintext)
+
+
         bodyNode = ProtocolTreeNode("body", data = plaintext)
         node.addChild(bodyNode)
         self.toUpper(node)
@@ -227,9 +253,19 @@ class YowAxolotlLayer(YowProtocolLayer):
         sessionCipher = self.getSessionCipher(encMessageProtocolEntity.getFrom(False))
         plaintext = sessionCipher.decryptMsg(whisperMessage)
 
+        if encMessageProtocolEntity.getVersion() == 2:
+            plaintext = self.unpadV2Plaintext(plaintext)
+
         bodyNode = ProtocolTreeNode("body", data = plaintext)
         node.addChild(bodyNode)
         self.toUpper(node)
+
+    def unpadV2Plaintext(self, v2plaintext):
+        if len(v2plaintext) < 128:
+            return v2plaintext[2:-1]
+        else: # < 128 * 128
+            return v2plaintext[3: -1]
+
     ####
 
     ### keys set and get
@@ -268,7 +304,9 @@ class YowAxolotlLayer(YowProtocolLayer):
             if currPercentage == prevPercentage:
                 continue
             prevPercentage = currPercentage
-            logger.debug("%s" % currPercentage + "%")
+            #logger.debug("%s" % currPercentage + "%")
+            sys.stdout.write("Storing prekeys %d%% \r" % (currPercentage))
+            sys.stdout.flush()
 
         if fresh:
             self.state = self.__class__._STATE_GENKEYS
