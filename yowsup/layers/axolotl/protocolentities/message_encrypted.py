@@ -32,6 +32,9 @@ HEX:33089eb3c90312210510e0196be72fe65913c6a84e75a54f40a3ee290574d6a23f408df990e7
     def getEncData(self):
         return self.encData
 
+    def getVersion(self):
+        return self.encVersion
+
     def toProtocolTreeNode(self):
         node = super(EncryptedMessageProtocolEntity, self).toProtocolTreeNode()
         encNode = ProtocolTreeNode("enc", data = self.encData)
