@@ -2,7 +2,7 @@
 
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z9KKEUVYEY6BN" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
 
-## Updates (Auguest 01, 2015)
+## Updates (August 01, 2015)
 Yowsup v2.3.185 is out, contains fixes in axolotl integration. See [release notes](https://github.com/tgalal/yowsup/releases/tag/v2.3.185)
 
 ### Updates (July 27, 2015)
