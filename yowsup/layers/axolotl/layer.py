@@ -115,7 +115,7 @@ class YowAxolotlLayer(YowProtocolLayer):
     ##### handling received data #####
     def onEncryptNotification(self, protocolTreeNode):
         entity = EncryptNotification.fromProtocolTreeNode(protocolTreeNode)
-        ack = OutgoingAckProtocolEntity(protocolTreeNode["id"], "notification", protocolTreeNode["type"])
+        ack = OutgoingAckProtocolEntity(protocolTreeNode["id"], "notification", protocolTreeNode["type"], protocolTreeNode["from"])
         self.toLower(ack.toProtocolTreeNode())
         self.sendKeys(fresh=False, countPreKeys = self.__class__._COUNT_PREKEYS - entity.getCount())
 
