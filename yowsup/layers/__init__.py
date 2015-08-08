@@ -35,11 +35,8 @@ class YowLayer(object):
         self.setLayers(None, None)
         self.interface = None
 
-    def getInterface(self):
-        return self.interface
-
-    def getLayerInterface(self, YowLayerClass):
-        return self.__stack.getLayerInterface(YowLayerClass)
+    def getLayerInterface(self, YowLayerClass = None):
+        return self.interface if YowLayerClass is None else self.__stack.getLayerInterface(YowLayerClass)
 
     def setStack(self, stack):
         self.__stack = stack
