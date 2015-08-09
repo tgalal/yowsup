@@ -141,6 +141,12 @@ class YowStack(object):
                     return res
 
 
+    def send(self, data):
+        self.__stackInstances[-1].send(data)
+
+    def receive(self, data):
+        self.__stackInstances[0].receive(data)
+
     def setCredentials(self, credentials):
         self.setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, credentials)
 
