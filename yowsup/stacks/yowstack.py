@@ -134,7 +134,7 @@ class YowStack(object):
     def getLayerInterface(self, YowLayerClass):
         for inst in self.__stackInstances:
             if inst.__class__ == YowLayerClass:
-                return inst.getInterface()
+                return inst.getLayerInterface()
             elif inst.__class__ == YowParallelLayer:
                 res = inst.getLayerInterface(YowLayerClass)
                 if res:
