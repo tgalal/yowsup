@@ -15,6 +15,7 @@ class ProtocolEntityCallback(object):
 class YowInterfaceLayer(YowLayer):
 
     def __init__(self):
+        super(YowInterfaceLayer, self).__init__()
         self.callbacks = {}
         self.iqRegistry = {}
         members = inspect.getmembers(self, predicate=inspect.ismethod)
