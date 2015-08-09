@@ -131,6 +131,16 @@ class YowStack(object):
         self.setProp(YowCoderLayer.PROP_RESOURCE, env.CURRENT_ENV.getResource())
 
 
+    def getLayerInterface(self, YowLayerClass):
+        for inst in self.__stackInstances:
+            if inst.__class__ == YowLayerClass:
+                return inst.getLayerInterface()
+            elif inst.__class__ == YowParallelLayer:
+                res = inst.getLayerInterface(YowLayerClass)
+                if res:
+                    return res
+
+
     def setCredentials(self, credentials):
         self.setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, credentials)
 
