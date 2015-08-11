@@ -48,6 +48,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         self.username = None
         self.sendReceipts = True
         self.disconnectAction = self.__class__.DISCONNECT_ACTION_PROMPT
+        self.credentials = None
 
         #add aliases to make it user to use commands. for example you can then do:
         # /message send foobar "HI"
@@ -76,6 +77,9 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             return "%s@g.us" % number
 
         return "%s@s.whatsapp.net" % number
+
+    def setCredentials(self, username, password):
+        self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(username, password)
 
     def onEvent(self, layerEvent):
         if layerEvent.getName() == self.__class__.EVENT_START:
@@ -406,23 +410,20 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Disconnect")
     def disconnect(self):
         if self.assertConnected():
+
             self.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT))
 
     @clicmd("Quick login")
     def L(self):
-        return self.login(*self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS))
+        if self.connected:
+            return self.output("Already connected, disconnect first")
+        self.getLayerInterface(YowNetworkLayer).connect()
+        return True
 
     @clicmd("Login to WhatsApp", 0)
     def login(self, username, b64password):
-
-        if self.connected:
-            return self.output("Already connected, disconnect first")
-
-        self.getStack().setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, (username, b64password))
-        connectEvent = YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT)
-        self.broadcastEvent(connectEvent)
-        return True #prompt will wait until notified
-
+        self.setCredentials(username, b64password)
+        return self.L()
 
     ######## receive #########
 

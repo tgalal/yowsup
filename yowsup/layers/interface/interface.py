@@ -15,6 +15,7 @@ class ProtocolEntityCallback(object):
 class YowInterfaceLayer(YowLayer):
 
     def __init__(self):
+        super(YowInterfaceLayer, self).__init__()
         self.callbacks = {}
         self.iqRegistry = {}
         members = inspect.getmembers(self, predicate=inspect.ismethod)
@@ -48,10 +49,7 @@ class YowInterfaceLayer(YowLayer):
         return False
 
     def getOwnJid(self, full = True):
-        jid = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0]
-        if jid:
-            return jid + "@s.whatsapp.net" if full else jid
-        return None
+        return self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(full)
 
     def connect(self):
         loginEvent = YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT)
