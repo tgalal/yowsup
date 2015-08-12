@@ -1,5 +1,5 @@
 from yowsup.layers import YowParallelLayer
-import asyncore, time, logging
+import asyncore, time, logging, random
 from yowsup.layers import YowLayer
 from yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer
 from yowsup.layers.coder                       import YowCoderLayer
@@ -19,7 +19,6 @@ from yowsup.layers.protocol_contacts           import YowContactsIqProtocolLayer
 from yowsup.layers.protocol_chatstate          import YowChatstateProtocolLayer
 from yowsup.layers.protocol_privacy            import YowPrivacyProtocolLayer
 from yowsup.layers.protocol_profiles           import YowProfilesProtocolLayer
-from yowsup.layers.axolotl import YowAxolotlLayer
 from yowsup.layers.protocol_calls import YowCallsProtocolLayer
 from yowsup import env
 from yowsup.common.constants import YowConstants
@@ -67,6 +66,7 @@ class YowStackBuilder(object):
 
         allLayers = coreLayers
         if axolotl:
+            from yowsup.layers.axolotl import YowAxolotlLayer
             allLayers += (YowAxolotlLayer,)
 
         allLayers += (YowParallelLayer(protocolLayers),)
@@ -126,7 +126,7 @@ class YowStack(object):
         self._construct()
         self._props = {}
 
-        self.setProp(YowNetworkLayer.PROP_ENDPOINT, YowConstants.ENDPOINTS[0])
+        self.setProp(YowNetworkLayer.PROP_ENDPOINT, YowConstants.ENDPOINTS[random.randint(0,len(YowConstants.ENDPOINTS)-1)])
         self.setProp(YowCoderLayer.PROP_DOMAIN, YowConstants.DOMAIN)
         self.setProp(YowCoderLayer.PROP_RESOURCE, env.CURRENT_ENV.getResource())
 

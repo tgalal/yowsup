@@ -15,10 +15,12 @@ from axolotl.sessioncipher import SessionCipher
 from yowsup.structs import ProtocolTreeNode
 from .protocolentities import GetKeysIqProtocolEntity, ResultGetKeysIqProtocolEntity
 from axolotl.util.hexutil import HexUtil
-from yowsup.env import CURRENT_ENV
 from axolotl.invalidmessageexception import InvalidMessageException
 from .protocolentities import EncryptNotification
 from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
+from axolotl.invalidkeyidexception import InvalidKeyIdException
+from axolotl.nosessionexception import NoSessionException
+from .protocolentities.receipt_outgoing_retry import RetryOutgoingReceiptProtocolEntity
 import binascii
 import sys
 
@@ -40,7 +42,9 @@ class YowAxolotlLayer(YowProtocolLayer):
 
         self.sessionCiphers = {}
         self.pendingMessages = {}
+        self.pendingIncomingMessages = {}
         self.skipEncJids = []
+        self.v2Jids = [] #people we're going to send v2 enc messages
 
     def __str__(self):
         return "Axolotl Layer"
@@ -101,13 +105,17 @@ class YowAxolotlLayer(YowProtocolLayer):
             elif protocolTreeNode.tag == "notification" and protocolTreeNode["type"] == "encrypt":
                 self.onEncryptNotification(protocolTreeNode)
                 return
+            elif protocolTreeNode.tag == "receipt" and protocolTreeNode["type"] == "retry":
+                # should bring up that message, resend it, but in upper layer?
+                # as it might have to be fetched from a persistent storage
+                pass
             self.toUpper(protocolTreeNode)
     ######
 
     ##### handling received data #####
     def onEncryptNotification(self, protocolTreeNode):
         entity = EncryptNotification.fromProtocolTreeNode(protocolTreeNode)
-        ack = OutgoingAckProtocolEntity(protocolTreeNode["id"], "notification", protocolTreeNode["type"])
+        ack = OutgoingAckProtocolEntity(protocolTreeNode["id"], "notification", protocolTreeNode["type"], protocolTreeNode["from"])
         self.toLower(ack.toProtocolTreeNode())
         self.sendKeys(fresh=False, countPreKeys = self.__class__._COUNT_PREKEYS - entity.getCount())
 
@@ -130,6 +138,13 @@ class YowAxolotlLayer(YowProtocolLayer):
 
             del self.pendingMessages[jid]
 
+    def processPendingIncomingMessages(self, jid):
+        if jid in self.pendingIncomingMessages:
+            for messageNode in self.pendingIncomingMessages[jid]:
+                self.onMessage(messageNode)
+
+            del self.pendingIncomingMessages[jid]
+
     #### handling message types
 
     def handlePlaintextNode(self, node):
@@ -143,18 +158,25 @@ class YowAxolotlLayer(YowProtocolLayer):
                 self.pendingMessages[node["to"]] = []
             self.pendingMessages[node["to"]].append(node)
 
-            self._sendIq(entity, self.onGetKeysResult, self.onGetKeysError)
+            self._sendIq(entity, lambda a, b: self.onGetKeysResult(a, b, self.processPendingMessages), self.onGetKeysError)
         else:
 
             sessionCipher = self.getSessionCipher(recipient_id)
 
-
-
+            if node["to"] in self.v2Jids:
+                version = 2
+                padded = bytearray()
+                padded.append(ord("\n"))
+                padded.extend(self.encodeInt7bit(len(plaintext)))
+                padded.extend(plaintext)
+                padded.append(ord("\x01"))
+                plaintext = padded
+            else:
+                version = 1
             ciphertext = sessionCipher.encrypt(plaintext)
             encEntity = EncryptedMessageProtocolEntity(
                 EncryptedMessageProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncryptedMessageProtocolEntity.TYPE_PKMSG ,
-                                                   "%s/%s" % (CURRENT_ENV.getOSName(), CURRENT_ENV.getVersion()),
-                                                   1,
+                                                   version,
                                                    ciphertext.serialize(),
                                                    MessageProtocolEntity.MESSAGE_TYPE_TEXT,
                                                    _id= node["id"],
@@ -167,21 +189,58 @@ class YowAxolotlLayer(YowProtocolLayer):
                                                    )
             self.toLower(encEntity.toProtocolTreeNode())
 
+    def encodeInt7bit(self, value):
+        v = value
+        out = bytearray()
+        while v >= 0x80:
+          out.append((v | 0x80) % 256)
+          v >>= 7
+        out.append(v % 256)
+
+        return out
+
     def handleEncMessage(self, node):
         try:
+            if node.getChild("enc")["v"] == "2" and node["from"] not in self.v2Jids:
+                self.v2Jids.append(node["from"])
+
             if node.getChild("enc")["type"] == "pkmsg":
                 self.handlePreKeyWhisperMessage(node)
             else:
                 self.handleWhisperMessage(node)
-        except InvalidMessageException:
-            logger.error("Invalid message from %s!! Your axololtl database data might be inconsistent with WhatsApp, or with what that contact has" % node["from"])
-            sys.exit(1)
+        except InvalidMessageException as e:
+            # logger.error("Invalid message from %s!! Your axololtl database data might be inconsistent with WhatsApp, or with what that contact has" % node["from"])
+            # sys.exit(1)
+            logger.error(e)
+            retry = RetryOutgoingReceiptProtocolEntity.fromMesageNode(node)
+            retry.setRegData(self.store.getLocalRegistrationId())
+            self.toLower(retry.toProtocolTreeNode())
+        except InvalidKeyIdException as e:
+            logger.error(e)
+            retry = RetryOutgoingReceiptProtocolEntity.fromMesageNode(node)
+            retry.setRegData(self.store.getLocalRegistrationId())
+            self.toLower(retry.toProtocolTreeNode())
+        except NoSessionException as e:
+            logger.error(e)
+            entity = GetKeysIqProtocolEntity([node["from"]])
+            if node["from"] not in self.pendingIncomingMessages:
+                self.pendingIncomingMessages[node["from"]] = []
+            self.pendingIncomingMessages[node["from"]].append(node)
+
+            self._sendIq(entity, lambda a, b: self.onGetKeysResult(a, b, self.processPendingIncomingMessages), self.onGetKeysError)
+
+
+
     def handlePreKeyWhisperMessage(self, node):
         pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
 
         preKeyWhisperMessage = PreKeyWhisperMessage(serialized=pkMessageProtocolEntity.getEncData())
         sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getFrom(False))
         plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
+
+        if pkMessageProtocolEntity.getVersion() == 2:
+            plaintext = self.unpadV2Plaintext(plaintext)
+
 
         bodyNode = ProtocolTreeNode("body", data = plaintext)
         node.addChild(bodyNode)
@@ -194,9 +253,19 @@ class YowAxolotlLayer(YowProtocolLayer):
         sessionCipher = self.getSessionCipher(encMessageProtocolEntity.getFrom(False))
         plaintext = sessionCipher.decryptMsg(whisperMessage)
 
+        if encMessageProtocolEntity.getVersion() == 2:
+            plaintext = self.unpadV2Plaintext(plaintext)
+
         bodyNode = ProtocolTreeNode("body", data = plaintext)
         node.addChild(bodyNode)
         self.toUpper(node)
+
+    def unpadV2Plaintext(self, v2plaintext):
+        if len(v2plaintext) < 128:
+            return v2plaintext[2:-1]
+        else: # < 128 * 128
+            return v2plaintext[3: -1]
+
     ####
 
     ### keys set and get
@@ -235,7 +304,9 @@ class YowAxolotlLayer(YowProtocolLayer):
             if currPercentage == prevPercentage:
                 continue
             prevPercentage = currPercentage
-            logger.debug("%s" % currPercentage + "%")
+            #logger.debug("%s" % currPercentage + "%")
+            sys.stdout.write("Storing prekeys %d%% \r" % (currPercentage))
+            sys.stdout.flush()
 
         if fresh:
             self.state = self.__class__._STATE_GENKEYS
@@ -244,7 +315,7 @@ class YowAxolotlLayer(YowProtocolLayer):
     def onSentKeysError(self, errorNode, keysEntity):
         raise Exception("Sent keys were not accepted")
 
-    def onGetKeysResult(self, resultNode, getKeysEntity):
+    def onGetKeysResult(self, resultNode, getKeysEntity, processPendingFn):
         entity = ResultGetKeysIqProtocolEntity.fromProtocolTreeNode(resultNode)
 
         resultJids = entity.getJids()
@@ -262,7 +333,7 @@ class YowAxolotlLayer(YowProtocolLayer):
                                                self.store, recipient_id, 1)
             sessionBuilder.processPreKeyBundle(preKeyBundle)
 
-            self.processPendingMessages(jid)
+            processPendingFn(jid)
 
     def onGetKeysError(self, errorNode, getKeysEntity):
         pass
