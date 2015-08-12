@@ -38,6 +38,7 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         return (u, bytearray(password))
 
     def setCredentials(self, credentials):
+        self.setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, credentials) #keep for now
         self._credentials = self.__getCredentials(credentials)
 
     def getUsername(self, full = False):

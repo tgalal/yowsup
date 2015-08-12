@@ -52,8 +52,7 @@ class YowInterfaceLayer(YowLayer):
         return self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(full)
 
     def connect(self):
-        loginEvent = YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT)
-        self.broadcastEvent(loginEvent)
+        self.getLayerInterface(YowNetworkLayer).connect()
 
     def disconnect(self):
         disconnectEvent = YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT)

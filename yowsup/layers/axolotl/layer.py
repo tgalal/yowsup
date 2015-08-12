@@ -72,7 +72,7 @@ class YowAxolotlLayer(YowProtocolLayer):
     def onEvent(self, yowLayerEvent):
         if yowLayerEvent.getName() == self.__class__.EVENT_PREKEYS_SET:
             self.sendKeys(fresh=False)
-        elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
+        elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
             self.initStore()
             if self.isInitState():
                 self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
@@ -86,7 +86,7 @@ class YowAxolotlLayer(YowProtocolLayer):
                 #no need to traverse it to upper layers?
                 self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, False)
                 self.state = self.__class__._STATE_HASKEYS
-                self.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))
+                self.getLayerInterface(YowNetworkLayer).connect()
 
     def send(self, node):
         if node.tag == "message" and node["type"] == "text" and node["to"] not in self.skipEncJids:
