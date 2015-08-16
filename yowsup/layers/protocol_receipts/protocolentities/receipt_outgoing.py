@@ -26,7 +26,7 @@ class OutgoingReceiptProtocolEntity(ReceiptProtocolEntity):
         self.read = read
         self.participant = participant
         self.callId = callId
-    
+
     def toProtocolTreeNode(self):
         node = super(OutgoingReceiptProtocolEntity, self).toProtocolTreeNode()
         if self.read:
@@ -38,7 +38,6 @@ class OutgoingReceiptProtocolEntity(ReceiptProtocolEntity):
             node.addChild(offer)
 
         node.setAttribute("to", self.to)
-        node.setAttribute("t", str(int(time.time())))
 
         return node
 
