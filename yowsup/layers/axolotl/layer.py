@@ -4,6 +4,7 @@ from axolotl.util.keyhelper import KeyHelper
 from .store.sqlite.liteaxolotlstore import LiteAxolotlStore
 from axolotl.sessionbuilder import SessionBuilder
 from yowsup.layers.protocol_messages.protocolentities.message import MessageProtocolEntity
+from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from axolotl.ecc.curve import Curve
@@ -16,6 +17,7 @@ from yowsup.structs import ProtocolTreeNode
 from .protocolentities import GetKeysIqProtocolEntity, ResultGetKeysIqProtocolEntity
 from axolotl.util.hexutil import HexUtil
 from axolotl.invalidmessageexception import InvalidMessageException
+from axolotl.duplicatemessagexception import DuplicateMessageException
 from .protocolentities import EncryptNotification
 from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
 from axolotl.invalidkeyidexception import InvalidKeyIdException
@@ -228,8 +230,10 @@ class YowAxolotlLayer(YowProtocolLayer):
             self.pendingIncomingMessages[node["from"]].append(node)
 
             self._sendIq(entity, lambda a, b: self.onGetKeysResult(a, b, self.processPendingIncomingMessages), self.onGetKeysError)
-
-
+        except DuplicateMessageException as e:
+            logger.error(e)
+            logger.warning("Going to send the delivery receipt myself !")
+            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"]).toProtocolTreeNode())
 
     def handlePreKeyWhisperMessage(self, node):
         pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
