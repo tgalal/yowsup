@@ -20,7 +20,7 @@ class YowInterfaceLayer(YowLayer):
         super(YowInterfaceLayer, self).__init__()
         self.callbacks = {}
         self.iqRegistry = {}
-        self.receiptsRegistry = {}
+        # self.receiptsRegistry = {}
         members = inspect.getmembers(self, predicate=inspect.ismethod)
         for m in members:
             if hasattr(m[1], "callback"):
@@ -33,31 +33,31 @@ class YowInterfaceLayer(YowLayer):
         self.iqRegistry[iqEntity.getId()] = (iqEntity, onSuccess, onError)
         self.toLower(iqEntity)
 
-    def _sendReceipt(self, outgoingReceiptProtocolEntity, onAck = None):
-        assert outgoingReceiptProtocolEntity.__class__ == OutgoingReceiptProtocolEntity,\
-            "Excepted OutgoingReceiptProtocolEntity in _sendReceipt, got %s" % outgoingReceiptProtocolEntity.__class__
-        self.receiptsRegistry[outgoingReceiptProtocolEntity.getId()] = (outgoingReceiptProtocolEntity, onAck)
-        self.toLower(outgoingReceiptProtocolEntity)
+    # def _sendReceipt(self, outgoingReceiptProtocolEntity, onAck = None):
+    #     assert outgoingReceiptProtocolEntity.__class__ == OutgoingReceiptProtocolEntity,\
+    #         "Excepted OutgoingReceiptProtocolEntity in _sendReceipt, got %s" % outgoingReceiptProtocolEntity.__class__
+    #     self.receiptsRegistry[outgoingReceiptProtocolEntity.getId()] = (outgoingReceiptProtocolEntity, onAck)
+    #     self.toLower(outgoingReceiptProtocolEntity)
 
-    def processReceiptsRegistry(self, incomingAckProtocolEntity):
-        '''
-        entity: IncomingAckProtocolEntity
-        '''
-
-        if incomingAckProtocolEntity.__class__ != IncomingAckProtocolEntity:
-            return False
-
-        receipt_id = incomingAckProtocolEntity.getId()
-        if receipt_id in self.receiptsRegistry:
-            originalReceiptEntity, ackClbk = self.receiptsRegistry[receipt_id]
-            del self.receiptsRegistry[receipt_id]
-
-            if ackClbk:
-                ackClbk(incomingAckProtocolEntity, originalReceiptEntity)
-
-            return True
-
-        return False
+    # def processReceiptsRegistry(self, incomingAckProtocolEntity):
+    #     '''
+    #     entity: IncomingAckProtocolEntity
+    #     '''
+    #
+    #     if incomingAckProtocolEntity.__class__ != IncomingAckProtocolEntity:
+    #         return False
+    #
+    #     receipt_id = incomingAckProtocolEntity.getId()
+    #     if receipt_id in self.receiptsRegistry:
+    #         originalReceiptEntity, ackClbk = self.receiptsRegistry[receipt_id]
+    #         del self.receiptsRegistry[receipt_id]
+    #
+    #         if ackClbk:
+    #             ackClbk(incomingAckProtocolEntity, originalReceiptEntity)
+    #
+    #         return True
+    #
+    #     return False
 
 
     def processIqRegistry(self, entity):
@@ -92,7 +92,7 @@ class YowInterfaceLayer(YowLayer):
         self.toLower(data)
 
     def receive(self, entity):
-        if not self.processIqRegistry(entity) and not self.processReceiptsRegistry(entity):
+        if not self.processIqRegistry(entity):
             entityType = entity.getTag()
             if entityType in self.callbacks:
                 self.callbacks[entityType](entity)
