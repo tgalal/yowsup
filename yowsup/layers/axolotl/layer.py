@@ -49,23 +49,33 @@ class YowAxolotlLayer(YowProtocolLayer):
         self.skipEncJids = []
         self.v2Jids = [] #people we're going to send v2 enc messages
 
+    @property
+    def store(self):
+        if self._store is None:
+            self.store = LiteAxolotlStore(
+                StorageTools.constructPath(
+                    self.getProp(
+                        YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0],
+                    self.__class__._DB
+                )
+            )
+            self.state = self.__class__._STATE_HASKEYS if  self.store.getLocalRegistrationId() is not None \
+                else self.__class__._STATE_INIT
+
+        return self._store
+
+    @store.setter
+    def store(self, store):
+        self._store = store
+
     def __str__(self):
         return "Axolotl Layer"
 
     ### store and state
-    def initStore(self):
-        self.store = LiteAxolotlStore(
-            StorageTools.constructPath(
-                self.getProp(
-                    YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0],
-                self.__class__._DB
-            )
-        )
-        self.state = self.__class__._STATE_HASKEYS if  self.store.getLocalRegistrationId() is not None \
-            else self.__class__._STATE_INIT
+
 
     def isInitState(self):
-        return self.state == self.__class__._STATE_INIT
+        return self.store == None or self.state == self.__class__._STATE_INIT
 
     def isGenKeysState(self):
         return self.state == self.__class__._STATE_GENKEYS
@@ -76,7 +86,6 @@ class YowAxolotlLayer(YowProtocolLayer):
         if yowLayerEvent.getName() == self.__class__.EVENT_PREKEYS_SET:
             self.sendKeys(fresh=False)
         elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
-            self.initStore()
             if self.isInitState():
                 self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
         elif yowLayerEvent.getName() == YowAuthenticationProtocolLayer.EVENT_AUTHED:
@@ -90,6 +99,8 @@ class YowAxolotlLayer(YowProtocolLayer):
                 self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, False)
                 self.state = self.__class__._STATE_HASKEYS
                 self.getLayerInterface(YowNetworkLayer).connect()
+            else:
+                self.store = None
 
     def send(self, node):
         if node.tag == "message" and node["type"] == "text" and node["to"] not in self.skipEncJids:
