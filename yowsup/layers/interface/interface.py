@@ -96,6 +96,8 @@ class YowInterfaceLayer(YowLayer):
             entityType = entity.getTag()
             if entityType in self.callbacks:
                 self.callbacks[entityType](entity)
+            else:
+                self.toUpper(entity)
 
 
     def __str__(self):
