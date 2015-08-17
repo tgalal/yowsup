@@ -22,6 +22,7 @@ from .protocolentities import EncryptNotification
 from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
 from axolotl.invalidkeyidexception import InvalidKeyIdException
 from axolotl.nosessionexception import NoSessionException
+from axolotl.untrustedidentityexception import UntrustedIdentityException
 from .protocolentities.receipt_outgoing_retry import RetryOutgoingReceiptProtocolEntity
 import binascii
 import sys
@@ -234,6 +235,10 @@ class YowAxolotlLayer(YowProtocolLayer):
             logger.error(e)
             logger.warning("Going to send the delivery receipt myself !")
             self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"]).toProtocolTreeNode())
+
+        except UntrustedIdentityException as e:
+            logger.error(e)
+            logger.warning("Ignoring message with untrusted identity")
 
     def handlePreKeyWhisperMessage(self, node):
         pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
