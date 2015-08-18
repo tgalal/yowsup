@@ -55,24 +55,21 @@ class MessageProtocolEntity(ProtocolEntity):
             "id"        : self._id,
         }
 
-        if not self.isOutgoing():
-            attribs["t"] = str(self.timestamp)
-
-        if self.offline is not None:
-            attribs["offline"] = "1" if self.offline else "0"
-
         if self.isOutgoing():
             attribs["to"] = self.to
         else:
             attribs["from"] = self._from
 
-        if self.notify:
-            attribs["notify"] = self.notify
+            attribs["t"] = str(self.timestamp)
 
-        if self.retry:
-            attribs["retry"] = str(self.retry)
-        if self.participant:
-            attribs["participant"] = self.participant
+            if self.offline is not None:
+               attribs["offline"] = "1" if self.offline else "0"
+            if self.notify:
+                attribs["notify"] = self.notify
+            if self.retry:
+                attribs["retry"] = str(self.retry)
+            if self.participant:
+                attribs["participant"] = self.participant
 
 
         xNode = None
@@ -109,7 +106,6 @@ class MessageProtocolEntity(ProtocolEntity):
         OutgoingMessage.to = to
         OutgoingMessage._from = None
         OutgoingMessage._id = self._generateId() if _id is None else _id
-        OutgoingMessage.participant = None # very strange issue with group messages otherwise
         return OutgoingMessage
 
     @staticmethod
