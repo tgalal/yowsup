@@ -113,6 +113,13 @@ class ModuleTools:
             return True
         except ImportError:
             return False
+    @staticmethod
+    def INSTALLED_AXOLOTL():
+        try:
+            import axolotl
+            return True
+        except ImportError:
+            return False
 
 class ImageTools:
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__ = "2.0.9"
+__version__ = "2.0.12"
 __author__ = "Tarek Galal"
 
 import sys, argparse, yowsup, logging
@@ -21,6 +21,8 @@ phone=491234567890
 password=NDkxNTIyNTI1NjAyMkBzLndoYXRzYXBwLm5ldA==
 #######################################################
 """
+
+logger = logging.getLogger("yowsup-cli")
 
 class YowArgParser(argparse.ArgumentParser):
     def __init__(self, *args, **kwargs):
@@ -221,6 +223,10 @@ class DemosArgParser(YowArgParser):
 
     def process(self):
         super(DemosArgParser, self).process()
+
+        if self.args["moxie"]:
+            logger.warning("--moxie/-m is deprecated and will be removed soon as e2e encryption is now almost mandatory.")
+
         if self.args["yowsup"]:
             self.startCmdline()
         elif self.args["echo"]:

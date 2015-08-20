@@ -21,8 +21,6 @@ from yowsup.layers.protocol_privacy.protocolentities     import *
 from yowsup.layers.protocol_media.protocolentities       import *
 from yowsup.layers.protocol_media.mediauploader import MediaUploader
 from yowsup.layers.protocol_profiles.protocolentities    import *
-from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
-from yowsup.layers.axolotl import YowAxolotlLayer
 from yowsup.common.tools import ModuleTools
 
 logger = logging.getLogger(__name__)
@@ -49,7 +47,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         self.connected = False
         self.username = None
         self.sendReceipts = True
-        self.iqs = {}
         self.disconnectAction = self.__class__.DISCONNECT_ACTION_PROMPT
 
         #add aliases to make it user to use commands. for example you can then do:
@@ -105,11 +102,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         else:
             self.output("Not connected", tag = "Error", prompt = False)
             return False
-
-    def addToIqs(self, iqEntity):
-        self.iqs[iqEntity.getId()] = iqEntity
-
-
 
     #### batch cmds #####
     def sendMessageAndDisconnect(self, credentials, jid, message):
@@ -241,12 +233,11 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             entity = LeaveGroupsIqProtocolEntity([self.aliasToJid(group_jid)])
             self.toLower(entity)
 
-    @clicmd("Create a new group with the specified subject and participants. Jids are a comma separated list. Use '-' to keep group without participants but you.", 3)
-    def groups_create(self, subject, jids):
+    @clicmd("Create a new group with the specified subject and participants. Jids are a comma separated list but optional.", 3)
+    def groups_create(self, subject, jids = None):
         if self.assertConnected():
-            jids = [self.aliasToJid(jid) for jid in jids.split(',')] if jids != '-' else []
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')] if jids else []
             entity = CreateGroupsIqProtocolEntity(subject, participants=jids)
-            self.addToIqs(entity)
             self.toLower(entity)
 
     @clicmd("Invite to group. Jids are a comma separated list")
@@ -313,15 +304,23 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @clicmd("Get shared keys")
     def keys_get(self, jids):
-        if self.assertConnected():
-            jids = [self.aliasToJid(jid) for jid in jids.split(',')]
-            entity = GetKeysIqProtocolEntity(jids)
-            self.toLower(entity)
+        if ModuleTools.INSTALLED_AXOLOTL():
+            from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
+            if self.assertConnected():
+                jids = [self.aliasToJid(jid) for jid in jids.split(',')]
+                entity = GetKeysIqProtocolEntity(jids)
+                self.toLower(entity)
+        else:
+            logger.error("Axolotl is not installed")
 
     @clicmd("Send prekeys")
     def keys_set(self):
-        if self.assertConnected():
-            self.broadcastEvent(YowLayerEvent(YowAxolotlLayer.EVENT_PREKEYS_SET))
+        if ModuleTools.INSTALLED_AXOLOTL():
+            from yowsup.layers.axolotl import YowAxolotlLayer
+            if self.assertConnected():
+                self.broadcastEvent(YowLayerEvent(YowAxolotlLayer.EVENT_PREKEYS_SET))
+        else:
+            logger.error("Axolotl is not installed")
 
     @clicmd("Send init seq")
     def seq(self):
@@ -367,16 +366,25 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def message_delivered(self, message_id):
         pass
 
-    @clicmd("Send and image")
-    def image_send(self, number, path):
+    @clicmd("Send an image with optional caption")
+    def image_send(self, number, path, caption = None):
         if self.assertConnected():
             jid = self.aliasToJid(number)
             entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE, filePath=path)
-            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity)
+            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity, caption)
             errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
 
             self._sendIq(entity, successFn, errorFn)
 
+    @clicmd("Send audio file")
+    def audio_send(self, number, path):
+        if self.assertConnected():
+            jid = self.aliasToJid(number)
+            entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO, filePath=path)
+            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity)
+            errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
+
+            self._sendIq(entity, successFn, errorFn)
     @clicmd("Send typing state")
     def state_typing(self, jid):
         if self.assertConnected():
@@ -505,31 +513,39 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             )
 
 
-    def doSendImage(self, filePath, url, to, ip = None):
-        entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
+    def doSendImage(self, filePath, url, to, ip = None, caption = None):
+        entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to, caption = caption)
         self.toLower(entity)
+
+    def doSendAudio(self, filePath, url, to, ip = None, caption = None):
+        entity = AudioDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
+        self.toLower(entity)
+
     def __str__(self):
         return "CLI Interface Layer"
 
     ########### callbacks ############
 
-    def onRequestUploadResult(self, jid, filePath, resultRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity):
-        if resultRequestUploadIqProtocolEntity.isDuplicate():
-            self.doSendImage(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid,
-                             resultRequestUploadIqProtocolEntity.getIp())
+    def onRequestUploadResult(self, jid, filePath, resultRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity, caption = None):
+
+        if requestUploadIqProtocolEntity.mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO:
+            doSendFn = self.doSendAudio
         else:
-            # successFn = lambda filePath, jid, url: self.onUploadSuccess(filePath, jid, url, resultRequestUploadIqProtocolEntity.getIp())
+            doSendFn = self.doSendImage
+
+        if resultRequestUploadIqProtocolEntity.isDuplicate():
+            doSendFn(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid,
+                             resultRequestUploadIqProtocolEntity.getIp(), caption)
+        else:
+            successFn = lambda filePath, jid, url: doSendFn(filePath, url, jid, resultRequestUploadIqProtocolEntity.getIp(), caption)
             mediaUploader = MediaUploader(jid, self.getOwnJid(), filePath,
                                       resultRequestUploadIqProtocolEntity.getUrl(),
                                       resultRequestUploadIqProtocolEntity.getResumeOffset(),
-                                      self.onUploadSuccess, self.onUploadError, self.onUploadProgress, async=False)
+                                      successFn, self.onUploadError, self.onUploadProgress, async=False)
             mediaUploader.start()
 
     def onRequestUploadError(self, jid, path, errorRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity):
         logger.error("Request upload for file %s for %s failed" % (path, jid))
-
-    def onUploadSuccess(self, filePath, jid, url):
-        self.doSendImage(filePath, url, jid)
 
     def onUploadError(self, filePath, jid, url):
         logger.error("Upload file %s to %s for %s failed!" % (filePath, url, jid))

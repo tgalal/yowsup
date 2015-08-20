@@ -23,7 +23,7 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
     '''
     def __init__(self,
             mimeType, fileHash, url, ip, size, fileName, 
-            abitrate, acodec, asampfreq, duration, encoding, origin, seconds, 
+            abitrate, acodec, asampfreq, duration, encoding, origin, seconds,
             _id = None, _from = None, to = None, notify = None, timestamp = None, 
             participant = None, preview = None, offline = None, retry = None):
 
@@ -42,7 +42,8 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         out += "Sampling freq.: %s\n" % self.asampfreq
         return out
 
-    def setAudioProps(self, abitrate, acodec, asampfreq, duration, encoding, origin, seconds):
+    def setAudioProps(self, abitrate = None, acodec = None, asampfreq = None,
+                      duration = None, encoding = None, origin = None, seconds = None):
         self.abitrate  = abitrate
         self.acodec    = acodec
         self.asampfreq = asampfreq
@@ -55,13 +56,20 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         node = super(AudioDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
         mediaNode = node.getChild("media")
 
-        mediaNode.setAttribute("abitrate",  self.abitrate)
-        mediaNode.setAttribute("acodec",    self.acodec)
-        mediaNode.setAttribute("asampfreq", self.asampfreq)
-        mediaNode.setAttribute("duration",  self.duration)
-        mediaNode.setAttribute("encoding",  self.encoding)
-        mediaNode.setAttribute("origin",    self.origin)
-        mediaNode.setAttribute("seconds",   self.seconds)
+        if self.abitrate:
+            mediaNode.setAttribute("abitrate",  self.abitrate)
+        if self.acodec:
+            mediaNode.setAttribute("acodec",    self.acodec)
+        if self.asampfreq:
+            mediaNode.setAttribute("asampfreq", self.asampfreq)
+        if self.duration:
+            mediaNode.setAttribute("duration",  self.duration)
+        if self.encoding:
+            mediaNode.setAttribute("encoding",  self.encoding)
+        if self.origin:
+            mediaNode.setAttribute("origin",    self.origin)
+        if self.seconds:
+            mediaNode.setAttribute("seconds",   self.seconds)
 
         return node
 
@@ -79,4 +87,13 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
             mediaNode.getAttributeValue("origin"),
             mediaNode.getAttributeValue("seconds"),
         )
+        return entity
+
+
+
+    @staticmethod
+    def fromFilePath(fpath, url, ip, to, mimeType = None, preview = None, filehash = None, filesize = None):
+        entity = DownloadableMediaMessageProtocolEntity.fromFilePath(fpath, url, DownloadableMediaMessageProtocolEntity.MEDIA_TYPE_AUDIO, ip, to, mimeType, preview)
+        entity.__class__ = AudioDownloadableMediaMessageProtocolEntity
+        entity.setAudioProps()
         return entity

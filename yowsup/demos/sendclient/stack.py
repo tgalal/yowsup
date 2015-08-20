@@ -9,7 +9,6 @@ from yowsup.layers.stanzaregulator             import YowStanzaRegulator
 from yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
 from yowsup.layers.protocol_acks               import YowAckProtocolLayer
 from yowsup.layers.logger                      import YowLoggerLayer
-from yowsup.layers.axolotl                     import YowAxolotlLayer
 from yowsup.common import YowConstants
 from yowsup import env
 
@@ -22,6 +21,7 @@ class YowsupSendStack(object):
         :return:
         """
         if encryptionEnabled:
+            from yowsup.layers.axolotl                     import YowAxolotlLayer
             layers = (
                 SendLayer,
                 (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
@@ -33,7 +33,6 @@ class YowsupSendStack(object):
                 YowNetworkLayer
             )
         else:
-            env.CURRENT_ENV = env.S40YowsupEnv()
             layers = (
                 SendLayer,
                 (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
@@ -47,10 +46,7 @@ class YowsupSendStack(object):
         self.stack = YowStack(layers)
         self.stack.setProp(SendLayer.PROP_MESSAGES, messages)
         self.stack.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
-        self.stack.setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, credentials)
-        self.stack.setProp(YowNetworkLayer.PROP_ENDPOINT, YowConstants.ENDPOINTS[0])
-        self.stack.setProp(YowCoderLayer.PROP_DOMAIN, YowConstants.DOMAIN)
-        self.stack.setProp(YowCoderLayer.PROP_RESOURCE, env.CURRENT_ENV.getResource())
+        self.stack.setCredentials(credentials)
 
     def start(self):
         self.stack.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))
