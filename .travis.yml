@@ -7,6 +7,7 @@ python:
   - "3.4"
 # command to install dependencies
 install:
+    - pip install twisted
     - python setup.py install
 # command to run tests
 script: nosetests
