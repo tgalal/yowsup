@@ -86,7 +86,7 @@ class YowTwistedImapLayer(YowInterfaceLayer):
         # send text, if any
         if len(txt.strip()) > 0:
             msg = TextMessageProtocolEntity(txt, to = phone)
-            print "=> WhatsApp: %s -> %s" % (phone,msg)
+            print("=> WhatsApp: %s -> %s" % (phone,msg))
             self.toLower(msg)
 
         # send media that were attached pieces
@@ -145,10 +145,10 @@ class YowTwistedImapLayer(YowInterfaceLayer):
             for pl2 in pl._payload:
                 self.handle_forward_media(jid, pl2)
         if iqtp == None:
-            print "<= Mail: Skip unsupported attachement type %s" % (ct)
+            print("<= Mail: Skip unsupported attachement type %s" % (ct))
             return
 
-        print "<= Mail: Forward attachement %s" % (ct1)
+        print("<= Mail: Forward attachement %s" % (ct1))
         data = self.mail_payload_decoded(pl)
         tmpf = tempfile.NamedTemporaryFile(prefix='whatsapp-upload_',
                 delete=False)
@@ -171,7 +171,7 @@ class YowTwistedImapLayer(YowInterfaceLayer):
         if successEntity.isDuplicate():
             url = successEntity.getUrl()
             ip = successEntity.getIp()
-            print "<= WhatsApp: upload duplicate %s, from %s" % (fpath, url)
+            print("<= WhatsApp: upload duplicate %s, from %s" % (fpath, url))
             self.send_uploaded_media(fpath, jid, url, ip)
         else:
             ownjid = self.getOwnJid()
@@ -182,24 +182,24 @@ class YowTwistedImapLayer(YowInterfaceLayer):
                                       self.onUploadError,
                                       self.onUploadProgress,
                                       async=False)
-            print "<= WhatsApp: start upload %s, into %s" \
-                    % (fpath, successEntity.getUrl())
+            print("<= WhatsApp: start upload %s, into %s" \
+                    % (fpath, successEntity.getUrl()))
             mediaUploader.start()
 
     def onUploadSuccess(self, fpath, jid, url):
-        print "WhatsApp: -> upload success %s" % (fpath)
+        print("WhatsApp: -> upload success %s" % (fpath))
         self.send_uploaded_media(fpath, jid, url)
 
     def onUploadError(self, fpath, jid=None, url=None):
-        print "WhatsApp: -> upload failed %s" % (fpath)
+        print("WhatsApp: -> upload failed %s" % (fpath))
         ownjid = self.getOwnJid()
         fakeEntity = TextMessageProtocolEntity("", _from = ownjid)
         self.sendEmail(fakeEntity, "WhatsApp upload failed",
                 "File: %s" % (fpath))
 
     def onUploadProgress(self, fpath, jid, url, progress):
-        print "WhatsApp: -> upload progression %s for %s, %d%%" \
-                % (fpath, jid, progress)
+        print("WhatsApp: -> upload progression %s for %s, %d%%" \
+                % (fpath, jid, progress))
 
     def send_uploaded_media(self, fpath, jid, url, ip = None):
         entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(
@@ -207,7 +207,7 @@ class YowTwistedImapLayer(YowInterfaceLayer):
         self.toLower(entity)
 
     def onRequestUploadError(self, jid, fpath, errorEntity, originalEntity):
-        print "WhatsApp: -> upload request failed %s" % (fpath)
+        print("WhatsApp: -> upload request failed %s" % (fpath))
         self.sendEmail(errorEntity, "WhatsApp upload request failed",
                 "File: %s" % (fpath))
 

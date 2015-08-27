@@ -26,7 +26,7 @@ class YowTwistedNetworkLayer(YowLayer, Protocol):
 
     #def handle_connect(self):
     def connectionMade(self):
-        print "conenction made"
+        print("conenction made")
         self.emitEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECTED))
 
     def handle_close(self, reason = "Connection Closed"):

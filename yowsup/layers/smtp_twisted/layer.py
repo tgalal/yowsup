@@ -34,7 +34,7 @@ class YowTwistedSmtpLayer(YowInterfaceLayer):
 
     @ProtocolEntityCallback("message")
     def onMessage(self, mEntity):
-        print "----------> ", mEntity
+        print( "----------> ", mEntity )
         if not mEntity.isGroupMessage():
             if mEntity.getType() == 'text':
                 self.onTextMessage(mEntity)
@@ -42,7 +42,7 @@ class YowTwistedSmtpLayer(YowInterfaceLayer):
                 self.onMediaMessage(mEntity)
         else:
             src = mEntity.getFrom()
-            print "<= WhatsApp: <- %s GroupMessage" % (src)
+            print("<= WhatsApp: <- %s GroupMessage" % (src))
         self.toLower(mEntity.ack())
         self.toLower(mEntity.ack(True))
 
@@ -109,10 +109,10 @@ class YowTwistedSmtpLayer(YowInterfaceLayer):
         msg_file = StringIO(msg.as_string())
 
         def success(r):
-            print "Mail sent"
+            print("Mail sent")
         def error(err):
             err.printTraceback()
-            print "Smtp error ", err
+            print("Smtp error ", err)
 
         dfr = defer.Deferred()
         dfr.addCallback(success)
@@ -129,5 +129,5 @@ class YowTwistedSmtpLayer(YowInterfaceLayer):
 
 
         #s.sendmail(dst, [dst], msg.as_string())
-        print "=> Mail: %s -> %s" % (reply_mail, dst_mail)
+        print("=> Mail: %s -> %s" % (reply_mail, dst_mail))
 
