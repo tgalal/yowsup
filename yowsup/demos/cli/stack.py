@@ -15,7 +15,7 @@ class YowsupCliStack(object):
             .build()
 
         # self.stack.setCredentials(credentials)
-        self.stack.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(credentials)
+        self.stack.setCredentials(credentials)
 
     def start(self):
         print("Yowsup Cli client\n==================\nType /help for available commands\n")

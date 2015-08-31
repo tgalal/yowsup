@@ -44,6 +44,9 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
     def getUsername(self, full = False):
         if self._credentials:
             return self._credentials[0] if not full else ("%s@s.whatsapp.net" % self._credentials[0])
+        else:
+            prop = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)
+            return prop[0] if prop else None
 
     def onEvent(self, event):
         if event.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
@@ -109,7 +112,7 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         responseEntity = ResponseProtocolEntity(authBlob)
 
         #to prevent enr whole response
-        self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, None))) 
+        self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, None)))
         self.entityToLower(responseEntity)
         self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, outputKey)))
         #YowCryptLayer.setProp("outputKey", outputKey)
