@@ -42,6 +42,10 @@ class YowStackBuilder(object):
 
     def __init__(self):
         self.layers = ()
+        self._props = {}
+
+    def setProp(self, key, value):
+        self._props[key] = value
 
     def pushDefaultLayers(self, axolotl = False):
         defaultLayers = YowStackBuilder.getDefaultLayers(axolotl)
@@ -57,7 +61,7 @@ class YowStackBuilder(object):
         return self
 
     def build(self):
-        return YowStack(self.layers, reversed = False)
+        return YowStack(self.layers, reversed = False, props = self._props)
 
     @staticmethod
     def getDefaultLayers(axolotl = False, groups = True, media = True, privacy = True, profiles = True):
@@ -119,20 +123,36 @@ class YowStack(object):
     __stack = []
     __stackInstances = []
     __detachedQueue = Queue.Queue()
-    def __init__(self, stackClassesArr = None, reversed = True):
+    def __init__(self, stackClassesArr = None, reversed = True, props = None):
         stackClassesArr = stackClassesArr or ()
         self.__stack = stackClassesArr[::-1] if reversed else stackClassesArr
         self.__stackInstances = []
-        self._construct()
-        self._props = {}
+        self._props = props or {}
 
         self.setProp(YowNetworkLayer.PROP_ENDPOINT, YowConstants.ENDPOINTS[random.randint(0,len(YowConstants.ENDPOINTS)-1)])
         self.setProp(YowCoderLayer.PROP_DOMAIN, YowConstants.DOMAIN)
         self.setProp(YowCoderLayer.PROP_RESOURCE, env.CURRENT_ENV.getResource())
+        self._construct()
 
+
+    def getLayerInterface(self, YowLayerClass):
+        for inst in self.__stackInstances:
+            if inst.__class__ == YowLayerClass:
+                return inst.getLayerInterface()
+            elif inst.__class__ == YowParallelLayer:
+                res = inst.getLayerInterface(YowLayerClass)
+                if res:
+                    return res
+
+
+    def send(self, data):
+        self.__stackInstances[-1].send(data)
+
+    def receive(self, data):
+        self.__stackInstances[0].receive(data)
 
     def setCredentials(self, credentials):
-        self.setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, credentials)
+        self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(credentials)
 
     def addLayer(self, layerClass):
         self.__stack.push(layerClass)
@@ -202,4 +222,3 @@ class YowStack(object):
 
     def getLayer(self, layerIndex):
         return self.__stackInstances[layerIndex]
-

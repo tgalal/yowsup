@@ -1,4 +1,4 @@
-from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
+from yowsup.layers import YowLayerEvent, YowProtocolLayer
 from .keystream import KeyStream
 from yowsup.common.tools import TimeTools
 from .layer_crypt import YowCryptLayer
@@ -6,6 +6,7 @@ from yowsup.layers.network import YowNetworkLayer
 from .autherror import AuthError
 from .protocolentities import *
 from yowsup.common.tools import StorageTools
+from .layer_interface_authentication import YowAuthenticationProtocolLayerInterface
 import base64
 class YowAuthenticationProtocolLayer(YowProtocolLayer):
     EVENT_LOGIN      = "org.openwhatsapp.yowsup.event.auth.login"
@@ -22,29 +23,38 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
             "stream:error": (self.handleStreamError, None),
         }
         super(YowAuthenticationProtocolLayer, self).__init__(handleMap)
-        self.credentials = None
+        self.interface = YowAuthenticationProtocolLayerInterface(self)
+        self.credentials = None #left for backwards-compat
+        self._credentials = None #new style set
 
     def __str__(self):
         return "Authentication Layer"
 
-    def __getCredentials(self):
-        u, pb64 = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)
+    def __getCredentials(self, credentials = None):
+        u, pb64 = credentials or self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)
         if type(pb64) is str:
             pb64 = pb64.encode()
         password = base64.b64decode(pb64)
         return (u, bytearray(password))
 
+    def setCredentials(self, credentials):
+        self.setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, credentials) #keep for now
+        self._credentials = self.__getCredentials(credentials)
+
+    def getUsername(self, full = False):
+        if self._credentials:
+            return self._credentials[0] if not full else ("%s@s.whatsapp.net" % self._credentials[0])
+        else:
+            prop = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)
+            return prop[0] if prop else None
+
     def onEvent(self, event):
         if event.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
             self.login()
-        elif event.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
-            self.credentials = self.__getCredentials()
-            if not self.credentials:
-                raise AuthError("Auth stopped connection signal as no credentials have been set")
 
     ## general methods
     def login(self):
-        
+        self.credentials = self._credentials or self.__getCredentials()
         self._sendFeatures()
         self._sendAuth()
 
@@ -102,7 +112,7 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         responseEntity = ResponseProtocolEntity(authBlob)
 
         #to prevent enr whole response
-        self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, None))) 
+        self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, None)))
         self.entityToLower(responseEntity)
         self.broadcastEvent(YowLayerEvent(YowCryptLayer.EVENT_KEYS_READY, keys = (inputKey, outputKey)))
         #YowCryptLayer.setProp("outputKey", outputKey)

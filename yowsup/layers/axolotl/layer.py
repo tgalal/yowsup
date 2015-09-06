@@ -4,6 +4,7 @@ from axolotl.util.keyhelper import KeyHelper
 from .store.sqlite.liteaxolotlstore import LiteAxolotlStore
 from axolotl.sessionbuilder import SessionBuilder
 from yowsup.layers.protocol_messages.protocolentities.message import MessageProtocolEntity
+from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from axolotl.ecc.curve import Curve
@@ -16,10 +17,12 @@ from yowsup.structs import ProtocolTreeNode
 from .protocolentities import GetKeysIqProtocolEntity, ResultGetKeysIqProtocolEntity
 from axolotl.util.hexutil import HexUtil
 from axolotl.invalidmessageexception import InvalidMessageException
+from axolotl.duplicatemessagexception import DuplicateMessageException
 from .protocolentities import EncryptNotification
 from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
 from axolotl.invalidkeyidexception import InvalidKeyIdException
 from axolotl.nosessionexception import NoSessionException
+from axolotl.untrustedidentityexception import UntrustedIdentityException
 from .protocolentities.receipt_outgoing_retry import RetryOutgoingReceiptProtocolEntity
 import binascii
 import sys
@@ -46,23 +49,33 @@ class YowAxolotlLayer(YowProtocolLayer):
         self.skipEncJids = []
         self.v2Jids = [] #people we're going to send v2 enc messages
 
+    @property
+    def store(self):
+        if self._store is None:
+            self.store = LiteAxolotlStore(
+                StorageTools.constructPath(
+                    self.getProp(
+                        YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0],
+                    self.__class__._DB
+                )
+            )
+            self.state = self.__class__._STATE_HASKEYS if  self.store.getLocalRegistrationId() is not None \
+                else self.__class__._STATE_INIT
+
+        return self._store
+
+    @store.setter
+    def store(self, store):
+        self._store = store
+
     def __str__(self):
         return "Axolotl Layer"
 
     ### store and state
-    def initStore(self):
-        self.store = LiteAxolotlStore(
-            StorageTools.constructPath(
-                self.getProp(
-                    YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0],
-                self.__class__._DB
-            )
-        )
-        self.state = self.__class__._STATE_HASKEYS if  self.store.getLocalRegistrationId() is not None \
-            else self.__class__._STATE_INIT
+
 
     def isInitState(self):
-        return self.state == self.__class__._STATE_INIT
+        return self.store == None or self.state == self.__class__._STATE_INIT
 
     def isGenKeysState(self):
         return self.state == self.__class__._STATE_GENKEYS
@@ -72,8 +85,7 @@ class YowAxolotlLayer(YowProtocolLayer):
     def onEvent(self, yowLayerEvent):
         if yowLayerEvent.getName() == self.__class__.EVENT_PREKEYS_SET:
             self.sendKeys(fresh=False)
-        elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
-            self.initStore()
+        elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
             if self.isInitState():
                 self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
         elif yowLayerEvent.getName() == YowAuthenticationProtocolLayer.EVENT_AUTHED:
@@ -86,7 +98,9 @@ class YowAxolotlLayer(YowProtocolLayer):
                 #no need to traverse it to upper layers?
                 self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, False)
                 self.state = self.__class__._STATE_HASKEYS
-                self.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))
+                self.getLayerInterface(YowNetworkLayer).connect()
+            else:
+                self.store = None
 
     def send(self, node):
         if node.tag == "message" and node["type"] == "text" and node["to"] not in self.skipEncJids:
@@ -228,8 +242,14 @@ class YowAxolotlLayer(YowProtocolLayer):
             self.pendingIncomingMessages[node["from"]].append(node)
 
             self._sendIq(entity, lambda a, b: self.onGetKeysResult(a, b, self.processPendingIncomingMessages), self.onGetKeysError)
+        except DuplicateMessageException as e:
+            logger.error(e)
+            logger.warning("Going to send the delivery receipt myself !")
+            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"]).toProtocolTreeNode())
 
-
+        except UntrustedIdentityException as e:
+            logger.error(e)
+            logger.warning("Ignoring message with untrusted identity")
 
     def handlePreKeyWhisperMessage(self, node):
         pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)

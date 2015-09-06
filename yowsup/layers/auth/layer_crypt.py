@@ -13,7 +13,7 @@ class YowCryptLayer(YowLayer):
         self.keys = (None,None)
 
     def onEvent(self, yowLayerEvent):
-        if yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
+        if yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
             self.keys = (None,None)
         elif yowLayerEvent.getName() == YowCryptLayer.EVENT_KEYS_READY:
             self.keys = yowLayerEvent.getArg("keys")
