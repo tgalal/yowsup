@@ -36,7 +36,7 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
 
     def onEvent(self, ev):
         if ev.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
-
+		
 
             self.createConnection()
             return True
