@@ -13,20 +13,39 @@ class OutgoingReceiptProtocolEntity(ReceiptProtocolEntity):
     read
     <receipt to="xxxxxxxxxxx@s.whatsapp.net" id="1415389947-15" type="read"></receipt>
 
-    INCOMING
-    <receipt offline="0" from="4915225256022@s.whatsapp.net" id="1415577964-1" t="1415578027"></receipt>
+    multiple items:
+    <receipt type="read" to="xxxxxxxxxxxx@s.whatsapp.net" id="1431364583-191">
+        <list>
+            <item id="1431364572-189"></item>
+            <item id="1431364575-190"></item>
+        </list>
+    </receipt>
     '''
 
-    def __init__(self, _id, to, read = False, participant = None, callId = None):
-        super(OutgoingReceiptProtocolEntity, self).__init__(_id)
-        self.setOutgoingData(to, read, participant, callId)
 
-    def setOutgoingData(self, to, read, participant, callId):
+    def __init__(self, messageIds, to, read = False, participant = None, callId = None):
+        if type(messageIds) in (list, tuple):
+            if len(messageIds) > 1:
+                receiptId = self._generateId()
+            else:
+                receiptId = messageIds[0]
+        else:
+            receiptId = messageIds
+            messageIds = [messageIds]
+
+        super(OutgoingReceiptProtocolEntity, self).__init__(receiptId)
+        self.setOutgoingData(messageIds, to, read, participant, callId)
+
+    def setOutgoingData(self, messageIds, to, read, participant, callId):
+        self.messageIds = messageIds
         self.to = to
         self.read = read
         self.participant = participant
         self.callId = callId
-    
+
+    def getMessageIds(self):
+        return self.messageIds
+
     def toProtocolTreeNode(self):
         node = super(OutgoingReceiptProtocolEntity, self).toProtocolTreeNode()
         if self.read:
@@ -38,7 +57,11 @@ class OutgoingReceiptProtocolEntity(ReceiptProtocolEntity):
             node.addChild(offer)
 
         node.setAttribute("to", self.to)
-        node.setAttribute("t", str(int(time.time())))
+
+        if len(self.messageIds) > 1:
+            listNode = ProtocolTreeNode("list")
+            listNode.addChildren([ProtocolTreeNode("item", {"id": mId}) for mId in self.messageIds])
+            node.addChild(listNode)
 
         return node
 
@@ -47,13 +70,21 @@ class OutgoingReceiptProtocolEntity(ReceiptProtocolEntity):
         out  += "To: \n%s" % self.to
         if self.read:
             out += "Type: \n%s" % "read"
+        out += "For: \n%s" % self.messageIds
         return out
 
     @staticmethod
     def fromProtocolTreeNode(node):
+        listNode = node.getChild("list")
+        messageIds = []
+        if listNode:
+            messageIds = [child["id"] for child in listNode.getChildren()]
+        else:
+            messageIds = [node["id"]]
+
         return OutgoingReceiptProtocolEntity(
-            node.getAttributeValue("id"),
-            node.getAttributeValue("to"),
-            node.getAttributeValue("type"),
-            node.getAttributeValue("participant")
+            messageIds,
+            node["to"],
+            node["type"] == "read",
+            node["participant"]
             )

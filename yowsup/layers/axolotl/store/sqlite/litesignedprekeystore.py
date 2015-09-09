@@ -1,5 +1,6 @@
 from axolotl.state.signedprekeystore import SignedPreKeyStore
 from axolotl.state.signedprekeyrecord import SignedPreKeyRecord
+from axolotl.invalidkeyidexception import InvalidKeyIdException
 class LiteSignedPreKeyStore(SignedPreKeyStore):
     def __init__(self, dbConn):
         """
@@ -18,7 +19,7 @@ class LiteSignedPreKeyStore(SignedPreKeyStore):
 
         result = cursor.fetchone()
         if not result:
-            raise Exception("No such signedprekeyrecord! %s " % signedPreKeyId)
+            raise InvalidKeyIdException("No such signedprekeyrecord! %s " % signedPreKeyId)
 
         return SignedPreKeyRecord(serialized=result[0])
 
