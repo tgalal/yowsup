@@ -9,8 +9,7 @@ from yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
 from yowsup.layers.protocol_acks               import YowAckProtocolLayer
 from yowsup.layers.logger                      import YowLoggerLayer
 from yowsup.layers.protocol_contacts           import YowContactsIqProtocolLayer
-from yowsup.common import YowConstants
-from yowsup import env
+from yowsup.layers                             import YowParallelLayer
 
 class YowsupSyncStack(object):
     def __init__(self, credentials, contacts, encryptionEnabled = False):
@@ -24,7 +23,7 @@ class YowsupSyncStack(object):
             from yowsup.layers.axolotl                     import YowAxolotlLayer
             layers = (
                 SyncLayer,
-                (YowAuthenticationProtocolLayer, YowContactsIqProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
+                YowParallelLayer([YowAuthenticationProtocolLayer, YowContactsIqProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer]),
                 YowAxolotlLayer,
                 YowLoggerLayer,
                 YowCoderLayer,
@@ -35,7 +34,7 @@ class YowsupSyncStack(object):
         else:
             layers = (
                 SyncLayer,
-                (YowAuthenticationProtocolLayer, YowContactsIqProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
+                YowParallelLayer([YowAuthenticationProtocolLayer, YowContactsIqProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer]),
                 YowLoggerLayer,
                 YowCoderLayer,
                 YowCryptLayer,
