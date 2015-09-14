@@ -5,6 +5,8 @@ from axolotl.util.keyhelper import KeyHelper
 from axolotl.identitykeypair import IdentityKeyPair
 from axolotl.ecc.djbec import *
 
+import logging
+logger = logging.getLogger(__name__)
 
 class LiteIdentityKeyStore(IdentityKeyStore):
     def __init__(self, dbConn):
@@ -65,4 +67,9 @@ class LiteIdentityKeyStore(IdentityKeyStore):
         result = c.fetchone()
         if not result:
             return True
-        return result[0] == identityKey.getPublicKey().serialize()
+        if result[0] == identityKey.getPublicKey().serialize():
+	    return True
+        else:
+            logger.debug("Removed untrusted key")
+            self.saveIdentity(recipientId, identityKey)
+            return True
