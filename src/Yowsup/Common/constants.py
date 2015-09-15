@@ -54,11 +54,12 @@ class Constants:
 	v="0.90"
 
 	tokenData = {
-		"v": "2.12.61",
-		"r": "S40-2.12.61",
-		"u": "WhatsApp/2.12.61 S40Version/14.26 Device/Nokia302",
-		"t": "PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk1419900882708{phone}",
-		"d": "Nokia302"
+		"v": "2.12.89",
+                "r": "S40-2.12.89",
+                "u": "WhatsApp/2.12.89 S40Version/14.26 Device/Nokia302",
+                "t": "PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk1435688727801{phone}",
+                "d": "Nokia302"
+
 	}
 
 	tokenStorage = "~/.yowsup/t_%s"%(v.replace(".", "_"))
