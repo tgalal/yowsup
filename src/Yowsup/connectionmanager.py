@@ -1403,7 +1403,10 @@ class ReaderThread(threading.Thread):
 		return tmp
 	
 	def parseSync(self, node):
-		node_in = node.getChild("sync").getChild("in").getAllChildren("user")
+                if node.getChild("sync").getChild("in") is not None:
+			node_in = node.getChild("sync").getChild("in").getAllChildren("user")
+		else:
+			node_in = {}
 		if node.getChild("sync").getChild("out") is not None:
 			node_out = node.getChild("sync").getChild("out").getAllChildren("user")
 		else:
