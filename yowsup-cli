@@ -58,8 +58,8 @@ class YowArgParser(argparse.ArgumentParser):
             print("Invalid config path: %s" % config)
             sys.exit(1)
 
-    def process(self):
-        self.args = vars(self.parse_args())
+    def process(self, args):
+        self.args = vars(self.parse_args(args))
         if self.args["version"]:
             print("yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__))
             sys.exit(0)
@@ -119,8 +119,8 @@ class RegistrationArgParser(YowArgParser):
         regSteps.add_argument("-r", '--requestcode', help='Request the digit registration code from Whatsapp.', action="store", required=False, metavar="(sms|voice)")
         regSteps.add_argument("-R", '--register', help='Register account on Whatsapp using the code you previously received', action="store", required=False, metavar="code")
 
-    def process(self):
-        super(RegistrationArgParser, self).process()
+    def process(self, args):
+        super(RegistrationArgParser, self).process(args)
 
         config = self.getConfig(self.args["config"]) if self.args["config"] else {}
 
@@ -220,8 +220,8 @@ class DemosArgParser(YowArgParser):
         syncContacts = self.add_argument_group("Sync contacts")
         syncContacts.add_argument('-S','--sync', action = "store" , help = "Sync ( check valid ) whatsapp contacts",metavar =("contacts"))
 
-    def process(self):
-        super(DemosArgParser, self).process()
+    def process(self, args):
+        super(DemosArgParser, self).process(args)
 
         if self.args["yowsup"]:
             self.startCmdline()
@@ -315,7 +315,7 @@ def run_main(args):
         sys.exit(0)
     else:
         parser = mode_dict[mode]()
-        if not parser.process():
+        if not parser.process(args[1:]):
             parser.print_help()
 
 
