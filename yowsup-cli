@@ -296,21 +296,16 @@ class DemosArgParser(YowArgParser):
             sys.exit(0)
 
 
-if __name__ == "__main__":
-    args = sys.argv
-    if(len(args) > 1):
-        del args[0]
-
-
-    modeDict = {
-        "demos":        DemosArgParser,
+def run_main(args):
+    mode_dict = {
+        "demos": DemosArgParser,
         "registration": RegistrationArgParser,
-        "version":      None
+        "version": None
     }
 
-    if(len(args) == 0 or args[0] not in modeDict):
+    if len(args) == 0 or args[0] not in mode_dict:
         print("Available commands:\n===================")
-        print(", ".join(modeDict.keys()))
+        print(", ".join(mode_dict.keys()))
 
         sys.exit(1)
 
@@ -319,6 +314,13 @@ if __name__ == "__main__":
         print("yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__))
         sys.exit(0)
     else:
-        parser = modeDict[mode]()
+        parser = mode_dict[mode]()
         if not parser.process():
             parser.print_help()
+
+
+if __name__ == "__main__":
+    args = sys.argv
+    if len(args) > 1:
+        del args[0]
+    run_main(args)
