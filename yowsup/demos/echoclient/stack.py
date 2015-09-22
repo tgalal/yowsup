@@ -10,16 +10,18 @@ from yowsup.layers.stanzaregulator             import YowStanzaRegulator
 from yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
 from yowsup.layers.protocol_acks               import YowAckProtocolLayer
 from yowsup.layers.logger                      import YowLoggerLayer
-from yowsup.layers.axolotl                     import YowAxolotlLayer
+from yowsup.layers.protocol_iq                 import YowIqProtocolLayer
+from yowsup.layers.protocol_calls              import YowCallsProtocolLayer
 from yowsup.common import YowConstants
 from yowsup import env
 
 class YowsupEchoStack(object):
     def __init__(self, credentials, encryptionEnabled = False):
         if encryptionEnabled:
+            from yowsup.layers.axolotl                     import YowAxolotlLayer
             layers = (
                 EchoLayer,
-                (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer),
+                (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer, YowIqProtocolLayer, YowCallsProtocolLayer),
                 YowAxolotlLayer,
                 YowLoggerLayer,
                 YowCoderLayer,
@@ -28,10 +30,9 @@ class YowsupEchoStack(object):
                 YowNetworkLayer
             )
         else:
-            env.CURRENT_ENV = env.S40YowsupEnv()
             layers = (
                 EchoLayer,
-                (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer),
+                (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer, YowIqProtocolLayer, YowCallsProtocolLayer),
                 YowLoggerLayer,
                 YowCoderLayer,
                 YowCryptLayer,
@@ -40,10 +41,7 @@ class YowsupEchoStack(object):
             )
 
         self.stack = YowStack(layers)
-        self.stack.setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, credentials)
-        self.stack.setProp(YowNetworkLayer.PROP_ENDPOINT, YowConstants.ENDPOINTS[0])
-        self.stack.setProp(YowCoderLayer.PROP_DOMAIN, YowConstants.DOMAIN)
-        self.stack.setProp(YowCoderLayer.PROP_RESOURCE, env.CURRENT_ENV.getResource())
+        self.stack.setCredentials(credentials)
 
     def start(self):
         self.stack.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__ = "2.0.9"
+__version__ = "2.0.13"
 __author__ = "Tarek Galal"
 
 import sys, argparse, yowsup, logging
@@ -21,6 +21,8 @@ phone=491234567890
 password=NDkxNTIyNTI1NjAyMkBzLndoYXRzYXBwLm5ldA==
 #######################################################
 """
+
+logger = logging.getLogger("yowsup-cli")
 
 class YowArgParser(argparse.ArgumentParser):
     def __init__(self, *args, **kwargs):
@@ -203,8 +205,7 @@ class DemosArgParser(YowArgParser):
         credentialsOpts.add_argument("-c", "--config", action="store",
                                      help = "Path to config file containing authentication info. For more info about config format use --help-config")
 
-        configGroup.add_argument("-m", "--moxie", action="store_true", help="Enable experimental support for the"
-                                                                            " new WhatsApp encryption")
+        configGroup.add_argument("-M", "--unmoxie", action="store_true", help="Disable E2E Encryption")
 
         cmdopts = self.add_argument_group("Command line interface demo")
         cmdopts.add_argument('-y', '--yowsup', action = "store_true", help = "Start the Yowsup command line client")
@@ -216,15 +217,20 @@ class DemosArgParser(YowArgParser):
         sendOpts.add_argument('-s', '--send', action="store", help = "Send a message to specified phone number, "
                                                                      "wait for server receipt and exit",
                               metavar=("phone", "message"), nargs = 2)
+        syncContacts = self.add_argument_group("Sync contacts")
+        syncContacts.add_argument('-S','--sync', action = "store" , help = "Sync ( check valid ) whatsapp contacts",metavar =("contacts"))
 
     def process(self):
         super(DemosArgParser, self).process()
+
         if self.args["yowsup"]:
             self.startCmdline()
         elif self.args["echo"]:
             self.startEcho()
         elif self.args["send"]:
             self.startSendClient()
+        elif self.args["sync"]:
+            self.startSyncContacts()
         else:
             return False
         return True
@@ -245,7 +251,7 @@ class DemosArgParser(YowArgParser):
         if not credentials:
             print("Error: You must specify a configuration method")
             sys.exit(1)
-        stack = cli.YowsupCliStack(credentials, self.args["moxie"])
+        stack = cli.YowsupCliStack(credentials, not self.args["unmoxie"])
         stack.start()
 
     def startEcho(self):
@@ -255,7 +261,7 @@ class DemosArgParser(YowArgParser):
             print("Error: You must specify a configuration method")
             sys.exit(1)
         try:
-            stack = echoclient.YowsupEchoStack(credentials, self.args["moxie"])
+            stack = echoclient.YowsupEchoStack(credentials, not self.args["unmoxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
@@ -270,7 +276,20 @@ class DemosArgParser(YowArgParser):
 
         try:
             stack = sendclient.YowsupSendStack(credentials, [([self.args["send"][0], self.args["send"][1]])],
-                                               self.args["moxie"])
+                                               not self.args["unmoxie"])
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+    def startSyncContacts(self):
+        from yowsup.demos import contacts
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+        try:
+            stack = contacts.YowsupSyncStack(credentials,self.args["sync"].split(','), not self.args["unmoxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
@@ -303,4 +322,3 @@ if __name__ == "__main__":
         parser = modeDict[mode]()
         if not parser.process():
             parser.print_help()
-

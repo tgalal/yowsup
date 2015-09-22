@@ -4,10 +4,18 @@ from ..structs import Group
 class ListGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
     '''
     <iq type="result" from="g.us" id="{{IQ_ID}}">
-        <group s_t="{{SUBJECT_TIME}}" creation="{{CREATING_TIME}}" owner="{{OWNER_JID}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
-        </group>
-        <group s_t="{{SUBJECT_TIME}}" creation="{{CREATING_TIME}}" owner="{{OWNER_JID}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
-        </group>
+      <groups>
+          <group s_t="{{SUBJECT_TIME}}" creation="{{CREATING_TIME}}" creator="{{OWNER_JID}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
+            <participant jid="{{JID}}" type="admin">
+            </participant>
+            <participant jid="{{JID}}">
+            </participant>
+          </group>
+          <group s_t="{{SUBJECT_TIME}}" creation="{{CREATING_TIME}}" creator="{{OWNER_JID}}" id="{{GROUP_ID}}" s_o="{{SUBJECT_OWNER_JID}}" subject="{{SUBJECT}}">
+            <participant jid="{{JID}}" type="admin">
+            </participant>
+          </group>
+      <groups>
     </iq>
     '''
 
@@ -34,28 +42,41 @@ class ListGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
     def toProtocolTreeNode(self):
         node = super(ListGroupsResultIqProtocolEntity, self).toProtocolTreeNode()
 
-        groupsNodes = [
-            ProtocolTreeNode("group", {
+        groupsNodes = []
+        for group in self.groupsList:
+            groupNode = ProtocolTreeNode("group", {
                 "id":       group.getId(),
-                "owner":    group.getOwner(),
+                "creator":    group.getCreator(),
                 "subject":  group.getSubject(),
                 "s_o":      group.getSubjectOwner(),
                 "s_t":      str(group.getSubjectTime()),
                 "creation": str(group.getCreationTime())
-                })
-            for group in self.groupsList
-        ]
+                },
+            )
+            participants = []
+            for jid, _type in group.getParticipants().items():
+                pnode = ProtocolTreeNode("participant", {"jid": jid})
+                if _type:
+                    pnode["type"] = _type
+                participants.append(pnode)
+            groupNode.addChildren(participants)
+            groupsNodes.append(groupNode)
 
-        node.addChildren(groupsNodes)
+        node.addChild(ProtocolTreeNode("groups", children = groupsNodes))
         return node
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = ResultIqProtocolEntity.fromProtocolTreeNode(node)
+        entity = super(ListGroupsResultIqProtocolEntity, ListGroupsResultIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = ListGroupsResultIqProtocolEntity
-        groups = [
-            Group(groupNode["id"], groupNode["owner"], groupNode["subject"], groupNode["s_o"], groupNode["s_t"], groupNode["creation"])
-            for groupNode in node.getAllChildren()
-        ]
+        groups = []
+        for groupNode in node.getChild("groups").getAllChildren():
+            participants = {}
+            for p in groupNode.getAllChildren("participant"):
+                participants[p["jid"]] = p["type"]
+            groups.append(
+                Group(groupNode["id"], groupNode["creator"], groupNode["subject"], groupNode["s_o"], groupNode["s_t"], groupNode["creation"], participants)
+            )
+
         entity.setProps(groups)
         return entity

@@ -46,7 +46,7 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         out += "Height: %s\n" % self.height
         out += "Video bitrate: %s\n" % self.vbitrate
         out += "Video codec: %s\n" % self.vcodec
-        if self.caption:
+        if self.caption is not None:
             out += "Caption: %s\n" % self.caption
         return out
 
@@ -65,6 +65,9 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         self.width     = width
         self.caption   = caption
         
+    def getCaption(self):
+        return self.caption
+        
     def toProtocolTreeNode(self):
         node = super(VideoDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
         mediaNode = node.getChild("media")
@@ -81,7 +84,7 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         mediaNode.setAttribute("vbitrate",  self.vbitrate)
         mediaNode.setAttribute("vcodec",    self.vcodec)
         mediaNode.setAttribute("width",     self.width)
-        if self.caption:
+        if self.caption is not None:
             mediaNode.setAttribute("caption", self.caption)
         
         return node

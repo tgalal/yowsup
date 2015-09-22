@@ -11,7 +11,7 @@ class ListPicturesIqProtocolEntity(PictureIqProtocolEntity):
     '''
 
     def __init__(self, selfJid, jids):
-        super(ListPicturesIqProtocolEntity, self).__init__(to = selfJid, _type = "get")
+        super(ListPicturesIqProtocolEntity, self).__init__(jid = selfJid, type = "get")
         self.setProps(jids)
 
     def setProps(self, jids):

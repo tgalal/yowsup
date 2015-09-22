@@ -16,14 +16,12 @@ from yowsup.layers.protocol_acks.protocolentities        import *
 from yowsup.layers.protocol_ib.protocolentities          import *
 from yowsup.layers.protocol_iq.protocolentities          import *
 from yowsup.layers.protocol_contacts.protocolentities    import *
-from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.layers.protocol_chatstate.protocolentities   import *
 from yowsup.layers.protocol_privacy.protocolentities     import *
 from yowsup.layers.protocol_media.protocolentities       import *
 from yowsup.layers.protocol_media.mediauploader import MediaUploader
 from yowsup.layers.protocol_profiles.protocolentities    import *
-from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
-from yowsup.layers.axolotl import YowAxolotlLayer
+from yowsup.common.tools import ModuleTools
 
 logger = logging.getLogger(__name__)
 
@@ -49,8 +47,8 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         self.connected = False
         self.username = None
         self.sendReceipts = True
-        self.iqs = {}
         self.disconnectAction = self.__class__.DISCONNECT_ACTION_PROMPT
+        self.credentials = None
 
         #add aliases to make it user to use commands. for example you can then do:
         # /message send foobar "HI"
@@ -80,6 +78,9 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
         return "%s@s.whatsapp.net" % number
 
+    def setCredentials(self, username, password):
+        self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(username, password)
+
     def onEvent(self, layerEvent):
         if layerEvent.getName() == self.__class__.EVENT_START:
             self.startInput()
@@ -105,11 +106,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         else:
             self.output("Not connected", tag = "Error", prompt = False)
             return False
-
-    def addToIqs(self, iqEntity):
-        self.iqs[iqEntity.getId()] = iqEntity
-
-
 
     #### batch cmds #####
     def sendMessageAndDisconnect(self, credentials, jid, message):
@@ -170,16 +166,64 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     ####### contacts/ profiles ####################
     @clicmd("Set status text")
-    def status_set(self, text):
+    def profile_setStatus(self, text):
         if self.assertConnected():
+
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("Status updated successfully")
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error updating status")
+
             entity = SetStatusIqProtocolEntity(text)
-            self.toLower(entity)
+            self._sendIq(entity, onSuccess, onError)
 
     @clicmd("Get profile picture for contact")
     def contact_picture(self, jid):
         if self.assertConnected():
-            entity = PictureIqProtocolEntity(self.aliasToJid(jid))
-            self.toLower(entity)
+            entity = GetPictureIqProtocolEntity(self.aliasToJid(jid), preview=False)
+            self._sendIq(entity, self.onGetContactPictureResult)
+
+    @clicmd("Get profile picture preview for contact")
+    def contact_picturePreview(self, jid):
+        if self.assertConnected():
+            entity = GetPictureIqProtocolEntity(self.aliasToJid(jid), preview=True)
+            self._sendIq(entity, self.onGetContactPictureResult)
+
+    @clicmd("Get lastseen for contact")
+    def contact_lastseen(self, jid):
+        if self.assertConnected():
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("%s lastseen %s seconds ago" % (resultIqEntity.getFrom(), resultIqEntity.getSeconds()))
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error getting lastseen information for %s" % originalIqEntity.getTo())
+
+            entity = LastseenIqProtocolEntity(self.aliasToJid(jid))
+            self._sendIq(entity, onSuccess, onError)
+
+    @clicmd("Set profile picture")
+    def profile_setPicture(self, path):
+        if self.assertConnected() and ModuleTools.INSTALLED_PIL():
+
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("Profile picture updated successfully")
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error updating profile picture")
+
+            #example by @aesedepece in https://github.com/tgalal/yowsup/pull/781
+            #modified to support python3
+            from PIL import Image
+            src = Image.open(path)
+            pictureData = src.resize((640, 640)).tobytes("jpeg", "RGB")
+            picturePreview = src.resize((96, 96)).tobytes("jpeg", "RGB")
+            iq = SetPictureIqProtocolEntity(self.getOwnJid(), picturePreview, pictureData)
+            self._sendIq(iq, onSuccess, onError)
+        else:
+            logger.error("Python PIL library is not installed, can't set profile picture")
+
+    ########### groups
 
     @clicmd("List all groups you belong to", 5)
     def groups_list(self):
@@ -188,54 +232,99 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             self.toLower(entity)
 
     @clicmd("Leave a group you belong to", 4)
-    def group_leave(self, jid):
+    def group_leave(self, group_jid):
         if self.assertConnected():
-            entity = LeaveGroupsIqProtocolEntity([self.aliasToJid(jid)])
+            entity = LeaveGroupsIqProtocolEntity([self.aliasToJid(group_jid)])
             self.toLower(entity)
 
-    @clicmd("Create a new group with the specified subject", 3)
-    def groups_create(self, subject):
+    @clicmd("Create a new group with the specified subject and participants. Jids are a comma separated list but optional.", 3)
+    def groups_create(self, subject, jids = None):
         if self.assertConnected():
-            entity = CreateGroupsIqProtocolEntity(subject)
-            self.addToIqs(entity)
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')] if jids else []
+            entity = CreateGroupsIqProtocolEntity(subject, participants=jids)
             self.toLower(entity)
 
-    @clicmd("Invite to group")
+    @clicmd("Invite to group. Jids are a comma separated list")
     def group_invite(self, group_jid, jids):
         if self.assertConnected():
             jids = [self.aliasToJid(jid) for jid in jids.split(',')]
             entity = AddParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
             self.toLower(entity)
 
-    @clicmd("Kick from group")
+    @clicmd("Promote admin of a group. Jids are a comma separated list")
+    def group_promote(self, group_jid, jids):
+        if self.assertConnected():
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')]
+            entity = PromoteParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
+            self.toLower(entity)
+
+    @clicmd("Remove admin of a group. Jids are a comma separated list")
+    def group_demote(self, group_jid, jids):
+        if self.assertConnected():
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')]
+            entity = DemoteParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
+            self.toLower(entity)
+
+    @clicmd("Kick from group. Jids are a comma separated list")
     def group_kick(self, group_jid, jids):
         if self.assertConnected():
             jids = [self.aliasToJid(jid) for jid in jids.split(',')]
             entity = RemoveParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
             self.toLower(entity)
 
-    @clicmd("Get pariticipants in a group")
-    def group_participants(self, group_jid):
+    @clicmd("Change group subject")
+    def group_setSubject(self, group_jid, subject):
         if self.assertConnected():
-            entity = ParticipantsGroupsIqProtocolEntity(self.aliasToJid(group_jid))
+            entity = SubjectGroupsIqProtocolEntity(self.aliasToJid(group_jid), subject)
             self.toLower(entity)
 
-    @clicmd("Change group subject")
-    def group_setSubject(self, jid, subject):
+    @clicmd("Set group picture")
+    def group_picture(self, group_jid, path):
+        if self.assertConnected() and ModuleTools.INSTALLED_PIL():
+
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("Group picture updated successfully")
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error updating Group picture")
+
+            #example by @aesedepece in https://github.com/tgalal/yowsup/pull/781
+            #modified to support python3
+            from PIL import Image
+            src = Image.open(path)
+            pictureData = src.resize((640, 640)).tobytes("jpeg", "RGB")
+            picturePreview = src.resize((96, 96)).tobytes("jpeg", "RGB")
+            iq = SetPictureIqProtocolEntity(self.aliasToJid(group_jid), picturePreview, pictureData)
+            self._sendIq(iq, onSuccess, onError)
+        else:
+            logger.error("Python PIL library is not installed, can't set profile picture")
+
+
+    @clicmd("Get group info")
+    def group_info(self, group_jid):
         if self.assertConnected():
-            entity = SubjectGroupsIqProtocolEntity(self.aliasToJid(jid), subject)
+            entity = InfoGroupsIqProtocolEntity(self.aliasToJid(group_jid))
             self.toLower(entity)
 
     @clicmd("Get shared keys")
-    def keys_get(self, jid):
-        if self.assertConnected():
-            entity = GetKeysIqProtocolEntity(self.aliasToJid(jid))
-            self.toLower(entity)
+    def keys_get(self, jids):
+        if ModuleTools.INSTALLED_AXOLOTL():
+            from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
+            if self.assertConnected():
+                jids = [self.aliasToJid(jid) for jid in jids.split(',')]
+                entity = GetKeysIqProtocolEntity(jids)
+                self.toLower(entity)
+        else:
+            logger.error("Axolotl is not installed")
 
     @clicmd("Send prekeys")
     def keys_set(self):
-        if self.assertConnected():
-            self.broadcastEvent(YowLayerEvent(YowAxolotlLayer.EVENT_PREKEYS_SET))
+        if ModuleTools.INSTALLED_AXOLOTL():
+            from yowsup.layers.axolotl import YowAxolotlLayer
+            if self.assertConnected():
+                self.broadcastEvent(YowLayerEvent(YowAxolotlLayer.EVENT_PREKEYS_SET))
+        else:
+            logger.error("Axolotl is not installed")
 
     @clicmd("Send init seq")
     def seq(self):
@@ -281,16 +370,25 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def message_delivered(self, message_id):
         pass
 
-    @clicmd("Send and image")
-    def image_send(self, number, path):
+    @clicmd("Send an image with optional caption")
+    def image_send(self, number, path, caption = None):
         if self.assertConnected():
             jid = self.aliasToJid(number)
             entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE, filePath=path)
-            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity)
+            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity, caption)
             errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
 
             self._sendIq(entity, successFn, errorFn)
 
+    @clicmd("Send audio file")
+    def audio_send(self, number, path):
+        if self.assertConnected():
+            jid = self.aliasToJid(number)
+            entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO, filePath=path)
+            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity)
+            errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
+
+            self._sendIq(entity, successFn, errorFn)
     @clicmd("Send typing state")
     def state_typing(self, jid):
         if self.assertConnected():
@@ -312,24 +410,20 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Disconnect")
     def disconnect(self):
         if self.assertConnected():
+
             self.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT))
 
     @clicmd("Quick login")
     def L(self):
-        return self.login(*self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS))
+        if self.connected:
+            return self.output("Already connected, disconnect first")
+        self.getLayerInterface(YowNetworkLayer).connect()
+        return True
 
     @clicmd("Login to WhatsApp", 0)
     def login(self, username, b64password):
-
-        if self.connected:
-            return self.output("Already connected, disconnect first")
-
-        self.getStack().setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, (username, b64password))
-        connectEvent = YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT)
-        self.broadcastEvent(connectEvent)
-        return True #prompt will wait until notified
-
-
+        self.setCredentials(username, b64password)
+        return self.L()
 
     ######## receive #########
 
@@ -343,8 +437,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @ProtocolEntityCallback("receipt")
     def onReceipt(self, entity):
-        ack = OutgoingAckProtocolEntity(entity.getId(), "receipt", "delivery")
-        self.toLower(ack)
+        self.toLower(entity.ack())
 
     @ProtocolEntityCallback("ack")
     def onAck(self, entity):
@@ -373,8 +466,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         else:
             self.output("From :%s, Type: %s" % (self.jidToAlias(notification.getFrom()), notification.getType()), tag = "Notification")
         if self.sendReceipts:
-            receipt = OutgoingReceiptProtocolEntity(notification.getId(), notification.getFrom())
-            self.toLower(receipt)
+            self.toLower(notification.ack())
 
     @ProtocolEntityCallback("message")
     def onMessage(self, message):
@@ -400,8 +492,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
         self.output(output, tag = None, prompt = not self.sendReceipts)
         if self.sendReceipts:
-            receipt = OutgoingReceiptProtocolEntity(message.getId(), message.getFrom())
-            self.toLower(receipt)
+            self.toLower(message.ack())
             self.output("Sent delivered receipt", tag = "Message %s" % message.getId())
 
 
@@ -423,31 +514,39 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             )
 
 
-    def doSendImage(self, filePath, url, to, ip = None):
-        entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
+    def doSendImage(self, filePath, url, to, ip = None, caption = None):
+        entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to, caption = caption)
         self.toLower(entity)
+
+    def doSendAudio(self, filePath, url, to, ip = None, caption = None):
+        entity = AudioDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
+        self.toLower(entity)
+
     def __str__(self):
         return "CLI Interface Layer"
 
     ########### callbacks ############
 
-    def onRequestUploadResult(self, jid, filePath, resultRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity):
-        if resultRequestUploadIqProtocolEntity.isDuplicate():
-            self.doSendImage(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid,
-                             resultRequestUploadIqProtocolEntity.getIp())
+    def onRequestUploadResult(self, jid, filePath, resultRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity, caption = None):
+
+        if requestUploadIqProtocolEntity.mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO:
+            doSendFn = self.doSendAudio
         else:
-            # successFn = lambda filePath, jid, url: self.onUploadSuccess(filePath, jid, url, resultRequestUploadIqProtocolEntity.getIp())
+            doSendFn = self.doSendImage
+
+        if resultRequestUploadIqProtocolEntity.isDuplicate():
+            doSendFn(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid,
+                             resultRequestUploadIqProtocolEntity.getIp(), caption)
+        else:
+            successFn = lambda filePath, jid, url: doSendFn(filePath, url, jid, resultRequestUploadIqProtocolEntity.getIp(), caption)
             mediaUploader = MediaUploader(jid, self.getOwnJid(), filePath,
                                       resultRequestUploadIqProtocolEntity.getUrl(),
                                       resultRequestUploadIqProtocolEntity.getResumeOffset(),
-                                      self.onUploadSuccess, self.onUploadError, self.onUploadProgress, async=False)
+                                      successFn, self.onUploadError, self.onUploadProgress, async=False)
             mediaUploader.start()
 
     def onRequestUploadError(self, jid, path, errorRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity):
         logger.error("Request upload for file %s for %s failed" % (path, jid))
-
-    def onUploadSuccess(self, filePath, jid, url):
-        self.doSendImage(filePath, url, jid)
 
     def onUploadError(self, filePath, jid, url):
         logger.error("Upload file %s to %s for %s failed!" % (filePath, url, jid))
@@ -455,6 +554,15 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def onUploadProgress(self, filePath, jid, url, progress):
         sys.stdout.write("%s => %s, %d%% \r" % (os.path.basename(filePath), jid, progress))
         sys.stdout.flush()
+
+    def onGetContactPictureResult(self, resultGetPictureIqProtocolEntiy, getPictureIqProtocolEntity):
+        # do here whatever you want
+        # write to a file
+        # or open
+        # or do nothing
+        # write to file example:
+        #resultGetPictureIqProtocolEntiy.writeToFile("/tmp/yowpics/%s_%s.jpg" % (getPictureIqProtocolEntity.getTo(), "preview" if resultGetPictureIqProtocolEntiy.isPreview() else "full"))
+        pass
 
     def __str__(self):
         return "CLI Interface Layer"

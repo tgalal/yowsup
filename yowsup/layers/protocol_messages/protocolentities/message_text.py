@@ -16,7 +16,7 @@ class TextMessageProtocolEntity(MessageProtocolEntity):
 
     def __str__(self):
         out  = super(TextMessageProtocolEntity, self).__str__()
-        out += "body: %s\n" % self.body
+        out += "Body: %s\n" % self.body
         return out
 
     def setBody(self, body):

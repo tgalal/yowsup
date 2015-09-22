@@ -38,7 +38,7 @@ class ListParticipantsResultIqProtocolEntity(ResultIqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = ResultIqProtocolEntity.fromProtocolTreeNode(node)
+        entity = super(ListParticipantsResultIqProtocolEntity, ListParticipantsResultIqProtocolEntity).fromProtocolTreeNode(node)
         entity.__class__ = ListParticipantsResultIqProtocolEntity
         entity.setParticipants([ pNode.getAttributeValue("jid") for pNode in node.getAllChildren() ])
         return entity
