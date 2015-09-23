@@ -74,4 +74,4 @@ class LiteAxolotlStore(AxolotlStore):
         return self.signedPreKeyStore.containsSignedPreKey(signedPreKeyId)
 
     def removeSignedPreKey(self, signedPreKeyId):
-        return self.signedPreKeyStore.containsSignedPreKey()
+        self.signedPreKeyStore.removeSignedPreKey(signedPreKeyId)
