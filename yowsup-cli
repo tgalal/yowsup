@@ -213,6 +213,17 @@ class DemosArgParser(YowArgParser):
         echoOpts = self.add_argument_group("Echo client demo")
         echoOpts.add_argument('-e', '--echo', action = "store_true", help = "Start the Yowsup Echo client")
 
+        techoOpts = self.add_argument_group("Twisted Echo client demo")
+        techoOpts.add_argument('-t', '--techo', action = "store_true", help = "Start the Yowsup Twisted Echo client")
+
+        imapOpts = self.add_argument_group("Imap poll client demo")
+        imapOpts.add_argument('-i', '--imap', action = "store", metavar=( "user", "password", "hoststr", "dst_phone" ), nargs = 4, 
+                                                                    help = "Start the Yowsup Imap Pooling bridge. hostsrt example: ssl:host=example.com:port=993")
+
+        smtpOpts = self.add_argument_group("Smtp sent client demo")
+        smtpOpts.add_argument('-sm', '--smtp', action = "store", metavar=( "user", "password", "hoststr", "dst", "reply_to" ), nargs = 5, 
+                                                                    help = "Start the Yowsup Smtp send bridge. hostsrt example: ssl:host=example.com:port=993")
+
         sendOpts = self.add_argument_group("Send client demo")
         sendOpts.add_argument('-s', '--send', action="store", help = "Send a message to specified phone number, "
                                                                      "wait for server receipt and exit",
@@ -227,6 +238,10 @@ class DemosArgParser(YowArgParser):
             self.startCmdline()
         elif self.args["echo"]:
             self.startEcho()
+        elif self.args["techo"]:
+            self.startTEcho()
+        elif self.args["imap"] or self.args["smtp"]:
+            self.startImap()
         elif self.args["send"]:
             self.startSendClient()
         elif self.args["sync"]:
@@ -253,6 +268,38 @@ class DemosArgParser(YowArgParser):
             sys.exit(1)
         stack = cli.YowsupCliStack(credentials, not self.args["unmoxie"])
         stack.start()
+
+    def startTEcho(self):
+        from yowsup.demos import twisted_client
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+        try:
+            stack = twisted_client.YowsupTwistedEchoStack(credentials, self.args["moxie"])
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+    def startImap(self):
+        from yowsup.demos import imap_bridge
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+        try:
+            imap_data = None
+            if "imap" in self.args:
+                imap_data = self.args["imap"]
+            smtp_data = None
+            if "smtp" in self.args:
+                smtp_data = self.args["smtp"]
+            stack = imap_bridge.YowsupImapBridgeStack(imap_data, smtp_data, credentials, self.args["moxie"])
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
 
     def startEcho(self):
         from yowsup.demos import echoclient
