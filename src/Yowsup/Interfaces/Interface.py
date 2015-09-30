@@ -66,7 +66,9 @@ class SignalInterfaceBase(object):
 			"group_setPictureSuccess",
 			"group_setPictureError",
 			"group_gotPicture",
-			"group_gotGroups",			
+			"group_gotGroups",
+			"group_created",
+			"group_promote",			
 			
 			"notification_contactProfilePictureUpdated",
 			"notification_contactProfilePictureRemoved",
@@ -76,6 +78,7 @@ class SignalInterfaceBase(object):
 			"notification_groupParticipantRemoved",
 			"notification_contactAdded",
 			"notification_contactUpdated",
+			"notification_contactRemoved",
 
 			"contact_gotProfilePictureId",
 			"contact_gotProfilePictureIds",
