@@ -47,6 +47,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         self.connected = False
         self.username = None
         self.sendReceipts = True
+        self.sendRead = True
         self.disconnectAction = self.__class__.DISCONNECT_ACTION_PROMPT
         self.credentials = None
 
@@ -492,8 +493,8 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
         self.output(output, tag = None, prompt = not self.sendReceipts)
         if self.sendReceipts:
-            self.toLower(message.ack())
-            self.output("Sent delivered receipt", tag = "Message %s" % message.getId())
+            self.toLower(message.ack(self.sendRead))
+            self.output("Sent delivered receipt"+" and Read" if self.sendRead else "", tag = "Message %s" % message.getId())
 
 
     def getTextMessageBody(self, message):
