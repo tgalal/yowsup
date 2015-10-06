@@ -217,11 +217,11 @@ class YowsupConnectionManager:
 				return True
 			except ConnectionClosedException:
 				self._d("CONNECTION DOWN")
-				#self.disconnect("closed")
-				if self.readerThread.isAlive():
-					self.readerThread.terminate()
-					self.readerThread.join()
-					self.readerThread.sendDisconnected("closed")
+				self.disconnect("closed")
+				#if self.readerThread.isAlive():
+				#	self.readerThread.terminate()
+				#	self.readerThread.join()
+				#	self.readerThread.sendDisconnected("closed")
 		
 		return False
 		
@@ -298,6 +298,7 @@ class YowsupConnectionManager:
 			self.readerThread.ping = self.sendPing
 			self.readerThread.sendCleanDirty = self.sendCleanDirty
 			self.readerThread.sendNotificationReceived = self.sendNotificationReceived
+			self.readerThread.sendNotificationReceipt = self.sendNotificationReceipt
 			
 	
 			self.signalInterface.send("auth_success", (username,))
@@ -517,7 +518,7 @@ class YowsupConnectionManager:
 	def sendAudio(self, jid, url, name, size):
 		return "audio"
 
-	@sendMessage
+	@sendMediaMessage
 	def sendLocation(self, jid, latitude, longitude, preview):
 		self._d("sending location (" + latitude + ":" + longitude + ")")
 
@@ -553,8 +554,8 @@ class YowsupConnectionManager:
 		idx = self.makeId("get_groups_")
 		self.readerThread.requests[idx] = self.readerThread.parseGroups;
 
-		queryNode = ProtocolTreeNode("list",{"type":gtype})
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":"g.us","xmlns":"w:g"},[queryNode])
+		queryNode = ProtocolTreeNode(gtype)
+		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":"g.us","xmlns":"w:g2"},[queryNode])
 
 		self._writeNode(iqNode)
 
@@ -565,7 +566,7 @@ class YowsupConnectionManager:
 		self.readerThread.requests[idx] = self.readerThread.parseGroupInfo;
 
 		queryNode = ProtocolTreeNode("query")
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":jid,"xmlns":"w:g"},[queryNode])
+		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"get","to":jid,"xmlns":"w:g2"},[queryNode])
 
 		self._writeNode(iqNode)
 
@@ -576,7 +577,7 @@ class YowsupConnectionManager:
 		self.readerThread.requests[idx] = self.readerThread.parseGroupCreated;
 
 		queryNode = ProtocolTreeNode("group",{"action":"create","subject":subject})
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":"g.us","xmlns":"w:g"},[queryNode])
+		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":"g.us","xmlns":"w:g2"},[queryNode])
 
 		self._writeNode(iqNode)
 
@@ -587,7 +588,7 @@ class YowsupConnectionManager:
 		self.readerThread.requests[idx] = self.readerThread.parseGroupCreated;
 
 		queryNode = ProtocolTreeNode("group",{"action":"delete"})
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid,"xmlns":"w:g"},[queryNode])
+		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid,"xmlns":"w:g2"},[queryNode])
 
 		self._writeNode(iqNode)
 
@@ -604,7 +605,7 @@ class YowsupConnectionManager:
 			innerNodeChildren.append( ProtocolTreeNode("participant",{"jid":part}) )
 
 		queryNode = ProtocolTreeNode("add",None,innerNodeChildren)
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid,"xmlns":"w:g"},[queryNode])
+		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid,"xmlns":"w:g2"},[queryNode])
 
 		self._writeNode(iqNode)
 
@@ -620,7 +621,7 @@ class YowsupConnectionManager:
 			innerNodeChildren.append( ProtocolTreeNode("participant",{"jid":part}) )
 
 		queryNode = ProtocolTreeNode("remove",None,innerNodeChildren)
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid,"xmlns":"w:g"},[queryNode])
+		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid,"xmlns":"w:g2"},[queryNode])
 
 		self._writeNode(iqNode)
 
@@ -634,7 +635,7 @@ class YowsupConnectionManager:
 		innerNodeChildren.append( ProtocolTreeNode("group",{"id":gjid}) )
 
 		queryNode = ProtocolTreeNode("leave",None,innerNodeChildren)
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":"g.us","xmlns":"w:g"},[queryNode])
+		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":"g.us","xmlns":"w:g2"},[queryNode])
 
 		self._writeNode(iqNode)
 
@@ -645,7 +646,7 @@ class YowsupConnectionManager:
 		self.readerThread.requests[idx] = self.readerThread.parseGroupSubject
 
 		queryNode = ProtocolTreeNode("subject",{"value":subject})
-		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid,"xmlns":"w:g"},[queryNode]);
+		iqNode = ProtocolTreeNode("iq",{"id":idx,"type":"set","to":gjid,"xmlns":"w:g2"},[queryNode]);
 
 		self._writeNode(iqNode)
 
@@ -1127,7 +1128,7 @@ class ReaderThread(threading.Thread):
 							status = None if setNode is None else (setNode.data if sys.version_info < (3, 0) else setNode.data.encode('latin-1').decode());
 							
 							if status is not None:
-								self.signalInterface.send("contact_statusReceived",(fromJid, status))
+								self.signalInterface.send("contact_statusReceived",(fromJid, status, msgId))
 
 							#self.sendNotificationReceived(notificationTo, notificationId, fromJid, participant, notificationType, None)
 
@@ -1148,13 +1149,53 @@ class ReaderThread(threading.Thread):
 							contactNode = node.getChild("add")
 							if contactNode is not None:
 								contactJid = contactNode.getAttributeValue("jid")
-								self.signalInterface.send("notification_contactAdded", (contactJid, ))
-							else:
-								contactNode = node.getChild("update")
+								self.signalInterface.send("notification_contactAdded", (fromJid, contactJid, msgId))
+							contactNode = node.getChild("update")
+							if contactNode is not None:
 								contactJid = contactNode.getAttributeValue("jid")
-								self.signalInterface.send("notification_contactUpdated", (contactJid, ))
+								self.signalInterface.send("notification_contactUpdated", (fromJid, contactJid, msgId))
+							contactNode = node.getChild("remove")
+							if contactNode is not None:
+								contactJid = contactNode.getAttributeValue("jid")
+								self.signalInterface.send("notification_contactRemoved", (fromJid, contactJid, msgId))
 							contactsNode = ProtocolTreeNode("sync", {"contacts": "out"})
 							#self.sendNotificationReceived(fromJid, notificationId, notificationTo, participant, notificationType, contactsNode)
+						elif notificationType == "w:gp2":
+                                                        bodyNode = node.getChild("subject")
+                                                        if bodyNode is not None:
+								receiptRequested = True;
+                                                        	newSubject =  bodyNode.getAttributeValue("subject").encode('latin-1').decode();
+                                                        	author = bodyNode.getAttributeValue("s_o");
+                                                                attribute_t = bodyNode.getAttributeValue("s_t");
+                                                        	if newSubject is not None:
+                                                                	self.signalInterface.send("group_subjectReceived",(msgId, fromJid, author, newSubject, int(attribute_t),  receiptRequested))
+        
+							bodyNode = node.getChild("create")
+                                                        if bodyNode is not None:
+								bodyNode = bodyNode.getChild("group")
+								if bodyNode is not None:
+                                                                	receiptRequested = True;
+                                                                	newSubject =  bodyNode.getAttributeValue("subject").encode('latin-1').decode();
+                                                                	author = bodyNode.getAttributeValue("s_o");
+                                                                	attribute_t = bodyNode.getAttributeValue("s_t");
+                                                                	self.signalInterface.send("group_created",(msgId, fromJid, author, newSubject, int(attribute_t),  receiptRequested))
+							bodyNode = node.getChild("promote")
+                                                        if bodyNode is not None:
+								bodyNode = bodyNode.getChild("participant")
+                                                                if bodyNode is not None:
+									admin = bodyNode.getAttributeValue("jid")
+                                                                	receiptRequested = True;                                                                                                                                  
+                                                                self.signalInterface.send("group_promote",(msgId, fromJid, admin,  receiptRequested))
+							bodyNode = node.getChild("remove")
+                                                        if bodyNode is not None:
+                                                                receiptRequested = True;
+                                                                newSubject =  ""
+                                                                author = ""
+                                                                self.signalInterface.send("group_subjectReceived",(msgId, fromJid, author, newSubject, int(timestamp),  receiptRequested))
+
+
+                                                else:
+							self.sendNotificationReceipt(fromJid,msgId)                                                                       
 
 					elif ProtocolTreeNode.tagEquals(node, "receipt"):
 						receiptType = node.getAttributeValue("type");
@@ -1238,11 +1279,12 @@ class ReaderThread(threading.Thread):
 
 
 	def parseGroups(self,node):
-		children = node.getAllChildren("group");
+		groupsNode = node.getChild("groups");
+		children = groupsNode.getAllChildren("group");
 		groups = []
 		for groupNode in children:
 			jid = groupNode.getAttributeValue("id") + "@g.us"
-			owner = groupNode.getAttributeValue("owner")
+			owner = groupNode.getAttributeValue("s_o") #  owner is replaced by subject owner
 			subject = groupNode.getAttributeValue("subject") if sys.version_info < (3, 0) else groupNode.getAttributeValue("subject").encode('latin-1').decode() 
 			subjectT = groupNode.getAttributeValue("s_t")
 			subjectOwner = groupNode.getAttributeValue("s_o")
@@ -1250,6 +1292,7 @@ class ReaderThread(threading.Thread):
 
 			self.signalInterface.send("group_gotInfo",(jid, owner, subject, subjectOwner, int(subjectT),int(creation)))
 			groups.append((jid, owner, subject, subjectOwner, int(subjectT),int(creation)))
+			self.parseParticipants(groupNode)
 
 		self.signalInterface.send("group_gotGroups", (groups,))
 
@@ -1330,7 +1373,7 @@ class ReaderThread(threading.Thread):
 		self.signalInterface.send("group_setSubjectSuccess", (jid,))
 
 	def parseParticipants(self,node):
-		jid = node.getAttributeValue("from");
+		jid = node.getAttributeValue("id") + "@g.us";
 		children = node.getAllChildren("participant");
 		jids = []
 		for c in children:
@@ -1352,8 +1395,14 @@ class ReaderThread(threading.Thread):
 		return tmp
 	
 	def parseSync(self, node):
-		node_in = node.getChild("sync").getChild("in").getAllChildren("user")
-		node_out = node.getChild("sync").getChild("out").getAllChildren("user")
+                if node.getChild("sync").getChild("in") is not None:
+			node_in = node.getChild("sync").getChild("in").getAllChildren("user")
+		else:
+			node_in = {}
+		if node.getChild("sync").getChild("out") is not None:
+			node_out = node.getChild("sync").getChild("out").getAllChildren("user")
+		else:
+			node_out = {}
 		
 		_in = [item.data for item in node_in]
 		_out = [item.data for item in node_out]

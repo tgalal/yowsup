@@ -54,10 +54,10 @@ class Constants:
 	v="0.90"
 
 	tokenData = {
-		"v": "2.12.81",
-		"r": "S40-2.12.81",
-		"u": "WhatsApp/2.12.81 S40Version/14.26 Device/Nokia302",
-		"t": "PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk1430860548912{phone}",
+		"v": "2.12.89",
+		"r": "S40-2.12.89",
+		"u": "WhatsApp/2.12.89 S40Version/14.26 Device/Nokia302",
+		"t": "PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk1435688727801{phone}",
 		"d": "Nokia302"
 	}
 
