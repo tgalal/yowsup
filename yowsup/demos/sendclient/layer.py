@@ -15,6 +15,7 @@ class SendLayer(YowInterfaceLayer):
         super(SendLayer, self).__init__()
         self.ackQueue = []
         self.lock = threading.Condition()
+        self.acked = False
 
     #call back function when there is a successful connection to whatsapp server
     @ProtocolEntityCallback("success")
@@ -45,6 +46,7 @@ class SendLayer(YowInterfaceLayer):
             
         if not len(self.ackQueue):
             self.lock.release()
+            self.acked = True
             logger.info("Message sent")
             raise KeyboardInterrupt()
 

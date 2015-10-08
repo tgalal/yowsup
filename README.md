@@ -1,6 +1,4 @@
-# Yowsup 2 [![Build Status](https://travis-ci.org/tgalal/yowsup.svg?branch=master)](https://travis-ci.org/tgalal/yowsup)
-
-<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z9KKEUVYEY6BN" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
+# Yowsup 2 [![Build Status](https://travis-ci.org/dinhoabreu/yowsup.svg?branch=fix-sendclient)](https://travis-ci.org/dinhoabreu/yowsup)
 
 ## Updates (September 07, 2015)
 Yowsup v2.4 is out, See [release notes](https://github.com/tgalal/yowsup/releases/tag/v2.4)
@@ -105,6 +103,27 @@ You need to have installed python headers (from probably python-dev package) and
 python setup.py install
 ```
 Because of a bug with python-dateutil package you might get permission error for some dateutil file called requires.txt when you use yowsup (see [this bug report](https://bugs.launchpad.net/dateutil/+bug/1243202)) to fix you'll need to chmod 644 that file.
+
+#### CentOS 6/7 with [isolated Python enviroments](http://docs.python-guide.org/en/latest/dev/virtualenvs/)
+
+Install
+```bash
+yum install gcc git python-setuptools python-devel
+git clone --depth 1 https://github.com/dinhoabreu/yowsup.git
+cd yowsup
+easy_install virtualenv
+virtualenv --no-pip yowsup-env
+source yowsup-env/bin/activate # Activate enviroment
+python setup.py install
+deactivate
+```
+
+Run yowsup-cli
+```bash
+source yowsup-env/bin/activate
+yowsup-cli ...
+deactivate
+```
 
 ### Mac
 ```
