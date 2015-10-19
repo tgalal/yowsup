@@ -26,7 +26,7 @@ class SetPrivacyIqProtocolEntity(IqProtocolEntity):
 
     @staticmethod
     def checkValidNames(names):
-	names = names if names else SetPrivacyIqProtocolEntity.NAMES
+        names = names if names else SetPrivacyIqProtocolEntity.NAMES
         if not type(names) is list:
             names = [names]
 
