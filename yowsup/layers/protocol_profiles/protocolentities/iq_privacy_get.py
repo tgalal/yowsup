@@ -21,7 +21,7 @@ class GetPrivacyIqProtocolEntity(IqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-	assert node.getChild(GetPrivacyIqProtocolEntity.XMLNS) is not None, "Not a get privacy iq node %s" % node
+        assert node.getChild(GetPrivacyIqProtocolEntity.XMLNS) is not None, "Not a get privacy iq node %s" % node
         entity = IqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = GetPrivacyIqProtocolEntity
         return entity
