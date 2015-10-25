@@ -224,6 +224,35 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         else:
             logger.error("Python PIL library is not installed, can't set profile picture")
 
+    @clicmd("Get profile privacy")
+    def profile_getPrivacy(self):
+        if self.assertConnected():
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("Profile privacy is: %s" %(resultIqEntity))
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error getting profile privacy")
+
+            iq = GetPrivacyIqProtocolEntity()
+            self._sendIq(iq, onSuccess, onError)
+
+    @clicmd("Set profile privacy. Supported values are 'all', 'contacts' or 'none' ('all' by default) and names is a comma separated list of 'profile', 'status' or 'last' ('all' by default)")
+    def profile_setPrivacy(self, value="all", names=None):
+        if self.assertConnected():
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("Profile privacy set to: %s" %(resultIqEntity))
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error setting profile privacy")
+            try:
+                names = [name for name in names.split(',')] if names else None
+                iq = SetPrivacyIqProtocolEntity(value, names)
+                self._sendIq(iq, onSuccess, onError)
+            except Exception as inst:
+                self.output(inst.message)
+                return self.print_usage()
+
+
     ########### groups
 
     @clicmd("List all groups you belong to", 5)
