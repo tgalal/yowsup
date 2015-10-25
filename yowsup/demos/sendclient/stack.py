@@ -9,8 +9,8 @@ from yowsup.layers.stanzaregulator             import YowStanzaRegulator
 from yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
 from yowsup.layers.protocol_acks               import YowAckProtocolLayer
 from yowsup.layers.logger                      import YowLoggerLayer
-from yowsup.common import YowConstants
-from yowsup import env
+from yowsup.layers                             import YowParallelLayer
+
 
 class YowsupSendStack(object):
     def __init__(self, credentials, messages, encryptionEnabled = False):
@@ -24,7 +24,7 @@ class YowsupSendStack(object):
             from yowsup.layers.axolotl                     import YowAxolotlLayer
             layers = (
                 SendLayer,
-                (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
+                YowParallelLayer([YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer]),
                 YowAxolotlLayer,
                 YowLoggerLayer,
                 YowCoderLayer,
@@ -35,7 +35,7 @@ class YowsupSendStack(object):
         else:
             layers = (
                 SendLayer,
-                (YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer),
+                YowParallelLayer([YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer]),
                 YowLoggerLayer,
                 YowCoderLayer,
                 YowCryptLayer,
