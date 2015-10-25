@@ -236,7 +236,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             iq = GetPrivacyIqProtocolEntity()
             self._sendIq(iq, onSuccess, onError)
 
-    @clicmd("Set profile privacy. Supported values are 'all', 'contacts' or 'none' ('all' by default) and names is a comma separated list of 'profile', 'status' or 'last' ('all' by default)")
+    @clicmd("Profile privacy. value=all|contacts|none names=profile|status|last. Names are comma separated, defaults to all.")
     def profile_setPrivacy(self, value="all", names=None):
         if self.assertConnected():
             def onSuccess(resultIqEntity, originalIqEntity):
@@ -534,7 +534,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             return self.getDownloadableMediaMessageBody(message)
         else:
             return "[Media Type: %s]" % message.getMediaType()
-       
+
 
     def getDownloadableMediaMessageBody(self, message):
          return "[Media Type:{media_type}, Size:{media_size}, URL:{media_url}]".format(
@@ -600,4 +600,3 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Print this message")
     def help(self):
         self.print_usage()
-    
