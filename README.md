@@ -29,7 +29,7 @@ Yowsup 2.2.78 is out, see [release notes](https://github.com/tgalal/yowsup/relea
 
 Yowsup 2.2.15 is out.
 
-Image upload and send is now implemented. [Read here](https://github.com/tgalal/yowsup/wiki/Yowsup2:-Upload-and-send-Media) how to integrate in your code, or try it out with yowsup-cli
+Image upload and send is now implemented. [Read here](https://github.com/tgalal/yowsup/wiki/Upload-and-send-Media) how to integrate in your code, or try it out with yowsup-cli
 
 [Read full release notes](https://github.com/tgalal/yowsup/releases/tag/v2.2.15)
 
@@ -56,7 +56,7 @@ This will make messages communication with WhatsApp platforms which support this
 
 For platforms which do not support encryption, they will get plaintext messages as usual.
 
-More technical details about axolotl in yowsup [here](https://github.com/tgalal/yowsup/wiki/Yowsup-2:-End-to-End-encryption)
+More technical details about axolotl in yowsup [here](https://github.com/tgalal/yowsup/wiki/End-to-End-encryption)
 
 ### New Send client demo
 
@@ -78,10 +78,9 @@ __For devs, the update is breaking for any old code. While old code will stay in
 
 Here is what you need to know about Yowsup 2.0 to get started: (Or quickly [jump to installation](#installation)):
 
- * **[The new architecture](https://github.com/tgalal/yowsup/wiki/Yowsup-2.0-Architecture)**
- * **[Create a sample app](https://github.com/tgalal/yowsup/wiki/Yowsup-2.0-Sample-app)**
+ * **[The new architecture](https://github.com/tgalal/yowsup/wiki/Architecture)**
+ * **[Create a sample app](https://github.com/tgalal/yowsup/wiki/Sample-Application)**
  * **[yowsup-cli 2.0](https://github.com/tgalal/yowsup/wiki/yowsup-cli-2.0)**
- * **[The new Command line client](https://github.com/tgalal/yowsup/wiki/Yowsup-2.0-Command-line-client)**
  * **[Yowsup development, debugging, maintainance and sanity](https://github.com/tgalal/yowsup/wiki/Yowsup-development,-debugging,-maintainance-and-sanity)**
 
 
