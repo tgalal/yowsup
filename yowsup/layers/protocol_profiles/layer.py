@@ -22,15 +22,15 @@ class YowProfilesProtocolLayer(YowProtocolLayer):
         elif entity.getXmlns() == "status":
             self._sendIq(entity, self.onSetStatusResult, self.onSetStatusError)
         elif entity.getXmlns() == "privacy":
-            self._sendIq(entity, self.onSetPrivacyResult, self.onSetPrivacyError)
+            self._sendIq(entity, self.onPrivacyResult, self.onPrivacyError)
 
     def recvIq(self, node):
         pass
 
-    def onSetPrivacyResult(self, resultNode, originIqRequestEntity):
+    def onPrivacyResult(self, resultNode, originIqRequestEntity):
         self.toUpper(ResultPrivacyIqProtocolEntity.fromProtocolTreeNode(resultNode))
 
-    def onSetPrivacyError(self, errorNode, originalIqRequestEntity):
+    def onPrivacyError(self, errorNode, originalIqRequestEntity):
         self.toUpper(ErrorIqProtocolEntity.fromProtocolTreeNode(errorNode))
 
     def onSetStatusResult(self, resultNode, originIqRequestEntity):
@@ -56,4 +56,3 @@ class YowProfilesProtocolLayer(YowProtocolLayer):
 
     def onDeletePictureError(self, errorNode, originalIqRequestEntity):
         self.toUpper(ErrorIqProtocolEntity.fromProtocolTreeNode(errorNode))
-

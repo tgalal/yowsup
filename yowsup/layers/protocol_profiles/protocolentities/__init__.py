@@ -6,4 +6,4 @@ from .iq_pictures_list import ListPicturesIqProtocolEntity
 from .iq_picture_set import SetPictureIqProtocolEntity
 from .iq_privacy_set import SetPrivacyIqProtocolEntity
 from .iq_privacy_get import GetPrivacyIqProtocolEntity
-from .iq_result_privacy_get import ResultPrivacyIqProtocolEntity
+from .iq_privacy_result import ResultPrivacyIqProtocolEntity
