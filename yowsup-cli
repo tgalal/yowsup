@@ -48,7 +48,7 @@ class YowArgParser(argparse.ArgumentParser):
             out = {}
             for l in f:
                 line = l.strip()
-                if len(line) and line[0] not in ('#',';'):
+                if len(line) and line[0] not in ('#',';','['):  # So I can use [KEY] in my demos
                     prep = line.split('#', 1)[0].split(';', 1)[0].split('=', 1)
                     varname = prep[0].strip()
                     val = prep[1].strip()
