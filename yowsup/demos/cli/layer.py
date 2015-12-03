@@ -389,6 +389,17 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
 
             self._sendIq(entity, successFn, errorFn)
+
+    @clicmd("Send a video with optional caption")
+    def video_send(self, number, path, caption = None):
+        if self.assertConnected():
+            jid = self.aliasToJid(number)
+            entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO, filePath=path)
+            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity, caption)
+            errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
+
+            self._sendIq(entity, successFn, errorFn)
+
     @clicmd("Send typing state")
     def state_typing(self, jid):
         if self.assertConnected():
@@ -522,6 +533,10 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         entity = AudioDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
         self.toLower(entity)
 
+    def doSendVideo(self, filePath, url, to, ip = None, caption = None):
+        entity = VideoDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to, caption = caption)
+        self.toLower(entity)
+
     def __str__(self):
         return "CLI Interface Layer"
 
@@ -531,8 +546,10 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
         if requestUploadIqProtocolEntity.mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO:
             doSendFn = self.doSendAudio
-        else:
+        elif requestUploadIqProtocolEntity.mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE:
             doSendFn = self.doSendImage
+        elif requestUploadIqProtocolEntity.mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO:
+            doSendFn = self.doSendVideo
 
         if resultRequestUploadIqProtocolEntity.isDuplicate():
             doSendFn(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid,
