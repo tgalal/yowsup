@@ -214,7 +214,7 @@ class DemosArgParser(YowArgParser):
         echoOpts.add_argument('-e', '--echo', action = "store_true", help = "Start the Yowsup Echo client")
 
         middlemanOpts = self.add_argument_group("Middleman demo")
-        middlemanOpts.add_argument('-q','--middleman', action = "store", help = "Start the Yowsup Middleman demo",nargs=2,metavar=("grp1", "grp2"))
+        middlemanOpts.add_argument('-m','--middleman', action = "store", help = "Start the Yowsup Middleman demo",nargs=2,metavar=("grp1", "grp2"))
 
         sendOpts = self.add_argument_group("Send client demo")
         sendOpts.add_argument('-s', '--send', action="store", help = "Send a message to specified phone number, "

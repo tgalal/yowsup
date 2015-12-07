@@ -17,9 +17,9 @@ class MiddleManLayer(YowInterfaceLayer):
 # configFile.close()
         groups = self.getProp(self.__class__.PROP_GROUPS, [])
         grp1 = groups[0]
-        print grp1
+        # print grp1
         grp2 = groups[1]
-        print grp2
+        # print grp2
         if messageProtocolEntity.getType() == 'text':
             self.onTextMessage(messageProtocolEntity)
         elif messageProtocolEntity.getType() == 'media':
