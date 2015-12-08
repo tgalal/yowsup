@@ -2,7 +2,7 @@ from .env import YowsupEnv
 import base64
 import hashlib
 class S40YowsupEnv(YowsupEnv):
-    _VERSION = "2.13.5"
+    _VERSION = "2.13.21"
     _OS_NAME= "S40"
     _OS_VERSION = "14.26"
     _DEVICE_NAME = "Nokia302"
