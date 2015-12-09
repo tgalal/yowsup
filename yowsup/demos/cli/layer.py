@@ -1,5 +1,5 @@
 from .cli import Cli, clicmd
-from yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback
+from yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback, EventCallback
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.network import YowNetworkLayer
@@ -80,25 +80,29 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     def setCredentials(self, username, password):
         self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(username, password)
-
-    def onEvent(self, layerEvent):
-        if layerEvent.getName() == self.__class__.EVENT_START:
-            self.startInput()
-            return True
-        elif layerEvent.getName() == self.__class__.EVENT_SENDANDEXIT:
-            credentials = layerEvent.getArg("credentials")
-            target = layerEvent.getArg("target")
-            message = layerEvent.getArg("message")
-            self.sendMessageAndDisconnect(credentials, target, message)
-
-            return True
-        elif layerEvent.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
-            self.output("Disconnected: %s" % layerEvent.getArg("reason"))
-            if self.disconnectAction == self.__class__.DISCONNECT_ACTION_PROMPT:
-                self.connected = False
-                self.notifyInputThread()
-            else:
-                os._exit(os.EX_OK)
+        
+        
+    @EventCallback(EVENT_START)
+    def onStart(self, layerEvent):
+        self.startInput()
+        return True
+    
+    @EventCallback(EVENT_SENDANDEXIT)
+    def onSendAndExit(self, layerEvent):
+        credentials = layerEvent.getArg("credentials")
+        target = layerEvent.getArg("target")
+        message = layerEvent.getArg("message")
+        self.sendMessageAndDisconnect(credentials, target, message)
+        return True
+    
+    @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
+    def onStateDisconnected(self,layerEvent):
+        self.output("Disconnected: %s" % layerEvent.getArg("reason"))
+        if self.disconnectAction == self.__class__.DISCONNECT_ACTION_PROMPT:
+           self.connected = False
+           self.notifyInputThread()
+        else:
+           os._exit(os.EX_OK)        
 
     def assertConnected(self):
         if self.connected:

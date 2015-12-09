@@ -11,22 +11,35 @@ class ProtocolEntityCallback(object):
         self.entityType = entityType
 
     def __call__(self, fn):
-        fn.callback = self.entityType
+        fn.entity_callback = self.entityType
+        return fn
+    
+class EventCallback(object):
+    def __init__(self, eventName):
+        self.eventName = eventName
+
+    def __call__(self, fn):
+        fn.event_callback = self.eventName
         return fn
 
 class YowInterfaceLayer(YowLayer):
 
     def __init__(self):
         super(YowInterfaceLayer, self).__init__()
-        self.callbacks = {}
+        self.entity_callbacks = {}
+        self.event_callbacks = {}
         self.iqRegistry = {}
         # self.receiptsRegistry = {}
         members = inspect.getmembers(self, predicate=inspect.ismethod)
         for m in members:
-            if hasattr(m[1], "callback"):
+            if hasattr(m[1], "entity_callback"):
                 fname = m[0]
                 fn = m[1]
-                self.callbacks[fn.callback] = getattr(self, fname)
+                self.entity_callbacks[fn.entity_callback] = getattr(self, fname)
+            if hasattr(m[1], "event_callback"):
+                fname = m[0]
+                fn = m[1]
+                self.event_callbacks[fn.event_callback] = getattr(self, fname)
 
     def _sendIq(self, iqEntity, onSuccess = None, onError = None):
         assert iqEntity.getTag() == "iq", "Expected *IqProtocolEntity in _sendIq, got %s" % iqEntity.getTag()
@@ -94,10 +107,16 @@ class YowInterfaceLayer(YowLayer):
     def receive(self, entity):
         if not self.processIqRegistry(entity):
             entityType = entity.getTag()
-            if entityType in self.callbacks:
-                self.callbacks[entityType](entity)
+            if entityType in self.entity_callbacks:
+                self.entity_callbacks[entityType](entity)
             else:
                 self.toUpper(entity)
+                
+    def onEvent(self, yowLayerEvent):
+        eventName = yowLayerEvent.getName()
+        if eventName in self.event_callbacks:
+            return self.event_callbacks[eventName](yowLayerEvent)
+        return False
 
 
     def __str__(self):
