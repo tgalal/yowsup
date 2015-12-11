@@ -425,6 +425,12 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             entity = OutgoingChatstateProtocolEntity(ChatstateProtocolEntity.STATE_TYPING, self.aliasToJid(jid))
             self.toLower(entity)
 
+    @clicmd("Request contacts statuses")
+    def statuses_get(self, contacts):
+        if self.assertConnected():
+            entity = GetStatusesIqProtocolEntity([self.aliasToJid(c) for c in contacts.split(',')])
+            self.toLower(entity)
+
     @clicmd("Send paused state")
     def state_paused(self, jid):
         if self.assertConnected():
