@@ -80,8 +80,10 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         mediaNode.setAttribute("encoding",  self.encoding)
         mediaNode.setAttribute("fps",       self.fps)
         mediaNode.setAttribute("height",    self.height)
-        mediaNode.setAttribute("seconds",   self.seconds)
-        mediaNode.setAttribute("vbitrate",  self.vbitrate)
+        if self.seconds is not None:
+            mediaNode.setAttribute("seconds",   self.seconds)
+        if self.vbitrate is not None:
+            mediaNode.setAttribute("vbitrate",  self.vbitrate)
         mediaNode.setAttribute("vcodec",    self.vcodec)
         mediaNode.setAttribute("width",     self.width)
         if self.caption is not None:
