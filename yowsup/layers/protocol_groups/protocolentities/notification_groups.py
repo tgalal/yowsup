@@ -21,10 +21,10 @@ class GroupsNotificationProtocolEntity(NotificationProtocolEntity):
         return self._participant if full else self._participant.split('@')[0]
 
     def getGroupId(self):
-        return self._id
+        return self.groupId
 
     def setGroupId(self, groupId):
-        self._id = groupId
+        self.groupId = groupId
 
 
     def __str__(self):

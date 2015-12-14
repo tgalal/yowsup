@@ -85,13 +85,13 @@ class TimeTools:
     def parseIso(iso):
         d=datetime.datetime(*map(int, re.split('[^\d]', iso)[:-1]))
         return d
-    
-    @staticmethod 
+
+    @staticmethod
     def utcToLocal(dt):
         utc = tz.gettz('UTC')
         local = tz.tzlocal()
         dtUtc =  dt.replace(tzinfo=utc)
-        
+
         return dtUtc.astimezone(local)
 
     @staticmethod
@@ -128,6 +128,9 @@ class ImageTools:
         if ModuleTools.INSTALLED_PIL():
             from PIL import Image
             im = Image.open(infile)
+            #Convert P mode images
+            if im.mode != "RGB":
+                im = im.convert("RGB")
             im.thumbnail((width, height))
             im.save(outfile, imageFormat)
             return True
@@ -148,10 +151,11 @@ class ImageTools:
     @staticmethod
     def generatePreviewFromImage(image):
         fd, path = tempfile.mkstemp()
-        fileObj = os.fdopen(fd, "rb+")
+        
         preview = None
-        if ImageTools.scaleImage(image, fileObj, "JPEG", YowConstants.PREVIEW_WIDTH, YowConstants.PREVIEW_HEIGHT):
+        if ImageTools.scaleImage(image, path, "JPEG", YowConstants.PREVIEW_WIDTH, YowConstants.PREVIEW_HEIGHT):
+            fileObj = os.fdopen(fd, "rb+")
             fileObj.seek(0)
             preview = fileObj.read()
-        fileObj.close()
+            fileObj.close()
         return preview

@@ -7,7 +7,7 @@ class SyncIqProtocolEntity(IqProtocolEntity):
     '''
     <iq type="get" id="{{id}}" xmlns="urn:xmpp:whatsapp:sync">
         <sync
-            sid="{{str((time.time() + 11644477200) * 10000000)}}"
+            sid="{{str((int(time.time()) + 11644477200) * 10000000)}}"
             index="{{0 | ?}}"
             last="{{true | false?}}"
         >
@@ -20,7 +20,7 @@ class SyncIqProtocolEntity(IqProtocolEntity):
         self.setSyncProps(sid, index, last)
 
     def setSyncProps(self, sid, index, last):
-        self.sid = sid if sid else str((time.time() + 11644477200) * 10000000)
+        self.sid = sid if sid else str((int(time.time()) + 11644477200) * 10000000)
         self.index = int(index)
         self.last = last
 
@@ -33,7 +33,7 @@ class SyncIqProtocolEntity(IqProtocolEntity):
         return out
 
     def toProtocolTreeNode(self):
-        
+
         syncNodeAttrs = {
             "sid":      self.sid,
             "index":    str(self.index),
@@ -58,6 +58,6 @@ class SyncIqProtocolEntity(IqProtocolEntity):
             syncNode.getAttributeValue("index"),
             syncNode.getAttributeValue("last")
             )
-   
 
-        return entity 
+
+        return entity
