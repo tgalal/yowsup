@@ -50,7 +50,7 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
             out += "Caption: %s\n" % self.caption
         return out
 
-    def setVideoProps(self, abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, width, height, seconds, vbitrate, vcodec, caption  = None):
+    def setVideoProps(self, abitrate = '', acodec = '', asampfmt = '', asampfreq = '', duration = '', encoding = '', fps = '', width = '', height = '', seconds = '', vbitrate = '', vcodec = '', caption = None):
         self.abitrate  = abitrate
         self.acodec    = acodec
         self.asampfmt  = asampfmt
@@ -111,4 +111,11 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
             mediaNode.getAttributeValue("vcodec"),
             mediaNode.getAttributeValue("caption")
         )
+        return entity
+
+    @staticmethod
+    def fromFilePath(path, url, ip, to, mimeType = None, preview = None, caption = None, dimensions = None):
+        entity = DownloadableMediaMessageProtocolEntity.fromFilePath(path, url, DownloadableMediaMessageProtocolEntity.MEDIA_TYPE_VIDEO, ip, to, mimeType, preview)
+        entity.__class__ = VideoDownloadableMediaMessageProtocolEntity
+        entity.setVideoProps(caption = caption)
         return entity
