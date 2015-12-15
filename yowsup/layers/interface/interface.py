@@ -14,20 +14,12 @@ class ProtocolEntityCallback(object):
         fn.entity_callback = self.entityType
         return fn
     
-class EventCallback(object):
-    def __init__(self, eventName):
-        self.eventName = eventName
-
-    def __call__(self, fn):
-        fn.event_callback = self.eventName
-        return fn
 
 class YowInterfaceLayer(YowLayer):
 
     def __init__(self):
         super(YowInterfaceLayer, self).__init__()
         self.entity_callbacks = {}
-        self.event_callbacks = {}
         self.iqRegistry = {}
         # self.receiptsRegistry = {}
         members = inspect.getmembers(self, predicate=inspect.ismethod)
@@ -36,10 +28,7 @@ class YowInterfaceLayer(YowLayer):
                 fname = m[0]
                 fn = m[1]
                 self.entity_callbacks[fn.entity_callback] = getattr(self, fname)
-            if hasattr(m[1], "event_callback"):
-                fname = m[0]
-                fn = m[1]
-                self.event_callbacks[fn.event_callback] = getattr(self, fname)
+            
 
     def _sendIq(self, iqEntity, onSuccess = None, onError = None):
         assert iqEntity.getTag() == "iq", "Expected *IqProtocolEntity in _sendIq, got %s" % iqEntity.getTag()
@@ -111,13 +100,6 @@ class YowInterfaceLayer(YowLayer):
                 self.entity_callbacks[entityType](entity)
             else:
                 self.toUpper(entity)
-                
-    def onEvent(self, yowLayerEvent):
-        eventName = yowLayerEvent.getName()
-        if eventName in self.event_callbacks:
-            return self.event_callbacks[eventName](yowLayerEvent)
-        return False
-
-
+ 
     def __str__(self):
         return "Interface Layer"
