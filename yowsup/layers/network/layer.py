@@ -19,9 +19,9 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
     PROP_NET_READSIZE           = "org.openwhatsapp.yowsup.prop.net.readSize"
 
     def __init__(self):
+        asyncore.dispatcher.__init__(self)
         YowLayer.__init__(self)
         self.interface = YowNetworkLayerInterface(self)
-        asyncore.dispatcher.__init__(self)
         httpProxy = HttpProxy.getFromEnviron()
         proxyHandler = None
         if httpProxy != None:
