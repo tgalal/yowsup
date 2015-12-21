@@ -156,7 +156,7 @@ class YowParallelLayer(YowLayer):
     def getLayerInterface(self, YowLayerClass):
         for s in self.sublayers:
             if s.__class__ == YowLayerClass:
-                return s
+                return s.getLayerInterface()
 
     def setStack(self, stack):
         super(YowParallelLayer, self).setStack(stack)
