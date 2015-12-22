@@ -12,13 +12,13 @@ HELP_CONFIG = """
 # You can define or override all fields in the command line args as well.
 #
 # Country code. See http://www.ipipi.com/help/telephone-country-codes.htm. This is now required.
-cc=49
+cc=
 #
 # Your full phone number including the country code you defined in 'cc', without preceding '+' or '00'
-phone=491234567890
+phone=
 #
 # You obtain this password when you register using Yowsup.
-password=NDkxNTIyNTI1NjAyMkBzLndoYXRzYXBwLm5ldA==
+password=
 #######################################################
 """
 
@@ -213,6 +213,9 @@ class DemosArgParser(YowArgParser):
         echoOpts = self.add_argument_group("Echo client demo")
         echoOpts.add_argument('-e', '--echo', action = "store_true", help = "Start the Yowsup Echo client")
 
+	commandOpts = self.add_argument_group("Command Server demo")
+	commandOpts.add_argument('-x', '--commandserver', action = "store_true", help = "Start the Yowsup Command Server")
+
         sendOpts = self.add_argument_group("Send client demo")
         sendOpts.add_argument('-s', '--send', action="store", help = "Send a message to specified phone number, "
                                                                      "wait for server receipt and exit",
@@ -227,6 +230,8 @@ class DemosArgParser(YowArgParser):
             self.startCmdline()
         elif self.args["echo"]:
             self.startEcho()
+        elif self.args["commandserver"]:
+            self.startCommandServer()
         elif self.args["send"]:
             self.startSendClient()
         elif self.args["sync"]:
@@ -262,6 +267,19 @@ class DemosArgParser(YowArgParser):
             sys.exit(1)
         try:
             stack = echoclient.YowsupEchoStack(credentials, not self.args["unmoxie"])
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+    def startCommandServer(self):
+        from yowsup.demos import commandserver
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+        try:
+            stack = commandserver.YowsupCommandServerStack(credentials, not self.args["unmoxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
