@@ -252,11 +252,14 @@ class YowAxolotlLayer(YowProtocolLayer):
             logger.warning("Ignoring message with untrusted identity")
 
     def handlePreKeyWhisperMessage(self, node):
-        pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
-
-        preKeyWhisperMessage = PreKeyWhisperMessage(serialized=pkMessageProtocolEntity.getEncData())
-        sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getFrom(False))
-        plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
+        plaintext = ""
+        try:
+            pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
+            preKeyWhisperMessage = PreKeyWhisperMessage(serialized=pkMessageProtocolEntity.getEncData())
+            sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getFrom(False))
+            plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
+        except Exception as e:
+            print("Message decript error: %s" % (str(e)))
 
         if pkMessageProtocolEntity.getVersion() == 2:
             plaintext = self.unpadV2Plaintext(plaintext)
@@ -267,11 +270,14 @@ class YowAxolotlLayer(YowProtocolLayer):
         self.toUpper(node)
 
     def handleWhisperMessage(self, node):
-        encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
-
-        whisperMessage = WhisperMessage(serialized=encMessageProtocolEntity.getEncData())
-        sessionCipher = self.getSessionCipher(encMessageProtocolEntity.getFrom(False))
-        plaintext = sessionCipher.decryptMsg(whisperMessage)
+        plaintext = ""
+        try:
+            encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
+            whisperMessage = WhisperMessage(serialized=encMessageProtocolEntity.getEncData())
+            sessionCipher = self.getSessionCipher(encMessageProtocolEntity.getFrom(False))
+            plaintext = sessionCipher.decryptMsg(whisperMessage)
+        except Exception as e:
+            print("Message decript error: %s" % (str(e)))
 
         if encMessageProtocolEntity.getVersion() == 2:
             plaintext = self.unpadV2Plaintext(plaintext)
