@@ -276,7 +276,7 @@ class YowAxolotlLayer(YowProtocolLayer):
             whisperMessage = WhisperMessage(serialized=encMessageProtocolEntity.getEncData())
             sessionCipher = self.getSessionCipher(encMessageProtocolEntity.getFrom(False))
             plaintext = sessionCipher.decryptMsg(whisperMessage)
-	except Exception as e:
+        except Exception as e:
             print("Message decript error: %s" % (str(e)))
 
         if encMessageProtocolEntity.getVersion() == 2:
