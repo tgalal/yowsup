@@ -272,13 +272,12 @@ class YowAxolotlLayer(YowProtocolLayer):
     def handleWhisperMessage(self, node):
         plaintext = ""
         try:
-                encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
-
-		whisperMessage = WhisperMessage(serialized=encMessageProtocolEntity.getEncData())
-		sessionCipher = self.getSessionCipher(encMessageProtocolEntity.getFrom(False))
-		plaintext = sessionCipher.decryptMsg(whisperMessage)
+            encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
+            whisperMessage = WhisperMessage(serialized=encMessageProtocolEntity.getEncData())
+            sessionCipher = self.getSessionCipher(encMessageProtocolEntity.getFrom(False))
+            plaintext = sessionCipher.decryptMsg(whisperMessage)
 	except Exception as e:
-		print 'Message decript error -> %s' %(str(e))
+            print("Message decript error: %s" % (str(e)))
 
         if encMessageProtocolEntity.getVersion() == 2:
             plaintext = self.unpadV2Plaintext(plaintext)
