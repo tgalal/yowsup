@@ -6,7 +6,7 @@ Modify the file layer.py to add an allowed client. Modify the line:
 	
 And add your user id. If you have no idea of wich user you have, execute the demo application and check the error message at the console when you send a whatsapp to the server.
 
-## Installation
+## Execution
 
 To launch yowsup as a command server, from the folder where the file "yowsup-cli" exists, execute: 
 
