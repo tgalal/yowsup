@@ -35,5 +35,10 @@ class TextMessageProtocolEntity(MessageProtocolEntity):
     def fromProtocolTreeNode(node):
         entity = MessageProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = TextMessageProtocolEntity
-        entity.setBody(node.getChild("body").getData())
-        return entity
+	try:
+		entity.setBody(node.getChild("body").getData())
+		return entity
+	except Exception, e:
+		pass 
+	entity.setBody( None )
+	return entity
