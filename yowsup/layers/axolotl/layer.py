@@ -259,7 +259,7 @@ class YowAxolotlLayer(YowProtocolLayer):
             sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getFrom(False))
             plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
         except Exception as e:
-            print 'Message decript error -> %s' %(str(e))
+            print("Message decript error: %s" % (str(e)))
 
         if pkMessageProtocolEntity.getVersion() == 2:
             plaintext = self.unpadV2Plaintext(plaintext)
