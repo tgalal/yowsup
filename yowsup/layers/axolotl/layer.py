@@ -254,13 +254,12 @@ class YowAxolotlLayer(YowProtocolLayer):
     def handlePreKeyWhisperMessage(self, node):
         plaintext = ""
         try:
-                pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
-
-		preKeyWhisperMessage = PreKeyWhisperMessage(serialized=pkMessageProtocolEntity.getEncData())
-		sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getFrom(False))
-		plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
-	except Exception as e:
-                print 'Message decript error -> %s' %(str(e))
+            pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
+            preKeyWhisperMessage = PreKeyWhisperMessage(serialized=pkMessageProtocolEntity.getEncData())
+            sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getFrom(False))
+            plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
+        except Exception as e:
+            print 'Message decript error -> %s' %(str(e))
 
         if pkMessageProtocolEntity.getVersion() == 2:
             plaintext = self.unpadV2Plaintext(plaintext)
