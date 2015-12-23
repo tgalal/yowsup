@@ -3,13 +3,22 @@ import string
 import subprocess
 from yowsup.layers.interface                           import YowInterfaceLayer, ProtocolEntityCallback
 
+#Users that can execute commands. The complete user name is printed in console when not allowed. Copy to this array, 
+allowed_users = ['34666888999@s.whatsapp.net']
+
 class CommandServerLayer(YowInterfaceLayer):
 	
-    def executeCommand(self, messageProtocolEntity, command):
-	status = subprocess.check_output(command)
-	print("Status: "+status)
-	messageProtocolEntity.setBody(status)
+    #Executes a command if the user is in the allowed_user list. 
+    def executeCommand(self, messageProtocolEntity, command):	
+        if messageProtocolEntity.getFrom() in allowed_users:	    
+		status = subprocess.check_output(command)
+		print("Status: "+status)
+		messageProtocolEntity.setBody(status)
+	else:
+		print("Not allowed user '%s'" % messageProtocolEntity.getFrom())
+		messageProtocolEntity.setBody("Authorization check failed!")
 	self.toLower(messageProtocolEntity.forward(messageProtocolEntity.getFrom()))
+		
 
     @ProtocolEntityCallback("message")
     def onMessage(self, messageProtocolEntity):
@@ -42,16 +51,7 @@ class CommandServerLayer(YowInterfaceLayer):
                 self.toLower(messageProtocolEntity.forward(messageProtocolEntity.getFrom()))
         #os.system("notify-send 'Mensaje de Whatsapp' '{mensje}'".format(mensje=messageProtocolEntity.getBody()))
 
+    #Media messages cannot send commands. 
     def onMediaMessage(self, messageProtocolEntity):
-        # just print info
-        if messageProtocolEntity.getMediaType() == "image":
-            print("Echoing image %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
-
-        elif messageProtocolEntity.getMediaType() == "location":
-            print("Echoing location (%s, %s) to %s" % (messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude(), messageProtocolEntity.getFrom(False)))
-
-        elif messageProtocolEntity.getMediaType() == "vcard":
-            print("Echoing vcard (%s, %s) to %s" % (messageProtocolEntity.getName(), messageProtocolEntity.getCardData(), messageProtocolEntity.getFrom(False)))
-
-	#Echo message
-	self.toLower(messageProtocolEntity.forward(messageProtocolEntity.getFrom()))
+       # do nothing. 
+       return
