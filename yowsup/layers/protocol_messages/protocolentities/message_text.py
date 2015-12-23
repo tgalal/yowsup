@@ -38,7 +38,7 @@ class TextMessageProtocolEntity(MessageProtocolEntity):
         try:
             entity.setBody(node.getChild("body").getData())
             return entity
-        except Exception, e:
+        except Exception as e:
             pass
         entity.setBody( None )
         return entity
