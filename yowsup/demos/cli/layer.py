@@ -47,6 +47,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         self.connected = False
         self.username = None
         self.sendReceipts = True
+        self.sendRead = True
         self.disconnectAction = self.__class__.DISCONNECT_ACTION_PROMPT
         self.credentials = None
 
@@ -227,6 +228,35 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         else:
             logger.error("Python PIL library is not installed, can't set profile picture")
 
+    @clicmd("Get profile privacy")
+    def profile_getPrivacy(self):
+        if self.assertConnected():
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("Profile privacy is: %s" %(resultIqEntity))
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error getting profile privacy")
+
+            iq = GetPrivacyIqProtocolEntity()
+            self._sendIq(iq, onSuccess, onError)
+
+    @clicmd("Profile privacy. value=all|contacts|none names=profile|status|last. Names are comma separated, defaults to all.")
+    def profile_setPrivacy(self, value="all", names=None):
+        if self.assertConnected():
+            def onSuccess(resultIqEntity, originalIqEntity):
+                self.output("Profile privacy set to: %s" %(resultIqEntity))
+
+            def onError(errorIqEntity, originalIqEntity):
+                logger.error("Error setting profile privacy")
+            try:
+                names = [name for name in names.split(',')] if names else None
+                iq = SetPrivacyIqProtocolEntity(value, names)
+                self._sendIq(iq, onSuccess, onError)
+            except Exception as inst:
+                self.output(inst.message)
+                return self.print_usage()
+
+
     ########### groups
 
     @clicmd("List all groups you belong to", 5)
@@ -399,6 +429,12 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             entity = OutgoingChatstateProtocolEntity(ChatstateProtocolEntity.STATE_TYPING, self.aliasToJid(jid))
             self.toLower(entity)
 
+    @clicmd("Request contacts statuses")
+    def statuses_get(self, contacts):
+        if self.assertConnected():
+            entity = GetStatusesIqProtocolEntity([self.aliasToJid(c) for c in contacts.split(',')])
+            self.toLower(entity)
+
     @clicmd("Send paused state")
     def state_paused(self, jid):
         if self.assertConnected():
@@ -496,8 +532,8 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
         self.output(output, tag = None, prompt = not self.sendReceipts)
         if self.sendReceipts:
-            self.toLower(message.ack())
-            self.output("Sent delivered receipt", tag = "Message %s" % message.getId())
+            self.toLower(message.ack(self.sendRead))
+            self.output("Sent delivered receipt"+" and Read" if self.sendRead else "", tag = "Message %s" % message.getId())
 
 
     def getTextMessageBody(self, message):
@@ -508,7 +544,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             return self.getDownloadableMediaMessageBody(message)
         else:
             return "[Media Type: %s]" % message.getMediaType()
-       
+
 
     def getDownloadableMediaMessageBody(self, message):
          return "[Media Type:{media_type}, Size:{media_size}, URL:{media_url}]".format(
@@ -574,4 +610,3 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Print this message")
     def help(self):
         self.print_usage()
-    
