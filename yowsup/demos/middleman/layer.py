@@ -28,24 +28,24 @@ class MiddleManLayer(YowInterfaceLayer):
         sender = messageProtocolEntity.getParticipant().split('@')[0] + " says:"
 
         if messageProtocolEntity.getFrom() == grp1:
-			if messageProtocolEntity.getType() == 'text':
-				messageProtocolEntity.setBody(sender + messageProtocolEntity.getBody())
-			else:
-				newmessage = TextMessageProtocolEntity(sender, to = grp2)
-				self.toLower(newmessage)
-			self.toLower(messageProtocolEntity.forward(grp2))
-			self.toLower(messageProtocolEntity.ack())
-			self.toLower(messageProtocolEntity.ack(True))
+            if messageProtocolEntity.getType() == 'text':
+                messageProtocolEntity.setBody(sender + messageProtocolEntity.getBody())
+            else:
+                newmessage = TextMessageProtocolEntity(sender, to = grp2)
+                self.toLower(newmessage)
+            self.toLower(messageProtocolEntity.forward(grp2))
+            self.toLower(messageProtocolEntity.ack())
+            self.toLower(messageProtocolEntity.ack(True))
 
         elif messageProtocolEntity.getFrom() == grp2:
-			if messageProtocolEntity.getType() == 'text':
-				messageProtocolEntity.setBody(sender + messageProtocolEntity.getBody())
-			else:
-				newmessage = TextMessageProtocolEntity(sender, to = grp1)
-				self.toLower(newmessage)
-			self.toLower(messageProtocolEntity.forward(grp1))
-			self.toLower(messageProtocolEntity.ack())
-			self.toLower(messageProtocolEntity.ack(True))
+            if messageProtocolEntity.getType() == 'text':
+                messageProtocolEntity.setBody(sender + messageProtocolEntity.getBody())
+            else:
+                newmessage = TextMessageProtocolEntity(sender, to = grp1)
+            self.toLower(newmessage)
+            self.toLower(messageProtocolEntity.forward(grp1))
+            self.toLower(messageProtocolEntity.ack())
+            self.toLower(messageProtocolEntity.ack(True))
 
     @ProtocolEntityCallback("receipt")
     def onReceipt(self, entity):
