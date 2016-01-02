@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 __version__ = "2.0.13"
 __author__ = "Tarek Galal"
 
@@ -213,6 +213,9 @@ class DemosArgParser(YowArgParser):
         echoOpts = self.add_argument_group("Echo client demo")
         echoOpts.add_argument('-e', '--echo', action = "store_true", help = "Start the Yowsup Echo client")
 
+        middlemanOpts = self.add_argument_group("Middleman demo")
+        middlemanOpts.add_argument('-m','--middleman', action = "store", help = "Start the Yowsup Middleman demo",nargs=2,metavar=("grp1", "grp2"))
+
         sendOpts = self.add_argument_group("Send client demo")
         sendOpts.add_argument('-s', '--send', action="store", help = "Send a message to specified phone number, "
                                                                      "wait for server receipt and exit",
@@ -229,6 +232,8 @@ class DemosArgParser(YowArgParser):
             self.startEcho()
         elif self.args["send"]:
             self.startSendClient()
+        elif self.args["middleman"]:
+            self.startMiddleMan()
         elif self.args["sync"]:
             self.startSyncContacts()
         else:
@@ -240,7 +245,7 @@ class DemosArgParser(YowArgParser):
             return tuple(self.args["login"].split(":"))
         elif self.args["config"]:
             config = self.getConfig(self.args["config"])
-            assert "password" in config and "phone" in config, "Must specify at least phone number and password in config file"
+            assert "password" in config and "phone" in config, "mustt specify at least phone number and password in config file"
             return config["phone"], config["password"]
         else:
             return None
@@ -262,6 +267,19 @@ class DemosArgParser(YowArgParser):
             sys.exit(1)
         try:
             stack = echoclient.YowsupEchoStack(credentials, not self.args["unmoxie"])
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+    def startMiddleMan(self):
+        from yowsup.demos import middleman
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+        try:
+            stack = middleman.YowsupMiddleManStack(credentials,[([self.args["middleman"][0], self.args["middleman"][1]])], not self.args["unmoxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
