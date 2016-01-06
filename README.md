@@ -39,6 +39,12 @@ python setup.py install
 ```
 Because of a bug with python-dateutil package you might get permission error for some dateutil file called requires.txt when you use yowsup (see [this bug report](https://bugs.launchpad.net/dateutil/+bug/1243202)) to fix you'll need to chmod 644 that file.
 
+### FreeBSD (*BSD)
+You need to have installed: py27-pip-7.1.2(+), py27-sqlite3-2.7.11_7(+), then run
+```
+pip install yowsup2
+```
+
 ### Mac
 ```
 python setup.py install
