@@ -42,6 +42,12 @@ from yowsup.layers.protocol_profiles.protocolentities import *
 from yowsup.layers.protocol_receipts.protocolentities  import *
 from yowsup.layers.protocol_media.mediauploader import MediaUploader
 
+
+# Registration
+
+from yowsup.registration import WACodeRequest
+from yowsup.registration import WARegRequest
+
 from functools import partial
 
 #from session import MsgIDs
@@ -289,6 +295,7 @@ class YowsupApp(object):
 			- success: (func) - Callback; Takes three arguments: existing numbers,
 				non-existing numbers, invalid numbers.
 		"""
+		# TODO: Implement callbacks
 		mode = GetSyncIqProtocolEntity.MODE_DELTA if delta else GetSyncIqProtocolEntity.MODE_FULL
 		context = GetSyncIqProtocolEntity.CONTEXT_INTERACTIVE if interactive else GetSyncIqProtocolEntity.CONTEXT_REGISTRATION
 		# International contacts must be preceded by a plus.  Other numbers are
@@ -297,10 +304,11 @@ class YowsupApp(object):
 		iq = GetSyncIqProtocolEntity(contacts, mode, context)
 		def onSuccess(response, request):
 			# Remove leading plus
-			existing = [s[1:] for s in response.inNumbers.keys()]
-			nonexisting = [s[1:] for s in response.outNumbers.keys()]
-			invalid = [s[1:] for s in response.invalidNumbers]
-			success(existing, nonexisting, invalid)
+			if success is not None:
+				existing = [s[1:] for s in response.inNumbers.keys()]
+				nonexisting = [s[1:] for s in response.outNumbers.keys()]
+				invalid = [s[1:] for s in response.invalidNumbers]
+				success(existing, nonexisting, invalid)
 
 		self.sendIq(iq, onSuccess = onSuccess, onError = failure)
 
@@ -317,11 +325,12 @@ class YowsupApp(object):
 		"""
 		iq = GetStatusesIqProtocolEntity([c + '@s.whatsapp.net' for c in contacts])
 		def onSuccess(response, request):
-			self.logger.debug("Received Statuses %s", response)
-			s = {}
-			for k, v in response.statuses.iteritems():
-				s[k.split('@')[0]] = v
-			success(s)
+			if success is not None:
+				self.logger.debug("Received Statuses %s", response)
+				s = {}
+				for k, v in response.statuses.iteritems():
+					s[k.split('@')[0]] = v
+				success(s)
 
 		self.sendIq(iq, onSuccess = onSuccess, onError = failure)
 
@@ -369,6 +378,34 @@ class YowsupApp(object):
 		"""
 		iq = InfoGroupsIqProtocolEntity(group + '@g.us')
 		self.sendIq(iq, onSuccess = onSuccess, onError = onFailure)
+
+	def requestSMSCode(self, countryCode, phoneNumber):
+		"""
+		Request an sms regitration code. WARNING: this function is blocking
+
+		Args:
+			countryCode: The country code of the phone you wish to register
+			phoneNumber: phoneNumber of the phone you wish to register without
+				the country code.
+		"""
+		request = WACodeRequest(countryCode, phoneNumber)
+		return request.send()
+
+	def requestPassword(self, countryCode, phoneNumber, smsCode):
+		"""
+		Request a password. WARNING: this function is blocking
+
+		Args:
+			countryCode: The country code of the phone you wish to register
+			phoneNumber: phoneNumber of the phone you wish to register without
+				the country code.
+			smsCode: The sms code that you asked for previously
+		"""
+		smsCode = smsCode.replace('-', '')
+		request = WARegRequest(countryCode, phoneNumber, smsCode)
+		return request.send()
+
+
 
 	def onAuthSuccess(self, status, kind, creation, expiration, props, nonce, t):
 		"""
