@@ -1,4 +1,4 @@
-from yowsup.layers import YowLayerEvent, YowProtocolLayer
+from yowsup.layers import YowLayerEvent, YowProtocolLayer, EventCallback
 from .keystream import KeyStream
 from yowsup.common.tools import TimeTools
 from .layer_crypt import YowCryptLayer
@@ -47,10 +47,10 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         else:
             prop = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)
             return prop[0] if prop else None
-
-    def onEvent(self, event):
-        if event.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
-            self.login()
+        
+    @EventCallback(YowNetworkLayer.EVENT_STATE_CONNECTED)
+    def onConnected(self, yowLayerEvent):
+        self.login()
 
     ## general methods
     def login(self):

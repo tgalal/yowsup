@@ -1,4 +1,4 @@
-from yowsup.layers import YowLayer, YowLayerEvent
+from yowsup.layers import YowLayer, YowLayerEvent, EventCallback
 from yowsup.common.http.httpproxy import HttpProxy
 from yowsup.layers.network.layer_interface import YowNetworkLayerInterface
 import asyncore, socket, logging
@@ -19,9 +19,9 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
     PROP_NET_READSIZE           = "org.openwhatsapp.yowsup.prop.net.readSize"
 
     def __init__(self):
+        asyncore.dispatcher.__init__(self)
         YowLayer.__init__(self)
         self.interface = YowNetworkLayerInterface(self)
-        asyncore.dispatcher.__init__(self)
         httpProxy = HttpProxy.getFromEnviron()
         proxyHandler = None
         if httpProxy != None:
@@ -33,14 +33,16 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
             proxyHandler = httpProxy.handler()
             proxyHandler.onConnect = onConnect
         self.proxyHandler = proxyHandler
-
-    def onEvent(self, ev):
-        if ev.getName() == YowNetworkLayer.EVENT_STATE_CONNECT:
-            self.createConnection()
-            return True
-        elif ev.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECT:
-            self.destroyConnection(ev.getArg("reason"))
-            return True
+        
+    @EventCallback(EVENT_STATE_CONNECT)
+    def onConnect(self, ev):
+        self.createConnection()
+        return True
+    
+    @EventCallback(EVENT_STATE_DISCONNECT)
+    def onDisconnect(self, ev):
+        self.destroyConnection(ev.getArg("reason"))
+        return True        
 
     def createConnection(self):
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
