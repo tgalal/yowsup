@@ -1,4 +1,5 @@
 import unittest
+import inspect
 try:
     import Queue
 except ImportError:
@@ -21,6 +22,14 @@ class YowLayerEvent:
 
     def getArg(self, name):
         return self.args[name] if name in self.args else None
+    
+class EventCallback(object):
+    def __init__(self, eventName):
+        self.eventName = eventName
+
+    def __call__(self, fn):
+        fn.event_callback = self.eventName
+        return fn
 
 
 class YowLayer(object):
@@ -34,6 +43,13 @@ class YowLayer(object):
     def __init__(self):
         self.setLayers(None, None)
         self.interface = None
+        self.event_callbacks = {}
+        members = inspect.getmembers(self, predicate=inspect.ismethod)
+        for m in members:
+            if hasattr(m[1], "event_callback"):
+                fname = m[0]
+                fn = m[1]
+                self.event_callbacks[fn.event_callback] = getattr(self, fname)
 
     def getLayerInterface(self, YowLayerClass = None):
         return self.interface if YowLayerClass is None else self.__stack.getLayerInterface(YowLayerClass)
@@ -82,6 +98,9 @@ class YowLayer(object):
 
     '''return true to stop propagating the event'''
     def onEvent(self, yowLayerEvent):
+        eventName = yowLayerEvent.getName()
+        if eventName in self.event_callbacks:
+            return self.event_callbacks[eventName](yowLayerEvent)
         return False
 
     def getProp(self, key, default = None):
@@ -203,12 +222,36 @@ class YowLayerTest(unittest.TestCase):
         self.lowerSink = []
         self.toUpper = self.receiveOverrider
         self.toLower = self.sendOverrider
+        self.upperEventSink = []
+        self.lowerEventSink = []
+        self.emitEvent = self.emitEventOverrider
+        self.broadcastEvent = self.broadcastEventOverrider
 
     def receiveOverrider(self, data):
         self.upperSink.append(data)
 
     def sendOverrider(self, data):
         self.lowerSink.append(data)
+        
+    def emitEventOverrider(self, event):
+        self.upperEventSink.append(event)
+    
+    def broadcastEventOverrider(self, event):
+        self.lowerEventSink.append(event)
+        
+    def assert_emitEvent(self, event):
+        self.emitEvent(event)
+        try:
+            self.assertEqual(event, self.upperEventSink.pop())
+        except IndexError:
+            raise AssertionError("Event '%s' was not emited through this layer" % (event.getName()))
+        
+    def assert_broadcastEvent(self, event):
+        self.broadcastEvent(event)
+        try:
+            self.assertEqual(event, self.lowerEventSink.pop())
+        except IndexError:
+            raise AssertionError("Event '%s' was not broadcasted through this layer" % (event.getName()))
 
 class YowProtocolLayerTest(YowLayerTest):
     def assertSent(self, entity):

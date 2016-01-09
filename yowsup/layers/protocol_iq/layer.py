@@ -1,7 +1,7 @@
 import time
 import logging
 from threading import Thread, Lock
-from yowsup.layers import YowProtocolLayer, YowLayerEvent
+from yowsup.layers import YowProtocolLayer, YowLayerEvent, EventCallback
 from yowsup.common import YowConstants
 from yowsup.layers.network import YowNetworkLayer
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
@@ -55,23 +55,32 @@ class YowIqProtocolLayer(YowProtocolLayer):
         if pingQueueSize >= 2:
             self.getStack().broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT, reason = "Ping Timeout"))
 
-    def onEvent(self, event):
-        name = event.getName()
-        if name == YowAuthenticationProtocolLayer.EVENT_AUTHED:
-            interval = self.getProp(self.__class__.PROP_PING_INTERVAL, 50)
-            if not self._pingThread and interval > 0:
-                self._pingQueue = {}
-                self._pingThread = YowPingThread(self, interval)
-                self.__logger.debug("starting ping thread.")
-                self._pingThread.start()
-        elif name == YowNetworkLayer.EVENT_STATE_DISCONNECT or name == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
+    @EventCallback(YowAuthenticationProtocolLayer.EVENT_AUTHED)
+    def onAuthed(self, event):
+        interval = self.getProp(self.__class__.PROP_PING_INTERVAL, 50)
+        if not self._pingThread and interval > 0:
+            self._pingQueue = {}
+            self._pingThread = YowPingThread(self, interval)
+            self.__logger.debug("starting ping thread.")
+            self._pingThread.start()
+    
+    
+    def stop_thread(self):
+        if self._pingThread:
+            self.__logger.debug("stopping ping thread")
             if self._pingThread:
-                self.__logger.debug("stopping ping thread")
-                if self._pingThread:
-                    self._pingThread.stop()
-                    self._pingThread = None
-                self._pingQueue = {}
-
+                self._pingThread.stop()
+                self._pingThread = None
+            self._pingQueue = {}
+        
+    @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECT)
+    def onDisconnect(self, event):
+        self.stop_thread()
+    
+    @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
+    def onDisconnected(self, event):
+        self.stop_thread()
+            
 class YowPingThread(Thread):
     def __init__(self, layer, interval):
         assert type(layer) is YowIqProtocolLayer, "layer must be a YowIqProtocolLayer, got %s instead." % type(layer)
