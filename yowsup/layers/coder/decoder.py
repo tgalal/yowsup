@@ -73,14 +73,14 @@ class ReadDecoder:
         size = size & 0x7F
         text = bytearray(self.readArray(size, data))
         data = binascii.hexlify(text)
-        out = ""
+        out = []
         for i in range(0, len(data)):
             char = chr(data[i]) if type(data[i]) is int else data[i] #python2/3 compat
             val = ord(binascii.unhexlify("0%s" % char))
             if i == size - 1 and val > 11 and n != 251: continue
-            out += chr(self.unpackByte(n, val))
+            out.append(self.unpackByte(n, val))
 
-        return out[0:len(out) - remove]
+        return out[0: -remove]
 
     def unpackByte(self, n, n2):
         if n == 251:
@@ -194,7 +194,7 @@ class ReadDecoder:
             raise Exception("readString couldn't reconstruct jid")
 
         if token in (251, 255):
-            return self.readPacked8(token, data)
+            return "".join(map(chr, self.readPacked8(token, data)))
 
 
         if token == 252:
@@ -223,7 +223,7 @@ class ReadDecoder:
         return out
 
     def nextTreeInternal(self, data):
-        size = self.readListSize(self.readInt8(data))
+        size = self.readListSize(self.readInt8(data), data)
         token = self.readInt8(data)
         if token == 1:
             token = self.readInt8(data)
@@ -256,7 +256,7 @@ class ReadDecoder:
             size = self.readInt31(data)
             nodeData = self.readArray(size, data)
         if read2 in (255, 251):
-            nodeData = self.readPacked8(read2, data)
+            nodeData = "".join(map(chr, self.readPacked8(read2, data)))
 
         nodeData = nodeData or self.readString(read2, data)
         return ProtocolTreeNode(tag, attribs, None, nodeData)
