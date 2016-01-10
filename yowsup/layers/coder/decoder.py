@@ -72,15 +72,18 @@ class ReadDecoder:
             remove = 1
         size = size & 0x7F
         text = bytearray(self.readArray(size, data))
-        data = binascii.hexlify(text)
+        hexData = binascii.hexlify(text)
         out = []
-        for i in range(0, len(data)):
-            char = chr(data[i]) if type(data[i]) is int else data[i] #python2/3 compat
+        for i in range(0, len(hexData)):
+            char = chr(hexData[i]) if type(hexData[i]) is int else hexData[i] #python2/3 compat
             val = ord(binascii.unhexlify("0%s" % char))
-            if i == size - 1 and val > 11 and n != 251: continue
+            if i == (size - 1) and val > 11 and n != 251: continue
             out.append(self.unpackByte(n, val))
 
-        return out[0: -remove]
+        if remove:
+            out = out[0: -remove]
+
+        return out
 
     def unpackByte(self, n, n2):
         if n == 251:
