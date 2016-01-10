@@ -105,7 +105,6 @@ class ReadDecoder:
         raise ValueError("bad nibble %s" % n)
 
 
-
     def readHeader(self, data, offset = 0):
         ret = 0
         if len(data) >= (3 + offset):
@@ -116,26 +115,8 @@ class ReadDecoder:
 
         return ret
 
-    def peekInt8(self, data, offset = 0):
-        value = 0
-        if len(data) >= (1 + offset):
-            value = data[offset]
-
-        return value
-
     def readInt8(self, data):
         return data.pop(0);
-
-
-    def peekInt16(self, data, offset = 0):
-        value = 0
-        if len(data) >= (2 + offset):
-            intTop = data[offset]
-            intBot = data[offset + 1]
-            value = (intTop << 8) + intBot
-
-        return value
-
 
     def readInt16(self, data):
         intTop = data.pop(0)
@@ -146,27 +127,25 @@ class ReadDecoder:
         else:
             return ""
 
+    def readInt20(self, data):
+         int1 = self.data.pop(0)
+         int2 = self.data.pop(1)
+         int3 = self.data.pop(2)
+         return ((int1 & 0xF) << 16) + (int2 << 8) + (int3 << 0)
 
-    def peekInt24(self, data, offset = 0):
-        value = 0
-        if len(data) >= (3 + offset):
-            int1 = data[offset]
-            int2 = data[offset + 1]
-            int3 = data[offset + 2]
-            value = (int1 << 16) + (int2 << 8) + (int3 << 0)
-
-        return value
-
-    def readInt24(self,data):
+    def readInt24(self, data):
         int1 = data.pop(0)
         int2 = data.pop(0)
         int3 = data.pop(0)
         value = (int1 << 16) + (int2 << 8) + (int3 << 0)
         return value
 
-
-
-
+    def readInt31(self, data):
+        data.pop(0)
+        int1 = data.pop(0)
+        int2 = data.pop(0)
+        int3 = data.pop(0)
+        return (int1 << 24) | (int1 << 16) | int2 << 8 | int3
 
     def readListSize(self,token, data):
         size = 0
@@ -244,15 +223,16 @@ class ReadDecoder:
         return out
 
     def nextTreeInternal(self, data):
-        b = data.pop(0)
+        size = self.readListSize(self.readInt8(data))
+        token = self.readInt8(data)
+        if token == 1:
+            token = self.readInt8(data)
 
-        size = self.readListSize(b, data)
-        b = data.pop(0)
-        if b == 2:
+        if token == 2:
             return None
 
+        tag = self.readString(token, data)
 
-        tag = self.readString(b, data)
         if size == 0 or tag is None:
             raise ValueError("nextTree sees 0 list or null tag")
 
@@ -261,12 +241,25 @@ class ReadDecoder:
         if size % 2 ==1:
             return ProtocolTreeNode(tag, attribs)
 
-        b = data.pop(0)
+        read2 = self.readInt8(data)
 
-        if self.isListTag(b):
-            return ProtocolTreeNode(tag,attribs,self.readList(b, data))
+        nodeData = None
+        if self.isListTag(read2):
+            nodeData = self.readList(read2, data)
+        if read2 == 252:
+            size = self.readInt8(data)
+            nodeData = self.readArray(size, data)
+        if read2 == 253:
+            size = self.readInt20(data)
+            nodeData = self.readArray(size, data)
+        if read2 == 254:
+            size = self.readInt31(data)
+            nodeData = self.readArray(size, data)
+        if read2 in (255, 251):
+            nodeData = self.readPacked8(read2, data)
 
-        return ProtocolTreeNode(tag, attribs, None, self.readString(b, data))
+        nodeData = nodeData or self.readString(read2, data)
+        return ProtocolTreeNode(tag, attribs, None, nodeData)
 
     def readList(self,token, data):
         size = self.readListSize(token, data)
