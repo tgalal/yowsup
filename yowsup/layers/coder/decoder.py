@@ -163,13 +163,11 @@ class ReadDecoder:
 
     def readAttributes(self, attribCount, data):
         attribs = {}
-
         for i in range(0, int(attribCount)):
-            key = self.readString(data.pop(0), data)
-            value = self.readString(data.pop(0), data)
+            key = self.readString(self.readInt8(data), data)
+            value = self.readString(self.readInt8(data), data)
             attribs[key]=value
         return attribs
-
 
     def readString(self,token, data):
         if token == -1:
@@ -195,7 +193,6 @@ class ReadDecoder:
 
         if token in (251, 255):
             return "".join(map(chr, self.readPacked8(token, data)))
-
 
         if token == 252:
             size8 = self.readInt8(data)
@@ -256,9 +253,13 @@ class ReadDecoder:
             size = self.readInt31(data)
             nodeData = self.readArray(size, data)
         if read2 in (255, 251):
-            nodeData = "".join(map(chr, self.readPacked8(read2, data)))
+            nodeData = self.readPacked8(read2, data)
 
-        nodeData = nodeData or self.readString(read2, data)
+        if nodeData:
+            nodeData = "".join(map(chr, nodeData))
+        else:
+            nodeData = self.readString(read2, data)
+
         return ProtocolTreeNode(tag, attribs, None, nodeData)
 
     def readList(self,token, data):
