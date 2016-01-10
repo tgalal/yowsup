@@ -5,7 +5,7 @@ class S40YowsupEnv(YowsupEnv):
     _VERSION = "2.13.21"
     _OS_NAME= "S40"
     _OS_VERSION = "14.26"
-    _DEVICE_NAME = "Nokia302"
+    _DEVICE_NAME = "302"
     _MANUFACTURER = "Nokia"
     _TOKEN_STRING  = "PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk1447796090073{phone}"
     _AXOLOTL = True
