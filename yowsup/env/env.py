@@ -25,8 +25,15 @@ class YowsupEnv(object):
         pass
 
     @abc.abstractmethod
+    def getManufacturer(self):
+        pass
+
+    @abc.abstractmethod
     def isAxolotlEnabled(self):
         pass
+
+    def getBuildVersion(self):
+        return ""
 
     def getResource(self):
         return self.getOSName() + "-" + self.getVersion()
@@ -38,4 +45,3 @@ class YowsupEnv(object):
             OS_VERSION = self.getOSVersion(),
             DEVICE_NAME = self.getDeviceName()
         )
-
