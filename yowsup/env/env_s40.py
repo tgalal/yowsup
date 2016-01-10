@@ -22,6 +22,9 @@ class S40YowsupEnv(YowsupEnv):
     def getDeviceName(self):
         return self.__class__._DEVICE_NAME
 
+    def getManufacturer(self):
+        return self.__class__._MANUFACTURER
+
     def isAxolotlEnabled(self):
         return self.__class__._AXOLOTL
 
