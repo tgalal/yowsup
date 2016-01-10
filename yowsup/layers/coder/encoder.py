@@ -37,8 +37,10 @@ class WriteEncoder:
 
         self.writeListStart(x, data)
 
+
         self.writeString(node.tag, data)
         self.writeAttributes(node.attributes, data);
+
 
         if node.data is not None:
             self.writeBytes(node.data, data)
@@ -53,12 +55,20 @@ class WriteEncoder:
         if attributes is not None:
             for key, value in attributes.items():
                 self.writeString(key, data);
-                self.writeString(value, data);
+                self.writeString(value, data, True);
 
 
     def writeBytes(self, bytes_, data, packed = False):
-        size = len(bytes_)
-        toWrite = bytes_
+        bytes__ = []
+        for b in bytes_:
+            if type(b) is int:
+                bytes__.append(b)
+            else:
+                bytes__.append(ord(b))
+
+
+        size = len(bytes__)
+        toWrite = bytes__
         if size >= 0x100000:
             data.append(254)
             self.writeInt31(size, data)
@@ -69,9 +79,9 @@ class WriteEncoder:
             r = None
             if packed:
                 if size < 128:
-                    r = self.tryPackAndWriteHeader(255, bytes_, data)
+                    r = self.tryPackAndWriteHeader(255, bytes__, data)
                     if r is None:
-                        r = self.tryPackAndWriteHeader(251, bytes_, data)
+                        r = self.tryPackAndWriteHeader(251, bytes__, data)
 
             if r is None:
                 data.append(252)
@@ -157,7 +167,7 @@ class WriteEncoder:
     def writeJid(self, user, server, data):
         data.append(250)
         if user is not None:
-            self.writeString(user, data)
+            self.writeString(user, data, True)
         else:
             self.writeToken(0, data)
         self.writeString(server, data)
@@ -176,7 +186,6 @@ class WriteEncoder:
                 break
             n2 = int(i / 2)
             arr[n2] |= (packByte << 4 * (1 - i % 2))
-
         if len(arr) > 0:
             if size % 2 == 1:
                 arr[-1] |= 15 #0xF
