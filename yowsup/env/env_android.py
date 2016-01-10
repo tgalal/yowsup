@@ -23,7 +23,9 @@ class AndroidYowsupEnv(YowsupEnv):
     _VERSION = "2.12.440"
     _OS_NAME = "Android"
     _OS_VERSION = "4.3"
-    _DEVICE_NAME = "GalaxyS3"
+    _DEVICE_NAME = "armani"
+    _MANUFACTURER = "Xiaomi"
+    _BUILD_VERSION = "JLS36C"
     _AXOLOTL = True
 
     def getVersion(self):
@@ -37,6 +39,12 @@ class AndroidYowsupEnv(YowsupEnv):
 
     def getDeviceName(self):
         return self.__class__._DEVICE_NAME
+
+    def getBuildVersion(self):
+        return self.__class__._BUILD_VERSION
+
+    def getManufacturer(self):
+        return self.__class__._MANUFACTURER
 
     def isAxolotlEnabled(self):
         return self.__class__._AXOLOTL

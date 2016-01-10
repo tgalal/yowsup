@@ -70,8 +70,15 @@ class YowsupEnv(with_metaclass(YowsupEnvType, object)):
         pass
 
     @abc.abstractmethod
+    def getManufacturer(self):
+        pass
+
+    @abc.abstractmethod
     def isAxolotlEnabled(self):
         pass
+
+    def getBuildVersion(self):
+        return ""
 
     def getResource(self):
         return self.getOSName() + "-" + self.getVersion()
