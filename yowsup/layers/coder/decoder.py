@@ -244,26 +244,27 @@ class ReadDecoder:
         read2 = self.readInt8(data)
 
         nodeData = None
+        nodeChildren = None
         if self.isListTag(read2):
-            nodeData = self.readList(read2, data)
-        if read2 == 252:
+            nodeChildren = self.readList(read2, data)
+        elif read2 == 252:
             size = self.readInt8(data)
             nodeData = self.readArray(size, data)
-        if read2 == 253:
+        elif read2 == 253:
             size = self.readInt20(data)
             nodeData = self.readArray(size, data)
-        if read2 == 254:
+        elif read2 == 254:
             size = self.readInt31(data)
             nodeData = self.readArray(size, data)
-        if read2 in (255, 251):
+        elif read2 in (255, 251):
             nodeData = self.readPacked8(read2, data)
-
-        if nodeData:
-            nodeData = "".join(map(chr, nodeData))
         else:
             nodeData = self.readString(read2, data)
 
-        return ProtocolTreeNode(tag, attribs, None, nodeData)
+        if nodeData:
+            nodeData = "".join(map(chr, nodeData))
+
+        return ProtocolTreeNode(tag, attribs, nodeChildren, nodeData)
 
     def readList(self,token, data):
         size = self.readListSize(token, data)
