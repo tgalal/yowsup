@@ -138,23 +138,17 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         username_bytes = list(map(ord, self.credentials[0]))
         nums.extend(username_bytes)
         nums.extend(nonce)
-        nums.extend([48, 48, 48, 48, 48, 48, 48, 48])
+
+        utcNow = str(int(TimeTools.utcTimestamp()))
+        time_bytes =  list(map(ord, utcNow))
+        nums.extend(time_bytes)
 
         strCat = "\x00\x00\x00\x00\x00\x00\x00\x00"
         strCat += CURRENT_ENV.getOSVersion() + "\x00"
         strCat += CURRENT_ENV.getManufacturer() + "\x00"
         strCat += CURRENT_ENV.getDeviceName() + "\x00"
         strCat += CURRENT_ENV.getBuildVersion()
-
-
-        nums.extend(CURRENT_ENV.getOSVersion())
-
-
-        utcNow = str(int(TimeTools.utcTimestamp()))
-
-        time_bytes =  list(map(ord, utcNow))
-
-        nums.extend(time_bytes)
+        nums.extend(list(map(ord, strCat)))
 
         encoded = outputKey.encodeMessage(nums, 0, 4, len(nums) - 4)
         authBlob = "".join(map(chr, encoded))
