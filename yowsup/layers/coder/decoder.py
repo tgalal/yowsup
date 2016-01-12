@@ -68,20 +68,20 @@ class ReadDecoder:
     def readPacked8(self, n, data):
         size = self.readInt8(data)
         remove = 0
-        if (size & 0x80) != 0 and n == 251:
+        if (size & 0x80) != 0:
             remove = 1
-        size = size & 0x7F
+            size = size & 0x7F
         text = bytearray(self.readArray(size, data))
         hexData = binascii.hexlify(text)
         out = []
-        for i in range(0, len(hexData)):
-            char = chr(hexData[i]) if type(hexData[i]) is int else hexData[i] #python2/3 compat
-            val = ord(binascii.unhexlify("0%s" % char))
-            if i == (size - 1) and val > 11 and n != 251: continue
-            out.append(self.unpackByte(n, val))
-
-        if remove:
-            out = out[0: -remove]
+        if remove == 0:
+            for i in range(0, len(hexData)):
+                char = chr(hexData[i]) if type(hexData[i]) is int else hexData[i] #python2/3 compat
+                val = ord(binascii.unhexlify("0%s" % char))
+                if i == (size - 1) and val > 11 and n != 251: continue
+                out.append(self.unpackByte(n, val))
+        else:
+            out = hexData[0: -remove]
 
         return out
 
