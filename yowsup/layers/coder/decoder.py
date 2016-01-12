@@ -1,6 +1,7 @@
 from yowsup.structs import ProtocolTreeNode
 import math
 import binascii
+import sys
 class ReadDecoder:
     def __init__(self, tokenDictionary):
         self.streamStarted = False;
@@ -26,10 +27,11 @@ class ReadDecoder:
 
     def getTokenDouble(self, n, n2):
         pos = n2 + n * 256
-        ret = ""
         token = self.tokenDictionary.getToken(pos, True)
         if not token:
             raise ValueError("Invalid token %s" % pos)
+
+        return token
 
     def streamStart(self, data):
         self.streamStarted = True
@@ -81,7 +83,7 @@ class ReadDecoder:
                 if i == (size - 1) and val > 11 and n != 251: continue
                 out.append(self.unpackByte(n, val))
         else:
-            out = hexData[0: -remove]
+            out =  map(ord, list(hexData[0: -remove])) if sys.version_info < (3,0) else list(hexData[0: -remove])
 
         return out
 
