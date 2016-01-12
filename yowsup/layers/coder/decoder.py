@@ -72,7 +72,7 @@ class ReadDecoder:
             remove = 1
             size = size & 0x7F
         text = bytearray(self.readArray(size, data))
-        hexData = binascii.hexlify(text)
+        hexData = binascii.hexlify(text).upper()
         out = []
         if remove == 0:
             for i in range(0, len(hexData)):
