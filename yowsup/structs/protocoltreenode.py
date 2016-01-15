@@ -148,7 +148,8 @@ class ProtocolTreeNode(object):
             del self.attributes[key]
 
     def setAttribute(self, key, value):
-        self.attributes[key] = value
+        if value is not None:
+            self.attributes[key] = value
 
     def getAllChildren(self,tag = None):
         ret = []
