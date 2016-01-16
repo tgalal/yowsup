@@ -133,9 +133,9 @@ class ReadDecoder:
             return ""
 
     def readInt20(self, data):
-         int1 = self.data.pop(0)
-         int2 = self.data.pop(1)
-         int3 = self.data.pop(2)
+         int1 = data.pop(0)
+         int2 = data.pop(0)
+         int3 = data.pop(0)
          return ((int1 & 0xF) << 16) + (int2 << 8) + (int3 << 0)
 
     def readInt24(self, data):
