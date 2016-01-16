@@ -1,0 +1,62 @@
+message Message {
+  optional string conversation                   = 1;
+  optional SenderKeyDistributionMessage senderKeyDistributionMessage   = 2;
+  optional ImageMessage imageMessage            = 3;
+  optional ContactMessage contactMessage        = 4;
+  optional LocationMessage locationMessage      = 5;
+  optional DocumentMessage documentMessage      = 7;
+  optional UrlMessage urlMessage                = 6;
+}
+
+message SenderKeyDistributionMessage {
+  optional bytes groupId = 1;
+  optional bytes axolotlSenderKeyDistributionMessage = 2;
+}
+
+message ImageMessage {
+  optional bytes url            = 1;
+  optional string mimeType       = 2;
+  optional string caption        = 3;
+  optional bytes fileSha256     = 4;
+  optional uint64 fileLength    = 5;
+  optional uint32 height        = 6;
+  optional uint32 width         = 7;
+  optional bytes mediaKey       = 8;
+  optional bytes jpegThumbnail  = 16;
+}
+
+message LocationMessage {
+  optional double degreesLatitude   = 1;
+  optional double degreesLongitude  = 2;
+  optional string name              = 3;
+  optional string address           = 4;
+  optional string url               = 5;
+  optional bytes  jpegThumbnail     = 16;
+
+}
+message DocumentMessage {
+  optional string url = 1;
+  optional string mimeType = 2;
+  optional string title = 3;
+  optional bytes fileSha256 = 4;
+  optional uint64 fileLength = 5;
+  optional uint32 pageCount = 6;
+  optional bytes mediaKey = 7;
+  optional bytes jpegThumbnail = 16;
+}
+
+
+message UrlMessage {
+  optional string text = 1;
+  optional string matchedText = 2;
+  optional string canonicalUrl = 4;
+  optional string description = 5;
+  optional string title = 6;
+  optional string jpegThumbnail = 16;
+}
+
+
+message ContactMessage {
+  optional string displayName = 1;
+  optional string vcard = 16;
+}
