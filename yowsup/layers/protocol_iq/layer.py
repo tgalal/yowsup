@@ -5,13 +5,14 @@ from yowsup.layers import YowProtocolLayer, YowLayerEvent, EventCallback
 from yowsup.common import YowConstants
 from yowsup.layers.network import YowNetworkLayer
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
+from yowsup.layers.protocol_messages.layer import YowMessagesProtocolLayer
 from .protocolentities import *
 
 
 class YowIqProtocolLayer(YowProtocolLayer):
-    
+
     PROP_PING_INTERVAL               = "org.openwhatsapp.yowsup.prop.pinginterval"
-    
+
     def __init__(self):
         handleMap = {
             "iq": (self.recvIq, self.sendIq)
@@ -63,24 +64,32 @@ class YowIqProtocolLayer(YowProtocolLayer):
             self._pingThread = YowPingThread(self, interval)
             self.__logger.debug("starting ping thread.")
             self._pingThread.start()
-    
-    
+
     def stop_thread(self):
         if self._pingThread:
             self.__logger.debug("stopping ping thread")
-            if self._pingThread:
-                self._pingThread.stop()
-                self._pingThread = None
+            self._pingThread.stop()
+            self._pingThread = None
             self._pingQueue = {}
-        
+
     @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECT)
     def onDisconnect(self, event):
         self.stop_thread()
-    
+
     @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
     def onDisconnected(self, event):
         self.stop_thread()
-            
+
+    @EventCallback(YowMessagesProtocolLayer.EVENT_MESSAGE_RECEIVED)
+    def onMessageReceived(self, event):
+        if self._pingThread:
+            self.__logger.debug(
+                "Resetting counter in ping thread due to received message")
+            self._pingQueueLock.acquire()
+            self._pingQueue = {}
+            self._pingQueueLock.release()
+
+
 class YowPingThread(Thread):
     def __init__(self, layer, interval):
         assert type(layer) is YowIqProtocolLayer, "layer must be a YowIqProtocolLayer, got %s instead." % type(layer)
