@@ -299,12 +299,14 @@ class YowAxolotlLayer(YowProtocolLayer):
         encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
         enc = encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG)
 
-        senderKeyName = SenderKeyName(encMessageProtocolEntity.getFrom(True), AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 1))
+        senderKeyName = SenderKeyName(encMessageProtocolEntity.getFrom(True), AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0))
         groupCipher = GroupCipher(self.store, senderKeyName)
         try:
             plaintext = groupCipher.decrypt(enc.getData())
             if plaintext:
                 self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
+            else:
+                self.handleConversationMessage(node, "NONE22!!")
         except NoSessionException as e:
             logger.error(e)
             retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node)
@@ -321,15 +323,16 @@ class YowAxolotlLayer(YowProtocolLayer):
             print(serializedData)
             print([s for s in serializedData])
             print([ord(s) for s in serializedData])
-            raise
+            self.handleConversationMessage(node, "NONE!!")
+            return
         if not m or not serializedData:
             raise ValueError("Empty message")
 
         handled = False
 
-        if m.senderKeyDistributionMessage is not None:
-            axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 1)
-            self.handleSenderKeyDistributionMessage(m.senderKeyDistributionMessage, axolotlAddress)
+        if encMessageProtocolEntity.isGroupMessage() and m.sender_key_distribution_message is not None:
+            axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
+            self.handleSenderKeyDistributionMessage(m.sender_key_distribution_message, axolotlAddress)
             handled = True
         if m.conversation is not None:
             self.handleConversationMessage(node, m.conversation)
@@ -343,7 +346,7 @@ class YowAxolotlLayer(YowProtocolLayer):
 
     def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, axolotlAddress):
         groupId = senderKeyDistributionMessage.groupId
-        axolotlSenderKeyDistributionMessage = SenderKeyDistributionMessage(serialized=senderKeyDistributionMessage.axolotlSenderKeyDistributionMessage)
+        axolotlSenderKeyDistributionMessage = SenderKeyDistributionMessage(serialized=senderKeyDistributionMessage.axolotl_sender_key_distribution_message)
         groupSessionBuilder = GroupSessionBuilder(self.store)
         senderKeyName = SenderKeyName(groupId, axolotlAddress)
         groupSessionBuilder.process(senderKeyName, axolotlSenderKeyDistributionMessage)
