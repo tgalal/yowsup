@@ -17,8 +17,8 @@ _sym_db = _symbol_database.Default()
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='e2e.proto',
-  package='',
-  serialized_pb=_b('\n\te2e.proto\"\xa9\x02\n\x07Message\x12\x14\n\x0c\x63onversation\x18\x01 \x01(\t\x12\x43\n\x1csenderKeyDistributionMessage\x18\x02 \x01(\x0b\x32\x1d.SenderKeyDistributionMessage\x12#\n\x0cimageMessage\x18\x03 \x01(\x0b\x32\r.ImageMessage\x12\'\n\x0e\x63ontactMessage\x18\x04 \x01(\x0b\x32\x0f.ContactMessage\x12)\n\x0flocationMessage\x18\x05 \x01(\x0b\x32\x10.LocationMessage\x12)\n\x0f\x64ocumentMessage\x18\x07 \x01(\x0b\x32\x10.DocumentMessage\x12\x1f\n\nurlMessage\x18\x06 \x01(\x0b\x32\x0b.UrlMessage\"\\\n\x1cSenderKeyDistributionMessage\x12\x0f\n\x07groupId\x18\x01 \x01(\x0c\x12+\n#axolotlSenderKeyDistributionMessage\x18\x02 \x01(\x0c\"\xae\x01\n\x0cImageMessage\x12\x0b\n\x03url\x18\x01 \x01(\x0c\x12\x10\n\x08mimeType\x18\x02 \x01(\t\x12\x0f\n\x07\x63\x61ption\x18\x03 \x01(\t\x12\x12\n\nfileSha256\x18\x04 \x01(\x0c\x12\x12\n\nfileLength\x18\x05 \x01(\x04\x12\x0e\n\x06height\x18\x06 \x01(\r\x12\r\n\x05width\x18\x07 \x01(\r\x12\x10\n\x08mediaKey\x18\x08 \x01(\x0c\x12\x15\n\rjpegThumbnail\x18\x10 \x01(\x0c\"\x87\x01\n\x0fLocationMessage\x12\x17\n\x0f\x64\x65greesLatitude\x18\x01 \x01(\x01\x12\x18\n\x10\x64\x65greesLongitude\x18\x02 \x01(\x01\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x04 \x01(\t\x12\x0b\n\x03url\x18\x05 \x01(\t\x12\x15\n\rjpegThumbnail\x18\x10 \x01(\x0c\"\xa3\x01\n\x0f\x44ocumentMessage\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimeType\x18\x02 \x01(\t\x12\r\n\x05title\x18\x03 \x01(\t\x12\x12\n\nfileSha256\x18\x04 \x01(\x0c\x12\x12\n\nfileLength\x18\x05 \x01(\x04\x12\x11\n\tpageCount\x18\x06 \x01(\r\x12\x10\n\x08mediaKey\x18\x07 \x01(\x0c\x12\x15\n\rjpegThumbnail\x18\x10 \x01(\x0c\"\x80\x01\n\nUrlMessage\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x13\n\x0bmatchedText\x18\x02 \x01(\t\x12\x14\n\x0c\x63\x61nonicalUrl\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\x12\r\n\x05title\x18\x06 \x01(\t\x12\x15\n\rjpegThumbnail\x18\x10 \x01(\t\"4\n\x0e\x43ontactMessage\x12\x13\n\x0b\x64isplayName\x18\x01 \x01(\t\x12\r\n\x05vcard\x18\x10 \x01(\t')
+  package='com.whatsapp.proto',
+  serialized_pb=_b('\n\te2e.proto\x12\x12\x63om.whatsapp.proto\"\xa2\x03\n\x07Message\x12\x14\n\x0c\x63onversation\x18\x01 \x01(\t\x12Y\n\x1fsender_key_distribution_message\x18\x02 \x01(\x0b\x32\x30.com.whatsapp.proto.SenderKeyDistributionMessage\x12\x37\n\rimage_message\x18\x03 \x01(\x0b\x32 .com.whatsapp.proto.ImageMessage\x12;\n\x0f\x63ontact_message\x18\x04 \x01(\x0b\x32\".com.whatsapp.proto.ContactMessage\x12=\n\x10location_message\x18\x05 \x01(\x0b\x32#.com.whatsapp.proto.LocationMessage\x12=\n\x10\x64ocument_message\x18\x07 \x01(\x0b\x32#.com.whatsapp.proto.DocumentMessage\x12\x32\n\nurlMessage\x18\x06 \x01(\x0b\x32\x1e.com.whatsapp.proto.UrlMessage\"`\n\x1cSenderKeyDistributionMessage\x12\x0f\n\x07groupId\x18\x01 \x02(\t\x12/\n\'axolotl_sender_key_distribution_message\x18\x02 \x02(\x0c\"\xb3\x01\n\x0cImageMessage\x12\x0b\n\x03url\x18\x01 \x02(\x0c\x12\x11\n\tmime_type\x18\x02 \x02(\t\x12\x0f\n\x07\x63\x61ption\x18\x03 \x02(\t\x12\x13\n\x0b\x66ile_sha256\x18\x04 \x02(\x0c\x12\x13\n\x0b\x66ile_length\x18\x05 \x02(\x04\x12\x0e\n\x06height\x18\x06 \x02(\r\x12\r\n\x05width\x18\x07 \x02(\r\x12\x11\n\tmedia_key\x18\x08 \x02(\x0c\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x02(\x0c\"\x8a\x01\n\x0fLocationMessage\x12\x18\n\x10\x64\x65grees_latitude\x18\x01 \x02(\x01\x12\x19\n\x11\x64\x65grees_longitude\x18\x02 \x02(\x01\x12\x0c\n\x04name\x18\x03 \x02(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x04 \x02(\t\x12\x0b\n\x03url\x18\x05 \x02(\t\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x02(\x0c\"\xa8\x01\n\x0f\x44ocumentMessage\x12\x0b\n\x03url\x18\x01 \x02(\t\x12\x10\n\x08mimeType\x18\x02 \x02(\t\x12\r\n\x05title\x18\x03 \x02(\t\x12\x13\n\x0b\x66ile_sha256\x18\x04 \x02(\x0c\x12\x13\n\x0b\x66ile_length\x18\x05 \x02(\x04\x12\x12\n\npage_count\x18\x06 \x02(\r\x12\x11\n\tmedia_key\x18\x07 \x02(\x0c\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x02(\x0c\"\x83\x01\n\nUrlMessage\x12\x0c\n\x04text\x18\x01 \x02(\t\x12\x14\n\x0cmatched_text\x18\x02 \x02(\t\x12\x15\n\rcanonical_url\x18\x04 \x02(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x02(\t\x12\r\n\x05title\x18\x06 \x02(\t\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x02(\t\"5\n\x0e\x43ontactMessage\x12\x14\n\x0c\x64isplay_name\x18\x01 \x02(\t\x12\r\n\x05vcard\x18\x10 \x02(\t')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -27,55 +27,55 @@ _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 _MESSAGE = _descriptor.Descriptor(
   name='Message',
-  full_name='Message',
+  full_name='com.whatsapp.proto.Message',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='conversation', full_name='Message.conversation', index=0,
+      name='conversation', full_name='com.whatsapp.proto.Message.conversation', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='senderKeyDistributionMessage', full_name='Message.senderKeyDistributionMessage', index=1,
+      name='sender_key_distribution_message', full_name='com.whatsapp.proto.Message.sender_key_distribution_message', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='imageMessage', full_name='Message.imageMessage', index=2,
+      name='image_message', full_name='com.whatsapp.proto.Message.image_message', index=2,
       number=3, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='contactMessage', full_name='Message.contactMessage', index=3,
+      name='contact_message', full_name='com.whatsapp.proto.Message.contact_message', index=3,
       number=4, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='locationMessage', full_name='Message.locationMessage', index=4,
+      name='location_message', full_name='com.whatsapp.proto.Message.location_message', index=4,
       number=5, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='documentMessage', full_name='Message.documentMessage', index=5,
+      name='document_message', full_name='com.whatsapp.proto.Message.document_message', index=5,
       number=7, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='urlMessage', full_name='Message.urlMessage', index=6,
+      name='urlMessage', full_name='com.whatsapp.proto.Message.urlMessage', index=6,
       number=6, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -92,28 +92,28 @@ _MESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=14,
-  serialized_end=311,
+  serialized_start=34,
+  serialized_end=452,
 )
 
 
 _SENDERKEYDISTRIBUTIONMESSAGE = _descriptor.Descriptor(
   name='SenderKeyDistributionMessage',
-  full_name='SenderKeyDistributionMessage',
+  full_name='com.whatsapp.proto.SenderKeyDistributionMessage',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='groupId', full_name='SenderKeyDistributionMessage.groupId', index=0,
-      number=1, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b(""),
+      name='groupId', full_name='com.whatsapp.proto.SenderKeyDistributionMessage.groupId', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='axolotlSenderKeyDistributionMessage', full_name='SenderKeyDistributionMessage.axolotlSenderKeyDistributionMessage', index=1,
-      number=2, type=12, cpp_type=9, label=1,
+      name='axolotl_sender_key_distribution_message', full_name='com.whatsapp.proto.SenderKeyDistributionMessage.axolotl_sender_key_distribution_message', index=1,
+      number=2, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -129,77 +129,77 @@ _SENDERKEYDISTRIBUTIONMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=313,
-  serialized_end=405,
+  serialized_start=454,
+  serialized_end=550,
 )
 
 
 _IMAGEMESSAGE = _descriptor.Descriptor(
   name='ImageMessage',
-  full_name='ImageMessage',
+  full_name='com.whatsapp.proto.ImageMessage',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='url', full_name='ImageMessage.url', index=0,
-      number=1, type=12, cpp_type=9, label=1,
+      name='url', full_name='com.whatsapp.proto.ImageMessage.url', index=0,
+      number=1, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='mimeType', full_name='ImageMessage.mimeType', index=1,
-      number=2, type=9, cpp_type=9, label=1,
+      name='mime_type', full_name='com.whatsapp.proto.ImageMessage.mime_type', index=1,
+      number=2, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='caption', full_name='ImageMessage.caption', index=2,
-      number=3, type=9, cpp_type=9, label=1,
+      name='caption', full_name='com.whatsapp.proto.ImageMessage.caption', index=2,
+      number=3, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='fileSha256', full_name='ImageMessage.fileSha256', index=3,
-      number=4, type=12, cpp_type=9, label=1,
+      name='file_sha256', full_name='com.whatsapp.proto.ImageMessage.file_sha256', index=3,
+      number=4, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='fileLength', full_name='ImageMessage.fileLength', index=4,
-      number=5, type=4, cpp_type=4, label=1,
+      name='file_length', full_name='com.whatsapp.proto.ImageMessage.file_length', index=4,
+      number=5, type=4, cpp_type=4, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='height', full_name='ImageMessage.height', index=5,
-      number=6, type=13, cpp_type=3, label=1,
+      name='height', full_name='com.whatsapp.proto.ImageMessage.height', index=5,
+      number=6, type=13, cpp_type=3, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='width', full_name='ImageMessage.width', index=6,
-      number=7, type=13, cpp_type=3, label=1,
+      name='width', full_name='com.whatsapp.proto.ImageMessage.width', index=6,
+      number=7, type=13, cpp_type=3, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='mediaKey', full_name='ImageMessage.mediaKey', index=7,
-      number=8, type=12, cpp_type=9, label=1,
+      name='media_key', full_name='com.whatsapp.proto.ImageMessage.media_key', index=7,
+      number=8, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='jpegThumbnail', full_name='ImageMessage.jpegThumbnail', index=8,
-      number=16, type=12, cpp_type=9, label=1,
+      name='jpeg_thumbnail', full_name='com.whatsapp.proto.ImageMessage.jpeg_thumbnail', index=8,
+      number=16, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -215,56 +215,56 @@ _IMAGEMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=408,
-  serialized_end=582,
+  serialized_start=553,
+  serialized_end=732,
 )
 
 
 _LOCATIONMESSAGE = _descriptor.Descriptor(
   name='LocationMessage',
-  full_name='LocationMessage',
+  full_name='com.whatsapp.proto.LocationMessage',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='degreesLatitude', full_name='LocationMessage.degreesLatitude', index=0,
-      number=1, type=1, cpp_type=5, label=1,
+      name='degrees_latitude', full_name='com.whatsapp.proto.LocationMessage.degrees_latitude', index=0,
+      number=1, type=1, cpp_type=5, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='degreesLongitude', full_name='LocationMessage.degreesLongitude', index=1,
-      number=2, type=1, cpp_type=5, label=1,
+      name='degrees_longitude', full_name='com.whatsapp.proto.LocationMessage.degrees_longitude', index=1,
+      number=2, type=1, cpp_type=5, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='name', full_name='LocationMessage.name', index=2,
-      number=3, type=9, cpp_type=9, label=1,
+      name='name', full_name='com.whatsapp.proto.LocationMessage.name', index=2,
+      number=3, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='address', full_name='LocationMessage.address', index=3,
-      number=4, type=9, cpp_type=9, label=1,
+      name='address', full_name='com.whatsapp.proto.LocationMessage.address', index=3,
+      number=4, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='url', full_name='LocationMessage.url', index=4,
-      number=5, type=9, cpp_type=9, label=1,
+      name='url', full_name='com.whatsapp.proto.LocationMessage.url', index=4,
+      number=5, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='jpegThumbnail', full_name='LocationMessage.jpegThumbnail', index=5,
-      number=16, type=12, cpp_type=9, label=1,
+      name='jpeg_thumbnail', full_name='com.whatsapp.proto.LocationMessage.jpeg_thumbnail', index=5,
+      number=16, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -280,70 +280,70 @@ _LOCATIONMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=585,
-  serialized_end=720,
+  serialized_start=735,
+  serialized_end=873,
 )
 
 
 _DOCUMENTMESSAGE = _descriptor.Descriptor(
   name='DocumentMessage',
-  full_name='DocumentMessage',
+  full_name='com.whatsapp.proto.DocumentMessage',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='url', full_name='DocumentMessage.url', index=0,
-      number=1, type=9, cpp_type=9, label=1,
+      name='url', full_name='com.whatsapp.proto.DocumentMessage.url', index=0,
+      number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='mimeType', full_name='DocumentMessage.mimeType', index=1,
-      number=2, type=9, cpp_type=9, label=1,
+      name='mimeType', full_name='com.whatsapp.proto.DocumentMessage.mimeType', index=1,
+      number=2, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='title', full_name='DocumentMessage.title', index=2,
-      number=3, type=9, cpp_type=9, label=1,
+      name='title', full_name='com.whatsapp.proto.DocumentMessage.title', index=2,
+      number=3, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='fileSha256', full_name='DocumentMessage.fileSha256', index=3,
-      number=4, type=12, cpp_type=9, label=1,
+      name='file_sha256', full_name='com.whatsapp.proto.DocumentMessage.file_sha256', index=3,
+      number=4, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='fileLength', full_name='DocumentMessage.fileLength', index=4,
-      number=5, type=4, cpp_type=4, label=1,
+      name='file_length', full_name='com.whatsapp.proto.DocumentMessage.file_length', index=4,
+      number=5, type=4, cpp_type=4, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='pageCount', full_name='DocumentMessage.pageCount', index=5,
-      number=6, type=13, cpp_type=3, label=1,
+      name='page_count', full_name='com.whatsapp.proto.DocumentMessage.page_count', index=5,
+      number=6, type=13, cpp_type=3, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='mediaKey', full_name='DocumentMessage.mediaKey', index=6,
-      number=7, type=12, cpp_type=9, label=1,
+      name='media_key', full_name='com.whatsapp.proto.DocumentMessage.media_key', index=6,
+      number=7, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='jpegThumbnail', full_name='DocumentMessage.jpegThumbnail', index=7,
-      number=16, type=12, cpp_type=9, label=1,
+      name='jpeg_thumbnail', full_name='com.whatsapp.proto.DocumentMessage.jpeg_thumbnail', index=7,
+      number=16, type=12, cpp_type=9, label=2,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -359,56 +359,56 @@ _DOCUMENTMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=723,
-  serialized_end=886,
+  serialized_start=876,
+  serialized_end=1044,
 )
 
 
 _URLMESSAGE = _descriptor.Descriptor(
   name='UrlMessage',
-  full_name='UrlMessage',
+  full_name='com.whatsapp.proto.UrlMessage',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='text', full_name='UrlMessage.text', index=0,
-      number=1, type=9, cpp_type=9, label=1,
+      name='text', full_name='com.whatsapp.proto.UrlMessage.text', index=0,
+      number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='matchedText', full_name='UrlMessage.matchedText', index=1,
-      number=2, type=9, cpp_type=9, label=1,
+      name='matched_text', full_name='com.whatsapp.proto.UrlMessage.matched_text', index=1,
+      number=2, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='canonicalUrl', full_name='UrlMessage.canonicalUrl', index=2,
-      number=4, type=9, cpp_type=9, label=1,
+      name='canonical_url', full_name='com.whatsapp.proto.UrlMessage.canonical_url', index=2,
+      number=4, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='description', full_name='UrlMessage.description', index=3,
-      number=5, type=9, cpp_type=9, label=1,
+      name='description', full_name='com.whatsapp.proto.UrlMessage.description', index=3,
+      number=5, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='title', full_name='UrlMessage.title', index=4,
-      number=6, type=9, cpp_type=9, label=1,
+      name='title', full_name='com.whatsapp.proto.UrlMessage.title', index=4,
+      number=6, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='jpegThumbnail', full_name='UrlMessage.jpegThumbnail', index=5,
-      number=16, type=9, cpp_type=9, label=1,
+      name='jpeg_thumbnail', full_name='com.whatsapp.proto.UrlMessage.jpeg_thumbnail', index=5,
+      number=16, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -424,28 +424,28 @@ _URLMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=889,
-  serialized_end=1017,
+  serialized_start=1047,
+  serialized_end=1178,
 )
 
 
 _CONTACTMESSAGE = _descriptor.Descriptor(
   name='ContactMessage',
-  full_name='ContactMessage',
+  full_name='com.whatsapp.proto.ContactMessage',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='displayName', full_name='ContactMessage.displayName', index=0,
-      number=1, type=9, cpp_type=9, label=1,
+      name='display_name', full_name='com.whatsapp.proto.ContactMessage.display_name', index=0,
+      number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='vcard', full_name='ContactMessage.vcard', index=1,
-      number=16, type=9, cpp_type=9, label=1,
+      name='vcard', full_name='com.whatsapp.proto.ContactMessage.vcard', index=1,
+      number=16, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -461,15 +461,15 @@ _CONTACTMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1019,
-  serialized_end=1071,
+  serialized_start=1180,
+  serialized_end=1233,
 )
 
-_MESSAGE.fields_by_name['senderKeyDistributionMessage'].message_type = _SENDERKEYDISTRIBUTIONMESSAGE
-_MESSAGE.fields_by_name['imageMessage'].message_type = _IMAGEMESSAGE
-_MESSAGE.fields_by_name['contactMessage'].message_type = _CONTACTMESSAGE
-_MESSAGE.fields_by_name['locationMessage'].message_type = _LOCATIONMESSAGE
-_MESSAGE.fields_by_name['documentMessage'].message_type = _DOCUMENTMESSAGE
+_MESSAGE.fields_by_name['sender_key_distribution_message'].message_type = _SENDERKEYDISTRIBUTIONMESSAGE
+_MESSAGE.fields_by_name['image_message'].message_type = _IMAGEMESSAGE
+_MESSAGE.fields_by_name['contact_message'].message_type = _CONTACTMESSAGE
+_MESSAGE.fields_by_name['location_message'].message_type = _LOCATIONMESSAGE
+_MESSAGE.fields_by_name['document_message'].message_type = _DOCUMENTMESSAGE
 _MESSAGE.fields_by_name['urlMessage'].message_type = _URLMESSAGE
 DESCRIPTOR.message_types_by_name['Message'] = _MESSAGE
 DESCRIPTOR.message_types_by_name['SenderKeyDistributionMessage'] = _SENDERKEYDISTRIBUTIONMESSAGE
@@ -482,49 +482,49 @@ DESCRIPTOR.message_types_by_name['ContactMessage'] = _CONTACTMESSAGE
 Message = _reflection.GeneratedProtocolMessageType('Message', (_message.Message,), dict(
   DESCRIPTOR = _MESSAGE,
   __module__ = 'e2e_pb2'
-  # @@protoc_insertion_point(class_scope:Message)
+  # @@protoc_insertion_point(class_scope:com.whatsapp.proto.Message)
   ))
 _sym_db.RegisterMessage(Message)
 
 SenderKeyDistributionMessage = _reflection.GeneratedProtocolMessageType('SenderKeyDistributionMessage', (_message.Message,), dict(
   DESCRIPTOR = _SENDERKEYDISTRIBUTIONMESSAGE,
   __module__ = 'e2e_pb2'
-  # @@protoc_insertion_point(class_scope:SenderKeyDistributionMessage)
+  # @@protoc_insertion_point(class_scope:com.whatsapp.proto.SenderKeyDistributionMessage)
   ))
 _sym_db.RegisterMessage(SenderKeyDistributionMessage)
 
 ImageMessage = _reflection.GeneratedProtocolMessageType('ImageMessage', (_message.Message,), dict(
   DESCRIPTOR = _IMAGEMESSAGE,
   __module__ = 'e2e_pb2'
-  # @@protoc_insertion_point(class_scope:ImageMessage)
+  # @@protoc_insertion_point(class_scope:com.whatsapp.proto.ImageMessage)
   ))
 _sym_db.RegisterMessage(ImageMessage)
 
 LocationMessage = _reflection.GeneratedProtocolMessageType('LocationMessage', (_message.Message,), dict(
   DESCRIPTOR = _LOCATIONMESSAGE,
   __module__ = 'e2e_pb2'
-  # @@protoc_insertion_point(class_scope:LocationMessage)
+  # @@protoc_insertion_point(class_scope:com.whatsapp.proto.LocationMessage)
   ))
 _sym_db.RegisterMessage(LocationMessage)
 
 DocumentMessage = _reflection.GeneratedProtocolMessageType('DocumentMessage', (_message.Message,), dict(
   DESCRIPTOR = _DOCUMENTMESSAGE,
   __module__ = 'e2e_pb2'
-  # @@protoc_insertion_point(class_scope:DocumentMessage)
+  # @@protoc_insertion_point(class_scope:com.whatsapp.proto.DocumentMessage)
   ))
 _sym_db.RegisterMessage(DocumentMessage)
 
 UrlMessage = _reflection.GeneratedProtocolMessageType('UrlMessage', (_message.Message,), dict(
   DESCRIPTOR = _URLMESSAGE,
   __module__ = 'e2e_pb2'
-  # @@protoc_insertion_point(class_scope:UrlMessage)
+  # @@protoc_insertion_point(class_scope:com.whatsapp.proto.UrlMessage)
   ))
 _sym_db.RegisterMessage(UrlMessage)
 
 ContactMessage = _reflection.GeneratedProtocolMessageType('ContactMessage', (_message.Message,), dict(
   DESCRIPTOR = _CONTACTMESSAGE,
   __module__ = 'e2e_pb2'
-  # @@protoc_insertion_point(class_scope:ContactMessage)
+  # @@protoc_insertion_point(class_scope:com.whatsapp.proto.ContactMessage)
   ))
 _sym_db.RegisterMessage(ContactMessage)
 
