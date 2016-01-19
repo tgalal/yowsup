@@ -11,14 +11,27 @@ HELP_CONFIG = """
 # The file contains info about your WhatsApp account. This is used during registration and login.
 # You can define or override all fields in the command line args as well.
 #
+[PHONE]
 # Country code. See http://www.ipipi.com/help/telephone-country-codes.htm. This is now required.
 cc=49
 #
 # Your full phone number including the country code you defined in 'cc', without preceding '+' or '00'
 phone=491234567890
 #
+[WHATSAPP]
 # You obtain this password when you register using Yowsup.
 password=NDkxNTIyNTI1NjAyMkBzLndoYXRzYXBwLm5ldA==
+
+# Information about store resource path
+[STORAGE]
+mediapath=~/.whatsapp/media
+dbpath=~/.whatsapp/contacts.db
+
+# Information about remote administration and access
+[ADMIN]
+adminphone=+49192831233123
+allowed=+49192831233123,+4919283456456,+49191872363
+blocked=
 #######################################################
 """
 
