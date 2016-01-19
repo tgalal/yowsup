@@ -303,10 +303,8 @@ class YowAxolotlLayer(YowProtocolLayer):
         groupCipher = GroupCipher(self.store, senderKeyName)
         try:
             plaintext = groupCipher.decrypt(enc.getData())
-            if plaintext:
-                self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
-            else:
-                self.handleConversationMessage(node, "NONE22!!")
+            padding = ord(plaintext[-1]) & 0xFF
+            self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext[:-padding])
         except NoSessionException as e:
             logger.error(e)
             retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node)
@@ -323,18 +321,17 @@ class YowAxolotlLayer(YowProtocolLayer):
             print(serializedData)
             print([s for s in serializedData])
             print([ord(s) for s in serializedData])
-            self.handleConversationMessage(node, "NONE!!")
-            return
+            raise
         if not m or not serializedData:
             raise ValueError("Empty message")
 
         handled = False
 
-        if encMessageProtocolEntity.isGroupMessage() and m.sender_key_distribution_message is not None:
+        if m.HasField("sender_key_distribution_message"):
             axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
             self.handleSenderKeyDistributionMessage(m.sender_key_distribution_message, axolotlAddress)
             handled = True
-        if m.conversation is not None:
+        if m.HasField("conversation"):
             self.handleConversationMessage(node, m.conversation)
             handled = True
 
