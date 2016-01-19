@@ -1,5 +1,5 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
-
+import sys
 class EncProtocolEntity(ProtocolEntity):
     TYPE_PKMSG  = "pkmsg"
     TYPE_MSG    = "msg"
@@ -26,4 +26,4 @@ class EncProtocolEntity(ProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        return EncProtocolEntity(node["type"], node["v"], node.data)
+        return EncProtocolEntity(node["type"], node["v"], node.data.encode('latin-1') if sys.version_info >= (3,0) else node.data)
