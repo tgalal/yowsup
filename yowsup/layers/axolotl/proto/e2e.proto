@@ -7,7 +7,7 @@ message Message {
   optional ContactMessage contact_message        = 4;
   optional LocationMessage location_message      = 5;
   optional DocumentMessage document_message      = 7;
-  optional UrlMessage urlMessage                = 6;
+  optional UrlMessage url_message                = 6;
 }
 
 message SenderKeyDistributionMessage {
