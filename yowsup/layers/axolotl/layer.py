@@ -1,6 +1,4 @@
 from yowsup.layers import YowProtocolLayer, YowLayerEvent, EventCallback
-from yowsup.layers.protocol_messages.protocolentities.message import MessageProtocolEntity
-from yowsup.layers.protocol_messages.protocolentities.message_text import TextMessageProtocolEntity
 from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
@@ -177,8 +175,7 @@ class YowAxolotlLayer(YowProtocolLayer):
 
     def handlePlaintextNode(self, node):
         plaintext = node.getChild("body").getData()
-        entity = MessageProtocolEntity.fromProtocolTreeNode(node)
-        recipient_id = entity.getTo(False)
+        recipient_id = node["to"].split('@')[0]
 
         if not self.store.containsSession(recipient_id, 1):
             entity = GetKeysIqProtocolEntity([node["to"]])
@@ -207,7 +204,7 @@ class YowAxolotlLayer(YowProtocolLayer):
                     EncProtocolEntity(EncProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncProtocolEntity.TYPE_PKMSG ,
                                                    version,
                                                    ciphertext.serialize())],
-                                                   MessageProtocolEntity.MESSAGE_TYPE_TEXT,
+                                                   "text",
                                                    _id= node["id"],
                                                    to = node["to"],
                                                    notify = node["notify"],
@@ -238,7 +235,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         try:
             if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_PKMSG):
                 self.handlePreKeyWhisperMessage(node)
-            if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_MSG):
+            elif encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_MSG):
                 self.handleWhisperMessage(node)
             if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG):
                 self.handleSenderKeyMessage(node)
@@ -325,21 +322,22 @@ class YowAxolotlLayer(YowProtocolLayer):
         if not m or not serializedData:
             raise ValueError("Empty message")
 
-        handled = False
-
         if m.HasField("sender_key_distribution_message"):
             axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
             self.handleSenderKeyDistributionMessage(m.sender_key_distribution_message, axolotlAddress)
-            handled = True
         if m.HasField("conversation"):
             self.handleConversationMessage(node, m.conversation)
-            handled = True
-
-        if not handled:
+        elif m.HasField("contact_message"):
+            self.handleContactMessage(node, m.contact_message)
+        elif m.HasField("url_message"):
+            self.handleUrlMessage(node, m.url_message)
+        elif m.HasField("location_message"):
+            self.handleLocationMessage(node, m.location_message)
+        elif m.HasField("image_message"):
+            self.handleImageMessage(node, m.image_message)
+        else:
             print(m)
             raise ValueError("Unhandled")
-
-        ##TODO other message types
 
     def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, axolotlAddress):
         groupId = senderKeyDistributionMessage.groupId
@@ -353,6 +351,43 @@ class YowAxolotlLayer(YowProtocolLayer):
         messageNode.children = []
         messageNode.addChild(ProtocolTreeNode("body", data = text))
         self.toUpper(messageNode)
+
+
+    def handleImageMessage(self, originalEncNode, imageMessage):
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "image",
+            "filehash": imageMessage.file_sha256,
+            "size": str(imageMessage.file_length),
+            "url": imageMessage.url,
+            "mimetype": imageMessage.mime_type,
+            "width": imageMessage.width,
+            "height": imageMessage.height,
+            "caption": imageMessage.caption,
+            "encoding": "raw",
+            "file": "enc",
+            "ip": "0"
+        }, data = imageMessage.jpeg_thumbnail)
+        messageNode.addChild(mediaNode)
+
+        self.toUpper(messageNode)
+
+    def handleUrlMessage(self, originalEncNode, urlMessage):
+        #convert to ??
+        pass
+
+    def handleLocationMessage(self, originalEncNode, locationMessage):
+        #convert to LocationMediaMessage
+        pass
+
+    def handleDocumentMessage(self, originalEncNode, documentMessage):
+        #convert to ??
+        pass
+
+    def handleContactMessage(self, originalEncNode, contactMessage):
+        #convert to vcardmediamessage
+        pass
 
     ### keys set and get
     def sendKeys(self, fresh = True, countPreKeys = _COUNT_PREKEYS):
