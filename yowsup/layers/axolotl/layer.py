@@ -3,7 +3,7 @@ from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProt
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
-from yowsup.layers.axolotl.e2e_pb2 import Message
+from yowsup.layers.axolotl.e2e_pb2 import *
 from yowsup.layers.axolotl.store.sqlite.liteaxolotlstore import LiteAxolotlStore
 from yowsup.layers.axolotl.protocolentities import *
 from yowsup.structs import ProtocolTreeNode
@@ -115,7 +115,7 @@ class YowAxolotlLayer(YowProtocolLayer):
             self.store = None
 
     def send(self, node):
-        if node.tag == "message" and node["type"] == "text" and node["to"] not in self.skipEncJids:
+        if node.tag == "message" and node["to"] not in self.skipEncJids:
             self.handlePlaintextNode(node)
             return
         self.toLower(node)
@@ -174,7 +174,6 @@ class YowAxolotlLayer(YowProtocolLayer):
     #### handling message types
 
     def handlePlaintextNode(self, node):
-        plaintext = node.getChild("body").getData()
         recipient_id = node["to"].split('@')[0]
 
         if not self.store.containsSession(recipient_id, 1):
@@ -185,26 +184,20 @@ class YowAxolotlLayer(YowProtocolLayer):
 
             self._sendIq(entity, lambda a, b: self.onGetKeysResult(a, b, self.processPendingMessages), self.onGetKeysError)
         else:
+            message  = None
+            messagebytes = self.serializeToProtobuf(node)
+            if messagebytes:
+                sessionCipher = self.getSessionCipher(recipient_id)
+                ciphertext = sessionCipher.encrypt(messagebytes)
 
-            sessionCipher = self.getSessionCipher(recipient_id)
+                mediaType = node.getChild("media")["type"] if node.getChild("media") else None
 
-            if node["to"] in self.v2Jids:
-                version = 2
-                padded = bytearray()
-                padded.append(ord("\n"))
-                padded.extend(self.encodeInt7bit(len(plaintext)))
-                padded.extend(plaintext)
-                padded.append(ord("\x01"))
-                plaintext = padded
-            else:
-                version = 1
-            ciphertext = sessionCipher.encrypt(plaintext)
-            encEntity = EncryptedMessageProtocolEntity(
+                encEntity = EncryptedMessageProtocolEntity(
                 [
                     EncProtocolEntity(EncProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncProtocolEntity.TYPE_PKMSG ,
-                                                   version,
-                                                   ciphertext.serialize())],
-                                                   "text",
+                                                   2,
+                                                   ciphertext.serialize(), mediaType)],
+                                                   "text" if not mediaType else "media",
                                                    _id= node["id"],
                                                    to = node["to"],
                                                    notify = node["notify"],
@@ -213,17 +206,9 @@ class YowAxolotlLayer(YowProtocolLayer):
                                                    offline=node["offline"],
                                                    retry=node["retry"]
                                                    )
-            self.toLower(encEntity.toProtocolTreeNode())
-
-    def encodeInt7bit(self, value):
-        v = value
-        out = bytearray()
-        while v >= 0x80:
-          out.append((v | 0x80) % 256)
-          v >>= 7
-        out.append(v % 256)
-
-        return out
+                self.toLower(encEntity.toProtocolTreeNode())
+            else: #case of unserializable messages (audio, video) ?
+                self.toLower(node)
 
     def handleEncMessage(self, node):
         encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
@@ -352,7 +337,6 @@ class YowAxolotlLayer(YowProtocolLayer):
         messageNode.addChild(ProtocolTreeNode("body", data = text))
         self.toUpper(messageNode)
 
-
     def handleImageMessage(self, originalEncNode, imageMessage):
         messageNode = copy.deepcopy(originalEncNode)
         messageNode["type"] = "media"
@@ -377,16 +361,99 @@ class YowAxolotlLayer(YowProtocolLayer):
         #convert to ??
         pass
 
-    def handleLocationMessage(self, originalEncNode, locationMessage):
-        #convert to LocationMediaMessage
-        pass
-
     def handleDocumentMessage(self, originalEncNode, documentMessage):
         #convert to ??
         pass
 
+    def handleLocationMessage(self, originalEncNode, locationMessage):
+        messageNode = copy.deepycopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "latitude": locationMessage.degrees_latitude,
+            "longitude": locationMessage.degress_longitude,
+            "name": "%s %s" % (locationMessage.name, locationMessage.address),
+            "url": locationMessage.url,
+            "encoding": "raw",
+            "type": "location"
+        }, data=locationMessage.jpeg_thumbnail)
+        messageNode.addChild(mediaNode)
+        self.toUpper(messageNode)
+
     def handleContactMessage(self, originalEncNode, contactMessage):
-        #convert to vcardmediamessage
+        messageNode = copy.deepycopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "vcard"
+        }, [
+            ProtocolTreeNode("vcard", {"name": contactMessage.display_name}, data = contactMessage.vcard)
+        ] )
+        messageNode.addChild(mediaNode)
+        self.toUpper(messageNode)
+
+    def serializeToProtobuf(self, node):
+        if node.getChild("body"):
+            return self.serializeTextToProtobuf(node)
+        elif node.getChild("media"):
+            return self.serializeMediaToProtobuf(node.getChild("media"))
+        else:
+            raise ValueError("No body or media nodes found")
+
+    def serializeTextToProtobuf(self, node):
+        m = Message()
+        m.conversation = node.getChild("body").getData()
+        return m.SerializeToString()
+
+    def serializeMediaToProtobuf(self, mediaNode):
+        if mediaNode["type"] == "image":
+            return self.serializeImageToProtobuf(mediaNode)
+        if mediaNode["type"] == "location":
+            return self.serializeLocationToProtobuf(mediaNode)
+        if mediaNode["type"] == "vcard":
+            return self.serializeContactToProtobuf(mediaNode)
+
+        return None
+
+    def serializeLocationToProtobuf(self, mediaNode):
+        m = Message()
+        location_message = LocationMessage()
+        location_message.degress_latitude = float(mediaNode["latitude"])
+        location_message.degress_longitude = float(mediaNode["longitude"])
+        location_message.address = mediaNode["name"]
+        location_message.name = mediaNode["name"]
+        location_message.url = mediaNode["url"]
+
+        m.location_message.MergeFrom(location_message)
+        return m.SerializeToString()
+
+    def serializeContactToProtobuf(self, mediaNode):
+        vcardNode = mediaNode.getChild("vcard")
+        m = Message()
+        contact_message = ContactMessage()
+        contact_message.display_name = vcardNode["name"]
+        m.vcard = vcardNode.getData()
+        m.contact_message.MergeFrom(contact_message)
+
+        return m.SerializeToString()
+
+    def serializeImageToProtobuf(self, mediaNode):
+        m = Message()
+        image_message = ImageMessage()
+        image_message.url = mediaNode["url"]
+        image_message.width = int(mediaNode["width"])
+        image_message.height = int(mediaNode["height"])
+        image_message.mime_type = mediaNode["mimetype"]
+        image_message.file_sha256 = mediaNode["filehash"]
+        image_message.file_length = int(mediaNode["size"])
+        image_message.caption = mediaNode["caption"] or ""
+        image_message.jpeg_thumbnail = mediaNode.getData()
+
+        m.image_message.MergeFrom(image_message)
+        return m.SerializeToString()
+
+    def serializeUrlToProtobuf(self, node):
+        pass
+
+    def serializeDocumentToProtobuf(self, node):
         pass
 
     ### keys set and get
@@ -459,7 +526,6 @@ class YowAxolotlLayer(YowProtocolLayer):
     def onGetKeysError(self, errorNode, getKeysEntity):
         pass
     ###
-
 
     def adjustArray(self, arr):
         return HexUtil.decodeHex(binascii.hexlify(arr))
