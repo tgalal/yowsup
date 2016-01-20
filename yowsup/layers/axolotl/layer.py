@@ -37,6 +37,7 @@ logger = logging.getLogger(__name__)
 
 class YowAxolotlLayer(YowProtocolLayer):
     EVENT_PREKEYS_SET = "org.openwhatsapp.yowsup.events.axololt.setkeys"
+    PROP_IDENTITY_AUTOTRUST =  "org.openwhatsapp.yowsup.prop.axolotl.INDENTITY_AUTOTRUST"
     _STATE_INIT = 0
     _STATE_GENKEYS = 1
     _STATE_HASKEYS = 2
@@ -248,8 +249,13 @@ class YowAxolotlLayer(YowProtocolLayer):
             self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"]).toProtocolTreeNode())
 
         except UntrustedIdentityException as e:
-            logger.error(e)
-            logger.warning("Ignoring message with untrusted identity")
+            if(self.getProp(self.__class__.PROP_IDENTITY_AUTOTRUST, False)):
+                logger.warning("Autotrusting identity for %s" % e.getName())
+                self.store.saveIdentity(e.getName(), e.getIdentityKey())
+                return self.handleEncMessage(node)
+            else:
+                logger.error(e)
+                logger.warning("Ignoring message with untrusted identity")
 
     def handlePreKeyWhisperMessage(self, node):
         pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
