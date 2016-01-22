@@ -1,4 +1,6 @@
 from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
+from yowsup.layers.protocol_iq.protocolentities import ErrorIqProtocolEntity
+from yowsup.layers.protocol_iq.protocolentities.iq_result import ResultIqProtocolEntity
 from .protocolentities import *
 import logging
 logger = logging.getLogger(__name__)
@@ -60,12 +62,15 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
 
     def onCreateGroupFailed(self, node, originalIqEntity):
         logger.error("Group create failed")
+        self.toUpper(ErrorIqProtocolEntity.fromProtocolTreeNode(node))
 
     def onSetSubjectSuccess(self, node, originalIqEntity):
         logger.info("Group subject change success")
+        self.toUpper(ResultIqProtocolEntity.fromProtocolTreeNode(node))
 
     def onSetSubjectFailed(self, node, originalIqEntity):
         logger.error("Group subject change failed")
+        self.toUpper(ErrorIqProtocolEntity.fromProtocolTreeNode(node))
 
     def onGetParticipantsResult(self, node, originalIqEntity):
         self.toUpper(ListParticipantsResultIqProtocolEntity.fromProtocolTreeNode(node))
@@ -76,6 +81,7 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
 
     def onRemoveParticipantsFailed(self, node, originalIqEntity):
         logger.error("Group remove participants failed")
+        self.toUpper(ErrorIqProtocolEntity.fromProtocolTreeNode(node))
 
     def onRemoveParticipantsSuccess(self, node, originalIqEntity):
         logger.info("Group remove participants success")
@@ -83,15 +89,19 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
 
     def onPromoteParticipantsFailed(self, node, originalIqEntity):
         logger.error("Group promote participants failed")
+        self.toUpper(ErrorIqProtocolEntity.fromProtocolTreeNode(node))
 
     def onPromoteParticipantsSuccess(self, node, originalIqEntity):
         logger.info("Group promote participants success")
+        self.toUpper(ResultIqProtocolEntity.fromProtocolTreeNode(node))
 
     def onDemoteParticipantsFailed(self, node, originalIqEntity):
         logger.error("Group demote participants failed")
+        self.toUpper(ErrorIqProtocolEntity.fromProtocolTreeNode(node))
 
     def onDemoteParticipantsSuccess(self, node, originalIqEntity):
         logger.info("Group demote participants success")
+        self.toUpper(ResultIqProtocolEntity.fromProtocolTreeNode(node))
 
     def onAddParticipantsFailed(self, node, originalIqEntity):
         logger.error("Group add participants failed")
@@ -106,6 +116,7 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
 
     def onLeaveGroupFailed(self, node, originalIqEntity):
         logger.error("Group leave failed")
+        self.toUpper(ErrorIqProtocolEntity.fromProtocolTreeNode(node))
 
     def onInfoGroupSuccess(self, node, originalIqEntity):
         logger.info("Group info success")
@@ -113,6 +124,7 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
 
     def onInfoGroupFailed(self, node, originalIqEntity):
         logger.error("Group info failed")
+        self.toUpper(ErrorIqProtocolEntity.fromProtocolTreeNode(node))
 
     def recvNotification(self, node):
         if node["type"] == "w:gp2":
