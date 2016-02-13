@@ -32,7 +32,7 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
             participant = None, preview = None, offline = None, retry = None):
 
         super(VideoDownloadableMediaMessageProtocolEntity, self).__init__("video",
-            mimeType, fileHash, url, ip, size, fileName,
+            mimeType, fileHash, url, ip, size, fileName, None,
             _id, _from, to, notify, timestamp, participant, preview, offline, retry)
         self.setVideoProps(encoding, width, height, vbitrate, abitrate, acodec, asampfmt, asampfreq, duration, fps, seconds, vcodec, caption)
 
@@ -75,6 +75,11 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         node = super(VideoDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
         mediaNode = node.getChild("media")
 
+        mediaNode.setAttribute("abitrate",  self.abitrate)
+        mediaNode.setAttribute("acodec",    self.acodec)
+        mediaNode.setAttribute("asampfmt",  self.asampfmt)
+        mediaNode.setAttribute("asampfreq", self.asampfreq)
+        mediaNode.setAttribute("duration",  self.duration)
         mediaNode.setAttribute("encoding",  self.encoding)
         mediaNode.setAttribute("height",    str(self.height))
         mediaNode.setAttribute("width",     str(self.width))
