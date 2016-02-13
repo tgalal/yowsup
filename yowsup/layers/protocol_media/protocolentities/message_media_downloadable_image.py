@@ -119,5 +119,5 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         builder.set("ip", ip)
         builder.set("caption", caption)
         builder.set("mimetype", mimeType)
-        builder.set("dimensions", dimesions)
+        builder.set("dimensions", dimensions)
         return ImageDownloadableMediaMessageProtocolEntity.fromBuilder(builder)
