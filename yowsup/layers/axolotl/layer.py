@@ -176,7 +176,7 @@ class YowAxolotlLayer(YowProtocolLayer):
 
     def handlePlaintextNode(self, node):
         recipient_id = node["to"].split('@')[0]
-
+        v2 = node["to"] in self.v2Jids
         if not self.store.containsSession(recipient_id, 1):
             entity = GetKeysIqProtocolEntity([node["to"]])
             if node["to"] not in self.pendingMessages:
@@ -184,19 +184,18 @@ class YowAxolotlLayer(YowProtocolLayer):
             self.pendingMessages[node["to"]].append(node)
 
             self._sendIq(entity, lambda a, b: self.onGetKeysResult(a, b, self.processPendingMessages), self.onGetKeysError)
-        else:
-            message  = None
-            messagebytes = self.serializeToProtobuf(node)
-            if messagebytes:
+        elif v2 or not node.getChild("media"): #media enc is only for v2 messsages
+            messageData = self.serializeToProtobuf(node) if v2 else node.getChild("body").getData()
+            if messageData:
                 sessionCipher = self.getSessionCipher(recipient_id)
-                ciphertext = sessionCipher.encrypt(messagebytes)
+                ciphertext = sessionCipher.encrypt(messageData)
 
                 mediaType = node.getChild("media")["type"] if node.getChild("media") else None
 
                 encEntity = EncryptedMessageProtocolEntity(
                 [
                     EncProtocolEntity(EncProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncProtocolEntity.TYPE_PKMSG ,
-                                                   2,
+                                                   2 if v2 else 1,
                                                    ciphertext.serialize(), mediaType)],
                                                    "text" if not mediaType else "media",
                                                    _id= node["id"],
@@ -210,6 +209,9 @@ class YowAxolotlLayer(YowProtocolLayer):
                 self.toLower(encEntity.toProtocolTreeNode())
             else: #case of unserializable messages (audio, video) ?
                 self.toLower(node)
+        else:
+            self.toLower(node)
+
 
     def handleEncMessage(self, node):
         encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
@@ -281,7 +283,7 @@ class YowAxolotlLayer(YowProtocolLayer):
             padding = ord(plaintext[-1]) & 0xFF
             self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext[:-padding])
         else:
-            self.handleConversationMessage(encMessageProtocolEntity, plaintext)
+            self.handleConversationMessage(encMessageProtocolEntity.toProtocolTreeNode(), plaintext)
 
     def handleSenderKeyMessage(self, node):
         encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
