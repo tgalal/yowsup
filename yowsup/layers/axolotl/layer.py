@@ -3,7 +3,7 @@ from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProt
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
-from yowsup.layers.axolotl.e2e_pb2 import *
+from yowsup.layers.protocol_messages.proto.wa_pb2 import *
 from yowsup.layers.axolotl.store.sqlite.liteaxolotlstore import LiteAxolotlStore
 from yowsup.layers.axolotl.protocolentities import *
 from yowsup.structs import ProtocolTreeNode
