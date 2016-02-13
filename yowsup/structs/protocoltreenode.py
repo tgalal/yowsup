@@ -51,7 +51,7 @@ class ProtocolTreeNode(object):
         if self.attributes is not None:
             for key,val in self.attributes.items():
                 if val is None:
-                    raise Exception("None val for key: "+key);
+                    raise ValueError("value is none for attr %s" % key)
                 out+= " "+key+'="'+val+'"'
         out+= ">\n"
 
@@ -74,7 +74,7 @@ class ProtocolTreeNode(object):
                 out += "\nHEX3:%s\n" % binascii.hexlify(self.data.encode('latin-1'))
             else:
                 out += "\nHEX:%s\n" % binascii.hexlify(self.data)
-        
+
         for c in self.children:
             try:
                 out += c.toString()
@@ -83,27 +83,27 @@ class ProtocolTreeNode(object):
         out+= "</"+self.tag+">\n"
         return out
 
-    
+
     def __str__(self):
-        return self.toString() 
+        return self.toString()
 
     def getData(self):
         return self.data
 
     def setData(self, data):
         self.data = data
-        
-    
-    @staticmethod   
+
+
+    @staticmethod
     def tagEquals(node,string):
         return node is not None and node.tag is not None and node.tag == string
-        
-        
+
+
     @staticmethod
     def require(node,string):
         if not ProtocolTreeNode.tagEquals(node,string):
             raise Exception("failed require. string: "+string);
-    
+
 
     def __getitem__(self, key):
         return self.getAttributeValue(key)
@@ -138,7 +138,7 @@ class ProtocolTreeNode(object):
     def addChildren(self, children):
         for c in children:
             self.addChild(c)
-        
+
     def getAttributeValue(self,string):
         try:
             return self.attributes[string]
@@ -156,7 +156,7 @@ class ProtocolTreeNode(object):
         ret = []
         if tag is None:
             return self.children
-        
+
         for c in self.children:
             if tag == c.tag:
                 ret.append(c)
