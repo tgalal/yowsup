@@ -44,7 +44,7 @@ class DownloadableMediaMessageBuilder(object):
         self.attributes[key] = val
 
     def get(self, key, default = None):
-        if key in self.attributes:
+        if key in self.attributes and self.attributes[key] is not None:
             return self.attributes[key]
 
         return default
