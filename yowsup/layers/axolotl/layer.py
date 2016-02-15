@@ -215,7 +215,7 @@ class YowAxolotlLayer(YowProtocolLayer):
 
     def handleEncMessage(self, node):
         encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
-        isGroup = node["from"] if node["participant"] is None else node["from"]
+        isGroup =  node["participant"] is not None
         senderJid = node["participant"] if isGroup else node["from"]
         encNode = None
         if node.getChild("enc")["v"] == "2" and senderJid not in self.v2Jids:
@@ -318,7 +318,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         if m.HasField("sender_key_distribution_message"):
             axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
             self.handleSenderKeyDistributionMessage(m.sender_key_distribution_message, axolotlAddress)
-        if m.HasField("conversation"):
+        elif m.HasField("conversation"):
             self.handleConversationMessage(node, m.conversation)
         elif m.HasField("contact_message"):
             self.handleContactMessage(node, m.contact_message)
