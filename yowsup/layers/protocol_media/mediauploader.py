@@ -47,6 +47,8 @@ class MediaUploader(WARequest, threading.Thread):
         try:
             filename = os.path.basename(sourcePath)
             filetype = mimetypes.guess_type(filename)[0]
+            if filetype is None:
+                raise Exception("Unsupported/unrecognized file type for: "+filename);
             filesize = os.path.getsize(sourcePath)
 
             self.sock.connect((self.url, self.port))
