@@ -2,34 +2,34 @@ from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
 class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
     '''
-    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
+    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}"
         offline="{{OFFLINE}}" type="text" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
         <media type="{{DOWNLOADABLE_MEDIA_TYPE: (image | audio | video)}}"
-            mimetype="{{MIME_TYPE}}" 
+            mimetype="{{MIME_TYPE}}"
             filehash="{{FILE_HASH}}"
-            url="{{DOWNLOAD_URL}}" 
+            url="{{DOWNLOAD_URL}}"
             ip="{{IP}}"
             size="{{MEDIA SIZE}}"
-            file="{{FILENAME}}" 
+            file="{{FILENAME}}"
 
 
-            encoding="{{ENCODING}}" 
-            height="{{IMAGE_HEIGHT}}" 
+            encoding="{{ENCODING}}"
+            height="{{IMAGE_HEIGHT}}"
             width="{{IMAGE_WIDTH}}"
-            
+
             > {{THUMBNAIL_RAWDATA (JPEG?)}}
         </media>
     </message>
     '''
     def __init__(self,
-            mimeType, fileHash, url, ip, size, fileName, 
-            abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, 
+            mimeType, fileHash, url, ip, size, fileName,
+            abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps,
             width, height, seconds, vbitrate, vcodec, caption = None,
-            _id = None, _from = None, to = None, notify = None, timestamp = None, 
+            _id = None, _from = None, to = None, notify = None, timestamp = None,
             participant = None, preview = None, offline = None, retry = None):
 
         super(VideoDownloadableMediaMessageProtocolEntity, self).__init__("video",
-            mimeType, fileHash, url, ip, size, fileName,
+            mimeType, fileHash, url, ip, size, fileName, None,
             _id, _from, to, notify, timestamp, participant, preview, offline, retry)
         self.setVideoProps(abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps, width, height, seconds, vbitrate, vcodec, caption)
 
@@ -64,10 +64,10 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         self.vcodec    = vcodec
         self.width     = width
         self.caption   = caption
-        
+
     def getCaption(self):
         return self.caption
-        
+
     def toProtocolTreeNode(self):
         node = super(VideoDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
         mediaNode = node.getChild("media")
@@ -88,7 +88,7 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         mediaNode.setAttribute("width",     self.width)
         if self.caption is not None:
             mediaNode.setAttribute("caption", self.caption)
-        
+
         return node
 
     @staticmethod

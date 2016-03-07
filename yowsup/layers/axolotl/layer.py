@@ -1,37 +1,43 @@
-from yowsup.layers import YowProtocolLayer, YowLayerEvent
-from .protocolentities import SetKeysIqProtocolEntity
-from axolotl.util.keyhelper import KeyHelper
-from .store.sqlite.liteaxolotlstore import LiteAxolotlStore
-from axolotl.sessionbuilder import SessionBuilder
-from yowsup.layers.protocol_messages.protocolentities.message import MessageProtocolEntity
+from yowsup.layers import YowProtocolLayer, YowLayerEvent, EventCallback
 from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
-from axolotl.ecc.curve import Curve
+from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
+from yowsup.layers.protocol_messages.proto.wa_pb2 import *
+from yowsup.layers.axolotl.store.sqlite.liteaxolotlstore import LiteAxolotlStore
+from yowsup.layers.axolotl.protocolentities import *
+from yowsup.structs import ProtocolTreeNode
 from yowsup.common.tools import StorageTools
+
+from axolotl.sessionbuilder import SessionBuilder
+from axolotl.util.keyhelper import KeyHelper
+from axolotl.ecc.curve import Curve
 from axolotl.protocol.prekeywhispermessage import PreKeyWhisperMessage
 from axolotl.protocol.whispermessage import WhisperMessage
-from .protocolentities import EncryptedMessageProtocolEntity
+from axolotl.protocol.senderkeymessage import SenderKeyMessage
 from axolotl.sessioncipher import SessionCipher
-from yowsup.structs import ProtocolTreeNode
-from .protocolentities import GetKeysIqProtocolEntity, ResultGetKeysIqProtocolEntity
+from axolotl.groups.groupcipher import GroupCipher
 from axolotl.util.hexutil import HexUtil
 from axolotl.invalidmessageexception import InvalidMessageException
 from axolotl.duplicatemessagexception import DuplicateMessageException
-from .protocolentities import EncryptNotification
-from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
 from axolotl.invalidkeyidexception import InvalidKeyIdException
 from axolotl.nosessionexception import NoSessionException
 from axolotl.untrustedidentityexception import UntrustedIdentityException
-from .protocolentities.receipt_outgoing_retry import RetryOutgoingReceiptProtocolEntity
-import binascii
-import sys
+from axolotl.axolotladdress import AxolotlAddress
+from axolotl.groups.senderkeyname import SenderKeyName
+from axolotl.groups.groupsessionbuilder import GroupSessionBuilder
+from axolotl.protocol.senderkeydistributionmessage import SenderKeyDistributionMessage
 
+import binascii
+import copy
+import sys
 import logging
+
 logger = logging.getLogger(__name__)
 
 class YowAxolotlLayer(YowProtocolLayer):
     EVENT_PREKEYS_SET = "org.openwhatsapp.yowsup.events.axololt.setkeys"
+    PROP_IDENTITY_AUTOTRUST =  "org.openwhatsapp.yowsup.prop.axolotl.INDENTITY_AUTOTRUST"
     _STATE_INIT = 0
     _STATE_GENKEYS = 1
     _STATE_HASKEYS = 2
@@ -44,6 +50,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         self.state = self.__class__._STATE_INIT
 
         self.sessionCiphers = {}
+        self.groupCiphers = {}
         self.pendingMessages = {}
         self.pendingIncomingMessages = {}
         self.skipEncJids = []
@@ -81,29 +88,35 @@ class YowAxolotlLayer(YowProtocolLayer):
         return self.state == self.__class__._STATE_GENKEYS
     ########
 
-    ### standard layer methods ###
-    def onEvent(self, yowLayerEvent):
-        if yowLayerEvent.getName() == self.__class__.EVENT_PREKEYS_SET:
-            self.sendKeys(fresh=False)
-        elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
-            if self.isInitState():
-                self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
-        elif yowLayerEvent.getName() == YowAuthenticationProtocolLayer.EVENT_AUTHED:
-            if yowLayerEvent.getArg("passive") and self.isInitState():
-                logger.info("Axolotl layer is generating keys")
-                self.sendKeys()
-        elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
-            if self.isGenKeysState():
-                #we requested this disconnect in this layer to switch off passive
-                #no need to traverse it to upper layers?
-                self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, False)
-                self.state = self.__class__._STATE_HASKEYS
-                self.getLayerInterface(YowNetworkLayer).connect()
-            else:
-                self.store = None
+
+    @EventCallback(EVENT_PREKEYS_SET)
+    def onPreKeysSet(self, yowLayerEvent):
+        self.sendKeys(fresh=False)
+
+    @EventCallback(YowNetworkLayer.EVENT_STATE_CONNECTED)
+    def onConnected(self, yowLayerEvent):
+        if self.isInitState():
+            self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
+
+    @EventCallback(YowAuthenticationProtocolLayer.EVENT_AUTHED)
+    def onAuthed(self, yowLayerEvent):
+        if yowLayerEvent.getArg("passive") and self.isInitState():
+            logger.info("Axolotl layer is generating keys")
+            self.sendKeys()
+
+    @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
+    def onDisconnected(self, yowLayerEvent):
+        if self.isGenKeysState():
+            #we requested this disconnect in this layer to switch off passive
+            #no need to traverse it to upper layers?
+            self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, False)
+            self.state = self.__class__._STATE_HASKEYS
+            self.getLayerInterface(YowNetworkLayer).connect()
+        else:
+            self.store = None
 
     def send(self, node):
-        if node.tag == "message" and node["type"] == "text" and node["to"] not in self.skipEncJids:
+        if node.tag == "message" and node["to"] not in self.skipEncJids:
             self.handlePlaintextNode(node)
             return
         self.toLower(node)
@@ -162,10 +175,8 @@ class YowAxolotlLayer(YowProtocolLayer):
     #### handling message types
 
     def handlePlaintextNode(self, node):
-        plaintext = node.getChild("body").getData()
-        entity = MessageProtocolEntity.fromProtocolTreeNode(node)
-        recipient_id = entity.getTo(False)
-
+        recipient_id = node["to"].split('@')[0]
+        v2 = node["to"] in self.v2Jids
         if not self.store.containsSession(recipient_id, 1):
             entity = GetKeysIqProtocolEntity([node["to"]])
             if node["to"] not in self.pendingMessages:
@@ -173,26 +184,20 @@ class YowAxolotlLayer(YowProtocolLayer):
             self.pendingMessages[node["to"]].append(node)
 
             self._sendIq(entity, lambda a, b: self.onGetKeysResult(a, b, self.processPendingMessages), self.onGetKeysError)
-        else:
+        elif v2 or not node.getChild("media"): #media enc is only for v2 messsages
+            messageData = self.serializeToProtobuf(node) if v2 else node.getChild("body").getData()
+            if messageData:
+                sessionCipher = self.getSessionCipher(recipient_id)
+                ciphertext = sessionCipher.encrypt(messageData)
 
-            sessionCipher = self.getSessionCipher(recipient_id)
+                mediaType = node.getChild("media")["type"] if node.getChild("media") else None
 
-            if node["to"] in self.v2Jids:
-                version = 2
-                padded = bytearray()
-                padded.append(ord("\n"))
-                padded.extend(self.encodeInt7bit(len(plaintext)))
-                padded.extend(plaintext)
-                padded.append(ord("\x01"))
-                plaintext = padded
-            else:
-                version = 1
-            ciphertext = sessionCipher.encrypt(plaintext)
-            encEntity = EncryptedMessageProtocolEntity(
-                EncryptedMessageProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncryptedMessageProtocolEntity.TYPE_PKMSG ,
-                                                   version,
-                                                   ciphertext.serialize(),
-                                                   MessageProtocolEntity.MESSAGE_TYPE_TEXT,
+                encEntity = EncryptedMessageProtocolEntity(
+                [
+                    EncProtocolEntity(EncProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncProtocolEntity.TYPE_PKMSG ,
+                                                   2 if v2 else 1,
+                                                   ciphertext.serialize(), mediaType)],
+                                                   "text" if not mediaType else "media",
                                                    _id= node["id"],
                                                    to = node["to"],
                                                    notify = node["notify"],
@@ -201,45 +206,43 @@ class YowAxolotlLayer(YowProtocolLayer):
                                                    offline=node["offline"],
                                                    retry=node["retry"]
                                                    )
-            self.toLower(encEntity.toProtocolTreeNode())
+                self.toLower(encEntity.toProtocolTreeNode())
+            else: #case of unserializable messages (audio, video) ?
+                self.toLower(node)
+        else:
+            self.toLower(node)
 
-    def encodeInt7bit(self, value):
-        v = value
-        out = bytearray()
-        while v >= 0x80:
-          out.append((v | 0x80) % 256)
-          v >>= 7
-        out.append(v % 256)
-
-        return out
 
     def handleEncMessage(self, node):
+        encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
+        isGroup =  node["participant"] is not None
+        senderJid = node["participant"] if isGroup else node["from"]
+        encNode = None
+        if node.getChild("enc")["v"] == "2" and senderJid not in self.v2Jids:
+            self.v2Jids.append(senderJid)
         try:
-            if node.getChild("enc")["v"] == "2" and node["from"] not in self.v2Jids:
-                self.v2Jids.append(node["from"])
-
-            if node.getChild("enc")["type"] == "pkmsg":
+            if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_PKMSG):
                 self.handlePreKeyWhisperMessage(node)
-            else:
+            elif encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_MSG):
                 self.handleWhisperMessage(node)
+            if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG):
+                self.handleSenderKeyMessage(node)
         except InvalidMessageException as e:
-            # logger.error("Invalid message from %s!! Your axololtl database data might be inconsistent with WhatsApp, or with what that contact has" % node["from"])
-            # sys.exit(1)
             logger.error(e)
-            retry = RetryOutgoingReceiptProtocolEntity.fromMesageNode(node)
+            retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node)
             retry.setRegData(self.store.getLocalRegistrationId())
             self.toLower(retry.toProtocolTreeNode())
         except InvalidKeyIdException as e:
             logger.error(e)
-            retry = RetryOutgoingReceiptProtocolEntity.fromMesageNode(node)
+            retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node)
             retry.setRegData(self.store.getLocalRegistrationId())
             self.toLower(retry.toProtocolTreeNode())
         except NoSessionException as e:
             logger.error(e)
-            entity = GetKeysIqProtocolEntity([node["from"]])
-            if node["from"] not in self.pendingIncomingMessages:
-                self.pendingIncomingMessages[node["from"]] = []
-            self.pendingIncomingMessages[node["from"]].append(node)
+            entity = GetKeysIqProtocolEntity([senderJid])
+            if senderJid not in self.pendingIncomingMessages:
+                self.pendingIncomingMessages[senderJid] = []
+            self.pendingIncomingMessages[senderJid].append(node)
 
             self._sendIq(entity, lambda a, b: self.onGetKeysResult(a, b, self.processPendingIncomingMessages), self.onGetKeysError)
         except DuplicateMessageException as e:
@@ -248,45 +251,218 @@ class YowAxolotlLayer(YowProtocolLayer):
             self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"]).toProtocolTreeNode())
 
         except UntrustedIdentityException as e:
-            logger.error(e)
-            logger.warning("Ignoring message with untrusted identity")
+            if(self.getProp(self.__class__.PROP_IDENTITY_AUTOTRUST, False)):
+                logger.warning("Autotrusting identity for %s" % e.getName())
+                self.store.saveIdentity(e.getName(), e.getIdentityKey())
+                return self.handleEncMessage(node)
+            else:
+                logger.error(e)
+                logger.warning("Ignoring message with untrusted identity")
 
     def handlePreKeyWhisperMessage(self, node):
         pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
-
-        preKeyWhisperMessage = PreKeyWhisperMessage(serialized=pkMessageProtocolEntity.getEncData())
-        sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getFrom(False))
+        enc = pkMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_PKMSG)
+        preKeyWhisperMessage = PreKeyWhisperMessage(serialized=enc.getData())
+        sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getAuthor(False))
         plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
-
-        if pkMessageProtocolEntity.getVersion() == 2:
-            plaintext = self.unpadV2Plaintext(plaintext)
-
-
-        bodyNode = ProtocolTreeNode("body", data = plaintext)
-        node.addChild(bodyNode)
-        self.toUpper(node)
+        if enc.getVersion() == 2:
+            padding = ord(plaintext[-1]) & 0xFF
+            self.parseAndHandleMessageProto(pkMessageProtocolEntity, plaintext[:-padding])
+        else:
+            self.handleConversationMessage(node, plaintext)
 
     def handleWhisperMessage(self, node):
         encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
 
-        whisperMessage = WhisperMessage(serialized=encMessageProtocolEntity.getEncData())
-        sessionCipher = self.getSessionCipher(encMessageProtocolEntity.getFrom(False))
+        enc = encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_MSG)
+        whisperMessage = WhisperMessage(serialized=enc.getData())
+        sessionCipher = self.getSessionCipher(encMessageProtocolEntity.getAuthor(False))
         plaintext = sessionCipher.decryptMsg(whisperMessage)
 
-        if encMessageProtocolEntity.getVersion() == 2:
-            plaintext = self.unpadV2Plaintext(plaintext)
+        if enc.getVersion() == 2:
+            padding = ord(plaintext[-1]) & 0xFF
+            self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext[:-padding])
+        else:
+            self.handleConversationMessage(encMessageProtocolEntity.toProtocolTreeNode(), plaintext)
 
-        bodyNode = ProtocolTreeNode("body", data = plaintext)
-        node.addChild(bodyNode)
-        self.toUpper(node)
+    def handleSenderKeyMessage(self, node):
+        encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
+        enc = encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG)
 
-    def unpadV2Plaintext(self, v2plaintext):
-        if len(v2plaintext) < 128:
-            return v2plaintext[2:-1]
-        else: # < 128 * 128
-            return v2plaintext[3: -1]
+        senderKeyName = SenderKeyName(encMessageProtocolEntity.getFrom(True), AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0))
+        groupCipher = GroupCipher(self.store, senderKeyName)
+        try:
+            plaintext = groupCipher.decrypt(enc.getData())
+            padding = ord(plaintext[-1]) & 0xFF
+            self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext[:-padding])
+        except NoSessionException as e:
+            logger.error(e)
+            retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node)
+            retry.setRegData(self.store.getLocalRegistrationId())
+            self.toLower(retry.toProtocolTreeNode())
 
-    ####
+    def parseAndHandleMessageProto(self, encMessageProtocolEntity, serializedData):
+        node = encMessageProtocolEntity.toProtocolTreeNode()
+        m = Message()
+        try:
+            m.ParseFromString(serializedData)
+        except:
+            print("DUMP:")
+            print(serializedData)
+            print([s for s in serializedData])
+            print([ord(s) for s in serializedData])
+            raise
+        if not m or not serializedData:
+            raise ValueError("Empty message")
+
+        if m.HasField("sender_key_distribution_message"):
+            axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
+            self.handleSenderKeyDistributionMessage(m.sender_key_distribution_message, axolotlAddress)
+        elif m.HasField("conversation"):
+            self.handleConversationMessage(node, m.conversation)
+        elif m.HasField("contact_message"):
+            self.handleContactMessage(node, m.contact_message)
+        elif m.HasField("url_message"):
+            self.handleUrlMessage(node, m.url_message)
+        elif m.HasField("location_message"):
+            self.handleLocationMessage(node, m.location_message)
+        elif m.HasField("image_message"):
+            self.handleImageMessage(node, m.image_message)
+        else:
+            print(m)
+            raise ValueError("Unhandled")
+
+    def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, axolotlAddress):
+        groupId = senderKeyDistributionMessage.groupId
+        axolotlSenderKeyDistributionMessage = SenderKeyDistributionMessage(serialized=senderKeyDistributionMessage.axolotl_sender_key_distribution_message)
+        groupSessionBuilder = GroupSessionBuilder(self.store)
+        senderKeyName = SenderKeyName(groupId, axolotlAddress)
+        groupSessionBuilder.process(senderKeyName, axolotlSenderKeyDistributionMessage)
+
+    def handleConversationMessage(self, originalEncNode, text):
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode.children = []
+        messageNode.addChild(ProtocolTreeNode("body", data = text))
+        self.toUpper(messageNode)
+
+    def handleImageMessage(self, originalEncNode, imageMessage):
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "image",
+            "filehash": imageMessage.file_sha256,
+            "size": str(imageMessage.file_length),
+            "url": imageMessage.url,
+            "mimetype": imageMessage.mime_type,
+            "width": imageMessage.width,
+            "height": imageMessage.height,
+            "caption": imageMessage.caption,
+            "encoding": "raw",
+            "file": "enc",
+            "ip": "0"
+        }, data = imageMessage.jpeg_thumbnail)
+        messageNode.addChild(mediaNode)
+
+        self.toUpper(messageNode)
+
+    def handleUrlMessage(self, originalEncNode, urlMessage):
+        #convert to ??
+        pass
+
+    def handleDocumentMessage(self, originalEncNode, documentMessage):
+        #convert to ??
+        pass
+
+    def handleLocationMessage(self, originalEncNode, locationMessage):
+        messageNode = copy.deepycopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "latitude": locationMessage.degrees_latitude,
+            "longitude": locationMessage.degress_longitude,
+            "name": "%s %s" % (locationMessage.name, locationMessage.address),
+            "url": locationMessage.url,
+            "encoding": "raw",
+            "type": "location"
+        }, data=locationMessage.jpeg_thumbnail)
+        messageNode.addChild(mediaNode)
+        self.toUpper(messageNode)
+
+    def handleContactMessage(self, originalEncNode, contactMessage):
+        messageNode = copy.deepycopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "vcard"
+        }, [
+            ProtocolTreeNode("vcard", {"name": contactMessage.display_name}, data = contactMessage.vcard)
+        ] )
+        messageNode.addChild(mediaNode)
+        self.toUpper(messageNode)
+
+    def serializeToProtobuf(self, node):
+        if node.getChild("body"):
+            return self.serializeTextToProtobuf(node)
+        elif node.getChild("media"):
+            return self.serializeMediaToProtobuf(node.getChild("media"))
+        else:
+            raise ValueError("No body or media nodes found")
+
+    def serializeTextToProtobuf(self, node):
+        m = Message()
+        m.conversation = node.getChild("body").getData()
+        return m.SerializeToString()
+
+    def serializeMediaToProtobuf(self, mediaNode):
+        if mediaNode["type"] == "image":
+            return self.serializeImageToProtobuf(mediaNode)
+        if mediaNode["type"] == "location":
+            return self.serializeLocationToProtobuf(mediaNode)
+        if mediaNode["type"] == "vcard":
+            return self.serializeContactToProtobuf(mediaNode)
+
+        return None
+
+    def serializeLocationToProtobuf(self, mediaNode):
+        m = Message()
+        location_message = LocationMessage()
+        location_message.degress_latitude = float(mediaNode["latitude"])
+        location_message.degress_longitude = float(mediaNode["longitude"])
+        location_message.address = mediaNode["name"]
+        location_message.name = mediaNode["name"]
+        location_message.url = mediaNode["url"]
+
+        m.location_message.MergeFrom(location_message)
+        return m.SerializeToString()
+
+    def serializeContactToProtobuf(self, mediaNode):
+        vcardNode = mediaNode.getChild("vcard")
+        m = Message()
+        contact_message = ContactMessage()
+        contact_message.display_name = vcardNode["name"]
+        m.vcard = vcardNode.getData()
+        m.contact_message.MergeFrom(contact_message)
+
+        return m.SerializeToString()
+
+    def serializeImageToProtobuf(self, mediaNode):
+        m = Message()
+        image_message = ImageMessage()
+        image_message.url = mediaNode["url"]
+        image_message.width = int(mediaNode["width"])
+        image_message.height = int(mediaNode["height"])
+        image_message.mime_type = mediaNode["mimetype"]
+        image_message.file_sha256 = mediaNode["filehash"]
+        image_message.file_length = int(mediaNode["size"])
+        image_message.caption = mediaNode["caption"] or ""
+        image_message.jpeg_thumbnail = mediaNode.getData()
+
+        m.image_message.MergeFrom(image_message)
+        return m.SerializeToString()
+
+    def serializeUrlToProtobuf(self, node):
+        pass
+
+    def serializeDocumentToProtobuf(self, node):
+        pass
 
     ### keys set and get
     def sendKeys(self, fresh = True, countPreKeys = _COUNT_PREKEYS):
@@ -359,7 +535,6 @@ class YowAxolotlLayer(YowProtocolLayer):
         pass
     ###
 
-
     def adjustArray(self, arr):
         return HexUtil.decodeHex(binascii.hexlify(arr))
 
@@ -373,7 +548,18 @@ class YowAxolotlLayer(YowProtocolLayer):
 
     def getSessionCipher(self, recipientId):
         if recipientId in self.sessionCiphers:
-            return self.sessionCiphers[recipientId]
+            sessionCipher = self.sessionCiphers[recipientId]
         else:
-            self.sessionCiphers[recipientId] = SessionCipher(self.store, self.store, self.store, self.store, recipientId, 1)
-            return self.sessionCiphers[recipientId]
+            sessionCipher = SessionCipher(self.store, self.store, self.store, self.store, recipientId, 1)
+            self.sessionCiphers[recipientId] = sessionCipher
+
+        return sessionCipher
+
+    def getGroupCipher(self, groupId, senderId):
+        senderKeyName = SenderKeyName(groupId, AxolotlAddress(senderId, 1))
+        if senderKeyName in self.groupCiphers:
+            groupCipher = self.groupCiphers[senderKeyName]
+        else:
+            groupCipher = GroupCipher(self.store, senderKeyName)
+            self.groupCiphers[senderKeyName] = groupCipher
+        return groupCipher
