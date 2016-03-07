@@ -84,6 +84,8 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     @staticmethod
     def fromFilePath(fpath, url, mediaType, ip, to, mimeType = None, preview = None, filehash = None, filesize = None):
         mimeType = mimeType or mimetypes.guess_type(fpath)[0]
+        if mimeType is None:
+            raise Exception("Unsupported/unrecognized file type for: "+fpath);
         filehash = filehash or WATools.getFileHashForUpload(fpath)
         size = filesize or os.path.getsize(fpath)
         fileName = os.path.basename(fpath)
