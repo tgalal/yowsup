@@ -102,25 +102,25 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = DownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = VideoDownloadableMediaMessageProtocolEntity
-        mediaNode = node.getChild("media")
-        entity.setVideoProps(
-            mediaNode.getAttributeValue("abitrate"),
-            mediaNode.getAttributeValue("acodec"),
-            mediaNode.getAttributeValue("asampfmt"),
-            mediaNode.getAttributeValue("asampfreq"),
-            mediaNode.getAttributeValue("duration"),
-            mediaNode.getAttributeValue("encoding"),
-            mediaNode.getAttributeValue("fps"),
-            mediaNode.getAttributeValue("width"),
-            mediaNode.getAttributeValue("height"),
-            mediaNode.getAttributeValue("seconds"),
-            mediaNode.getAttributeValue("vbitrate"),
-            mediaNode.getAttributeValue("vcodec"),
-            mediaNode.getAttributeValue("caption")
-        )
-        return entity
+		entity = DownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
+		entity.__class__ = VideoDownloadableMediaMessageProtocolEntity
+		mediaNode = node.getChild("media")
+		entity.setVideoProps(
+			mediaNode.getAttributeValue("encoding"),
+			mediaNode.getAttributeValue("width"),
+			mediaNode.getAttributeValue("height"),
+			mediaNode.getAttributeValue("vbitrate"),
+			mediaNode.getAttributeValue("abitrate"),
+			mediaNode.getAttributeValue("acodec"),
+			mediaNode.getAttributeValue("asampfmt"),
+			mediaNode.getAttributeValue("asampfreq"),
+			mediaNode.getAttributeValue("duration"),
+			mediaNode.getAttributeValue("fps"),
+			mediaNode.getAttributeValue("seconds"),
+			mediaNode.getAttributeValue("vcodec"),
+			mediaNode.getAttributeValue("caption")
+		)
+		return entity
 
     @staticmethod
     def fromFilePath(path, url, ip, to, mimeType = None, caption = None):
