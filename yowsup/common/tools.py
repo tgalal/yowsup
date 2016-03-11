@@ -185,7 +185,7 @@ class VideoTools:
 			from ffvideo import VideoStream
 			fd, path = tempfile.mkstemp('.jpg')
 			stream = VideoStream(videoFile)
-			stream.get_frame_at_sec(stream.duration/2).image().save(path)
+			stream.get_frame_at_sec(0).image().save(path)
 			preview = ImageTools.generatePreviewFromImage(path)
 			os.remove(path)
 			return preview		
