@@ -5,7 +5,7 @@ from yowsup.common.tools import VideoTools
 class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
     '''
     <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
-        offline="{{OFFLINE}}" type="text" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
+        offline="{{OFFLINE}}" type="media" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
         <media type="{{DOWNLOADABLE_MEDIA_TYPE: (image | audio | video)}}"
             mimetype="{{MIME_TYPE}}" 
             filehash="{{FILE_HASH}}"
@@ -18,7 +18,8 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
             encoding="{{ENCODING}}" 
             height="{{IMAGE_HEIGHT}}" 
             width="{{IMAGE_WIDTH}}"
-            
+
+            origin="forward"           
             > {{THUMBNAIL_RAWDATA (JPEG?)}}
         </media>
     </message>
@@ -129,8 +130,8 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
 		entity.__class__ = VideoDownloadableMediaMessageProtocolEntity
 
 		width, height, bitrate, duration = VideoTools.getVideoProperties(path)
-
 		assert width, "Could not determine video properties"
         
-		entity.setVideoProps('raw', width, height, duration=duration, caption=caption)
+		duration = int(duration)
+		entity.setVideoProps('raw', width, height, duration=duration, seconds=duration, caption=caption)
 		return entity
