@@ -103,7 +103,7 @@ class YowAxolotlLayer(YowProtocolLayer):
                 self.store = None
 
     def send(self, node):
-        if node.tag == "message" and node["type"] == "text" and node["to"] not in self.skipEncJids:
+        if node.tag == "message" and node["type"] == "text" and node["to"] not in self.skipEncJids and not "@g.us" in node["to"]:
             self.handlePlaintextNode(node)
             return
         self.toLower(node)
