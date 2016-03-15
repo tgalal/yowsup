@@ -1,3 +1,4 @@
+from yowsup.common import YowConstants
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from yowsup.layers.protocol_iq.protocolentities import ResultIqProtocolEntity
 from ..structs import Group
@@ -20,7 +21,7 @@ class ListGroupsResultIqProtocolEntity(ResultIqProtocolEntity):
     '''
 
     def __init__(self, groupsList):
-        super(ListGroupsResultIqProtocolEntity, self).__init__(_from = "g.us")
+        super(ListGroupsResultIqProtocolEntity, self).__init__(_from = YowConstants.WHATSAPP_GROUP_SERVER)
         self.setProps(groupsList)
 
     def __str__(self):
