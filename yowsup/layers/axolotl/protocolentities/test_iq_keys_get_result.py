@@ -1,3 +1,4 @@
+from yowsup.common import YowConstants
 from yowsup.layers.protocol_iq.protocolentities.test_iq_result import ResultIqProtocolEntityTest
 from yowsup.layers.axolotl.protocolentities import ResultGetKeysIqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
@@ -12,7 +13,7 @@ class ResultGetKeysIqProtocolEntityTest(ResultIqProtocolEntityTest):
         self.node.addChild(listNode)
 
         for i in range(0, 1):
-            userNode = ProtocolTreeNode("user", {"jid": "user_%s@s.whatsapp.net" % i})
+            userNode = ProtocolTreeNode("user", {"jid": "user_%s@%s" % (i, YowConstants.WHATSAPP_SERVER)})
             listNode.addChild(userNode)
             registrationNode = ProtocolTreeNode("registration",
                                                 data = ResultGetKeysIqProtocolEntity._intToBytes(

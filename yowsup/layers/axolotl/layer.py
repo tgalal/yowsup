@@ -24,6 +24,7 @@ from axolotl.invalidkeyidexception import InvalidKeyIdException
 from axolotl.nosessionexception import NoSessionException
 from axolotl.untrustedidentityexception import UntrustedIdentityException
 from .protocolentities.receipt_outgoing_retry import RetryOutgoingReceiptProtocolEntity
+from yowsup.common import YowConstants
 import binascii
 import sys
 
@@ -103,7 +104,7 @@ class YowAxolotlLayer(YowProtocolLayer):
                 self.store = None
 
     def send(self, node):
-        if node.tag == "message" and node["type"] == "text" and node["to"] not in self.skipEncJids:
+        if node.tag == "message" and node["type"] == "text" and node["to"] not in self.skipEncJids and not YowConstants.WHATSAPP_GROUP_SERVER in node["to"]:
             self.handlePlaintextNode(node)
             return
         self.toLower(node)

@@ -1,3 +1,4 @@
+from yowsup.common import YowConstants
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 
@@ -9,7 +10,7 @@ class SetStatusIqProtocolEntity(IqProtocolEntity):
     '''
     XMLNS = "status"
     def __init__(self, text = None, _id = None):
-        super(SetStatusIqProtocolEntity, self).__init__(self.__class__.XMLNS, _id, _type = "set", to = "s.whatsapp.net")
+        super(SetStatusIqProtocolEntity, self).__init__(self.__class__.XMLNS, _id, _type = "set", to = YowConstants.WHATSAPP_SERVER)
         self.setData(text)
         
     def setData(self, text):

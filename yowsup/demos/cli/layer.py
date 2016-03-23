@@ -21,7 +21,7 @@ from yowsup.layers.protocol_privacy.protocolentities     import *
 from yowsup.layers.protocol_media.protocolentities       import *
 from yowsup.layers.protocol_media.mediauploader import MediaUploader
 from yowsup.layers.protocol_profiles.protocolentities    import *
-from yowsup.common.tools import ModuleTools
+from yowsup.common.tools import ModuleTools, Jid
 
 logger = logging.getLogger(__name__)
 
@@ -61,23 +61,15 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def aliasToJid(self, calias):
         for alias, ajid in self.jidAliases.items():
             if calias.lower() == alias.lower():
-                return self.normalizeJid(ajid)
+                return Jid.normalize(ajid)
 
-        return self.normalizeJid(calias)
+        return Jid.normalize(calias)
 
     def jidToAlias(self, jid):
         for alias, ajid in self.jidAliases.items():
             if ajid == jid:
                 return alias
         return jid
-
-    def normalizeJid(self, number):
-        if '@' in number:
-            return number
-        elif "-" in number:
-            return "%s@g.us" % number
-
-        return "%s@s.whatsapp.net" % number
 
     def setCredentials(self, username, password):
         self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(username, password)
