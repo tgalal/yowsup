@@ -117,6 +117,13 @@ class TimeTools:
 
 class ModuleTools:
     @staticmethod
+    def INSTALLED_FFVIDEO():
+        try:
+            import ffvideo
+            return True
+        except ImportError:
+            return False
+    @staticmethod
     def INSTALLED_PIL():
         try:
             import PIL
@@ -168,6 +175,7 @@ class ImageTools:
             fileObj.seek(0)
             preview = fileObj.read()
             fileObj.close()
+        os.remove(path)
         return preview
 
 class MimeTools:
@@ -182,3 +190,27 @@ class MimeTools:
         if mimeType is None:
             raise Exception("Unsupported/unrecognized file type for: "+filepath);
         return mimeType
+
+class VideoTools:
+	
+	@staticmethod
+	def getVideoProperties(videoFile):
+		if ModuleTools.INSTALLED_FFVIDEO():
+			from ffvideo import VideoStream
+			s = VideoStream(videoFile)
+			return s.width, s.height, s.bitrate, s.duration #, s.codec_name
+		else:
+			logger.warn("Python ffvideo library not installed")
+
+	@staticmethod
+	def generatePreviewFromVideo(videoFile):
+		if ModuleTools.INSTALLED_FFVIDEO():
+			from ffvideo import VideoStream
+			fd, path = tempfile.mkstemp('.jpg')
+			stream = VideoStream(videoFile)
+			stream.get_frame_at_sec(0).image().save(path)
+			preview = ImageTools.generatePreviewFromImage(path)
+			os.remove(path)
+			return preview		
+		else:
+			logger.warn("Python ffvideo library not installed")

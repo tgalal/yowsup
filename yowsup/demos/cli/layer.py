@@ -392,25 +392,26 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def message_delivered(self, message_id):
         pass
 
+    @clicmd("Send a video with optional caption")
+    def video_send(self, number, path, caption = None):
+		self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO)
+
     @clicmd("Send an image with optional caption")
     def image_send(self, number, path, caption = None):
-        if self.assertConnected():
-            jid = self.aliasToJid(number)
-            entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE, filePath=path)
-            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity, caption)
-            errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
-
-            self._sendIq(entity, successFn, errorFn)
+		self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE)
 
     @clicmd("Send audio file")
     def audio_send(self, number, path):
+		self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO)
+		
+    def media_send(self, number, path, mediaType, caption = None):
         if self.assertConnected():
             jid = self.aliasToJid(number)
-            entity = RequestUploadIqProtocolEntity(RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO, filePath=path)
-            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, path, successEntity, originalEntity)
+            entity = RequestUploadIqProtocolEntity(mediaType, filePath=path)
+            successFn = lambda successEntity, originalEntity: self.onRequestUploadResult(jid, mediaType, path, successEntity, originalEntity, caption)
             errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
-
             self._sendIq(entity, successFn, errorFn)
+
     @clicmd("Send typing state")
     def state_typing(self, jid):
         if self.assertConnected():
@@ -541,32 +542,27 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             media_url = message.getMediaUrl()
             )
 
-
-    def doSendImage(self, filePath, url, to, ip = None, caption = None):
-        entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to, caption = caption)
-        self.toLower(entity)
-
-    def doSendAudio(self, filePath, url, to, ip = None, caption = None):
-        entity = AudioDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
-        self.toLower(entity)
+    def doSendMedia(self, mediaType, filePath, url, to, ip = None, caption = None):
+		if mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE:
+			entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to, caption = caption)
+		elif mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO:
+			entity = AudioDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
+		elif mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO:
+			entity = VideoDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to, caption = caption)
+		self.toLower(entity)
 
     def __str__(self):
         return "CLI Interface Layer"
 
     ########### callbacks ############
 
-    def onRequestUploadResult(self, jid, filePath, resultRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity, caption = None):
-
-        if requestUploadIqProtocolEntity.mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO:
-            doSendFn = self.doSendAudio
-        else:
-            doSendFn = self.doSendImage
+    def onRequestUploadResult(self, jid, mediaType, filePath, resultRequestUploadIqProtocolEntity, requestUploadIqProtocolEntity, caption = None):
 
         if resultRequestUploadIqProtocolEntity.isDuplicate():
-            doSendFn(filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid,
+            self.doSendMedia(mediaType, filePath, resultRequestUploadIqProtocolEntity.getUrl(), jid,
                              resultRequestUploadIqProtocolEntity.getIp(), caption)
         else:
-            successFn = lambda filePath, jid, url: doSendFn(filePath, url, jid, resultRequestUploadIqProtocolEntity.getIp(), caption)
+            successFn = lambda filePath, jid, url: self.doSendMedia(mediaType, filePath, url, jid, resultRequestUploadIqProtocolEntity.getIp(), caption)
             mediaUploader = MediaUploader(jid, self.getOwnJid(), filePath,
                                       resultRequestUploadIqProtocolEntity.getUrl(),
                                       resultRequestUploadIqProtocolEntity.getResumeOffset(),
