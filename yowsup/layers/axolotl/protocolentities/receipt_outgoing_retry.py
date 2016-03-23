@@ -53,10 +53,10 @@ class RetryOutgoingReceiptProtocolEntity(OutgoingReceiptProtocolEntity):
 
 
     @staticmethod
-    def fromMesageNode(MessageNodeToBeRetried):
+    def fromMesageNode(MessageNodeToBeRetried, desiredEncryptionVersion = "1"):
         return RetryOutgoingReceiptProtocolEntity(
             MessageNodeToBeRetried.getAttributeValue("id"),
             MessageNodeToBeRetried.getAttributeValue("from"),
             MessageNodeToBeRetried.getAttributeValue("t"),
-            MessageNodeToBeRetried.getChild("enc").getAttributeValue("v")
+            desiredEncryptionVersion
         )
