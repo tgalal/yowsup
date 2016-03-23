@@ -280,13 +280,22 @@ class YowAxolotlLayer(YowProtocolLayer):
         node.addChild(bodyNode)
         self.toUpper(node)
 
-    def unpadV2Plaintext(self, v2plaintext):
-        if len(v2plaintext) < 128:
-            return v2plaintext[2:-1]
-        else: # < 128 * 128
-            return v2plaintext[3: -1]
+    def decodeInt7bit(self, string):
+        idx = 0
+        while ord(string[idx]) >= 128:
+            idx += 1
+        consumedBytes = idx + 1
+        value = 0
+        while idx >= 0:
+            value <<= 7
+            value += ord(string[idx]) % 128
+            idx -= 1
+        return value, consumedBytes
 
-    ####
+    def unpadV2Plaintext(self, v2plaintext):
+        end = -ord(v2plaintext[-1]) # length of the left padding
+        length,consumed = self.decodeInt7bit(v2plaintext[1:])
+        return v2plaintext[1+consumed:end]
 
     ### keys set and get
     def sendKeys(self, fresh = True, countPreKeys = _COUNT_PREKEYS):
