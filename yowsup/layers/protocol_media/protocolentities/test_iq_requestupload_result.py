@@ -1,6 +1,8 @@
 from yowsup.layers.protocol_iq.protocolentities.test_iq_result import ResultIqProtocolEntityTest
 from yowsup.layers.protocol_media.protocolentities import ResultRequestUploadIqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
+
+
 class ResultRequestUploadIqProtocolEntityTest(ResultIqProtocolEntityTest):
     def setUp(self):
         super(ResultRequestUploadIqProtocolEntityTest, self).setUp()
