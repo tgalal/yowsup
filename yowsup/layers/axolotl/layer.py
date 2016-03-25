@@ -269,6 +269,12 @@ class YowAxolotlLayer(YowProtocolLayer):
 
         bodyNode = ProtocolTreeNode("body", data = plaintext)
         bodyNode = ProtocolTreeNode("media", data = plaintext)
+
+        # get preview looking for 'ÿØÿà'
+        pos = plaintext.upper().find(binascii.unhexlify('ffd8ffe0'.upper()))
+        if pos > 0:
+            logger.debug("preview: "+str(pos) + " " + plaintext[pos:])
+            bodyNode.setAttribute("preview", plaintext[pos:])
         logger.debug("protobuf")
         logger.debug("URLLLLLLLLLLLLLLLLLLLLLL: " + encrypted_media_pb2.Media().ParseFromString(plaintext).url)
         node.addChild(bodyNode)
