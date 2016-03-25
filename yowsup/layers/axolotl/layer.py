@@ -409,7 +409,8 @@ class YowAxolotlLayer(YowProtocolLayer):
     def serializeTextToProtobuf(self, node):
         m = Message()
         m.conversation = node.getChild("body").getData()
-        return m.SerializeToString()
+        # Whatsapp encoding needs a terminal 1 byte
+        return m.SerializeToString() + '\01'
 
     def serializeMediaToProtobuf(self, mediaNode):
         if mediaNode["type"] == "image":
