@@ -28,6 +28,7 @@ from yowsup.common import YowConstants
 import binascii
 import sys
 
+import encrypted_media_pb2
 import logging
 logger = logging.getLogger(__name__)
 
@@ -114,7 +115,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         :type protocolTreeNode: ProtocolTreeNode
         """
         if not self.processIqRegistry(protocolTreeNode):
-            if protocolTreeNode.tag == "message":
+            if protocolTreeNode.tag == "message" or protocolTreeNode.tag == "media":
                 self.onMessage(protocolTreeNode)
                 return
             elif protocolTreeNode.tag == "notification" and protocolTreeNode["type"] == "encrypt":
@@ -259,12 +260,21 @@ class YowAxolotlLayer(YowProtocolLayer):
         sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getFrom(False))
         plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
 
+        logger.debug("----plaintex--")
+        logger.debug(plaintext)
+        logger.debug("----plaintex--")
         if pkMessageProtocolEntity.getVersion() == 2:
             plaintext = self.unpadV2Plaintext(plaintext)
 
 
         bodyNode = ProtocolTreeNode("body", data = plaintext)
+        bodyNode = ProtocolTreeNode("media", data = plaintext)
+        logger.debug("protobuf")
+        logger.debug("URLLLLLLLLLLLLLLLLLLLLLL: " + encrypted_media_pb2.Media().ParseFromString(plaintext).url)
         node.addChild(bodyNode)
+        logger.debug("----node--")
+        logger.debug(node)
+        logger.debug("----node--")
         self.toUpper(node)
 
     def handleWhisperMessage(self, node):

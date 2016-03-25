@@ -1,0 +1,5 @@
+message Media {
+    optional string url  = 1;
+    optional string mimetype = 2;
+    optional string caption = 3;
+}
