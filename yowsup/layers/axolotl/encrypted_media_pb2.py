@@ -13,7 +13,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='encrypted_media.proto',
   package='',
-  serialized_pb='\n\x15\x65ncrypted_media.proto\"\xb0\x01\n\x05Media\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x0f\n\x07\x63\x61ption\x18\x03 \x01(\t\x12\x0e\n\x06sha256\x18\x04 \x01(\t\x12\r\n\x05lengt\x18\x05 \x01(\x05\x12\r\n\x05heigh\x18\x06 \x01(\x05\x12\r\n\x05width\x18\x07 \x01(\x05\x12\x0e\n\x06refkey\x18\x08 \x01(\t\x12\x0b\n\x03key\x18\t \x01(\t\x12\n\n\x02IV\x18\n \x01(\t\x12\x11\n\tthumbnail\x18\x0b \x01(\t')
+  serialized_pb='\n\x15\x65ncrypted_media.proto\"\xb2\x01\n\x05Media\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x0f\n\x07\x63\x61ption\x18\x03 \x01(\t\x12\x0e\n\x06sha256\x18\x04 \x01(\t\x12\x0e\n\x06length\x18\x05 \x01(\x05\x12\x0e\n\x06height\x18\x06 \x01(\x05\x12\r\n\x05width\x18\x07 \x01(\x05\x12\x0e\n\x06refkey\x18\x08 \x01(\t\x12\x0b\n\x03key\x18\t \x01(\t\x12\n\n\x02IV\x18\n \x01(\t\x12\x11\n\tthumbnail\x18\x0b \x01(\t')
 
 
 
@@ -54,14 +54,14 @@ _MEDIA = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='lengt', full_name='Media.lengt', index=4,
+      name='length', full_name='Media.length', index=4,
       number=5, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='heigh', full_name='Media.heigh', index=5,
+      name='height', full_name='Media.height', index=5,
       number=6, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -112,7 +112,7 @@ _MEDIA = _descriptor.Descriptor(
   is_extendable=False,
   extension_ranges=[],
   serialized_start=26,
-  serialized_end=202,
+  serialized_end=204,
 )
 
 DESCRIPTOR.message_types_by_name['Media'] = _MEDIA

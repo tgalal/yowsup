@@ -3,8 +3,8 @@ message Media {
     optional string mimetype  =  2;
     optional string caption   =  3;
     optional string sha256    =  4;
-    optional int32 lengt      =  5;
-    optional int32 heigh      =  6;
+    optional int32 length     =  5;
+    optional int32 height     =  6;
     optional int32 width      =  7;
     optional string refkey    =  8;
     optional string key       =  9;
