@@ -104,9 +104,9 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
             mediaNode.getAttributeValue("file"),
             base64.b64decode(mediaNode.getAttributeValue("refkey")) if mediaNode.getAttributeValue("refkey") else None
             )
-        #f=open('/tmp/my2.jpg','wb')
-        #f.write(entity.getMediaContent())
-        #f.close()
+        f=open('/tmp/my2.jpg','wb')
+        f.write(entity.getMediaContent())
+        f.close()
         return entity
 
     @staticmethod

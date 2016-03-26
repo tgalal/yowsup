@@ -13,92 +13,92 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='encrypted_media.proto',
   package='',
-  serialized_pb='\n\x15\x65ncrypted_media.proto\"\xb2\x01\n\x05Media\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x0f\n\x07\x63\x61ption\x18\x03 \x01(\t\x12\x0e\n\x06sha256\x18\x04 \x01(\x0c\x12\x0e\n\x06length\x18\x05 \x01(\x05\x12\x0e\n\x06height\x18\x06 \x01(\x05\x12\r\n\x05width\x18\x07 \x01(\x05\x12\x0e\n\x06refkey\x18\x08 \x01(\x0c\x12\x0b\n\x03key\x18\t \x01(\t\x12\n\n\x02iv\x18\n \x01(\t\x12\x11\n\tthumbnail\x18\x0b \x01(\t')
+  serialized_pb='\n\x15\x65ncrypted_media.proto\"\xb7\x01\n\nMediaImage\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x0f\n\x07\x63\x61ption\x18\x03 \x01(\t\x12\x0e\n\x06sha256\x18\x04 \x01(\x0c\x12\x0e\n\x06length\x18\x05 \x01(\x05\x12\x0e\n\x06height\x18\x06 \x01(\x05\x12\r\n\x05width\x18\x07 \x01(\x05\x12\x0e\n\x06refkey\x18\x08 \x01(\x0c\x12\x0b\n\x03key\x18\t \x01(\t\x12\n\n\x02iv\x18\n \x01(\t\x12\x11\n\tthumbnail\x18\x0b \x01(\x0c\"w\n\rMediaLocation\x12\x10\n\x08latitude\x18\x01 \x01(\x01\x12\x11\n\tlongitude\x18\x02 \x01(\x01\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\x12\x0b\n\x03url\x18\x05 \x01(\t\x12\x11\n\tthumbnail\x18\x06 \x01(\x0c\"j\n\x08MediaUrl\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0b\n\x03url\x18\x02 \x01(\t\x12\r\n\x05unk_1\x18\x03 \x01(\x05\x12\r\n\x05unk_2\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\x12\r\n\x05title\x18\x06 \x01(\t\"\xa0\x01\n\rMediaDocument\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x0e\n\x06sha256\x18\x04 \x01(\x0c\x12\x0e\n\x06length\x18\x05 \x01(\x05\x12\r\n\x05unk_2\x18\x06 \x01(\x05\x12\x0e\n\x06refkey\x18\x07 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x08 \x01(\t\x12\x11\n\tthumbnail\x18\t \x01(\x0c')
 
 
 
 
-_MEDIA = _descriptor.Descriptor(
-  name='Media',
-  full_name='Media',
+_MEDIAIMAGE = _descriptor.Descriptor(
+  name='MediaImage',
+  full_name='MediaImage',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='url', full_name='Media.url', index=0,
+      name='url', full_name='MediaImage.url', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='mimetype', full_name='Media.mimetype', index=1,
+      name='mimetype', full_name='MediaImage.mimetype', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='caption', full_name='Media.caption', index=2,
+      name='caption', full_name='MediaImage.caption', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='sha256', full_name='Media.sha256', index=3,
+      name='sha256', full_name='MediaImage.sha256', index=3,
       number=4, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value="",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='length', full_name='Media.length', index=4,
+      name='length', full_name='MediaImage.length', index=4,
       number=5, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='height', full_name='Media.height', index=5,
+      name='height', full_name='MediaImage.height', index=5,
       number=6, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='width', full_name='Media.width', index=6,
+      name='width', full_name='MediaImage.width', index=6,
       number=7, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='refkey', full_name='Media.refkey', index=7,
+      name='refkey', full_name='MediaImage.refkey', index=7,
       number=8, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value="",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='key', full_name='Media.key', index=8,
+      name='key', full_name='MediaImage.key', index=8,
       number=9, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='iv', full_name='Media.iv', index=9,
+      name='iv', full_name='MediaImage.iv', index=9,
       number=10, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=unicode("", "utf-8"),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='thumbnail', full_name='Media.thumbnail', index=10,
-      number=11, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=unicode("", "utf-8"),
+      name='thumbnail', full_name='MediaImage.thumbnail', index=10,
+      number=11, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value="",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -112,16 +112,247 @@ _MEDIA = _descriptor.Descriptor(
   is_extendable=False,
   extension_ranges=[],
   serialized_start=26,
-  serialized_end=204,
+  serialized_end=209,
 )
 
-DESCRIPTOR.message_types_by_name['Media'] = _MEDIA
 
-class Media(_message.Message):
+_MEDIALOCATION = _descriptor.Descriptor(
+  name='MediaLocation',
+  full_name='MediaLocation',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='latitude', full_name='MediaLocation.latitude', index=0,
+      number=1, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='longitude', full_name='MediaLocation.longitude', index=1,
+      number=2, type=1, cpp_type=5, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='name', full_name='MediaLocation.name', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='description', full_name='MediaLocation.description', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='url', full_name='MediaLocation.url', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='thumbnail', full_name='MediaLocation.thumbnail', index=5,
+      number=6, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value="",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=211,
+  serialized_end=330,
+)
+
+
+_MEDIAURL = _descriptor.Descriptor(
+  name='MediaUrl',
+  full_name='MediaUrl',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='message', full_name='MediaUrl.message', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='url', full_name='MediaUrl.url', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='unk_1', full_name='MediaUrl.unk_1', index=2,
+      number=3, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='unk_2', full_name='MediaUrl.unk_2', index=3,
+      number=4, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='description', full_name='MediaUrl.description', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='title', full_name='MediaUrl.title', index=5,
+      number=6, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=332,
+  serialized_end=438,
+)
+
+
+_MEDIADOCUMENT = _descriptor.Descriptor(
+  name='MediaDocument',
+  full_name='MediaDocument',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='url', full_name='MediaDocument.url', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='mimetype', full_name='MediaDocument.mimetype', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='name', full_name='MediaDocument.name', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='sha256', full_name='MediaDocument.sha256', index=3,
+      number=4, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value="",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='length', full_name='MediaDocument.length', index=4,
+      number=5, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='unk_2', full_name='MediaDocument.unk_2', index=5,
+      number=6, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='refkey', full_name='MediaDocument.refkey', index=6,
+      number=7, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value="",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='filename', full_name='MediaDocument.filename', index=7,
+      number=8, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='thumbnail', full_name='MediaDocument.thumbnail', index=8,
+      number=9, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value="",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=441,
+  serialized_end=601,
+)
+
+DESCRIPTOR.message_types_by_name['MediaImage'] = _MEDIAIMAGE
+DESCRIPTOR.message_types_by_name['MediaLocation'] = _MEDIALOCATION
+DESCRIPTOR.message_types_by_name['MediaUrl'] = _MEDIAURL
+DESCRIPTOR.message_types_by_name['MediaDocument'] = _MEDIADOCUMENT
+
+class MediaImage(_message.Message):
   __metaclass__ = _reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _MEDIA
+  DESCRIPTOR = _MEDIAIMAGE
 
-  # @@protoc_insertion_point(class_scope:Media)
+  # @@protoc_insertion_point(class_scope:MediaImage)
+
+class MediaLocation(_message.Message):
+  __metaclass__ = _reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _MEDIALOCATION
+
+  # @@protoc_insertion_point(class_scope:MediaLocation)
+
+class MediaUrl(_message.Message):
+  __metaclass__ = _reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _MEDIAURL
+
+  # @@protoc_insertion_point(class_scope:MediaUrl)
+
+class MediaDocument(_message.Message):
+  __metaclass__ = _reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _MEDIADOCUMENT
+
+  # @@protoc_insertion_point(class_scope:MediaDocument)
 
 
 # @@protoc_insertion_point(module_scope)
