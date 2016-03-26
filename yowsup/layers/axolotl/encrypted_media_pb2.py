@@ -13,7 +13,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='encrypted_media.proto',
   package='',
-  serialized_pb='\n\x15\x65ncrypted_media.proto\"\xb7\x01\n\nMediaImage\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x0f\n\x07\x63\x61ption\x18\x03 \x01(\t\x12\x0e\n\x06sha256\x18\x04 \x01(\x0c\x12\x0e\n\x06length\x18\x05 \x01(\x05\x12\x0e\n\x06height\x18\x06 \x01(\x05\x12\r\n\x05width\x18\x07 \x01(\x05\x12\x0e\n\x06refkey\x18\x08 \x01(\x0c\x12\x0b\n\x03key\x18\t \x01(\t\x12\n\n\x02iv\x18\n \x01(\t\x12\x11\n\tthumbnail\x18\x0b \x01(\x0c\"w\n\rMediaLocation\x12\x10\n\x08latitude\x18\x01 \x01(\x01\x12\x11\n\tlongitude\x18\x02 \x01(\x01\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\x12\x0b\n\x03url\x18\x05 \x01(\t\x12\x11\n\tthumbnail\x18\x06 \x01(\x0c\"j\n\x08MediaUrl\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0b\n\x03url\x18\x02 \x01(\t\x12\r\n\x05unk_1\x18\x03 \x01(\x05\x12\r\n\x05unk_2\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\x12\r\n\x05title\x18\x06 \x01(\t\"\xa0\x01\n\rMediaDocument\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x0e\n\x06sha256\x18\x04 \x01(\x0c\x12\x0e\n\x06length\x18\x05 \x01(\x05\x12\r\n\x05unk_2\x18\x06 \x01(\x05\x12\x0e\n\x06refkey\x18\x07 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x08 \x01(\t\x12\x11\n\tthumbnail\x18\t \x01(\x0c')
+  serialized_pb='\n\x15\x65ncrypted_media.proto\"\xb5\x01\n\nMediaImage\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x0f\n\x07\x63\x61ption\x18\x03 \x01(\t\x12\x0e\n\x06sha256\x18\x04 \x01(\x0c\x12\x0e\n\x06length\x18\x05 \x01(\x05\x12\x0e\n\x06height\x18\x06 \x01(\x05\x12\r\n\x05width\x18\x07 \x01(\x05\x12\x0e\n\x06refkey\x18\x08 \x01(\x0c\x12\x0b\n\x03key\x18\t \x01(\t\x12\n\n\x02iv\x18\n \x01(\t\x12\x0f\n\x07preview\x18\x10 \x01(\x0c\"u\n\rMediaLocation\x12\x10\n\x08latitude\x18\x01 \x01(\x01\x12\x11\n\tlongitude\x18\x02 \x01(\x01\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x04 \x01(\t\x12\x0b\n\x03url\x18\x05 \x01(\t\x12\x0f\n\x07preview\x18\x10 \x01(\x0c\"*\n\x0cMediaContact\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x10 \x01(\x0c\"j\n\x08MediaUrl\x12\x0f\n\x07message\x18\x01 \x01(\t\x12\x0b\n\x03url\x18\x02 \x01(\t\x12\r\n\x05unk_1\x18\x03 \x01(\x05\x12\r\n\x05unk_2\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\x12\r\n\x05title\x18\x06 \x01(\t\"\x9e\x01\n\rMediaDocument\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x0e\n\x06sha256\x18\x04 \x01(\x0c\x12\x0e\n\x06length\x18\x05 \x01(\x05\x12\r\n\x05unk_2\x18\x06 \x01(\x05\x12\x0e\n\x06refkey\x18\x07 \x01(\x0c\x12\x10\n\x08\x66ilename\x18\x08 \x01(\t\x12\x0f\n\x07preview\x18\x10 \x01(\x0c')
 
 
 
@@ -96,8 +96,8 @@ _MEDIAIMAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='thumbnail', full_name='MediaImage.thumbnail', index=10,
-      number=11, type=12, cpp_type=9, label=1,
+      name='preview', full_name='MediaImage.preview', index=10,
+      number=16, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value="",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -112,7 +112,7 @@ _MEDIAIMAGE = _descriptor.Descriptor(
   is_extendable=False,
   extension_ranges=[],
   serialized_start=26,
-  serialized_end=209,
+  serialized_end=207,
 )
 
 
@@ -159,8 +159,8 @@ _MEDIALOCATION = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='thumbnail', full_name='MediaLocation.thumbnail', index=5,
-      number=6, type=12, cpp_type=9, label=1,
+      name='preview', full_name='MediaLocation.preview', index=5,
+      number=16, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value="",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -174,8 +174,43 @@ _MEDIALOCATION = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=211,
-  serialized_end=330,
+  serialized_start=209,
+  serialized_end=326,
+)
+
+
+_MEDIACONTACT = _descriptor.Descriptor(
+  name='MediaContact',
+  full_name='MediaContact',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='MediaContact.name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=unicode("", "utf-8"),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='data', full_name='MediaContact.data', index=1,
+      number=16, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value="",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=328,
+  serialized_end=370,
 )
 
 
@@ -237,8 +272,8 @@ _MEDIAURL = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=332,
-  serialized_end=438,
+  serialized_start=372,
+  serialized_end=478,
 )
 
 
@@ -306,8 +341,8 @@ _MEDIADOCUMENT = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='thumbnail', full_name='MediaDocument.thumbnail', index=8,
-      number=9, type=12, cpp_type=9, label=1,
+      name='preview', full_name='MediaDocument.preview', index=8,
+      number=16, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value="",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -321,12 +356,13 @@ _MEDIADOCUMENT = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=441,
-  serialized_end=601,
+  serialized_start=481,
+  serialized_end=639,
 )
 
 DESCRIPTOR.message_types_by_name['MediaImage'] = _MEDIAIMAGE
 DESCRIPTOR.message_types_by_name['MediaLocation'] = _MEDIALOCATION
+DESCRIPTOR.message_types_by_name['MediaContact'] = _MEDIACONTACT
 DESCRIPTOR.message_types_by_name['MediaUrl'] = _MEDIAURL
 DESCRIPTOR.message_types_by_name['MediaDocument'] = _MEDIADOCUMENT
 
@@ -341,6 +377,12 @@ class MediaLocation(_message.Message):
   DESCRIPTOR = _MEDIALOCATION
 
   # @@protoc_insertion_point(class_scope:MediaLocation)
+
+class MediaContact(_message.Message):
+  __metaclass__ = _reflection.GeneratedProtocolMessageType
+  DESCRIPTOR = _MEDIACONTACT
+
+  # @@protoc_insertion_point(class_scope:MediaContact)
 
 class MediaUrl(_message.Message):
   __metaclass__ = _reflection.GeneratedProtocolMessageType

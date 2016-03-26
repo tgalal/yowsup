@@ -216,6 +216,79 @@ class YowAxolotlLayer(YowProtocolLayer):
 
         return out
 
+    def appendPlainNode(self, node, plaintext):
+            if node.getAttributeValue("type") == 'text':
+                bodyNode = ProtocolTreeNode("body", data = plaintext)
+
+            elif node.getAttributeValue("type") == 'media':
+                
+                #decode schema from encrypted message
+                if node.getChild("enc").getAttributeValue("mediatype") == 'image':
+                    media = encrypted_media_pb2.MediaImage()
+                    media.ParseFromString(plaintext)
+                    bodyNode = ProtocolTreeNode("media", data = media.preview)
+                    bodyNode.setAttribute("type", node.getChild("enc").getAttributeValue("mediatype"))
+                    bodyNode.setAttribute("size", str(media.length))
+                    bodyNode.setAttribute("width", str(media.width))
+                    bodyNode.setAttribute("height", str(media.height))
+                    bodyNode.setAttribute("encoding", "unknown")
+                    bodyNode.setAttribute("caption", media.caption)
+                    bodyNode.setAttribute("mimetype", media.mimetype)
+                    bodyNode.setAttribute("filehash", base64.b64encode(media.sha256))
+                    bodyNode.setAttribute("url", media.url)
+                    bodyNode.setAttribute("file", "unknown")
+                    bodyNode.setAttribute("refkey", base64.b64encode(media.refkey))
+
+                elif node.getChild("enc").getAttributeValue("mediatype") == 'document':
+                    media = encrypted_media_pb2.MediaDocument()
+                    media.ParseFromString(plaintext)
+                    bodyNode = ProtocolTreeNode("media", data = media.preview)
+                    bodyNode.setAttribute("type", node.getChild("enc").getAttributeValue("mediatype"))
+                    bodyNode.setAttribute("url", media.url)
+                    bodyNode.setAttribute("mimetype", media.mimetype)
+                    bodyNode.setAttribute("filehash", base64.b64encode(media.sha256))
+                    bodyNode.setAttribute("name", media.name)
+                    bodyNode.setAttribute("size", str(media.length))
+                    bodyNode.setAttribute("refkey", base64.b64encode(media.refkey))
+                    bodyNode.setAttribute("file", media.filename)
+                
+                elif node.getChild("enc").getAttributeValue("mediatype") == 'location':
+                    media = encrypted_media_pb2.MediaLocation()
+                    media.ParseFromString(plaintext)
+                    bodyNode = ProtocolTreeNode("media", data = media.preview)
+                    bodyNode.setAttribute("type", node.getChild("enc").getAttributeValue("mediatype"))
+                    bodyNode.setAttribute("latitude", str(media.latitude))
+                    bodyNode.setAttribute("longitude", str(media.longitude))
+                    bodyNode.setAttribute("name", media.name)
+                    bodyNode.setAttribute("url", media.url)
+                    bodyNode.setAttribute("encoding","unknown")
+                    bodyNode.setAttribute("description", media.description)
+
+                elif node.getChild("enc").getAttributeValue("mediatype") == 'contact':
+                    media = encrypted_media_pb2.MediaContact()
+                    media.ParseFromString(plaintext)
+                    bodyNode = ProtocolTreeNode("media", data = media.data)
+                    bodyNode.setAttribute("type", node.getChild("enc").getAttributeValue("mediatype"))
+                    bodyNode.setAttribute("name", media.name)
+                    
+                elif node.getChild("enc").getAttributeValue("mediatype") == 'url':
+                    media = encrypted_media_pb2.MediaUrl()
+                    media.ParseFromString(plaintext)
+                    bodyNode = ProtocolTreeNode("media", data = media.preview)
+                    bodyNode.setAttribute("type", node.getChild("enc").getAttributeValue("mediatype"))
+                    bodyNode.setAttribute("message", media.message)
+                    bodyNode.setAttribute("url", media.url)
+                    bodyNode.setAttribute("description", media.description)
+                    bodyNode.setAttribute("title", media.title)
+                
+                else:
+                    raise "Unmanaged media type"
+                    
+            else:
+                raise "Unmanaged data type"
+            logger.debug(bodyNode)
+            node.addChild(bodyNode)
+
     def handleEncMessage(self, node):
         try:
             if node.getChild("enc")["v"] == "2" and node["from"] not in self.v2Jids:
@@ -225,36 +298,8 @@ class YowAxolotlLayer(YowProtocolLayer):
                 plaintext = self.handlePreKeyWhisperMessage(node)
             else:
                 plaintext = self.handleWhisperMessage(node)
-
-            if node.getAttributeValue("type") == 'text':
-                bodyNode = ProtocolTreeNode("body", data = plaintext)
-            elif node.getAttributeValue("type") == 'media':
-                # get preview
-                pos = plaintext.upper().find(binascii.unhexlify('ffd8ffe0'.upper()))
-                preview = plaintext[pos:] if pos > 0 else ""
-
-                #decode schema from encrypted message
-                media = encrypted_media_pb2.MediaImage()
-                media.ParseFromString(plaintext)
-
-                logger.debug("compare: " + str(plaintext[pos:] != media.thumbnail))
-                logger.debug(plaintext[pos:])
-                logger.debug(media.thumbnail)
-                bodyNode = ProtocolTreeNode("media", data = preview)
-                bodyNode.setAttribute("type", node.getChild("enc").getAttributeValue("mediatype"))
-                bodyNode.setAttribute("size", str(media.length))
-                bodyNode.setAttribute("width", str(media.width))
-                bodyNode.setAttribute("height", str(media.height))
-                bodyNode.setAttribute("encoding", "unknown")
-                bodyNode.setAttribute("caption", media.caption)
-                bodyNode.setAttribute("mimetype", media.mimetype)
-                bodyNode.setAttribute("filehash", base64.b64encode(media.sha256))
-                bodyNode.setAttribute("url", media.url)
-                bodyNode.setAttribute("file", "unknown")
-                bodyNode.setAttribute("refkey", base64.b64encode(media.refkey))
-            else:
-                raise "Unmanaged data type"
-            node.addChild(bodyNode)
+            
+            self.appendPlainNode(node, plaintext)
             self.toUpper(node)
         except InvalidMessageException as e:
             # logger.error("Invalid message from %s!! Your axololtl database data might be inconsistent with WhatsApp, or with what that contact has" % node["from"])
