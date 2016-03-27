@@ -3,7 +3,7 @@ from yowsup.common.http.waresponseparser import JSONResponseParser
 # from yowsup.env import CURRENT_ENV
 from yowsup.common.tools import StorageTools, WATools
 from yowsup.registration.existsrequest import WAExistsRequest
-from yowsup.env import AndroidYowsupEnv
+from yowsup.env import S40YowsupEnv, AndroidYowsupEnv
 import random, hashlib, os
 CURRENT_ENV = AndroidYowsupEnv()
 
@@ -34,9 +34,9 @@ class WACodeRequest(WARequest):
         self.addParam("copiedrc", "1")
         self.addParam("hasinrc", "1")
         self.addParam("rcmatch", "1")
-        self.addParam("pid", int(random.uniform(100,9999)))
+        self.addParam("pid", os.getpid())
         self.addParam("rchash", hashlib.sha256(os.urandom(20)).hexdigest())
-        self.addParam("anhash", os.urandom(20))
+        self.addParam("anhash", hashlib.md5(os.urandom(20)).hexdigest())
         self.addParam("extexist", "1")
         self.addParam("extstate", "1")
 
@@ -63,4 +63,3 @@ class WACodeRequest(WARequest):
         if res["status"] == "sent":
             StorageTools.writeIdentity(self.cc + self.p_in, self.__id)
         return res
-

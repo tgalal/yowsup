@@ -8,20 +8,20 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
     <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
         offline="{{OFFLINE}}" type="media" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
         <media type="{{DOWNLOADABLE_MEDIA_TYPE: (image | audio | video)}}"
-            mimetype="{{MIME_TYPE}}" 
+            mimetype="{{MIME_TYPE}}"
             filehash="{{FILE_HASH}}"
-            url="{{DOWNLOAD_URL}}" 
+            url="{{DOWNLOAD_URL}}"
             ip="{{IP}}"
             size="{{MEDIA SIZE}}"
-            file="{{FILENAME}}" 
+            file="{{FILENAME}}"
 
 
-            encoding="{{ENCODING}}" 
-            height="{{IMAGE_HEIGHT}}" 
+            encoding="{{ENCODING}}"
+            height="{{IMAGE_HEIGHT}}"
             width="{{IMAGE_WIDTH}}"
-
             origin="forward"           
-            > {{THUMBNAIL_RAWDATA (JPEG?)}}
+ 
+           > {{THUMBNAIL_RAWDATA (JPEG?)}}
         </media>
     </message>
     '''
@@ -35,7 +35,7 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
 
         super(VideoDownloadableMediaMessageProtocolEntity, self).__init__("video",
                                                                           mimeType, fileHash, url, ip, size, fileName,
-                                                                          _id, _from, to, notify, timestamp,
+                                                                          None, _id, _from, to, notify, timestamp,
                                                                           participant, preview, offline, retry)
         self.setVideoProps(encoding, width, height, vbitrate, abitrate, acodec, asampfmt, asampfreq, duration, fps,
                            seconds, vcodec, caption)
@@ -59,19 +59,19 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
 
     def setVideoProps(self, encoding, width, height, vbitrate=None, abitrate=None, acodec=None, asampfmt=None,
                       asampfreq=None, duration=None, fps=None, seconds=None, vcodec=None, caption=None, ):
-        self.abitrate = abitrate
-        self.acodec = acodec
-        self.asampfmt = asampfmt
+        self.abitrate  = abitrate
+        self.acodec    = acodec
+        self.asampfmt  = asampfmt
         self.asampfreq = asampfreq
-        self.duration = duration
-        self.encoding = encoding
-        self.fps = fps
-        self.height = height
-        self.seconds = seconds
-        self.vbitrate = vbitrate
-        self.vcodec = vcodec
-        self.width = width
-        self.caption = caption
+        self.duration  = duration
+        self.encoding  = encoding
+        self.fps       = fps
+        self.height    = height
+        self.seconds   = seconds
+        self.vbitrate  = vbitrate
+        self.vcodec    = vcodec
+        self.width     = width
+        self.caption   = caption
 
     def getCaption(self):
         return self.caption

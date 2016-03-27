@@ -20,7 +20,7 @@ class ResultStatusesIqProtocolEntity(IqProtocolEntity):
     XMLNS = 'status'
     def __init__(self, _id, _from, statuses):
         super(ResultStatusesIqProtocolEntity, self).__init__(self.__class__.XMLNS, _id, 'result', _from=_from)
-        setResultStatusesProps(statusesp)
+        self.setResultStatusesProps(statuses)
 
     def setResultStatusesProps(self, statuses):
         assert type(statuses) is dict, "statuses must be dict"
@@ -28,12 +28,12 @@ class ResultStatusesIqProtocolEntity(IqProtocolEntity):
 
     def __str__(self):
         out = super(ResultStatusesIqProtocolEntity, self).__str__()
-        out += "Statuses: %s\n" % ','.join(jid + '(' + str(v) + ')' for jid, v in self.statuses.iteritems())
+        out += "Statuses: %s\n" % ','.join(jid + '(' + str(v) + ')' for jid, v in self.statuses.items())
         return out
 
     def toProtocolTreeNode(self):
-        node = super(ResultStatusesIqProtocolEntity, self).toProtcolTreeNode()
-        users = [ProtocolTreeNode('user', {'jid': jid, 't': t}, None, status) for jid, (status, t) in self.statuses.iteritems()]
+        node = super(ResultStatusesIqProtocolEntity, self).toProtocolTreeNode()
+        users = [ProtocolTreeNode('user', {'jid': jid, 't': t}, None, status) for jid, (status, t) in self.statuses.items()]
         statusNode = ProtocolTreeNode('status', None, users)
         node.addChild(statusNode)
         return node

@@ -1,4 +1,4 @@
-from yowsup.layers import YowLayer
+from yowsup.layers import YowLayer, EventCallback
 from yowsup.layers.network import YowNetworkLayer
 class YowCryptLayer(YowLayer):
     '''
@@ -12,12 +12,14 @@ class YowCryptLayer(YowLayer):
         super(YowCryptLayer, self).__init__()
         self.keys = (None,None)
 
-    def onEvent(self, yowLayerEvent):
-        if yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
-            self.keys = (None,None)
-        elif yowLayerEvent.getName() == YowCryptLayer.EVENT_KEYS_READY:
-            self.keys = yowLayerEvent.getArg("keys")
-            return True
+    @EventCallback(YowNetworkLayer.EVENT_STATE_CONNECTED)
+    def onConnected(self, yowLayerEvent):
+        self.keys = (None,None)
+    
+    @EventCallback(EVENT_KEYS_READY)
+    def onKeysReady(self, yowLayerEvent):
+        self.keys = yowLayerEvent.getArg("keys")
+        return True
 
     def send(self, data):
         outputKey = self.keys[1]
