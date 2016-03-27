@@ -1,45 +1,18 @@
-from yowsup.stacks import YowStack
+from yowsup.stacks import  YowStackBuilder
 from .layer import EchoLayer
+from yowsup.layers.auth import AuthError
 from yowsup.layers import YowLayerEvent
-from yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer, AuthError
-from yowsup.layers.coder                       import YowCoderLayer
-from yowsup.layers.network                     import YowNetworkLayer
-from yowsup.layers.protocol_messages           import YowMessagesProtocolLayer
-from yowsup.layers.protocol_media              import YowMediaProtocolLayer
-from yowsup.layers.stanzaregulator             import YowStanzaRegulator
-from yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
-from yowsup.layers.protocol_acks               import YowAckProtocolLayer
-from yowsup.layers.logger                      import YowLoggerLayer
-from yowsup.layers.protocol_iq                 import YowIqProtocolLayer
-from yowsup.layers.protocol_calls              import YowCallsProtocolLayer
-from yowsup.layers                             import YowParallelLayer
+from yowsup.layers.network import YowNetworkLayer
 
 class YowsupEchoStack(object):
-    def __init__(self, credentials, encryptionEnabled = False):
-        if encryptionEnabled:
-            from yowsup.layers.axolotl                     import YowAxolotlLayer
-            layers = (
-                EchoLayer,
-                YowParallelLayer([YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer, YowIqProtocolLayer, YowCallsProtocolLayer]),
-                YowAxolotlLayer,
-                YowLoggerLayer,
-                YowCoderLayer,
-                YowCryptLayer,
-                YowStanzaRegulator,
-                YowNetworkLayer
-            )
-        else:
-            layers = (
-                EchoLayer,
-                YowParallelLayer([YowAuthenticationProtocolLayer, YowMessagesProtocolLayer, YowReceiptProtocolLayer, YowAckProtocolLayer, YowMediaProtocolLayer, YowIqProtocolLayer, YowCallsProtocolLayer]),
-                YowLoggerLayer,
-                YowCoderLayer,
-                YowCryptLayer,
-                YowStanzaRegulator,
-                YowNetworkLayer
-            )
+    def __init__(self, credentials, encryptionEnabled = True):
+        stackBuilder = YowStackBuilder()
 
-        self.stack = YowStack(layers)
+        self.stack = stackBuilder\
+            .pushDefaultLayers(encryptionEnabled)\
+            .push(EchoLayer)\
+            .build()
+
         self.stack.setCredentials(credentials)
 
     def start(self):

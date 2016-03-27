@@ -1,7 +1,8 @@
 import urllib,sys, os, logging
 import hashlib
 from .waresponseparser import ResponseParser
-from yowsup.env import CURRENT_ENV
+from yowsup.env import AndroidYowsupEnv
+CURRENT_ENV = AndroidYowsupEnv()
 
 if sys.version_info < (3, 0):
     import httplib

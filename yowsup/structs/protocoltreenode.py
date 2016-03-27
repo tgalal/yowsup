@@ -51,7 +51,7 @@ class ProtocolTreeNode(object):
         if self.attributes is not None:
             for key,val in self.attributes.items():
                 if val is None:
-                    raise ValueError("value is none for attr %s" % key)
+                    raise Exception("None val for key: "+key);
                 out+= " "+key+'="'+val+'"'
         out+= ">\n"
 

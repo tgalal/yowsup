@@ -1,0 +1,23 @@
+audio/3gpp	 3gpp
+audio/aac	 aac
+audio/aiff	 aif
+audio/amr	 amr
+audio/mp4	 m4a
+audio/mpeg	 mp3 mp2 mpga mpega
+audio/ogg	 oga ogg opus spx
+audio/qcelp	 qcp
+audio/wav	 wav
+audio/webm	 webm
+audio/x-caf	 caf
+audio/x-ms-wma	 wma
+audio/ogg	 ogg
+image/gif	 gif
+image/jpeg	 jpe jpg jpeg
+image/png	 png
+video/3gpp	 3gp
+video/avi	 avi
+video/mp4	 mp4
+video/mpeg	 m1v mpeg mpa mpg mpe
+video/quicktime	 mov qt
+video/x-flv	 flv
+video/x-ms-asf	 asf asx

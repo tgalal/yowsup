@@ -1,8 +1,9 @@
+from yowsup.common import YowConstants
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 class GetKeysIqProtocolEntity(IqProtocolEntity):
     def __init__(self, jids):
-        super(GetKeysIqProtocolEntity, self).__init__("encrypt", _type = "get", to = "s.whatsapp.net")
+        super(GetKeysIqProtocolEntity, self).__init__("encrypt", _type = "get", to = YowConstants.WHATSAPP_SERVER)
         self.setJids(jids)
 
     def setJids(self, jids):
