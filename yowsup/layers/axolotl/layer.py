@@ -307,6 +307,8 @@ class YowAxolotlLayer(YowProtocolLayer):
             m.ParseFromString(serializedData)
         except:
             print("DUMP:")
+            #with open("/tmp/protobuf.bin", "wb") as f:
+            #    f.write(serializedData)
             print(serializedData)
             print([s for s in serializedData])
             print([ord(s) for s in serializedData])
@@ -328,6 +330,8 @@ class YowAxolotlLayer(YowProtocolLayer):
             self.handleLocationMessage(node, m.location_message)
         elif m.HasField("image_message"):
             self.handleImageMessage(node, m.image_message)
+        elif m.HasField("document_message"):
+            self.handleDocumentMessage(node, m.document_message)
         else:
             print(m)
             raise ValueError("Unhandled")
@@ -367,15 +371,39 @@ class YowAxolotlLayer(YowProtocolLayer):
         self.toUpper(messageNode)
 
     def handleUrlMessage(self, originalEncNode, urlMessage):
-        #convert to ??
-        pass
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "url",
+            "text": urlMessage.text,
+            "match": urlMessage.matched_text,
+            "url": urlMessage.canonical_url,
+            "description": urlMessage.description,
+            "title": urlMessage.title
+        }, data = urlMessage.jpeg_thumbnail)
+        messageNode.addChild(mediaNode)
+
+        self.toUpper(messageNode)
 
     def handleDocumentMessage(self, originalEncNode, documentMessage):
-        #convert to ??
-        pass
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "document",
+            "url": documentMessage.url,
+            "mimetype": documentMessage.mime_type,
+            "title": documentMessage.title,
+            "filehash": documentMessage.file_sha256,
+            "size": str(documentMessage.file_length),
+            "pages": str(documentMessage.page_count),
+            "mediakey": documentMessage.media_key
+        }, data = documentMessage.jpeg_thumbnail)
+        messageNode.addChild(mediaNode)
+
+        self.toUpper(messageNode)
 
     def handleLocationMessage(self, originalEncNode, locationMessage):
-        messageNode = copy.deepycopy(originalEncNode)
+        messageNode = copy.deepcopy(originalEncNode)
         messageNode["type"] = "media"
         mediaNode = ProtocolTreeNode("media", {
             "latitude": str(locationMessage.degrees_latitude),
@@ -389,7 +417,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         self.toUpper(messageNode)
 
     def handleContactMessage(self, originalEncNode, contactMessage):
-        messageNode = copy.deepycopy(originalEncNode)
+        messageNode = copy.deepcopy(originalEncNode)
         messageNode["type"] = "media"
         mediaNode = ProtocolTreeNode("media", {
             "type": "vcard"
