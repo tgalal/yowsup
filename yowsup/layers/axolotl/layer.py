@@ -247,7 +247,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         except DuplicateMessageException as e:
             logger.error(e)
             logger.warning("Going to send the delivery receipt myself !")
-            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"]).toProtocolTreeNode())
+            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], read=False, participant = node["participant"], t=node["t"]).toProtocolTreeNode())
 
         except UntrustedIdentityException as e:
             if(self.getProp(self.__class__.PROP_IDENTITY_AUTOTRUST, False)):
@@ -317,7 +317,8 @@ class YowAxolotlLayer(YowProtocolLayer):
         if m.HasField("sender_key_distribution_message"):
             axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
             self.handleSenderKeyDistributionMessage(m.sender_key_distribution_message, axolotlAddress)
-        elif m.HasField("conversation"):
+
+        if m.HasField("conversation"):
             self.handleConversationMessage(node, m.conversation)
         elif m.HasField("contact_message"):
             self.handleContactMessage(node, m.contact_message)
@@ -353,12 +354,13 @@ class YowAxolotlLayer(YowProtocolLayer):
             "size": str(imageMessage.file_length),
             "url": imageMessage.url,
             "mimetype": imageMessage.mime_type,
-            "width": imageMessage.width,
-            "height": imageMessage.height,
+            "width": str(imageMessage.width),
+            "height": str(imageMessage.height),
             "caption": imageMessage.caption,
             "encoding": "raw",
             "file": "enc",
-            "ip": "0"
+            "ip": "0",
+            "mediakey": imageMessage.media_key
         }, data = imageMessage.jpeg_thumbnail)
         messageNode.addChild(mediaNode)
 
@@ -376,8 +378,8 @@ class YowAxolotlLayer(YowProtocolLayer):
         messageNode = copy.deepycopy(originalEncNode)
         messageNode["type"] = "media"
         mediaNode = ProtocolTreeNode("media", {
-            "latitude": locationMessage.degrees_latitude,
-            "longitude": locationMessage.degress_longitude,
+            "latitude": str(locationMessage.degrees_latitude),
+            "longitude": str(locationMessage.degress_longitude),
             "name": "%s %s" % (locationMessage.name, locationMessage.address),
             "url": locationMessage.url,
             "encoding": "raw",
@@ -425,7 +427,8 @@ class YowAxolotlLayer(YowProtocolLayer):
     def serializeTextToProtobuf(self, node):
         m = Message()
         m.conversation = node.getChild("body").getData()
-        return m.SerializeToString()
+        # Whatsapp encoding needs a terminal 1 byte
+        return m.SerializeToString() + '\01'
 
     def serializeMediaToProtobuf(self, mediaNode):
         if mediaNode["type"] == "image":

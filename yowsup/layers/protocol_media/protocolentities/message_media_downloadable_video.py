@@ -19,9 +19,9 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
             encoding="{{ENCODING}}"
             height="{{IMAGE_HEIGHT}}"
             width="{{IMAGE_WIDTH}}"
+
             origin="forward"           
- 
-           > {{THUMBNAIL_RAWDATA (JPEG?)}}
+            > {{THUMBNAIL_RAWDATA (JPEG?)}}
         </media>
     </message>
     '''
