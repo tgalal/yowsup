@@ -8,6 +8,7 @@ from yowsup.common import YowConstants
 import datetime
 import os
 import logging
+import tempfile
 from yowsup.layers.protocol_receipts.protocolentities import *
 from yowsup.layers.protocol_groups.protocolentities import *
 from yowsup.layers.protocol_presence.protocolentities import *
@@ -34,7 +35,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     EVENT_START = "org.openwhatsapp.yowsup.event.cli.start"
     EVENT_SENDANDEXIT = "org.openwhatsapp.yowsup.event.cli.sendandexit"
 
-    MESSAGE_FORMAT = "[{FROM}({TIME})]:[{MESSAGE_ID}]\t {MESSAGE}"
+    MESSAGE_FORMAT = "[{FROM}({TIME})]:[{MESSAGE_ID}] {MESSAGE}"
 
     DISCONNECT_ACTION_PROMPT = 0
     DISCONNECT_ACTION_EXIT = 1
@@ -544,10 +545,14 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             return "[Media Type: %s]" % message.getMediaType()
 
     def getDownloadableMediaMessageBody(self, message):
-        return "[Media Type:{media_type}, Size:{media_size}, URL:{media_url}]".format(
+        filename = "%s/%s%s"%(tempfile.gettempdir(),message.getId(),message.getExtension())
+        with open(filename, 'w') as f:
+            f.write(message.getMediaContent())
+        return "[Media Type:{media_type}, Size:{media_size}, URL:{media_url}, FILE:{fname}]".format(
             media_type=message.getMediaType(),
             media_size=message.getMediaSize(),
-            media_url=message.getMediaUrl()
+            media_url=message.getMediaUrl(),
+            fname=filename
         )
 
     def doSendMedia(self, mediaType, filePath, url, to, ip=None, caption=None):
