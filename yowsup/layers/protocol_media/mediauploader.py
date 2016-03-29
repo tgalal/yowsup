@@ -1,9 +1,10 @@
 from yowsup.common.http.warequest import WARequest
 from yowsup.common.http.waresponseparser import JSONResponseParser
-import socket, ssl, mimetypes, os, hashlib, sys
+import socket, ssl, os, hashlib, sys
 from time import sleep
 import threading
 import logging
+from yowsup.common.tools import MimeTools
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,7 @@ class MediaUploader(WARequest, threading.Thread):
 
         try:
             filename = os.path.basename(sourcePath)
-            filetype = mimetypes.guess_type(filename)[0]
+            filetype = MimeTools.getMIME(filename)
             filesize = os.path.getsize(sourcePath)
 
             self.sock.connect((self.url, self.port))

@@ -7,6 +7,7 @@ import logging
 import tempfile
 import base64
 import hashlib
+import os.path, mimetypes
 
 logger = logging.getLogger(__name__)
 
@@ -159,3 +160,16 @@ class ImageTools:
             preview = fileObj.read()
             fileObj.close()
         return preview
+
+class MimeTools:
+    MIME_FILE = os.path.join(os.path.dirname(__file__), 'mime.types')
+    mimetypes.init() # Load default mime.types
+    mimetypes.init([MIME_FILE]) # Append whatsapp mime.types
+    decode_hex = codecs.getdecoder("hex_codec")
+
+    @staticmethod
+    def getMIME(filepath):
+        mimeType = mimetypes.guess_type(filepath)[0]
+        if mimeType is None:
+            raise Exception("Unsupported/unrecognized file type for: "+filepath);
+        return mimeType
