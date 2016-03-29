@@ -3,8 +3,9 @@ from yowsup.common.http.waresponseparser import JSONResponseParser
 # from yowsup.env import CURRENT_ENV
 from yowsup.common.tools import StorageTools, WATools
 from yowsup.registration.existsrequest import WAExistsRequest
-from yowsup.env import S40YowsupEnv
-CURRENT_ENV = S40YowsupEnv()
+from yowsup.env import AndroidYowsupEnv
+import random, hashlib, os
+CURRENT_ENV = AndroidYowsupEnv()
 
 class WACodeRequest(WARequest):
 
@@ -22,7 +23,22 @@ class WACodeRequest(WARequest):
         self.addParam("lg", "en")
         self.addParam("sim_mcc", sim_mcc.zfill(3))
         self.addParam("sim_mnc", sim_mnc.zfill(3))
+        self.addParam("mcc", sim_mcc.zfill(3))
+        self.addParam("mnc", sim_mnc.zfill(3))
         self.addParam("method", method)
+
+        self.addParam("mistyped", "6")
+        self.addParam("network_radio_type", "1")
+        self.addParam("simnum", "1")
+        self.addParam("s", "")
+        self.addParam("copiedrc", "1")
+        self.addParam("hasinrc", "1")
+        self.addParam("rcmatch", "1")
+        self.addParam("pid", int(random.uniform(100,9999)))
+        self.addParam("rchash", hashlib.sha256(os.urandom(20)).hexdigest())
+        self.addParam("anhash", os.urandom(20))
+        self.addParam("extexist", "1")
+        self.addParam("extstate", "1")
 
         self.addParam("token", CURRENT_ENV.getToken(p_in))
 
