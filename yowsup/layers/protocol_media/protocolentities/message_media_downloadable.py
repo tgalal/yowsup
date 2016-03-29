@@ -3,7 +3,10 @@ from yowsup.common.tools import WATools
 from yowsup.common.tools import MimeTools
 import os
 from Crypto.Cipher import AES
-import urllib2
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
 from axolotl.kdf.hkdfv3 import HKDFv3
 from axolotl.util.byteutil import ByteUtil
 import binascii
@@ -54,7 +57,7 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         return cr_obj.decrypt(e_img)
 
     def getMediaContent(self):
-        data = urllib2.urlopen(self.url).read()
+        data = urlopen(self.url).read()
         if self.mediaKey:
             data = self.decrypt(data, self.mediaKey)
         return bytearray(data)
