@@ -8,6 +8,7 @@ from yowsup.layers.axolotl.store.sqlite.liteaxolotlstore import LiteAxolotlStore
 from yowsup.layers.axolotl.protocolentities import *
 from yowsup.structs import ProtocolTreeNode
 from yowsup.common.tools import StorageTools
+from yowsup.common import YowConstants
 
 from axolotl.sessionbuilder import SessionBuilder
 from axolotl.util.keyhelper import KeyHelper
@@ -55,6 +56,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         self.pendingIncomingMessages = {}
         self.skipEncJids = []
         self.v2Jids = [] #people we're going to send v2 enc messages
+        self.retryIncomingMessages = {}
 
     @property
     def store(self):
@@ -116,7 +118,7 @@ class YowAxolotlLayer(YowProtocolLayer):
             self.store = None
 
     def send(self, node):
-        if node.tag == "message" and node["to"] not in self.skipEncJids and not '-' in node["to"]:
+        if node.tag == "message" and node["to"] not in self.skipEncJids and not YowConstants.WHATSAPP_GROUP_SERVER in node["to"]:
             self.handlePlaintextNode(node)
             return
         self.toLower(node)
@@ -224,18 +226,12 @@ class YowAxolotlLayer(YowProtocolLayer):
                 self.handlePreKeyWhisperMessage(node)
             elif encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_MSG):
                 self.handleWhisperMessage(node)
-            if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG):
+            elif encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG):
                 self.handleSenderKeyMessage(node)
-        except InvalidMessageException as e:
-            logger.error(e)
-            retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node)
-            retry.setRegData(self.store.getLocalRegistrationId())
-            self.toLower(retry.toProtocolTreeNode())
-        except InvalidKeyIdException as e:
-            logger.error(e)
-            retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node)
-            retry.setRegData(self.store.getLocalRegistrationId())
-            self.toLower(retry.toProtocolTreeNode())
+
+            if node["id"] in self.retryIncomingMessages:
+                del self.retryIncomingMessages[node["id"]]
+
         except NoSessionException as e:
             logger.error(e)
             entity = GetKeysIqProtocolEntity([senderJid])
@@ -257,6 +253,16 @@ class YowAxolotlLayer(YowProtocolLayer):
             else:
                 logger.error(e)
                 logger.warning("Ignoring message with untrusted identity")
+        except (InvalidMessageException, InvalidKeyIdException, Exception) as e:
+            logger.warning(e)
+            self.retryIncomingMessages[node["id"]] = (self.retryIncomingMessages[node["id"]] + 1) if node["id"] in self.retryIncomingMessages else 1
+            if self.retryIncomingMessages[node["id"]] > 5:
+                 logger.warning("Too many retries!! Going to send the delivery receipt myself!")
+                 self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], read=False, participant = node["participant"], t=node["t"]).toProtocolTreeNode())
+            else:
+                 retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node)
+                 retry.setRegData(self.store.getLocalRegistrationId())
+                 self.toLower(retry.toProtocolTreeNode())
 
     def handlePreKeyWhisperMessage(self, node):
         pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
