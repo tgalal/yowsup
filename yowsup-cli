@@ -105,7 +105,7 @@ class RegistrationArgParser(YowArgParser):
                                  help = " Your full phone number including the country code you defined in 'cc', without preceeding '+' or '00'")
         configGroup.add_argument("-C", '--cc',
                                  action = "store",
-                                 help = "Country code. See http://www.ipipi.com/help/telephone-country-codes.htm. This is now required")
+                                 help = "Country code. See http://www.ipipi.com/networkList.do. This is now required")
 
 
         # configGroup.add_argument("-i", '--id',
