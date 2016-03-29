@@ -546,7 +546,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     def getDownloadableMediaMessageBody(self, message):
         filename = "%s/%s%s"%(tempfile.gettempdir(),message.getId(),message.getExtension())
-        with open(filename, 'w') as f:
+        with open(filename, 'wb') as f:
             f.write(message.getMediaContent())
         return "[Media Type:{media_type}, Size:{media_size}, URL:{media_url}, FILE:{fname}]".format(
             media_type=message.getMediaType(),
