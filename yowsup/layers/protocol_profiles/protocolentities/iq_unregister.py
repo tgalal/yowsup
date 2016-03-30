@@ -1,3 +1,4 @@
+from yowsup.common import YowConstants
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 
@@ -6,7 +7,7 @@ class UnregisterIqProtocolEntity(IqProtocolEntity):
     XMLNS = "urn:xmpp:whatsapp:account"
 
     def __init__(self):
-        super(UnregisterIqProtocolEntity, self).__init__(_type = "get", to = "s.whatsapp.net")
+        super(UnregisterIqProtocolEntity, self).__init__(_type = "get", to = YowConstants.WHATSAPP_SERVER)
 
     def toProtocolTreeNode(self):
         node = super(UnregisterIqProtocolEntity, self).toProtocolTreeNode()

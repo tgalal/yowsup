@@ -12,6 +12,15 @@ from .optionalmodules import PILOptionalModule, FFVideoOptionalModule
 
 logger = logging.getLogger(__name__)
 
+class Jid:
+    @staticmethod
+    def normalize(number):
+        if '@' in number:
+            return number
+        elif "-" in number:
+            return "%s@%s" % (number, YowConstants.WHATSAPP_GROUP_SERVER)
+        return "%s@%s" % (number, YowConstants.WHATSAPP_SERVER)
+
 class HexTools:
     decode_hex = codecs.getdecoder("hex_codec")
     @staticmethod
