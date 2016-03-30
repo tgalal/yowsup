@@ -149,7 +149,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     ########### ib #######################
     @clicmd("Send clean dirty")
-    def ib_clean(self, dirtyType):
+    def ib_clean(self):
         if self.assertConnected():
             entity = CleanIqProtocolEntity("groups", YowConstants.DOMAIN)
             self.toLower(entity)
