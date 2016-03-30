@@ -1,3 +1,4 @@
+from yowsup.common import YowConstants
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .iq_groups import GroupsIqProtocolEntity
 class LeaveGroupsIqProtocolEntity(GroupsIqProtocolEntity):
@@ -11,7 +12,7 @@ class LeaveGroupsIqProtocolEntity(GroupsIqProtocolEntity):
     '''
 
     def __init__(self, groupList):
-        super(LeaveGroupsIqProtocolEntity, self).__init__(to = "g.us", _type = "set")
+        super(LeaveGroupsIqProtocolEntity, self).__init__(to = YowConstants.WHATSAPP_GROUP_SERVER, _type = "set")
         self.setProps(groupList if type(groupList) is list else [groupList])
 
     def setProps(self, groupList):

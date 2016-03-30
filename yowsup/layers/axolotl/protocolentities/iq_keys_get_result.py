@@ -1,3 +1,4 @@
+from yowsup.common import YowConstants
 from yowsup.layers.protocol_iq.protocolentities import ResultIqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 from axolotl.state.prekeybundle import PreKeyBundle
@@ -38,7 +39,7 @@ class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
     </iq>
     """
     def __init__(self, _id, preKeyBundleMap = None):
-        super(ResultGetKeysIqProtocolEntity, self).__init__(_from = "s.whatsapp.net", _id=_id)
+        super(ResultGetKeysIqProtocolEntity, self).__init__(_from = YowConstants.WHATSAPP_SERVER, _id=_id)
         self.setPreKeyBundleMap(preKeyBundleMap)
 
     def getJids(self):

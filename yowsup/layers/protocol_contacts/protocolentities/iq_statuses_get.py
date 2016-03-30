@@ -1,3 +1,4 @@
+from yowsup.common import YowConstants
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 
@@ -12,7 +13,7 @@ class GetStatusesIqProtocolEntity(IqProtocolEntity):
             - jids: A list of jids representing the users whose statuses you are
                 trying to get.
         """
-        super(GetStatusesIqProtocolEntity, self).__init__(self.__class__.XMLNS, _id, _type = "get", to = "s.whatsapp.net")
+        super(GetStatusesIqProtocolEntity, self).__init__(self.__class__.XMLNS, _id, _type = "get", to = YowConstants.WHATSAPP_SERVER)
         self.setGetStatusesProps(jids)
 
     def setGetStatusesProps(self, jids):

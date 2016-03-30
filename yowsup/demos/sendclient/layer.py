@@ -1,5 +1,6 @@
 from yowsup.layers.interface                           import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.protocol_messages.protocolentities  import TextMessageProtocolEntity
+from yowsup.common.tools import Jid
 import threading
 import logging
 logger = logging.getLogger(__name__)
@@ -23,12 +24,7 @@ class SendLayer(YowInterfaceLayer):
         for target in self.getProp(self.__class__.PROP_MESSAGES, []):
             #getProp() is trying to retreive the list of (jid, message) tuples, if none exist, use the default []
             phone, message = target
-            if '@' in phone:
-                messageEntity = TextMessageProtocolEntity(message, to = phone)
-            elif '-' in phone:
-                messageEntity = TextMessageProtocolEntity(message, to = "%s@g.us" % phone)
-            else:
-                messageEntity = TextMessageProtocolEntity(message, to = "%s@s.whatsapp.net" % phone)
+            messageEntity = TextMessageProtocolEntity(message, to = Jid.normalize(phone))
             #append the id of message to ackQueue list
             #which the id of message will be deleted when ack is received.
             self.ackQueue.append(messageEntity.getId())
