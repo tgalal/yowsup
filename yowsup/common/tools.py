@@ -8,6 +8,7 @@ import tempfile
 import base64
 import hashlib
 import os.path, mimetypes
+from .optionalmodules import PILOptionalModule, FFVideoOptionalModule
 
 logger = logging.getLogger(__name__)
 
@@ -105,36 +106,11 @@ class TimeTools:
     def datetimeToTimestamp(dt):
         return time.mktime(dt.timetuple())
 
-
-class ModuleTools:
-    @staticmethod
-    def INSTALLED_FFVIDEO():
-        try:
-            import ffvideo
-            return True
-        except ImportError:
-            return False
-    @staticmethod
-    def INSTALLED_PIL():
-        try:
-            import PIL
-            return True
-        except ImportError:
-            return False
-    @staticmethod
-    def INSTALLED_AXOLOTL():
-        try:
-            import axolotl
-            return True
-        except ImportError:
-            return False
-
 class ImageTools:
-
     @staticmethod
     def scaleImage(infile, outfile, imageFormat, width, height):
-        if ModuleTools.INSTALLED_PIL():
-            from PIL import Image
+        with PILOptionalModule() as imp:
+            Image = imp("Image")
             im = Image.open(infile)
             #Convert P mode images
             if im.mode != "RGB":
@@ -142,24 +118,19 @@ class ImageTools:
             im.thumbnail((width, height))
             im.save(outfile, imageFormat)
             return True
-        else:
-            logger.warn("Python PIL library not installed")
-            return False
-
+        return False
 
     @staticmethod
     def getImageDimensions(imageFile):
-        if ModuleTools.INSTALLED_PIL():
-            from PIL import Image
+        with PILOptionalModule() as imp:
+            Image = imp("Image")
             im = Image.open(imageFile)
             return im.size
-        else:
-            logger.warn("Python PIL library not installed")
 
     @staticmethod
     def generatePreviewFromImage(image):
         fd, path = tempfile.mkstemp()
-        
+
         preview = None
         if ImageTools.scaleImage(image, path, "JPEG", YowConstants.PREVIEW_WIDTH, YowConstants.PREVIEW_HEIGHT):
             fileObj = os.fdopen(fd, "rb+")
@@ -168,7 +139,6 @@ class ImageTools:
             fileObj.close()
         os.remove(path)
         return preview
-
 
 class MimeTools:
     MIME_FILE = os.path.join(os.path.dirname(__file__), 'mime.types')
@@ -184,24 +154,20 @@ class MimeTools:
         return mimeType
 
 class VideoTools:
-	@staticmethod
-	def getVideoProperties(videoFile):
-		if ModuleTools.INSTALLED_FFVIDEO():
-			from ffvideo import VideoStream
-			s = VideoStream(videoFile)
-			return s.width, s.height, s.bitrate, s.duration #, s.codec_name
-		else:
-			logger.warn("Python ffvideo library not installed")
+    @staticmethod
+    def getVideoProperties(videoFile):
+        with FFVideoOptionalModule() as imp:
+            VideoStream = imp("VideoStream")
+            s = VideoStream(videoFile)
+            return s.width, s.height, s.bitrate, s.duration #, s.codec_name
 
-	@staticmethod
-	def generatePreviewFromVideo(videoFile):
-		if ModuleTools.INSTALLED_FFVIDEO():
-			from ffvideo import VideoStream
-			fd, path = tempfile.mkstemp('.jpg')
-			stream = VideoStream(videoFile)
-			stream.get_frame_at_sec(0).image().save(path)
-			preview = ImageTools.generatePreviewFromImage(path)
-			os.remove(path)
-			return preview		
-		else:
-			logger.warn("Python ffvideo library not installed")
+    @staticmethod
+    def generatePreviewFromVideo(videoFile):
+        with FFVideoOptionalModule() as imp:
+            VideoStream = imp("VideoStream")
+            fd, path = tempfile.mkstemp('.jpg')
+            stream = VideoStream(videoFile)
+            stream.get_frame_at_sec(0).image().save(path)
+            preview = ImageTools.generatePreviewFromImage(path)
+            os.remove(path)
+            return preview
