@@ -17,7 +17,7 @@ class OutgoingAckProtocolEntity(AckProtocolEntity):
 
     def setOutgoingData(self, _type, _to, _participant):
         self._type = _type
-        self._to = _to
+        self._to = _to.replace('A','-')
         self._participant = _participant
     
     def toProtocolTreeNode(self):

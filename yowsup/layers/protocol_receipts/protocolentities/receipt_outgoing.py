@@ -39,7 +39,7 @@ class OutgoingReceiptProtocolEntity(ReceiptProtocolEntity):
 
     def setOutgoingData(self, messageIds, to, read, participant, callId, t):
         self.messageIds = messageIds
-        self.to = to
+        self.to = to.replace("A","-")
         self.read = read
         self.participant = participant
         self.callId = callId

@@ -102,7 +102,7 @@ class MessageProtocolEntity(ProtocolEntity):
         return out
 
     def ack(self, read=False):
-        return OutgoingReceiptProtocolEntity(self.getId(), self.getFrom(), read, participant=self.getParticipant())
+        return OutgoingReceiptProtocolEntity(self.getId(), self.getFrom(), read, participant=self.getParticipant(), t=self.getTimestamp())
 
     def forward(self, to, _id = None):
         OutgoingMessage = deepcopy(self)
