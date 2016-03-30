@@ -1,3 +1,4 @@
+from yowsup.common import YowConstants
 from yowsup.structs import ProtocolTreeNode
 from yowsup.layers.protocol_iq.protocolentities import ResultIqProtocolEntity
 
@@ -13,7 +14,7 @@ class SuccessLeaveGroupsIqProtocolEntity(ResultIqProtocolEntity):
 
     def __init__(self, _id, groupId):
         super(SuccessLeaveGroupsIqProtocolEntity, self).\
-            __init__(_from="g.us", _id=_id)
+            __init__(_from=YowConstants.WHATSAPP_GROUP_SERVER, _id=_id)
         self.setProps(groupId)
 
     def setProps(self, groupId):

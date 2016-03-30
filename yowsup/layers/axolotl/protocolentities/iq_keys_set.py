@@ -1,9 +1,10 @@
+from yowsup.common import YowConstants
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 import os, time
 class SetKeysIqProtocolEntity(IqProtocolEntity):
     def __init__(self, identityKey, signedPreKey, preKeys, djbType, registrationId = None):
-        super(SetKeysIqProtocolEntity, self).__init__("encrypt", _type = "set", to = "s.whatsapp.net")
+        super(SetKeysIqProtocolEntity, self).__init__("encrypt", _type = "set", to = YowConstants.WHATSAPP_SERVER)
         self.setProps(identityKey, signedPreKey, preKeys, djbType, registrationId)
 
     def setProps(self, identityKey, signedPreKey, preKeys, djbType, registrationId = None):
