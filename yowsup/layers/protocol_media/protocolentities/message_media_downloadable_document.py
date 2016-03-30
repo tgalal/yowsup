@@ -49,7 +49,7 @@ class DocumentDownloadableMediaMessageProtocolEntity(DownloadableMediaMessagePro
         return self.title
 
     def toProtocolTreeNode(self):
-        node = super(ImageDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
+        node = super(DocumentDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
         mediaNode = node.getChild("media")
 
         mediaNode.setAttribute("title",  self.title)
@@ -58,7 +58,7 @@ class DocumentDownloadableMediaMessageProtocolEntity(DownloadableMediaMessagePro
         return node
 
     def toProtobufMessage(self):
-        document_message = ImageDocument()
+        document_message = DocumentMessage()
         document_message.url = self.url
         document_message.width = self.width
         document_message.height = self.height
