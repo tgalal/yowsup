@@ -152,7 +152,7 @@ class YowStack(object):
         self.__stackInstances[0].receive(data)
 
     def setCredentials(self, credentials):
-        self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(credentials)
+        self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(*credentials)
 
     def addLayer(self, layerClass):
         self.__stack.push(layerClass)
