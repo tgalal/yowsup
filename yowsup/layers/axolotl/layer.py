@@ -458,7 +458,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         messageNode["type"] = "media"
         mediaNode = ProtocolTreeNode("media", {
             "latitude": str(locationMessage.degrees_latitude),
-            "longitude": str(locationMessage.degress_longitude),
+            "longitude": str(locationMessage.degrees_longitude),
             "name": "%s %s" % (locationMessage.name, locationMessage.address),
             "url": locationMessage.url,
             "encoding": "raw",
