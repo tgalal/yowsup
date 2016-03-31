@@ -23,6 +23,22 @@ password=NDkxNTIyNTI1NjAyMkBzLndoYXRzYXBwLm5ldA==
 #######################################################
 """
 
+
+CR_TEXT = """yowsup-cli  v{cliVersion}
+yowsup      v{yowsupVersion}
+
+Copyright (c) 2012-2016 Tarek Galal
+http://www.openwhatsapp.org
+
+This software is provided free of charge. Copying and redistribution is
+encouraged.
+
+If you appreciate this software and you would like to support future
+development please consider donating:
+http://openwhatsapp.org/yowsup/donate
+
+"""
+
 logger = logging.getLogger("yowsup-cli")
 
 
@@ -77,6 +93,8 @@ class YowArgParser(argparse.ArgumentParser):
             sys.exit(0)
 
 
+    def printInfoText(self):
+        print(CR_TEXT.format(cliVersion=__version__, yowsupVersion=yowsup.__version__))
 
 class RegistrationArgParser(YowArgParser):
     def __init__(self, *args, **kwargs):
@@ -117,7 +135,6 @@ class RegistrationArgParser(YowArgParser):
         configGroup.add_argument("-C", '--cc',
                                  action = "store",
                                  help = "Country code. See http://www.ipipi.com/networkList.do. This is now required")
-
 
         # configGroup.add_argument("-i", '--id',
         #                          action="store",
@@ -179,6 +196,7 @@ class RegistrationArgParser(YowArgParser):
 
     def handleRequestCode(self, method, config):
         from yowsup.registration import WACodeRequest
+        self.printInfoText()
         codeReq = WACodeRequest(config["cc"],
                                 config["phone"],
                                 config["mcc"],
@@ -192,6 +210,7 @@ class RegistrationArgParser(YowArgParser):
 
     def handleRegister(self, code, config):
         from yowsup.registration import WARegRequest
+        self.printInfoText()
         code = code.replace('-', '')
         req = WARegRequest(config["cc"], config["phone"], code)
         result = req.send()
@@ -273,6 +292,7 @@ class DemosArgParser(YowArgParser):
         if not credentials:
             print("Error: You must specify a configuration method")
             sys.exit(1)
+        self.printInfoText()
         stack = cli.YowsupCliStack(credentials, not self.args["unmoxie"])
         stack.start()
 
@@ -283,6 +303,7 @@ class DemosArgParser(YowArgParser):
             print("Error: You must specify a configuration method")
             sys.exit(1)
         try:
+            self.printInfoText()
             stack = echoclient.YowsupEchoStack(credentials, not self.args["unmoxie"])
             stack.start()
         except KeyboardInterrupt:
@@ -297,6 +318,7 @@ class DemosArgParser(YowArgParser):
             sys.exit(1)
 
         try:
+            self.printInfoText()
             stack = sendclient.YowsupSendStack(credentials, [([self.args["send"][0], self.args["send"][1]])],
                                                not self.args["unmoxie"])
             stack.start()
@@ -311,6 +333,7 @@ class DemosArgParser(YowArgParser):
             print("Error: You must specify a configuration method")
             sys.exit(1)
         try:
+            self.printInfoText()
             stack = contacts.YowsupSyncStack(credentials,self.args["sync"].split(','), not self.args["unmoxie"])
             stack.start()
         except KeyboardInterrupt:
