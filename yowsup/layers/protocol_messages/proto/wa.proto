@@ -1,0 +1,85 @@
+package com.whatsapp.proto;
+
+message Message {
+  optional string conversation                   = 1;
+  optional SenderKeyDistributionMessage sender_key_distribution_message   = 2;
+  optional ImageMessage image_message            = 3;
+  optional ContactMessage contact_message        = 4;
+  optional LocationMessage location_message      = 5;
+  optional DocumentMessage document_message      = 7;
+  optional UrlMessage url_message                = 6;
+  optional AudioMessage audio_message            = 8;
+  optional VideoMessage video_message            = 9;
+}
+
+message SenderKeyDistributionMessage {
+  required string groupId = 1;
+  required bytes axolotl_sender_key_distribution_message = 2;
+}
+
+message ImageMessage {
+  required bytes url             =  1;
+  required string mime_type      =  2;
+  required string caption        =  3;
+  required bytes file_sha256     =  4;
+  required uint64 file_length    =  5;
+  required uint32 height         =  6;
+  required uint32 width          =  7;
+  required bytes media_key       =  8;
+  required bytes jpeg_thumbnail  = 16;
+}
+
+message VideoMessage {
+  required bytes url             =  1;
+  required string mime_type      =  2;
+  required bytes file_sha256     =  3;
+  required uint64 file_length    =  4;
+  required uint64 duration       =  5;
+  required bytes media_key       =  6;
+  required string caption        =  7;
+  required bytes jpeg_thumbnail  = 16;
+}
+
+message AudioMessage {
+  required bytes url             =  1;
+  required string mime_type      =  2;
+  required bytes file_sha256     =  3;
+  required uint64 file_length    =  4;
+  required uint64 duration       =  5;
+  required uint32 unk            =  6;
+  required bytes media_key       =  7;
+}
+
+message LocationMessage {
+  required double degrees_latitude   =  1;
+  required double degrees_longitude  =  2;
+  required string name               =  3;
+  required string address            =  4;
+  required string url                =  5;
+  required bytes  jpeg_thumbnail     = 16;
+}
+
+message DocumentMessage {
+  required string url            =  1;
+  required string mime_type      =  2;
+  required string title          =  3;
+  required bytes file_sha256     =  4;
+  required uint64 file_length    =  5;
+  required uint32 page_count     =  6;
+  required bytes media_key       =  7;
+  required bytes jpeg_thumbnail  = 16;
+}
+
+message UrlMessage {
+  required string text           =  1;
+  required string matched_text   =  2;
+  required string canonical_url  =  4;
+  required string description    =  5;
+  required string title          =  6;
+  required bytes jpeg_thumbnail  = 16;
+}
+
+message ContactMessage {
+  required string display_name   =  1;
+  required bytes vcard           = 16;
+}

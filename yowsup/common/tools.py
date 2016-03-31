@@ -7,8 +7,18 @@ import logging
 import tempfile
 import base64
 import hashlib
+import os.path, mimetypes
 
 logger = logging.getLogger(__name__)
+
+class Jid:
+    @staticmethod
+    def normalize(number):
+        if '@' in number:
+            return number
+        elif "-" in number:
+            return "%s@%s" % (number, YowConstants.WHATSAPP_GROUP_SERVER)
+        return "%s@%s" % (number, YowConstants.WHATSAPP_SERVER)
 
 class HexTools:
     decode_hex = codecs.getdecoder("hex_codec")
@@ -107,6 +117,13 @@ class TimeTools:
 
 class ModuleTools:
     @staticmethod
+    def INSTALLED_FFVIDEO():
+        try:
+            import ffvideo
+            return True
+        except ImportError:
+            return False
+    @staticmethod
     def INSTALLED_PIL():
         try:
             import PIL
@@ -158,4 +175,50 @@ class ImageTools:
             fileObj.seek(0)
             preview = fileObj.read()
             fileObj.close()
+        os.remove(path)
         return preview
+
+class MimeTools:
+    MIME_FILE = os.path.join(os.path.dirname(__file__), 'mime.types')
+    mimetypes.init() # Load default mime.types
+    mimetypes.init([MIME_FILE]) # Append whatsapp mime.types
+    decode_hex = codecs.getdecoder("hex_codec")
+
+    @staticmethod
+    def getMIME(filepath):
+        mimeType = mimetypes.guess_type(filepath)[0]
+        if mimeType is None:
+            raise Exception("Unsupported/unrecognized file type for: "+filepath);
+        return mimeType
+
+    @staticmethod
+    def getExtension(mimetype):
+        ext = mimetypes.guess_extension(mimetype)
+        if ext is None:
+            raise Exception("Unsupported/unrecognized mimetype: "+mimetype);
+        return ext
+
+
+class VideoTools:
+	
+	@staticmethod
+	def getVideoProperties(videoFile):
+		if ModuleTools.INSTALLED_FFVIDEO():
+			from ffvideo import VideoStream
+			s = VideoStream(videoFile)
+			return s.width, s.height, s.bitrate, s.duration #, s.codec_name
+		else:
+			logger.warn("Python ffvideo library not installed")
+
+	@staticmethod
+	def generatePreviewFromVideo(videoFile):
+		if ModuleTools.INSTALLED_FFVIDEO():
+			from ffvideo import VideoStream
+			fd, path = tempfile.mkstemp('.jpg')
+			stream = VideoStream(videoFile)
+			stream.get_frame_at_sec(0).image().save(path)
+			preview = ImageTools.generatePreviewFromImage(path)
+			os.remove(path)
+			return preview		
+		else:
+			logger.warn("Python ffvideo library not installed")

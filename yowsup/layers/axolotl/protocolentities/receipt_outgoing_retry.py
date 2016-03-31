@@ -4,7 +4,7 @@ from yowsup.layers.axolotl.protocolentities.iq_keys_get_result import ResultGetK
 class RetryOutgoingReceiptProtocolEntity(OutgoingReceiptProtocolEntity):
 
     '''
-    <receipt type="retry" to="xxxxxxxxxxx@s.whatsapp.net" id="1415389947-12" t="1432833777">
+    <receipt type="retry" to="xxxxxxxxxxx@s.whatsapp.net" participant="" id="1415389947-12" t="1432833777">
         <retry count="1" t="1432833266" id="1415389947-12" v="1">
         </retry>
         <registration>
@@ -14,8 +14,8 @@ class RetryOutgoingReceiptProtocolEntity(OutgoingReceiptProtocolEntity):
 
     '''
 
-    def __init__(self, _id, to, t, v = "1", count = "1",regData = ""):
-        super(RetryOutgoingReceiptProtocolEntity, self).__init__(_id,to)
+    def __init__(self, _id, to, t, v = "1", count = "1",regData = "", participant = None):
+        super(RetryOutgoingReceiptProtocolEntity, self).__init__(_id,to, participant=participant)
         self.setRetryData(t,v,count,regData)
 
     def setRetryData(self, t,v,count,regData):
@@ -53,10 +53,11 @@ class RetryOutgoingReceiptProtocolEntity(OutgoingReceiptProtocolEntity):
 
 
     @staticmethod
-    def fromMesageNode(MessageNodeToBeRetried):
+    def fromMessageNode(MessageNodeToBeRetried, desiredEncryptionVersion = "1"):
         return RetryOutgoingReceiptProtocolEntity(
             MessageNodeToBeRetried.getAttributeValue("id"),
             MessageNodeToBeRetried.getAttributeValue("from"),
             MessageNodeToBeRetried.getAttributeValue("t"),
-            MessageNodeToBeRetried.getChild("enc").getAttributeValue("v")
+            desiredEncryptionVersion,
+            participant=MessageNodeToBeRetried.getAttributeValue("participant")
         )

@@ -2,33 +2,33 @@ from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
 class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
     '''
-    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
+    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}"
         offline="{{OFFLINE}}" type="text" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
         <media type="{{DOWNLOADABLE_MEDIA_TYPE: (image | audio | video)}}"
-            mimetype="{{MIME_TYPE}}" 
+            mimetype="{{MIME_TYPE}}"
             filehash="{{FILE_HASH}}"
-            url="{{DOWNLOAD_URL}}" 
+            url="{{DOWNLOAD_URL}}"
             ip="{{IP}}"
             size="{{MEDIA SIZE}}"
-            file="{{FILENAME}}" 
+            file="{{FILENAME}}"
 
 
-            encoding="{{ENCODING}}" 
-            height="{{IMAGE_HEIGHT}}" 
+            encoding="{{ENCODING}}"
+            height="{{IMAGE_HEIGHT}}"
             width="{{IMAGE_WIDTH}}"
-            
+
             > {{THUMBNAIL_RAWDATA (JPEG?)}}
         </media>
     </message>
     '''
     def __init__(self,
-            mimeType, fileHash, url, ip, size, fileName, 
-            abitrate, acodec, asampfreq, duration, encoding, origin, seconds,
-            _id = None, _from = None, to = None, notify = None, timestamp = None, 
+            mimeType, fileHash, url, ip, size, fileName,
+            abitrate, acodec, asampfreq, duration, encoding, origin, seconds, mediaKey = None,
+            _id = None, _from = None, to = None, notify = None, timestamp = None,
             participant = None, preview = None, offline = None, retry = None):
 
         super(AudioDownloadableMediaMessageProtocolEntity, self).__init__("audio",
-            mimeType, fileHash, url, ip, size, fileName,
+            mimeType, fileHash, url, ip, size, fileName, MediaKey, None,
             _id, _from, to, notify, timestamp, participant, preview, offline, retry)
         self.setAudioProps(abitrate, acodec, asampfreq, duration, encoding, origin, seconds)
 
@@ -51,6 +51,7 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         self.encoding  = encoding
         self.origin    = origin
         self.seconds   = seconds
+        self.cryptKeys = '576861747341707020417564696f204b657973'
 
     def toProtocolTreeNode(self):
         node = super(AudioDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
