@@ -50,6 +50,8 @@ class ProtocolTreeNode(object):
         out = "<"+self.tag
         if self.attributes is not None:
             for key,val in self.attributes.items():
+                if val is None:
+                    raise Exception("None val for key: "+key);
                 out+= " "+key+'="'+val+'"'
         out+= ">\n"
 

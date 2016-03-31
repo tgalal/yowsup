@@ -3,8 +3,12 @@ from __future__ import print_function
 from setuptools import setup, find_packages
 import yowsup
 import platform
+import sys
 
-deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.7', 'pillow']
+deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.7']
+
+if sys.version_info < (2,7):
+    deps += ['importlib']
 
 if platform.system().lower() == "windows":
     deps.append('pyreadline')

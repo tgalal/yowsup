@@ -1,6 +1,6 @@
 from .message_media import MediaMessageProtocolEntity
 from yowsup.common.tools import WATools
-import mimetypes
+from yowsup.common.tools import MimeTools
 import os
 class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     '''
@@ -83,7 +83,7 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
 
     @staticmethod
     def fromFilePath(fpath, url, mediaType, ip, to, mimeType = None, preview = None, filehash = None, filesize = None):
-        mimeType = mimeType or mimetypes.guess_type(fpath)[0]
+        mimeType = mimeType or MimeTools.getMIME(fpath)
         filehash = filehash or WATools.getFileHashForUpload(fpath)
         size = filesize or os.path.getsize(fpath)
         fileName = os.path.basename(fpath)
