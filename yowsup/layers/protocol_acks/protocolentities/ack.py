@@ -8,7 +8,7 @@ class AckProtocolEntity(ProtocolEntity):
 
     def __init__(self, _id, _class):
         super(AckProtocolEntity, self).__init__("ack")
-        self._id = _id.replace("A","-") if len(_id) == 10 else _id
+        self._id = _id
         self._class = _class
 
     def getId(self):

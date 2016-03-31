@@ -14,7 +14,7 @@ class ReceiptProtocolEntity(ProtocolEntity):
 
     def __init__(self, _id):
         super(ReceiptProtocolEntity, self).__init__("receipt")
-        self._id = _id.replace("A","-") if len(_id) == 10 else _id
+        self._id = _id
 
     def getId(self):
         return self._id
