@@ -369,6 +369,17 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             outgoingMessage = TextMessageProtocolEntity(content.encode("utf-8") if sys.version_info >= (3,0) else content, to = self.aliasToJid(number))
             self.toLower(outgoingMessage)
 
+    @clicmd("Send file content to a friend")
+    def message_file(self, number, filename):
+        if self.assertConnected():
+                import os
+                if not os.path.isfile(filename):
+                    self.output("{} is not a valid filename".format(filename))
+                else:
+                    content = open(filename).read()
+                    outgoingMessage = TextMessageProtocolEntity(content.encode("utf-8") if sys.version_info >= (3,0) else content, to = self.aliasToJid(number))
+                    self.toLower(outgoingMessage)
+
     @clicmd("Broadcast message. numbers should comma separated phone numbers")
     def message_broadcast(self, numbers, content):
         if self.assertConnected():
