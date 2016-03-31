@@ -1,8 +1,7 @@
 import urllib,sys, os, logging
 import hashlib
 from .waresponseparser import ResponseParser
-from yowsup.env import AndroidYowsupEnv
-CURRENT_ENV = AndroidYowsupEnv()
+from yowsup.env import YowsupEnv
 
 if sys.version_info < (3, 0):
     import httplib
@@ -36,8 +35,6 @@ class WARequest(object):
         self.sent = False
         self.response = None
 
-
-
     def setParsableVariables(self, pvars):
         self.pvars = pvars
 
@@ -63,7 +60,7 @@ class WARequest(object):
         self.params = []
 
     def getUserAgent(self):
-        return CURRENT_ENV.getUserAgent()
+        return YowsupEnv.getCurrent().getUserAgent()
 
     def send(self, parser = None):
 
