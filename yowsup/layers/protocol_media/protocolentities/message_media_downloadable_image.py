@@ -50,6 +50,7 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         self.width      = int(width)
         self.height     = int(height)
         self.caption    = caption
+        self.cryptKeys  = '576861747341707020496d616765204b657973'
 
     def getCaption(self):
         return self.caption

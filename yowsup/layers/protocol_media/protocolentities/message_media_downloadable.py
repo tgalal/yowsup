@@ -38,16 +38,16 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     def __str__(self):
         out  = super(DownloadableMediaMessageProtocolEntity, self).__str__()
         out += "MimeType: %s\n" % self.mimeType
-        out += "File Hash: %s\n" % self.fileHash
+        out += "File Hash: %s\n" % base64.b64encode(self.fileHash)
         out += "URL: %s\n" % self.url
         out += "IP: %s\n" % self.ip
         out += "File Size: %s\n" % self.size
         out += "File name: %s\n" % self.fileName
-        out += "File %s encrypted\n" % "is" if self.refkey else "is NOT"
+        out += "File %s encrypted\n" % "is" if self.isEncrypted() else "is NOT"
         return out
 
     def decrypt(self, encimg, refkey):
-        derivative = HKDFv3().deriveSecrets(refkey, binascii.unhexlify('576861747341707020496d616765204b657973'), 112)
+        derivative = HKDFv3().deriveSecrets(refkey, binascii.unhexlify(self.cryptKeys), 112)
         parts = ByteUtil.split(derivative, 16, 32)
         iv = parts[0]
         cipherKey = parts[1]
@@ -56,9 +56,12 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         cr_obj = AES.new(key=cipherKey,mode=AES.MODE_CBC,IV=iv)
         return cr_obj.decrypt(e_img)
 
+    def isEncrypted(self):
+        return self.cryptKeys and self.mediaKey
+
     def getMediaContent(self):
         data = urlopen(self.url).read()
-        if self.mediaKey:
+        if self.isEncrypted():
             data = self.decrypt(data, self.mediaKey)
         return bytearray(data)
 
@@ -82,6 +85,7 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         self.size       = int(size)
         self.fileName   = fileName
         self.mediaKey   = mediaKey
+        self.cryptKeys  = None
 
     def toProtocolTreeNode(self):
         node = super(DownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()

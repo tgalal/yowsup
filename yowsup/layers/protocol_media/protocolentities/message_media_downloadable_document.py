@@ -44,6 +44,7 @@ class DocumentDownloadableMediaMessageProtocolEntity(DownloadableMediaMessagePro
     def setDocumentProps(self, title, pages):
         self.pages      = int(pages)
         self.title      = title
+        self.cryptKeys  = '576861747341707020446f63756d656e74204b657973'
 
     def getTitle(self):
         return self.title
