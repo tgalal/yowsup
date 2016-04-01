@@ -100,7 +100,7 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
         return out
 
     def ack(self):
-        return OutgoingAckProtocolEntity(self.getId(), "receipt", self.getType(), self.getFrom())
+        return OutgoingAckProtocolEntity(self.getId(), "receipt", self.getType(), self.getFrom(), participant = self.participant)
 
     @staticmethod
     def fromProtocolTreeNode(node):
