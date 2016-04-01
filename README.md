@@ -2,8 +2,8 @@
 
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z9KKEUVYEY6BN" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
 
-## Updates (March 31, 2016)
-Yowsup v2.4.97 is out, See [release notes](https://github.com/tgalal/yowsup/releases/tag/v2.4.97)
+## Updates (April 1, 2016)
+Yowsup v2.4.102 is out, See [release notes](https://github.com/tgalal/yowsup/releases/tag/v2.4.102)
 
 ==========================================================
 
