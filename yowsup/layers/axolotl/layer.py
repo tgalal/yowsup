@@ -189,7 +189,10 @@ class YowAxolotlLayer(YowProtocolLayer):
                 padded = bytearray()
                 padded.append(ord("\n"))
                 padded.extend(self.encodeInt7bit(len(plaintext)))
-                padded.extend(plaintext)
+                if isinstance(plaintext, str):
+                    padded.extend(plaintext.encode())
+                else:
+                    padded.extend(plaintext)
                 padded.append(ord("\x01"))
                 plaintext = padded
             else:
