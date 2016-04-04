@@ -1,4 +1,5 @@
-from yowsup.layers import YowProtocolLayer, YowLayerEvent, EventCallback
+from yowsup.layers import YowProtocolLayer, YowLayerEvent
+from yowsup.layers.axolotl import encrypted_media_pb2
 from .protocolentities import SetKeysIqProtocolEntity
 from axolotl.util.keyhelper import KeyHelper
 from .store.sqlite.liteaxolotlstore import LiteAxolotlStore
@@ -25,8 +26,10 @@ from axolotl.nosessionexception import NoSessionException
 from axolotl.untrustedidentityexception import UntrustedIdentityException
 from .protocolentities.receipt_outgoing_retry import RetryOutgoingReceiptProtocolEntity
 from yowsup.common import YowConstants
-import binascii
-import sys
+
+# import encrypted_media_pb2
+
+import base64, binascii
 
 import logging
 logger = logging.getLogger(__name__)
@@ -82,32 +85,26 @@ class YowAxolotlLayer(YowProtocolLayer):
         return self.state == self.__class__._STATE_GENKEYS
     ########
 
-
-    @EventCallback(EVENT_PREKEYS_SET)
-    def onPreKeysSet(self, yowLayerEvent):
-        self.sendKeys(fresh=False)
-        
-    @EventCallback(YowNetworkLayer.EVENT_STATE_CONNECTED)
-    def onConnected(self, yowLayerEvent):
-        if self.isInitState():
-            self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
-    
-    @EventCallback(YowAuthenticationProtocolLayer.EVENT_AUTHED)
-    def onAuthed(self, yowLayerEvent):
-        if yowLayerEvent.getArg("passive") and self.isInitState():
-            logger.info("Axolotl layer is generating keys")
-            self.sendKeys()
-        
-    @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
-    def onDisconnected(self, yowLayerEvent):
-        if self.isGenKeysState():
-            #we requested this disconnect in this layer to switch off passive
-            #no need to traverse it to upper layers?
-            self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, False)
-            self.state = self.__class__._STATE_HASKEYS
-            self.getLayerInterface(YowNetworkLayer).connect()
-        else:
-            self.store = None
+    ### standard layer methods ###
+    def onEvent(self, yowLayerEvent):
+        if yowLayerEvent.getName() == self.__class__.EVENT_PREKEYS_SET:
+            self.sendKeys(fresh=False)
+        elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
+            if self.isInitState():
+                self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
+        elif yowLayerEvent.getName() == YowAuthenticationProtocolLayer.EVENT_AUTHED:
+            if yowLayerEvent.getArg("passive") and self.isInitState():
+                logger.info("Axolotl layer is generating keys")
+                self.sendKeys()
+        elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
+            if self.isGenKeysState():
+                #we requested this disconnect in this layer to switch off passive
+                #no need to traverse it to upper layers?
+                self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, False)
+                self.state = self.__class__._STATE_HASKEYS
+                self.getLayerInterface(YowNetworkLayer).connect()
+            else:
+                self.store = None
 
     def send(self, node):
         if node.tag == "message" and node["type"] == "text" and node["to"] not in self.skipEncJids and not YowConstants.WHATSAPP_GROUP_SERVER in node["to"]:
@@ -120,7 +117,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         :type protocolTreeNode: ProtocolTreeNode
         """
         if not self.processIqRegistry(protocolTreeNode):
-            if protocolTreeNode.tag == "message":
+            if protocolTreeNode.tag == "message" or protocolTreeNode.tag == "media":
                 self.onMessage(protocolTreeNode)
                 return
             elif protocolTreeNode.tag == "notification" and protocolTreeNode["type"] == "encrypt":
@@ -189,10 +186,7 @@ class YowAxolotlLayer(YowProtocolLayer):
                 padded = bytearray()
                 padded.append(ord("\n"))
                 padded.extend(self.encodeInt7bit(len(plaintext)))
-                if isinstance(plaintext, str):
-                    padded.extend(plaintext.encode())
-                else:
-                    padded.extend(plaintext)
+                padded.extend(plaintext)
                 padded.append(ord("\x01"))
                 plaintext = padded
             else:
@@ -223,15 +217,91 @@ class YowAxolotlLayer(YowProtocolLayer):
 
         return out
 
+    def appendPlainNode(self, node, plaintext):
+            if node.getAttributeValue("type") == 'text':
+                bodyNode = ProtocolTreeNode("body", data = plaintext)
+
+            elif node.getAttributeValue("type") == 'media':
+
+                # decode schema from encrypted message
+                if node.getChild("enc").getAttributeValue("mediatype") == 'image':
+                    media = encrypted_media_pb2.MediaImage()
+                    media.ParseFromString(plaintext)
+                    bodyNode = ProtocolTreeNode("media", data = media.preview)
+                    bodyNode.setAttribute("type", node.getChild("enc").getAttributeValue("mediatype"))
+                    bodyNode.setAttribute("size", str(media.length))
+                    bodyNode.setAttribute("width", str(media.width))
+                    bodyNode.setAttribute("height", str(media.height))
+                    bodyNode.setAttribute("encoding", "unknown")
+                    bodyNode.setAttribute("caption", media.caption)
+                    bodyNode.setAttribute("mimetype", media.mimetype)
+                    bodyNode.setAttribute("filehash", base64.b64encode(media.sha256))
+                    bodyNode.setAttribute("url", media.url)
+                    bodyNode.setAttribute("file", "unknown")
+                    bodyNode.setAttribute("refkey", base64.b64encode(media.refkey))
+
+                elif node.getChild("enc").getAttributeValue("mediatype") == 'document':
+                    media = encrypted_media_pb2.MediaDocument()
+                    media.ParseFromString(plaintext)
+                    bodyNode = ProtocolTreeNode("media", data = media.preview)
+                    bodyNode.setAttribute("type", node.getChild("enc").getAttributeValue("mediatype"))
+                    bodyNode.setAttribute("url", media.url)
+                    bodyNode.setAttribute("mimetype", media.mimetype)
+                    bodyNode.setAttribute("filehash", base64.b64encode(media.sha256))
+                    bodyNode.setAttribute("name", media.name)
+                    bodyNode.setAttribute("size", str(media.length))
+                    bodyNode.setAttribute("refkey", base64.b64encode(media.refkey))
+                    bodyNode.setAttribute("file", media.filename)
+
+                elif node.getChild("enc").getAttributeValue("mediatype") == 'location':
+                    media = encrypted_media_pb2.MediaLocation()
+                    media.ParseFromString(plaintext)
+                    bodyNode = ProtocolTreeNode("media", data = media.preview)
+                    bodyNode.setAttribute("type", node.getChild("enc").getAttributeValue("mediatype"))
+                    bodyNode.setAttribute("latitude", str(media.latitude))
+                    bodyNode.setAttribute("longitude", str(media.longitude))
+                    bodyNode.setAttribute("name", media.name)
+                    bodyNode.setAttribute("url", media.url)
+                    bodyNode.setAttribute("encoding","unknown")
+                    bodyNode.setAttribute("description", media.description)
+
+                elif node.getChild("enc").getAttributeValue("mediatype") == 'contact':
+                    media = encrypted_media_pb2.MediaContact()
+                    media.ParseFromString(plaintext)
+                    bodyNode = ProtocolTreeNode("media", data = media.data)
+                    bodyNode.setAttribute("type", node.getChild("enc").getAttributeValue("mediatype"))
+                    bodyNode.setAttribute("name", media.name)
+
+                elif node.getChild("enc").getAttributeValue("mediatype") == 'url':
+                    media = encrypted_media_pb2.MediaUrl()
+                    media.ParseFromString(plaintext)
+                    bodyNode = ProtocolTreeNode("media", data = media.preview)
+                    bodyNode.setAttribute("type", node.getChild("enc").getAttributeValue("mediatype"))
+                    bodyNode.setAttribute("message", media.message)
+                    bodyNode.setAttribute("url", media.url)
+                    bodyNode.setAttribute("description", media.description)
+                    bodyNode.setAttribute("title", media.title)
+
+                else:
+                    raise "Unmanaged media type"
+
+            else:
+                raise "Unmanaged data type"
+            logger.debug(bodyNode)
+            node.addChild(bodyNode)
+
     def handleEncMessage(self, node):
         try:
             if node.getChild("enc")["v"] == "2" and node["from"] not in self.v2Jids:
                 self.v2Jids.append(node["from"])
 
             if node.getChild("enc")["type"] == "pkmsg":
-                self.handlePreKeyWhisperMessage(node)
+                plaintext = self.handlePreKeyWhisperMessage(node)
             else:
-                self.handleWhisperMessage(node)
+                plaintext = self.handleWhisperMessage(node)
+
+            self.appendPlainNode(node, plaintext)
+            self.toUpper(node)
         except InvalidMessageException as e:
             # logger.error("Invalid message from %s!! Your axololtl database data might be inconsistent with WhatsApp, or with what that contact has" % node["from"])
             # sys.exit(1)
@@ -271,10 +341,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         if pkMessageProtocolEntity.getVersion() == 2:
             plaintext = self.unpadV2Plaintext(plaintext)
 
-
-        bodyNode = ProtocolTreeNode("body", data = plaintext)
-        node.addChild(bodyNode)
-        self.toUpper(node)
+        return plaintext
 
     def handleWhisperMessage(self, node):
         encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
@@ -286,6 +353,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         if encMessageProtocolEntity.getVersion() == 2:
             plaintext = self.unpadV2Plaintext(plaintext)
 
+        return plaintext
         bodyNode = ProtocolTreeNode("body", data = plaintext)
         node.addChild(bodyNode)
         self.toUpper(node)
