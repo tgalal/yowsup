@@ -1,4 +1,4 @@
-from yowsup.layers import YowProtocolLayer, YowLayerEvent
+from yowsup.layers import YowProtocolLayer, YowLayerEvent, EventCallback
 from .protocolentities import SetKeysIqProtocolEntity
 from axolotl.util.keyhelper import KeyHelper
 from .store.sqlite.liteaxolotlstore import LiteAxolotlStore
@@ -82,26 +82,32 @@ class YowAxolotlLayer(YowProtocolLayer):
         return self.state == self.__class__._STATE_GENKEYS
     ########
 
-    ### standard layer methods ###
-    def onEvent(self, yowLayerEvent):
-        if yowLayerEvent.getName() == self.__class__.EVENT_PREKEYS_SET:
-            self.sendKeys(fresh=False)
-        elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
-            if self.isInitState():
-                self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
-        elif yowLayerEvent.getName() == YowAuthenticationProtocolLayer.EVENT_AUTHED:
-            if yowLayerEvent.getArg("passive") and self.isInitState():
-                logger.info("Axolotl layer is generating keys")
-                self.sendKeys()
-        elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
-            if self.isGenKeysState():
-                #we requested this disconnect in this layer to switch off passive
-                #no need to traverse it to upper layers?
-                self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, False)
-                self.state = self.__class__._STATE_HASKEYS
-                self.getLayerInterface(YowNetworkLayer).connect()
-            else:
-                self.store = None
+
+    @EventCallback(EVENT_PREKEYS_SET)
+    def onPreKeysSet(self, yowLayerEvent):
+        self.sendKeys(fresh=False)
+        
+    @EventCallback(YowNetworkLayer.EVENT_STATE_CONNECTED)
+    def onConnected(self, yowLayerEvent):
+        if self.isInitState():
+            self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
+    
+    @EventCallback(YowAuthenticationProtocolLayer.EVENT_AUTHED)
+    def onAuthed(self, yowLayerEvent):
+        if yowLayerEvent.getArg("passive") and self.isInitState():
+            logger.info("Axolotl layer is generating keys")
+            self.sendKeys()
+        
+    @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
+    def onDisconnected(self, yowLayerEvent):
+        if self.isGenKeysState():
+            #we requested this disconnect in this layer to switch off passive
+            #no need to traverse it to upper layers?
+            self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, False)
+            self.state = self.__class__._STATE_HASKEYS
+            self.getLayerInterface(YowNetworkLayer).connect()
+        else:
+            self.store = None
 
     def send(self, node):
         if node.tag == "message" and node["type"] == "text" and node["to"] not in self.skipEncJids and not YowConstants.WHATSAPP_GROUP_SERVER in node["to"]:

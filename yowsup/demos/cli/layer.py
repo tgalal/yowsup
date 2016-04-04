@@ -1,7 +1,7 @@
 from .cli import Cli, clicmd
 from yowsup.layers.interface import YowInterfaceLayer, ProtocolEntityCallback
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
-from yowsup.layers import YowLayerEvent
+from yowsup.layers import YowLayerEvent, EventCallback
 from yowsup.layers.network import YowNetworkLayer
 import sys
 from yowsup.common import YowConstants
@@ -21,7 +21,8 @@ from yowsup.layers.protocol_privacy.protocolentities     import *
 from yowsup.layers.protocol_media.protocolentities       import *
 from yowsup.layers.protocol_media.mediauploader import MediaUploader
 from yowsup.layers.protocol_profiles.protocolentities    import *
-from yowsup.common.tools import ModuleTools, Jid
+from yowsup.common.tools import Jid
+from yowsup.common.optionalmodules import PILOptionalModule, AxolotlOptionalModule
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,9 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     EVENT_SENDANDEXIT       = "org.openwhatsapp.yowsup.event.cli.sendandexit"
 
     MESSAGE_FORMAT          = "[{FROM}({TIME})]:[{MESSAGE_ID}]\t {MESSAGE}"
+
+    FAIL_OPT_PILLOW         = "No PIL library installed, try install pillow"
+    FAIL_OPT_AXOLOTL        = "axolotl is not installed, try install python-axolotl"
 
     DISCONNECT_ACTION_PROMPT = 0
     DISCONNECT_ACTION_EXIT   = 1
@@ -74,24 +78,28 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def setCredentials(self, username, password):
         self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(username, password)
 
-    def onEvent(self, layerEvent):
-        if layerEvent.getName() == self.__class__.EVENT_START:
-            self.startInput()
-            return True
-        elif layerEvent.getName() == self.__class__.EVENT_SENDANDEXIT:
-            credentials = layerEvent.getArg("credentials")
-            target = layerEvent.getArg("target")
-            message = layerEvent.getArg("message")
-            self.sendMessageAndDisconnect(credentials, target, message)
 
-            return True
-        elif layerEvent.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
-            self.output("Disconnected: %s" % layerEvent.getArg("reason"))
-            if self.disconnectAction == self.__class__.DISCONNECT_ACTION_PROMPT:
-                self.connected = False
-                self.notifyInputThread()
-            else:
-                os._exit(os.EX_OK)
+    @EventCallback(EVENT_START)
+    def onStart(self, layerEvent):
+        self.startInput()
+        return True
+
+    @EventCallback(EVENT_SENDANDEXIT)
+    def onSendAndExit(self, layerEvent):
+        credentials = layerEvent.getArg("credentials")
+        target = layerEvent.getArg("target")
+        message = layerEvent.getArg("message")
+        self.sendMessageAndDisconnect(credentials, target, message)
+        return True
+
+    @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
+    def onStateDisconnected(self,layerEvent):
+        self.output("Disconnected: %s" % layerEvent.getArg("reason"))
+        if self.disconnectAction == self.__class__.DISCONNECT_ACTION_PROMPT:
+           self.connected = False
+           self.notifyInputThread()
+        else:
+           os._exit(os.EX_OK)
 
     def assertConnected(self):
         if self.connected:
@@ -197,24 +205,22 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @clicmd("Set profile picture")
     def profile_setPicture(self, path):
-        if self.assertConnected() and ModuleTools.INSTALLED_PIL():
+        if self.assertConnected():
+            with PILOptionalModule(failMessage = "No PIL library installed, try install pillow") as imp:
+                Image = imp("Image")
+                def onSuccess(resultIqEntity, originalIqEntity):
+                    self.output("Profile picture updated successfully")
 
-            def onSuccess(resultIqEntity, originalIqEntity):
-                self.output("Profile picture updated successfully")
+                def onError(errorIqEntity, originalIqEntity):
+                    logger.error("Error updating profile picture")
 
-            def onError(errorIqEntity, originalIqEntity):
-                logger.error("Error updating profile picture")
-
-            #example by @aesedepece in https://github.com/tgalal/yowsup/pull/781
-            #modified to support python3
-            from PIL import Image
-            src = Image.open(path)
-            pictureData = src.resize((640, 640)).tobytes("jpeg", "RGB")
-            picturePreview = src.resize((96, 96)).tobytes("jpeg", "RGB")
-            iq = SetPictureIqProtocolEntity(self.getOwnJid(), picturePreview, pictureData)
-            self._sendIq(iq, onSuccess, onError)
-        else:
-            logger.error("Python PIL library is not installed, can't set profile picture")
+                #example by @aesedepece in https://github.com/tgalal/yowsup/pull/781
+                #modified to support python3
+                src = Image.open(path)
+                pictureData = src.resize((640, 640)).tobytes("jpeg", "RGB")
+                picturePreview = src.resize((96, 96)).tobytes("jpeg", "RGB")
+                iq = SetPictureIqProtocolEntity(self.getOwnJid(), picturePreview, pictureData)
+                self._sendIq(iq, onSuccess, onError)
 
     @clicmd("Get profile privacy")
     def profile_getPrivacy(self):
@@ -302,24 +308,23 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @clicmd("Set group picture")
     def group_picture(self, group_jid, path):
-        if self.assertConnected() and ModuleTools.INSTALLED_PIL():
+        if self.assertConnected():
+            with PILOptionalModule(failMessage = self.__class__.FAIL_OPT_PILLOW) as imp:
+                Image = imp("Image")
 
-            def onSuccess(resultIqEntity, originalIqEntity):
-                self.output("Group picture updated successfully")
+                def onSuccess(resultIqEntity, originalIqEntity):
+                    self.output("Group picture updated successfully")
 
-            def onError(errorIqEntity, originalIqEntity):
-                logger.error("Error updating Group picture")
+                def onError(errorIqEntity, originalIqEntity):
+                    logger.error("Error updating Group picture")
 
-            #example by @aesedepece in https://github.com/tgalal/yowsup/pull/781
-            #modified to support python3
-            from PIL import Image
-            src = Image.open(path)
-            pictureData = src.resize((640, 640)).tobytes("jpeg", "RGB")
-            picturePreview = src.resize((96, 96)).tobytes("jpeg", "RGB")
-            iq = SetPictureIqProtocolEntity(self.aliasToJid(group_jid), picturePreview, pictureData)
-            self._sendIq(iq, onSuccess, onError)
-        else:
-            logger.error("Python PIL library is not installed, can't set profile picture")
+                #example by @aesedepece in https://github.com/tgalal/yowsup/pull/781
+                #modified to support python3
+                src = Image.open(path)
+                pictureData = src.resize((640, 640)).tobytes("jpeg", "RGB")
+                picturePreview = src.resize((96, 96)).tobytes("jpeg", "RGB")
+                iq = SetPictureIqProtocolEntity(self.aliasToJid(group_jid), picturePreview, pictureData)
+                self._sendIq(iq, onSuccess, onError)
 
 
     @clicmd("Get group info")
@@ -330,23 +335,20 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @clicmd("Get shared keys")
     def keys_get(self, jids):
-        if ModuleTools.INSTALLED_AXOLOTL():
+        with AxolotlOptionalModule(failMessage = self.__class__.FAIL_OPT_AXOLOTL) as importFn:
+            importFn()
             from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
             if self.assertConnected():
                 jids = [self.aliasToJid(jid) for jid in jids.split(',')]
                 entity = GetKeysIqProtocolEntity(jids)
                 self.toLower(entity)
-        else:
-            logger.error("Axolotl is not installed")
 
     @clicmd("Send prekeys")
     def keys_set(self):
-        if ModuleTools.INSTALLED_AXOLOTL():
+        with AxolotlOptionalModule(failMessage = self.__class__.FAIL_OPT_AXOLOTL) as axoOptMod:
             from yowsup.layers.axolotl import YowAxolotlLayer
             if self.assertConnected():
                 self.broadcastEvent(YowLayerEvent(YowAxolotlLayer.EVENT_PREKEYS_SET))
-        else:
-            logger.error("Axolotl is not installed")
 
     @clicmd("Send init seq")
     def seq(self):
@@ -358,7 +360,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         self.toLower(props)
         crypto = CryptoIqProtocolEntity()
         self.toLower(crypto)
-
 
     @clicmd("Delete your account")
     def account_delete(self):
@@ -394,16 +395,16 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @clicmd("Send a video with optional caption")
     def video_send(self, number, path, caption = None):
-		self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO)
+        self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO)
 
     @clicmd("Send an image with optional caption")
     def image_send(self, number, path, caption = None):
-		self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE)
+        self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE)
 
     @clicmd("Send audio file")
     def audio_send(self, number, path):
-		self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO)
-		
+        self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO)
+
     def media_send(self, number, path, mediaType, caption = None):
         if self.assertConnected():
             jid = self.aliasToJid(number)
@@ -412,6 +413,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
             self._sendIq(entity, successFn, errorFn)
 
+            self._sendIq(entity, successFn, errorFn)
     @clicmd("Send typing state")
     def state_typing(self, jid):
         if self.assertConnected():
@@ -543,13 +545,13 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             )
 
     def doSendMedia(self, mediaType, filePath, url, to, ip = None, caption = None):
-		if mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE:
-			entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to, caption = caption)
-		elif mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO:
-			entity = AudioDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
-		elif mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO:
-			entity = VideoDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to, caption = caption)
-		self.toLower(entity)
+        if mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE:
+        	entity = ImageDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to, caption = caption)
+        elif mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO:
+        	entity = AudioDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
+        elif mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO:
+        	entity = VideoDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to, caption = caption)
+        self.toLower(entity)
 
     def __str__(self):
         return "CLI Interface Layer"

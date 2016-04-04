@@ -1,4 +1,4 @@
-from yowsup.layers import YowLayer, YowLayerEvent
+from yowsup.layers import YowLayer, YowLayerEvent, EventCallback
 from yowsup.layers.network import YowNetworkLayer
 class YowStanzaRegulator(YowLayer):
     '''
@@ -7,17 +7,18 @@ class YowStanzaRegulator(YowLayer):
     '''
 
     def __init__(self):
-        super(YowLayer, self).__init__()
+        super(YowStanzaRegulator, self).__init__()
         self.buf = bytearray()
         self.enabled = False
-
-    def onEvent(self, yowLayerEvent):
-        if yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_CONNECTED:
-            self.enabled = True
-            self.buf = bytearray()
-        elif yowLayerEvent.getName() == YowNetworkLayer.EVENT_STATE_DISCONNECTED:
-            self.enabled = False
-
+        
+    @EventCallback(YowNetworkLayer.EVENT_STATE_CONNECTED)
+    def onConnected(self, yowLayerEvent):
+        self.enabled = True
+        self.buf = bytearray()
+    
+    @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
+    def onDisconnected(self, yowLayerEvent):
+        self.enabled = False
 
     def send(self, data):
         self.toLower(data)

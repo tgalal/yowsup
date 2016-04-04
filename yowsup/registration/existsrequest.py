@@ -1,9 +1,8 @@
 from yowsup.common.http.warequest import WARequest
 from yowsup.common.http.waresponseparser import JSONResponseParser
-from yowsup.env import CURRENT_ENV
-
+from yowsup.env import YowsupEnv
 class WAExistsRequest(WARequest):
-    
+
     def __init__(self,cc, p_in, idx):
         super(WAExistsRequest,self).__init__()
 
@@ -12,7 +11,7 @@ class WAExistsRequest(WARequest):
         self.addParam("id", idx)
         self.addParam("lg", "en")
         self.addParam("lc", "GB")
-        self.addParam("token", CURRENT_ENV.getToken(p_in))
+        self.addParam("token", YowsupEnv.getCurrent().getToken(p_in))
 
         self.url = "v.whatsapp.net/v2/exist"
 

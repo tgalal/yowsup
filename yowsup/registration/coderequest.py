@@ -1,11 +1,9 @@
 from yowsup.common.http.warequest import WARequest
 from yowsup.common.http.waresponseparser import JSONResponseParser
-# from yowsup.env import CURRENT_ENV
 from yowsup.common.tools import StorageTools, WATools
 from yowsup.registration.existsrequest import WAExistsRequest
-from yowsup.env import AndroidYowsupEnv
+from yowsup.env import YowsupEnv
 import random, hashlib, os
-CURRENT_ENV = AndroidYowsupEnv()
 
 class WACodeRequest(WARequest):
 
@@ -40,7 +38,7 @@ class WACodeRequest(WARequest):
         self.addParam("extexist", "1")
         self.addParam("extstate", "1")
 
-        self.addParam("token", CURRENT_ENV.getToken(p_in))
+        self.addParam("token", YowsupEnv.getCurrent().getToken(p_in))
 
         self.url = "v.whatsapp.net/v2/code"
 
@@ -63,4 +61,3 @@ class WACodeRequest(WARequest):
         if res["status"] == "sent":
             StorageTools.writeIdentity(self.cc + self.p_in, self.__id)
         return res
-
