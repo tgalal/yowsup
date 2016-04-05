@@ -340,7 +340,7 @@ class DemosArgParser(YowArgParser):
 
         try:
             self.printInfoText()
-            stack = sendclient.YowsupSendStack(credentials, [([recipient, message])], not self.args["unmoxie"])
+            stack = sendclient.YowsupSendStack(credentials, [([recipient, message.encode("utf-8")])], not self.args["unmoxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
