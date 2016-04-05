@@ -287,7 +287,7 @@ class YowAxolotlLayer(YowProtocolLayer):
 
             else:
                 raise "Unmanaged data type"
-            logger.debug(bodyNode)
+            logger.debug(bodyNode) # <media mimetype="image/jpeg" filehash="iY9paQQEVEEY0nWJOBVRrFfSdU2h22F2lnrrNfXIrcA=" ...
             node.addChild(bodyNode)
 
     def handleEncMessage(self, node):
