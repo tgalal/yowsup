@@ -248,8 +248,8 @@ class DemosArgParser(YowArgParser):
         cmdopts = self.add_argument_group("Command line interface demo")
         cmdopts.add_argument('-y', '--yowsup', action = "store_true", help = "Start the Yowsup command line client")
 
-         fileOpts = self.add_argument_group("SendFile client demo")
-         fileOpts.add_argument('-f', '--file', action="store", help = "Send a file to a specified phone number, "
+        fileOpts = self.add_argument_group("SendFile client demo")
+        fileOpts.add_argument('-f', '--file', action="store", help = "Send a file to a specified phone number, "
                                                                       "wait for server receipt and exit",
                                metavar=("phone", "filename"), nargs = 2)
 
@@ -333,7 +333,7 @@ class DemosArgParser(YowArgParser):
         stack.start()
 
 
-    def justSendMessage(self, recipient, message)
+    def justSendMessage(self, recipient, message):
         from yowsup.demos import sendclient
         credentials = self._getCredentials()
         if not credentials:
