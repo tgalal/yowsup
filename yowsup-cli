@@ -329,9 +329,7 @@ class DemosArgParser(YowArgParser):
         self.justSendMessage(recipient, filecontent)
 
     def startSendClient(self):
-        self.justSendMessage(args["send"][0], self.args["send"][1])
-        stack.start()
-
+        self.justSendMessage(self.args["send"][0], self.args["send"][1])
 
     def justSendMessage(self, recipient, message):
         from yowsup.demos import sendclient
@@ -342,8 +340,7 @@ class DemosArgParser(YowArgParser):
 
         try:
             self.printInfoText()
-            stack = sendclient.YowsupSendStack(credentials, [([recipient, client])],
-                                               not self.args["unmoxie"])
+            stack = sendclient.YowsupSendStack(credentials, [([recipient, message])], not self.args["unmoxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
