@@ -94,7 +94,7 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
 
     ##senders
     def _sendFeatures(self):
-        self.entityToLower(StreamFeaturesProtocolEntity([]))
+        self.entityToLower(StreamFeaturesProtocolEntity(["readreceipts", "groups_v2", "privacy", "presence"]))
 
     def _sendAuth(self):
         passive = self.getProp(self.__class__.PROP_PASSIVE, False)
