@@ -60,6 +60,12 @@ class YowArgParser(argparse.ArgumentParser):
 
     def process(self):
         self.args = vars(self.parse_args())
+
+        if self.args["debug"]:
+            logging.basicConfig(level = logging.DEBUG)
+        else:
+            logging.basicConfig(level = logging.INFO)
+
         if self.args["version"]:
             print("yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__))
             sys.exit(0)
@@ -68,10 +74,6 @@ class YowArgParser(argparse.ArgumentParser):
             print(HELP_CONFIG)
             sys.exit(0)
 
-        if self.args["debug"]:
-            logging.basicConfig(level = logging.DEBUG)
-        else:
-            logging.basicConfig(level = logging.INFO)
 
 
 class RegistrationArgParser(YowArgParser):
@@ -105,8 +107,7 @@ class RegistrationArgParser(YowArgParser):
                                  help = " Your full phone number including the country code you defined in 'cc', without preceeding '+' or '00'")
         configGroup.add_argument("-C", '--cc',
                                  action = "store",
-                                 help = "Country code. See http://www.ipipi.com/help/telephone-country-codes.htm. This is now required")
-
+                                 help = "Country code. See http://www.ipipi.com/networkList.do. This is now required")
 
         # configGroup.add_argument("-i", '--id',
         #                          action="store",
