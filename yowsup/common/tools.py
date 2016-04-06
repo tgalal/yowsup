@@ -182,7 +182,6 @@ class MimeTools:
     MIME_FILE = os.path.join(os.path.dirname(__file__), 'mime.types')
     mimetypes.init() # Load default mime.types
     mimetypes.init([MIME_FILE]) # Append whatsapp mime.types
-    decode_hex = codecs.getdecoder("hex_codec")
 
     @staticmethod
     def getMIME(filepath):
@@ -193,7 +192,7 @@ class MimeTools:
 
     @staticmethod
     def getExtension(mimetype):
-        ext = mimetypes.guess_extension(mimetype)
+        ext = mimetypes.guess_extension(mimetype.split(';')[0])
         if ext is None:
             raise Exception("Unsupported/unrecognized mimetype: "+mimetype);
         return ext
