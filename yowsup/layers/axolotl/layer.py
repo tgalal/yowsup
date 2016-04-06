@@ -118,7 +118,7 @@ class YowAxolotlLayer(YowProtocolLayer):
             self.store = None
 
     def send(self, node):
-        if node.tag == "message" and node["to"] not in self.skipEncJids and not YowConstants.WHATSAPP_GROUP_SERVER in node["to"] and not YowConstants.WHATSAPP_BROADCAST_SERVER in node["to"]:
+        if node.tag == "message" and node["to"] not in self.skipEncJids and not YowConstants.WHATSAPP_GROUP_SERVER in node["to"] and not YowConstants.WHATSAPP_BROADCAST_SERVER in node["to"] and not node.getChild("media"):
             self.handlePlaintextNode(node)
             return
         self.toLower(node)
@@ -253,7 +253,7 @@ class YowAxolotlLayer(YowProtocolLayer):
             else:
                 logger.error(e)
                 logger.warning("Ignoring message with untrusted identity")
-        except (InvalidMessageException, InvalidKeyIdException, Exception) as e:
+        except (InvalidMessageException, InvalidKeyIdException) as e:
             logger.warning(e)
             self.retryIncomingMessages[node["id"]] = (self.retryIncomingMessages[node["id"]] + 1) if node["id"] in self.retryIncomingMessages else 1
             if self.retryIncomingMessages[node["id"]] > 5:
@@ -388,7 +388,8 @@ class YowAxolotlLayer(YowProtocolLayer):
             "filehash": audioMessage.file_sha256,
             "size": str(audioMessage.file_length),
             "url": audioMessage.url,
-            "mimetype": audioMessage.mime_type,
+            "mimetype": audioMessage.mime_type.split(';')[0],
+            "encoding": audioMessage.mime_type.split(';')[1].strip() if len(audioMessage.mime_type.split(';')) > 1 else "",
             "duration": str(audioMessage.duration),
             "seconds": str(audioMessage.duration),
             "encoding": "raw",
@@ -408,7 +409,8 @@ class YowAxolotlLayer(YowProtocolLayer):
             "filehash": videoMessage.file_sha256,
             "size": str(videoMessage.file_length),
             "url": videoMessage.url,
-            "mimetype": videoMessage.mime_type,
+            "mimetype": videoMessage.mime_type.split(';')[0],
+            "encoding": videoMessage.mime_type.split(';')[1].strip() if len(videoMessage.mime_type.split(';')) > 1 else "",
             "duration": str(videoMessage.duration),
             "seconds": str(videoMessage.duration),
             "caption": videoMessage.caption,
@@ -522,12 +524,13 @@ class YowAxolotlLayer(YowProtocolLayer):
     def serializeLocationToProtobuf(self, mediaNode):
         m = Message()
         location_message = LocationMessage()
-        location_message.degress_latitude = float(mediaNode["latitude"])
-        location_message.degress_longitude = float(mediaNode["longitude"])
+        location_message.degrees_latitude = float(mediaNode["latitude"])
+        location_message.degrees_longitude = float(mediaNode["longitude"])
         location_message.address = mediaNode["name"]
         location_message.name = mediaNode["name"]
-        location_message.url = mediaNode["url"]
-
+        location_message.url = mediaNode["url"]  or ""
+        location_message.jpeg_thumbnail = mediaNode.getData() or ""
+        
         m.location_message.MergeFrom(location_message)
         return m.SerializeToString()
 
@@ -536,7 +539,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         m = Message()
         contact_message = ContactMessage()
         contact_message.display_name = vcardNode["name"]
-        m.vcard = vcardNode.getData()
+        contact_message.vcard = vcardNode.getData()
         m.contact_message.MergeFrom(contact_message)
 
         return m.SerializeToString()
@@ -551,6 +554,7 @@ class YowAxolotlLayer(YowProtocolLayer):
         image_message.file_sha256 = mediaNode["filehash"]
         image_message.file_length = int(mediaNode["size"])
         image_message.caption = mediaNode["caption"] or ""
+        image_message.media_key = mediaNode["mediakey"]
         image_message.jpeg_thumbnail = mediaNode.getData()
 
         m.image_message.MergeFrom(image_message)
