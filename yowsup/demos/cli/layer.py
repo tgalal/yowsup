@@ -35,7 +35,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     EVENT_START = "org.openwhatsapp.yowsup.event.cli.start"
     EVENT_SENDANDEXIT = "org.openwhatsapp.yowsup.event.cli.sendandexit"
 
-    MESSAGE_FORMAT = "[{FROM}({TIME})]:[{MESSAGE_ID}] {MESSAGE}"
+    MESSAGE_FORMAT = u"[{FROM}({TIME})]:[{MESSAGE_ID}] {MESSAGE}"
 
     DISCONNECT_ACTION_PROMPT = 0
     DISCONNECT_ACTION_EXIT = 1
