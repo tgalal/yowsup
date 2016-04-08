@@ -1,5 +1,6 @@
 from axolotl.state.prekeystore import PreKeyStore
 from axolotl.state.prekeyrecord import PreKeyRecord
+from yowsup.layers.axolotl.protocolentities.noprekeyrecord import NoPrekeyRecordException
 class LitePreKeyStore(PreKeyStore):
     def __init__(self, dbConn):
         """
@@ -17,7 +18,7 @@ class LitePreKeyStore(PreKeyStore):
 
         result = cursor.fetchone()
         if not result:
-            raise Exception("No such prekeyRecord!")
+            raise NoPrekeyRecordException("No such prekeyRecord!")
 
         return PreKeyRecord(serialized = result[0])
 
