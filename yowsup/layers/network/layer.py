@@ -14,6 +14,8 @@ class YowNetworkLayer(YowLayer, asyncore.dispatcher_with_send):
     EVENT_STATE_DISCONNECT      = "org.openwhatsapp.yowsup.event.network.disconnect"
     EVENT_STATE_CONNECTED       = "org.openwhatsapp.yowsup.event.network.connected"
     EVENT_STATE_DISCONNECTED    = "org.openwhatsapp.yowsup.event.network.disconnected"
+    EVENT_STATE_PING_OK         = "org.openwhatsapp.yowsup.event.network.pingok"
+    EVENT_STATE_PING_KO         = "org.openwhatsapp.yowsup.event.network.pingko"
 
     PROP_ENDPOINT               = "org.openwhatsapp.yowsup.prop.endpoint"
     PROP_NET_READSIZE           = "org.openwhatsapp.yowsup.prop.net.readSize"
