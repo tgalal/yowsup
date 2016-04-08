@@ -13,7 +13,7 @@ class WriteEncoder:
         data.append(87)
         data.append(65)
         data.append(1)
-        data.append(5)
+        data.append(6)
 
         streamOpenAttributes = {"to": domain, "resource": resource}
         self.writeListStart(len(streamOpenAttributes) * 2 + 1, data)
@@ -55,7 +55,7 @@ class WriteEncoder:
         if attributes is not None:
             for key, value in attributes.items():
                 self.writeString(key, data);
-                self.writeString(value, data);
+                self.writeString(value, data, True);
 
 
     def writeBytes(self, bytes_, data, packed = False):
@@ -125,12 +125,11 @@ class WriteEncoder:
             data.append(249)
             self.writeInt16(i, data)
 
-    def writeToken(self, intValue, data):
-        if intValue < 245:
-            data.append(intValue)
-        elif intValue <=500:
-            data.append(254)
-            data.append(intValue - 245)
+    def writeToken(self, token, data):
+        if token <= 255 and token >=0:
+            data.append(token)
+        else:
+            raise ValueError("Invalid token: %s" % token)
 
 
     def writeString(self, tag, data, packed = False):
