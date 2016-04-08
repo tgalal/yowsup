@@ -29,6 +29,7 @@ setup(
     #long_description=long_description,
     packages= find_packages(),
     include_package_data=True,
+    data_files = [('yowsup/common', ['yowsup/common/mime.types'])],
     platforms='any',
     #test_suite='',
     classifiers = [
