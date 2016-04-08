@@ -266,7 +266,7 @@ class YowAxolotlLayer(YowProtocolLayer):
 
         except (InvalidMessageException) as e:
             logger.warning(e)
-            self.retry(node)
+            self.retryAdd(node)
 
     def recoverKeyClean(self, senderJid):
         if senderJid in self.recoveringKey:
