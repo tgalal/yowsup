@@ -262,7 +262,7 @@ class YowAxolotlLayer(YowProtocolLayer):
             logger.warning(e)
             if(self.getProp(self.__class__.PROP_RECOVER_KEYS_MSG, True)):
                 self.recoverKey(senderJid)
-            self.retry(node)
+            self.retryAdd(node)
 
         except (InvalidMessageException) as e:
             logger.warning(e)
