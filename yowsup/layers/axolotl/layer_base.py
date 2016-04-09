@@ -14,7 +14,10 @@ class AxolotlBaseLayer(YowProtocolLayer):
         pass
 
     def send(self, node):
-        self.toLower(node)
+        pass
+
+    def receive(self, node):
+        pass
 
     @property
     def store(self):
