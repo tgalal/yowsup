@@ -32,6 +32,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         self.groupCiphers = {}
         self.pendingIncomingMessages = {}
 
+
+
     def receive(self, protocolTreeNode):
         """
         :type protocolTreeNode: ProtocolTreeNode
@@ -98,7 +100,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         except DuplicateMessageException as e:
             logger.error(e)
             logger.warning("Going to send the delivery receipt myself !")
-            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"]).toProtocolTreeNode())
+            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]).toProtocolTreeNode())
 
         except UntrustedIdentityException as e:
             if(self.getProp(self.__class__.PROP_IDENTITY_AUTOTRUST, False)):
