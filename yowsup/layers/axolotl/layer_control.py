@@ -29,6 +29,9 @@ class AxolotlControlLayer(AxolotlBaseLayer):
             self.state = self.__class__._STATE_HASKEYS if  store.getLocalRegistrationId() is not None \
                 else self.__class__._STATE_INIT
 
+    def send(self, node):
+        self.toLower(node)
+
     def receive(self, protocolTreeNode):
         """
         :type protocolTreeNode: ProtocolTreeNode

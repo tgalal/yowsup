@@ -8,7 +8,6 @@ from axolotl.groups.groupcipher import GroupCipher
 from axolotl.axolotladdress import AxolotlAddress
 from axolotl.groups.senderkeyname import SenderKeyName
 
-import copy
 import logging
 
 from .layer_base import AxolotlBaseLayer
