@@ -228,9 +228,9 @@ class YowAxolotlLayer(YowProtocolLayer):
         try:
             if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_PKMSG):
                 self.handlePreKeyWhisperMessage(node)
-            elif encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_MSG):
+            if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_MSG):
                 self.handleWhisperMessage(node)
-            elif encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG):
+            if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG):
                 self.handleSenderKeyMessage(node)
 
             self.retryDel(node)
