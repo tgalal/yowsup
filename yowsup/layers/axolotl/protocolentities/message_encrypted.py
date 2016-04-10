@@ -31,8 +31,16 @@ HEX:33089eb3c90312210510e0196be72fe65913c6a84e75a54f40a3ee290574d6a23f408df990e7
 
     def toProtocolTreeNode(self):
         node = super(EncryptedMessageProtocolEntity, self).toProtocolTreeNode()
+        participantsNode = ProtocolTreeNode("participants")
         for key, enc in self.encEntities.items():
-            node.addChild(enc.toProtocolTreeNode())
+            encNode = enc.toProtocolTreeNode()
+            if encNode.tag == "to":
+                participantsNode.addChild(encNode)
+            else:
+                node.addChild(encNode)
+
+        if len(participantsNode.getAllChildren()):
+            node.addChild(participantsNode)
 
         return node
 

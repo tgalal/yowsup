@@ -32,8 +32,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         self.groupCiphers = {}
         self.pendingIncomingMessages = {}
 
-
-
     def receive(self, protocolTreeNode):
         """
         :type protocolTreeNode: ProtocolTreeNode
@@ -41,12 +39,23 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         if not self.processIqRegistry(protocolTreeNode):
             if protocolTreeNode.tag == "message":
                 self.onMessage(protocolTreeNode)
-                return
-            elif protocolTreeNode.tag == "receipt" and protocolTreeNode["type"] == "retry":
-                # should bring up that message, resend it, but in upper layer?
-                # as it might have to be fetched from a persistent storage
-                pass
-            self.toUpper(protocolTreeNode)
+            elif not protocolTreeNode.tag == "receipt":
+                #receipts will be handled by send layer
+                self.toUpper(protocolTreeNode)
+
+            # elif protocolTreeNode.tag == "iq":
+            #     if protocolTreeNode.getChild("encr_media"):
+            #         protocolTreeNode.addChild("media", {
+            #             "url": protocolTreeNode["url"],
+            #             "ip": protocolTreeNode["ip"],
+            #         })
+            #         self.toUpper(protocolTreeNode)
+            #         return
+
+    ######
+
+    def onEncrMediaResult(self, resultNode):
+        pass
 
 
     def processPendingIncomingMessages(self, jid):
@@ -70,8 +79,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         isGroup =  node["participant"] is not None
         senderJid = node["participant"] if isGroup else node["from"]
         encNode = None
-        if node.getChild("enc")["v"] == "2" and senderJid not in self.v2Jids:
-            self.v2Jids.append(senderJid)
+        if node.getChild("enc")["v"] == "2" and node["from"] not in self.v2Jids:
+            self.v2Jids.append(node["from"])
         try:
             if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_PKMSG):
                 self.handlePreKeyWhisperMessage(node)
@@ -96,20 +105,22 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
                 self.pendingIncomingMessages[senderJid] = []
             self.pendingIncomingMessages[senderJid].append(node)
 
-            self._sendIq(entity, lambda a, b: self.onGetKeysResult(a, b, self.processPendingIncomingMessages), self.onGetKeysError)
+            self.getKeysFor([senderJid],  lambda: self.processPendingIncomingMessages(senderJid))
+
         except DuplicateMessageException as e:
             logger.error(e)
             logger.warning("Going to send the delivery receipt myself !")
             self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]).toProtocolTreeNode())
 
         except UntrustedIdentityException as e:
-            if(self.getProp(self.__class__.PROP_IDENTITY_AUTOTRUST, False)):
+            if self.getProp(self.__class__.PROP_IDENTITY_AUTOTRUST, False):
                 logger.warning("Autotrusting identity for %s" % e.getName())
                 self.store.saveIdentity(e.getName(), e.getIdentityKey())
                 return self.handleEncMessage(node)
             else:
                 logger.error(e)
                 logger.warning("Ignoring message with untrusted identity")
+
     def handlePreKeyWhisperMessage(self, node):
         pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
         enc = pkMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_PKMSG)
@@ -249,8 +260,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         ] )
         messageNode.addChild(mediaNode)
         self.toUpper(messageNode)
-
-
 
     def getSessionCipher(self, recipientId):
         if recipientId in self.sessionCiphers:
