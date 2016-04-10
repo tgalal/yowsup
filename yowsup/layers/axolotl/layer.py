@@ -348,12 +348,11 @@ class YowAxolotlLayer(YowProtocolLayer):
         if not m or not serializedData:
             raise ValueError("Empty message")
 
+        node = encMessageProtocolEntity.toProtocolTreeNode()
         if m.HasField("sender_key_distribution_message"):
             axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
             self.handleSenderKeyDistributionMessage(m.sender_key_distribution_message, axolotlAddress)
-
-        node = encMessageProtocolEntity.toProtocolTreeNode()
-        if m.HasField("conversation"):
+        elif m.HasField("conversation"):
             self.handleConversationMessage(node, m.conversation)
         elif m.HasField("contact_message"):
             self.handleContactMessage(node, m.contact_message)
