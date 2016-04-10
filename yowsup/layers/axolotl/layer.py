@@ -248,8 +248,8 @@ class YowAxolotlLayer(YowProtocolLayer):
         except DuplicateMessageException as e:
             logger.error(e)
             logger.warning("Going to send the delivery receipt myself !")
+            self.toLower(OutgoingAckProtocolEntity(node["id"], "notification", node["type"], node["from"]).toProtocolTreeNode())
             self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"]).toProtocolTreeNode())
-
         except UntrustedIdentityException as e:
             if(self.getProp(self.__class__.PROP_IDENTITY_AUTOTRUST, False)):
                 logger.warning("Autotrusting identity for %s" % e.getName())
@@ -267,7 +267,11 @@ class YowAxolotlLayer(YowProtocolLayer):
         plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
         if enc.getVersion() == 2:
             padding = ord(plaintext[-1]) & 0xFF
-            self.parseAndHandleMessageProto(pkMessageProtocolEntity, plaintext[:-padding])
+            try:
+                self.parseAndHandleMessageProto(pkMessageProtocolEntity, plaintext[:-padding])
+            except:
+                print('Protobuf ERROR.')
+                self.handleConversationMessage(node, plaintext)
         else:
             self.handleConversationMessage(node, plaintext)
 
@@ -281,7 +285,11 @@ class YowAxolotlLayer(YowProtocolLayer):
 
         if enc.getVersion() == 2:
             padding = ord(plaintext[-1]) & 0xFF
-            self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext[:-padding])
+            try:
+                self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext[:-padding])
+            except:
+                print("protobuf ERROR")
+                self.handleConversationMessage(encMessageProtocolEntity.toProtocolTreeNode(), plaintext)
         else:
             self.handleConversationMessage(encMessageProtocolEntity.toProtocolTreeNode(), plaintext)
 
@@ -512,9 +520,11 @@ class YowAxolotlLayer(YowProtocolLayer):
         raise Exception("Sent keys were not accepted")
 
     def onGetKeysResult(self, resultNode, getKeysEntity, processPendingFn):
-        entity = ResultGetKeysIqProtocolEntity.fromProtocolTreeNode(resultNode)
-
-        resultJids = entity.getJids()
+        try:
+            entity = ResultGetKeysIqProtocolEntity.fromProtocolTreeNode(resultNode)
+            resultJids = entity.getJids()
+        except:
+            resultJids = []
         for jid in getKeysEntity.getJids():
 
             if jid not in resultJids:
