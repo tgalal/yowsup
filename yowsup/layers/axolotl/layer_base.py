@@ -1,14 +1,17 @@
 from yowsup.layers.axolotl.store.sqlite.liteaxolotlstore import LiteAxolotlStore
-from yowsup.layers import YowProtocolLayer, YowLayerEvent, EventCallback
+from yowsup.layers import YowProtocolLayer
 from yowsup.common.tools import StorageTools
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
+from yowsup.layers.axolotl.protocolentities import *
 
+from axolotl.sessionbuilder import SessionBuilder
 
 class AxolotlBaseLayer(YowProtocolLayer):
     _DB = "axolotl.db"
     def __init__(self):
         super(AxolotlBaseLayer, self).__init__()
         self.store = None
+        self.skipEncJids = []
 
     def onNewStoreSet(self, store):
         pass
@@ -17,7 +20,7 @@ class AxolotlBaseLayer(YowProtocolLayer):
         pass
 
     def receive(self, node):
-        pass
+        self.processIqRegistry(node)
 
     @property
     def store(self):
@@ -35,3 +38,27 @@ class AxolotlBaseLayer(YowProtocolLayer):
     def store(self, store):
         self._store = store
         self.onNewStoreSet(self._store)
+
+    def getKeysFor(self, jids, successClbk, errorClbk=None):
+        def onSuccess(resultNode, getKeysEntity):
+            entity = ResultGetKeysIqProtocolEntity.fromProtocolTreeNode(resultNode)
+            resultJids = entity.getJids()
+
+            for jid in getKeysEntity.getJids():
+                if jid not in resultJids:
+                    self.skipEncJids.append(jid)
+                    continue
+
+                recipient_id = jid.split('@')[0]
+                preKeyBundle = entity.getPreKeyBundleFor(jid)
+                sessionBuilder = SessionBuilder(self.store, self.store, self.store, self.store, recipient_id, 1)
+                sessionBuilder.processPreKeyBundle(preKeyBundle)
+
+            successClbk()
+
+        def onError(errorNode, getKeysEntity):
+            if errorClbk:
+                errorClbk()
+
+        entity = GetKeysIqProtocolEntity(jids)
+        self._sendIq(entity, onSuccess, onError=onError)

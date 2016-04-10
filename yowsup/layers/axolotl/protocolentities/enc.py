@@ -5,13 +5,15 @@ class EncProtocolEntity(ProtocolEntity):
     TYPE_MSG    = "msg"
     TYPE_SKMSG  = "skmsg"
     TYPES = (TYPE_PKMSG, TYPE_MSG, TYPE_SKMSG)
-    def __init__(self, type, version, data, mediaType = None):
+
+    def __init__(self, type, version, data, mediaType = None, jid = None):
         assert type in self.__class__.TYPES, "Unknown message enc type %s" % type
         super(EncProtocolEntity, self).__init__("enc")
         self.type = type
         self.version = int(version)
         self.data = data
         self.mediaType = mediaType
+        self.jid = jid
 
     def getType(self):
         return self.type
@@ -25,11 +27,17 @@ class EncProtocolEntity(ProtocolEntity):
     def getMediaType(self):
         return self.mediaType
 
+    def getJid(self):
+        return self.jid
+
     def toProtocolTreeNode(self):
         attribs = {"type": self.type, "v": str(self.version)}
         if self.mediaType:
             attribs["mediatype"] = self.mediaType
-        return ProtocolTreeNode("enc", attribs, data = self.data)
+        encNode =  ProtocolTreeNode("enc", attribs, data = self.data)
+        if self.jid:
+            return ProtocolTreeNode("to", {"jid": self.jid}, [encNode])
+        return encNode
 
     @staticmethod
     def fromProtocolTreeNode(node):
