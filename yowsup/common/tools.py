@@ -182,7 +182,10 @@ class ImageTools:
 class MimeTools:
     MIME_FILE = resource_string(__name__, 'mime.types')
     mimetypes.init() # Load default mime.types
-    mimetypes.init([MIME_FILE]) # Append whatsapp mime.types
+    try:
+        mimetypes.init([MIME_FILE]) # Append whatsapp mime.types
+    except ValueError:
+        pass # In order to ignore "path too long for Windows" but just default mimetypes will be used.
 
     @staticmethod
     def getMIME(filepath):
