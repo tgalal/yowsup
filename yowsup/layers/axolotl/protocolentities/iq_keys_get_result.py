@@ -81,11 +81,6 @@ class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
         userNodes = node.getChild("list").getAllChildren()
         for userNode in userNodes:
 
-            x=userNode.getAllChildren()
-            for z in x:
-                print('-----')
-                print(z)
-                print('-----')
             preKeyNode = userNode.getChild("key")
             signedPreKeyNode = userNode.getChild("skey")
             registrationId = ResultGetKeysIqProtocolEntity._bytesToInt(userNode.getChild("registration").getData())
