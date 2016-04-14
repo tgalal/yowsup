@@ -80,14 +80,24 @@ class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
         entity.setPreKeyBundleMap()
         userNodes = node.getChild("list").getAllChildren()
         for userNode in userNodes:
+
+            x=userNode.getAllChildren()
+            for z in x:
+                print('-----')
+                print(z)
+                print('-----')
             preKeyNode = userNode.getChild("key")
             signedPreKeyNode = userNode.getChild("skey")
             registrationId = ResultGetKeysIqProtocolEntity._bytesToInt(userNode.getChild("registration").getData())
             identityKey = IdentityKey(DjbECPublicKey(ResultGetKeysIqProtocolEntity.encStr(userNode.getChild("identity").getData())))
 
-            preKeyId = ResultGetKeysIqProtocolEntity._bytesToInt(preKeyNode.getChild("id").getData())
-            preKeyPublic = DjbECPublicKey(ResultGetKeysIqProtocolEntity.encStr(preKeyNode.getChild("value").getData()))
-
+            if preKeyNode:
+                preKeyId = ResultGetKeysIqProtocolEntity._bytesToInt(preKeyNode.getChild("id").getData())
+                preKeyPublic = DjbECPublicKey(ResultGetKeysIqProtocolEntity.encStr(preKeyNode.getChild("value").getData()))
+            else:
+                preKeyId = None
+                preKeyPublic = None
+                
             signedPreKeyId = ResultGetKeysIqProtocolEntity._bytesToInt(signedPreKeyNode.getChild("id").getData())
             signedPreKeySig = ResultGetKeysIqProtocolEntity.encStr(signedPreKeyNode.getChild("signature").getData())
             signedPreKeyPub = DjbECPublicKey(ResultGetKeysIqProtocolEntity.encStr(signedPreKeyNode.getChild("value").getData()))

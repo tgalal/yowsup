@@ -139,8 +139,15 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         enc = encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_MSG)
         whisperMessage = WhisperMessage(serialized=enc.getData())
         sessionCipher = self.getSessionCipher(encMessageProtocolEntity.getAuthor(False))
-        plaintext = sessionCipher.decryptMsg(whisperMessage)
 
+        #print(enc.getData())
+        plaintext = sessionCipher.decryptMsg(whisperMessage, textMsg=False)
+
+        #print(plaintext)
+        #print(type(plaintext))
+        plaintext = plaintext.decode('utf-8','ignore')
+        print([s for s in plaintext])
+        
         if enc.getVersion() == 2:
             padding = ord(plaintext[-1]) & 0xFF
             self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext[:-padding])
@@ -167,16 +174,61 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
     def parseAndHandleMessageProto(self, encMessageProtocolEntity, serializedData):
         node = encMessageProtocolEntity.toProtocolTreeNode()
         m = Message()
+        '''
         try:
             m.ParseFromString(serializedData)
         except:
-            print("DUMP:")
-            print(serializedData)
-            print([s for s in serializedData])
-            print([ord(s) for s in serializedData])
-            raise
+            print("DUMP::")
+            try:
+                print(serializedData)
+            except UnicodeEncodeError:
+                print("Fail to print dump.")
+                pass
+            try:
+                print([s for s in serializedData])
+                print([ord(s) for s in serializedData])
+            except:
+                print("error on printing serialized data")
+                pass
+            
+            # raise
+            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]).toProtocolTreeNode())
+            print(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]))
+            # self.toUpper(node)
+            return'''
+        
+        self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]).toProtocolTreeNode())
+
+        # method to avoid protobuf on simple text messages.
+        String = ""
+
+        print(ord(serializedData[0]))
+        if ord(serializedData[0]) == 10:
+           # print(Message)
+           # print([s for s in serializedData])
+           # print([ord(s) for s in serializedData])
+            for B in range(2, len(serializedData)):
+                if ord(serializedData[B]) == 18:
+                    break
+                String += serializedData[B]
+
+
+            print(String)
+
+            self.handleConversationMessage(node, String)
+            return
+
+
+        try:
+            m.ParseFromString(serializedData)
+        except:
+            print("FAIL")
+        
         if not m or not serializedData:
-            raise ValueError("Empty message")
+            print("Empty Message!")
+            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]).toProtocolTreeNode())
+            print(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]))
+            #raise ValueError("Empty message")
 
         if m.HasField("sender_key_distribution_message"):
             axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
@@ -193,7 +245,9 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.handleImageMessage(node, m.image_message)
         else:
             print(m)
-            raise ValueError("Unhandled")
+            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]).toProtocolTreeNode())
+            print("Unahndled")
+            #raise ValueError("Unhandled")
 
     def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, axolotlAddress):
         groupId = senderKeyDistributionMessage.groupId
