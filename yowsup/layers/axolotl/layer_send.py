@@ -92,7 +92,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
 
     def getPadding(self):
-        num = randint(1,255)
+        num = randint(1,127)
         return bytearray([num] * num)
 
     def groupSendSequence(self):
@@ -172,10 +172,19 @@ class AxolotlSendLayer(AxolotlBaseLayer):
             )
 
         messageData = self.serializeToProtobuf(node)
+        unciphertext = messageData +  self.getPadding() # bytes([18]) +
+       
+        # unciphertext = b'\n\x03' + unciphertext[3:]
+        #print(type(unciphertext))
+        #print(unciphertext)
+        #print([s for s in unciphertext])
+        #print(len(unciphertext))
+
+        unciphertext = bytes([10]) + bytes([3]) + unciphertext[2:]
+        ciphertext = cipher.encrypt(unciphertext.decode())
         
-        uncyphertext = messageData + self.getPadding()
- 
-        ciphertext = cipher.encrypt(uncyphertext)
+        #print([s for s in ciphertext])
+        #print(len(ciphertext))
         mediaType = node.getChild("media")["type"] if node.getChild("media") else None
 
         encEntities.append(EncProtocolEntity(EncProtocolEntity.TYPE_SKMSG, 2, ciphertext, mediaType))
@@ -197,6 +206,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
     def sendToGroup(self, node):
         groupJid = node["to"]
         ownNumber = self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(False)
+        ownNumber += "@s.whatsapp.net"
         ownJid = self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(True)
         senderKeyName = SenderKeyName(node["to"], AxolotlAddress(ownNumber, 0))
         senderKeyRecord = self.store.loadSenderKey(senderKeyName)
