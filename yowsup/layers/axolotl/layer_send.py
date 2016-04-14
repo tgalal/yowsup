@@ -197,6 +197,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
     def sendToGroup(self, node):
         groupJid = node["to"]
         ownNumber = self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(False)
+        ownNumber += "@s.whatsapp.net"
         ownJid = self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(True)
         senderKeyName = SenderKeyName(node["to"], AxolotlAddress(ownNumber, 0))
         senderKeyRecord = self.store.loadSenderKey(senderKeyName)
