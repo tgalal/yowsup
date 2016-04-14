@@ -68,6 +68,8 @@ class AxolotlSendLayer(AxolotlBaseLayer):
                     logger.debug("Axolotl layer does not have the message, bubbling it upwards")
                     self.toUpper(protocolTreeNode)
                 elif protocolTreeNode["type"] == "retry":
+                    print("retrying")
+                    print(protocolTreeNode)
                     logger.info("Got retry to for message %s, and Axolotl layer has the message" % protocolTreeNode["id"])
                     self.getKeysFor([protocolTreeNode["from"]], lambda: self.processPlaintextNodeAndSend(messageNode))
                 else:
@@ -90,7 +92,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
 
     def getPadding(self):
-        num = randint(1,255)
+        num = randint(1,127)
         return bytearray([num] * num)
 
     def groupSendSequence(self):
@@ -152,8 +154,10 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         jidsNeedSenderKey = jidsNeedSenderKey or []
         groupJid = node["to"]
         ownNumber = self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(False)
+        ownNumber += "@s.whatsapp.net"
         senderKeyName = SenderKeyName(groupJid, AxolotlAddress(ownNumber, 0))
         cipher = self.getGroupCipher(groupJid, ownNumber)
+        print(ownNumber)
         encEntities = []
         senderKeyDistributionMessage = self.groupSessionBuilder.create(senderKeyName)
         for jid in jidsNeedSenderKey:
@@ -168,7 +172,19 @@ class AxolotlSendLayer(AxolotlBaseLayer):
             )
 
         messageData = self.serializeToProtobuf(node)
-        ciphertext = cipher.encrypt(messageData + self.getPadding())
+        unciphertext = messageData +  self.getPadding() # bytes([18]) +
+       
+        # unciphertext = b'\n\x03' + unciphertext[3:]
+        #print(type(unciphertext))
+        #print(unciphertext)
+        #print([s for s in unciphertext])
+        #print(len(unciphertext))
+
+        unciphertext = bytes([10]) + bytes([3]) + unciphertext[2:]
+        ciphertext = cipher.encrypt(unciphertext.decode())
+        
+        #print([s for s in ciphertext])
+        #print(len(ciphertext))
         mediaType = node.getChild("media")["type"] if node.getChild("media") else None
 
         encEntities.append(EncProtocolEntity(EncProtocolEntity.TYPE_SKMSG, 2, ciphertext, mediaType))
@@ -183,12 +199,14 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
         if len(jidsNoSession):
             self.getKeysFor(jidsNoSession, lambda: self.sendToGroupWithSessions(node, jids))
+            
         else:
             self.sendToGroupWithSessions(node, jids)
 
     def sendToGroup(self, node):
         groupJid = node["to"]
         ownNumber = self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(False)
+        ownNumber += "@s.whatsapp.net"
         ownJid = self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(True)
         senderKeyName = SenderKeyName(node["to"], AxolotlAddress(ownNumber, 0))
         senderKeyRecord = self.store.loadSenderKey(senderKeyName)
