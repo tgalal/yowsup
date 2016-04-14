@@ -171,12 +171,25 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             m.ParseFromString(serializedData)
         except:
             print("DUMP:")
-            print(serializedData)
-            print([s for s in serializedData])
-            print([ord(s) for s in serializedData])
-            raise
+            try:
+                print(serializedData)
+            except UnicodeEncodeError:
+                print("Fail to print dump.")
+                pass
+            try:
+                print([s for s in serializedData])
+                print([ord(s) for s in serializedData])
+            except:
+                print("error on printing serialized data")
+                pass
+            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]).toProtocolTreeNode())
+            print(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]))
+            return
         if not m or not serializedData:
-            raise ValueError("Empty message")
+            print("Empty Message!")
+            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]).toProtocolTreeNode())
+            print(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]))
+            #raise ValueError("Empty message")
 
         if m.HasField("sender_key_distribution_message"):
             axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
@@ -193,7 +206,9 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.handleImageMessage(node, m.image_message)
         else:
             print(m)
-            raise ValueError("Unhandled")
+            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]).toProtocolTreeNode())
+            print("Unahndled")
+            #raise ValueError("Unhandled")
 
     def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, axolotlAddress):
         groupId = senderKeyDistributionMessage.groupId

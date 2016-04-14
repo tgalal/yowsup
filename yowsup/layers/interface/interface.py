@@ -4,11 +4,11 @@ from yowsup.layers.network import YowNetworkLayer
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
 from yowsup.layers.protocol_acks.protocolentities import IncomingAckProtocolEntity
-from yowsup.layers.axolotl.layer import YowAxolotlLayer
+
 from yowsup.layers.protocol_media.protocolentities.iq_requestupload import RequestUploadIqProtocolEntity
 from yowsup.layers.protocol_media.protocolentities.iq_requestupload_result import ResultRequestUploadIqProtocolEntity
 from yowsup.layers.protocol_media.mediauploader import MediaUploader
-from yowsup.layers.axolotl.layer import YowAxolotlLayer
+from yowsup.layers import axolotl
 import inspect
 
 class ProtocolEntityCallback(object):

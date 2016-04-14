@@ -68,6 +68,8 @@ class AxolotlSendLayer(AxolotlBaseLayer):
                     logger.debug("Axolotl layer does not have the message, bubbling it upwards")
                     self.toUpper(protocolTreeNode)
                 elif protocolTreeNode["type"] == "retry":
+                    print("retrying")
+                    print(protocolTreeNode)
                     logger.info("Got retry to for message %s, and Axolotl layer has the message" % protocolTreeNode["id"])
                     self.getKeysFor([protocolTreeNode["from"]], lambda: self.processPlaintextNodeAndSend(messageNode))
                 else:
@@ -152,8 +154,10 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         jidsNeedSenderKey = jidsNeedSenderKey or []
         groupJid = node["to"]
         ownNumber = self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(False)
+        ownNumber += "@s.whatsapp.net"
         senderKeyName = SenderKeyName(groupJid, AxolotlAddress(ownNumber, 0))
         cipher = self.getGroupCipher(groupJid, ownNumber)
+        print(ownNumber)
         encEntities = []
         senderKeyDistributionMessage = self.groupSessionBuilder.create(senderKeyName)
         for jid in jidsNeedSenderKey:
@@ -168,7 +172,10 @@ class AxolotlSendLayer(AxolotlBaseLayer):
             )
 
         messageData = self.serializeToProtobuf(node)
-        ciphertext = cipher.encrypt(messageData + self.getPadding())
+        
+        uncyphertext = messageData + self.getPadding()
+ 
+        ciphertext = cipher.encrypt(uncyphertext)
         mediaType = node.getChild("media")["type"] if node.getChild("media") else None
 
         encEntities.append(EncProtocolEntity(EncProtocolEntity.TYPE_SKMSG, 2, ciphertext, mediaType))
@@ -183,6 +190,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
         if len(jidsNoSession):
             self.getKeysFor(jidsNoSession, lambda: self.sendToGroupWithSessions(node, jids))
+            
         else:
             self.sendToGroupWithSessions(node, jids)
 
