@@ -69,7 +69,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
                     self.toUpper(protocolTreeNode)
                 elif protocolTreeNode["type"] == "retry":
                     logger.info("Got retry to for message %s, and Axolotl layer has the message" % protocolTreeNode["id"])
-                    self.getKeysFor([protocolTreeNode["from"]], lambda: self.processPlaintextNodeAndSend(messageNode))
+                    self.getKeysFor([protocolTreeNode["participant"] or protocolTreeNode["from"]], lambda: self.processPlaintextNodeAndSend(messageNode))
                 else:
                     #not interested in any non retry receipts, bubble upwards
                     self.toUpper(protocolTreeNode)
@@ -155,17 +155,18 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         senderKeyName = SenderKeyName(groupJid, AxolotlAddress(ownNumber, 0))
         cipher = self.getGroupCipher(groupJid, ownNumber)
         encEntities = []
-        senderKeyDistributionMessage = self.groupSessionBuilder.create(senderKeyName)
-        for jid in jidsNeedSenderKey:
-            sessionCipher = self.getSessionCipher(jid.split('@')[0])
-            serialized = self.serializeSenderKeyDistributionMessageToProtobuf(node["to"], senderKeyDistributionMessage)
-            ciphertext = sessionCipher.encrypt(serialized + self.getPadding())
-            encEntities.append(
-                EncProtocolEntity(
-                        EncProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncProtocolEntity.TYPE_PKMSG
-                    , 2, ciphertext.serialize(), jid=jid
+        if len(jidsNeedSenderKey):
+            senderKeyDistributionMessage = self.groupSessionBuilder.create(senderKeyName)
+            for jid in jidsNeedSenderKey:
+                sessionCipher = self.getSessionCipher(jid.split('@')[0])
+                serialized = self.serializeSenderKeyDistributionMessageToProtobuf(node["to"], senderKeyDistributionMessage)
+                ciphertext = sessionCipher.encrypt(serialized + self.getPadding())
+                encEntities.append(
+                    EncProtocolEntity(
+                            EncProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncProtocolEntity.TYPE_PKMSG
+                        , 2, ciphertext.serialize(), jid=jid
+                    )
                 )
-            )
 
         messageData = self.serializeToProtobuf(node)
         ciphertext = cipher.encrypt(messageData + self.getPadding())
@@ -200,7 +201,6 @@ class AxolotlSendLayer(AxolotlBaseLayer):
             return self.ensureSessionsAndSendToGroup(node, [jid for jid in jids if jid != ownJid])
 
         if senderKeyRecord.isEmpty():
-            self.groupSessionBuilder.create(senderKeyName)
             groupInfoIq = InfoGroupsIqProtocolEntity(groupJid)
             self._sendIq(groupInfoIq, sendToGroup)
         else:
