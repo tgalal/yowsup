@@ -18,21 +18,18 @@ HEX:33089eb3c90312210510e0196be72fe65913c6a84e75a54f40a3ee290574d6a23f408df990e7
         self.setEncEntities(encEntities)
 
     def setEncEntities(self, encEntities):
-        self.encEntities = {}
         assert len(encEntities), "Must have at least 1 enc entity"
-        for enc in encEntities:
-            self.encEntities[enc.type] = enc
+        self.encEntities = encEntities
 
     def getEnc(self, encType):
-        if encType in self.encEntities:
-            return self.encEntities[encType]
-
-        return None
+        for enc in self.encEntities:
+            if enc.type == encType:
+                return enc
 
     def toProtocolTreeNode(self):
         node = super(EncryptedMessageProtocolEntity, self).toProtocolTreeNode()
         participantsNode = ProtocolTreeNode("participants")
-        for key, enc in self.encEntities.items():
+        for enc in self.encEntities:
             encNode = enc.toProtocolTreeNode()
             if encNode.tag == "to":
                 participantsNode.addChild(encNode)
