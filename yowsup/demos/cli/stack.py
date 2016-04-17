@@ -3,6 +3,7 @@ from .layer import YowsupCliLayer
 from yowsup.layers.auth import AuthError
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
+from yowsup.layers.axolotl import AxolotlReceivelayer
 import sys
 
 class YowsupCliStack(object):
@@ -16,6 +17,7 @@ class YowsupCliStack(object):
 
         # self.stack.setCredentials(credentials)
         self.stack.setCredentials(credentials)
+        self.stack.setProp(AxolotlReceivelayer.PROP_IDENTITY_AUTOTRUST, True)
 
     def start(self):
         print("Yowsup Cli client\n==================\nType /help for available commands\n")

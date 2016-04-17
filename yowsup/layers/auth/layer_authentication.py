@@ -7,8 +7,10 @@ from yowsup.layers.network import YowNetworkLayer
 from .autherror import AuthError
 from .protocolentities import *
 from yowsup.common.tools import StorageTools
+from yowsup.env import YowsupEnv
 from .layer_interface_authentication import YowAuthenticationProtocolLayerInterface
 import base64
+
 class YowAuthenticationProtocolLayer(YowProtocolLayer):
     EVENT_LOGIN      = "org.openwhatsapp.yowsup.event.auth.login"
     EVENT_AUTHED  = "org.openwhatsapp.yowsup.event.auth.authed"
@@ -48,7 +50,7 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         else:
             prop = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)
             return prop[0] if prop else None
-        
+
     @EventCallback(YowNetworkLayer.EVENT_STATE_CONNECTED)
     def onConnected(self, yowLayerEvent):
         self.login()
@@ -92,7 +94,7 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
 
     ##senders
     def _sendFeatures(self):
-        self.entityToLower(StreamFeaturesProtocolEntity(["readreceipts", "groups_v2", "privacy", "presence"]))
+        self.entityToLower(StreamFeaturesProtocolEntity([]))
 
     def _sendAuth(self):
         passive = self.getProp(self.__class__.PROP_PASSIVE, False)
@@ -121,6 +123,7 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
 
     def generateAuthBlob(self, nonce):
         keys = KeyStream.generateKeys(self.credentials[1], nonce)
+        currentEnv = YowsupEnv.getCurrent()
 
         inputKey = KeyStream(keys[2], keys[3])
         outputKey = KeyStream(keys[0], keys[1])
@@ -138,10 +141,15 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         nums.extend(nonce)
 
         utcNow = str(int(TimeTools.utcTimestamp()))
-
         time_bytes =  list(map(ord, utcNow))
-
         nums.extend(time_bytes)
+
+        strCat = "\x00\x00\x00\x00\x00\x00\x00\x00"
+        strCat += currentEnv.getOSVersion() + "\x00"
+        strCat += currentEnv.getManufacturer() + "\x00"
+        strCat += currentEnv.getDeviceName() + "\x00"
+        strCat += currentEnv.getBuildVersion()
+        nums.extend(list(map(ord, strCat)))
 
         encoded = outputKey.encodeMessage(nums, 0, 4, len(nums) - 4)
         authBlob = "".join(map(chr, encoded))
