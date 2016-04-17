@@ -181,7 +181,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         if m.HasField("sender_key_distribution_message"):
             axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
             self.handleSenderKeyDistributionMessage(m.sender_key_distribution_message, axolotlAddress)
-        elif m.HasField("conversation"):
+
+        if m.HasField("conversation"):
             self.handleConversationMessage(node, m.conversation)
         elif m.HasField("contact_message"):
             self.handleContactMessage(node, m.contact_message)
