@@ -167,6 +167,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
     def parseAndHandleMessageProto(self, encMessageProtocolEntity, serializedData):
         node = encMessageProtocolEntity.toProtocolTreeNode()
         m = Message()
+        handled = False
         try:
             m.ParseFromString(serializedData)
         except:
@@ -179,20 +180,27 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             raise ValueError("Empty message")
 
         if m.HasField("sender_key_distribution_message"):
+            handled = True
             axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
             self.handleSenderKeyDistributionMessage(m.sender_key_distribution_message, axolotlAddress)
 
         if m.HasField("conversation"):
+            handled = True
             self.handleConversationMessage(node, m.conversation)
         elif m.HasField("contact_message"):
+            handled = True
             self.handleContactMessage(node, m.contact_message)
         elif m.HasField("url_message"):
+            handled = True
             self.handleUrlMessage(node, m.url_message)
         elif m.HasField("location_message"):
+            handled = True
             self.handleLocationMessage(node, m.location_message)
         elif m.HasField("image_message"):
+            handled = True
             self.handleImageMessage(node, m.image_message)
-        else:
+
+        if not handled:
             print(m)
             raise ValueError("Unhandled")
 
