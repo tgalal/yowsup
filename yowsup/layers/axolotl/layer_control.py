@@ -4,6 +4,7 @@ from yowsup.layers.network.layer import YowNetworkLayer
 from axolotl.util.keyhelper import KeyHelper
 from yowsup.layers.axolotl.protocolentities import *
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
+from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
 from axolotl.util.hexutil import HexUtil
 from axolotl.ecc.curve import Curve
 import logging
