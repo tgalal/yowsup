@@ -30,7 +30,7 @@ _MESSAGE = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='conversation', full_name='com.whatsapp.proto.Message.conversation', index=0,
-      number=1, type=9, cpp_type=9, label=1,
+      number=1, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,

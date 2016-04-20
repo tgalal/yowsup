@@ -1,7 +1,7 @@
 package com.whatsapp.proto;
 
 message Message {
-  optional string conversation                   = 1;
+  optional bytes conversation                   = 1;
   optional SenderKeyDistributionMessage sender_key_distribution_message   = 2;
   optional ImageMessage image_message            = 3;
   optional ContactMessage contact_message        = 4;
