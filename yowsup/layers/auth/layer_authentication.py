@@ -8,6 +8,7 @@ from .autherror import AuthError
 from .protocolentities import *
 from yowsup.common.tools import StorageTools
 from .layer_interface_authentication import YowAuthenticationProtocolLayerInterface
+from .protocolentities import StreamErrorProtocolEntity
 import base64
 class YowAuthenticationProtocolLayer(YowProtocolLayer):
     EVENT_LOGIN      = "org.openwhatsapp.yowsup.event.auth.login"
@@ -82,12 +83,12 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         self._sendResponse(nodeEntity.getNonce())
 
     def handleStreamError(self, node):
-        if node.getChild("text"):
-            nodeEntity = StreamErrorConflictProtocolEntity.fromProtocolTreeNode(node)
-        elif node.getChild("ack"):
-            nodeEntity = StreamErrorAckProtocolEntity.fromProtocolTreeNode(node)
-        else:
+        nodeEntity = StreamErrorProtocolEntity.fromProtocolTreeNode(node)
+        errorType = nodeEntity.getErrorType()
+
+        if not errorType:
             raise AuthError("Unhandled stream:error node:\n%s" % node)
+
         self.toUpper(nodeEntity)
 
     ##senders
