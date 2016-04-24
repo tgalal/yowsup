@@ -14,7 +14,7 @@ class AxolotlBaseLayer(YowProtocolLayer):
     _DB = "axolotl.db"
     def __init__(self):
         super(AxolotlBaseLayer, self).__init__()
-        self.store = None
+        self._store = None
         self.skipEncJids = []
 
     def onNewStoreSet(self, store):
@@ -28,15 +28,18 @@ class AxolotlBaseLayer(YowProtocolLayer):
 
     @property
     def store(self):
-        if self._store is None:
-            self.store = LiteAxolotlStore(
-                StorageTools.constructPath(
-                    self.getProp(
-                        YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0],
-                    self.__class__._DB
+        try:
+            if self._store is None:
+                self.store = LiteAxolotlStore(
+                    StorageTools.constructPath(
+                        self.getProp(
+                            YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0],
+                        self.__class__._DB
+                    )
                 )
-            )
-        return self._store
+            return self._store
+        except AttributeError:
+            return None
 
     @store.setter
     def store(self, store):

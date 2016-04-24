@@ -1,5 +1,6 @@
 from axolotl.state.prekeystore import PreKeyStore
 from axolotl.state.prekeyrecord import PreKeyRecord
+import sys
 class LitePreKeyStore(PreKeyStore):
     def __init__(self, dbConn):
         """
@@ -33,7 +34,8 @@ class LitePreKeyStore(PreKeyStore):
         #self.removePreKey(preKeyId)
         q = "INSERT INTO prekeys (prekey_id, record) VALUES(?,?)"
         cursor = self.dbConn.cursor()
-        cursor.execute(q, (preKeyId, preKeyRecord.serialize()))
+        serialized = preKeyRecord.serialize()
+        cursor.execute(q, (preKeyId, buffer(serialized) if sys.version_info < (2,7) else serialized))
         self.dbConn.commit()
 
     def containsPreKey(self, preKeyId):
