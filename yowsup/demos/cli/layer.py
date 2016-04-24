@@ -23,7 +23,6 @@ from yowsup.common.tools import Jid
 from yowsup.common.optionalmodules import PILOptionalModule, AxolotlOptionalModule
 
 logger = logging.getLogger(__name__)
-
 class YowsupCliLayer(Cli, YowInterfaceLayer):
     PROP_RECEIPT_AUTO       = "org.openwhatsapp.yowsup.prop.cli.autoreceipt"
     PROP_RECEIPT_KEEPALIVE  = "org.openwhatsapp.yowsup.prop.cli.keepalive"
@@ -76,6 +75,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def setCredentials(self, username, password):
         self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(username, password)
 
+        return "%s@s.whatsapp.net" % username
 
     @EventCallback(EVENT_START)
     def onStart(self, layerEvent):

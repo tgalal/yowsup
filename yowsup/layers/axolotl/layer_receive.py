@@ -4,6 +4,7 @@ from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProt
 from yowsup.layers.protocol_messages.proto.wa_pb2 import *
 from yowsup.layers.axolotl.protocolentities import *
 from yowsup.structs import ProtocolTreeNode
+from yowsup.layers.axolotl.props import PROP_IDENTITY_AUTOTRUST
 
 from axolotl.protocol.prekeywhispermessage import PreKeyWhisperMessage
 from axolotl.protocol.whispermessage import WhisperMessage
@@ -24,13 +25,12 @@ import copy
 logger = logging.getLogger(__name__)
 
 class AxolotlReceivelayer(AxolotlBaseLayer):
-    PROP_IDENTITY_AUTOTRUST =  "org.openwhatsapp.yowsup.prop.axolotl.INDENTITY_AUTOTRUST"
     def __init__(self):
         super(AxolotlReceivelayer, self).__init__()
         self.v2Jids = [] #people we're going to send v2 enc messages
         self.sessionCiphers = {}
         self.groupCiphers = {}
-        self.pendingIncomingMessages = {}
+        self.pendingIncomingMessages = {} #(jid, participantJid?) => message
 
     def receive(self, protocolTreeNode):
         """
@@ -58,12 +58,13 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         pass
 
 
-    def processPendingIncomingMessages(self, jid):
-        if jid in self.pendingIncomingMessages:
-            for messageNode in self.pendingIncomingMessages[jid]:
+    def processPendingIncomingMessages(self, jid, participantJid = None):
+        conversationIdentifier = (jid, participantJid)
+        if conversationIdentifier in self.pendingIncomingMessages:
+            for messageNode in self.pendingIncomingMessages[conversationIdentifier]:
                 self.onMessage(messageNode)
 
-            del self.pendingIncomingMessages[jid]
+            del self.pendingIncomingMessages[conversationIdentifier]
 
     ##### handling received data #####
 
@@ -90,22 +91,25 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
                 self.handleSenderKeyMessage(node)
         except InvalidMessageException as e:
             logger.error(e)
-            retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node)
-            retry.setRegData(self.store.getLocalRegistrationId())
+            retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node, self.store.getLocalRegistrationId())
             self.toLower(retry.toProtocolTreeNode())
         except InvalidKeyIdException as e:
             logger.error(e)
-            retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node)
-            retry.setRegData(self.store.getLocalRegistrationId())
+            retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node,self.store.getLocalRegistrationId())
             self.toLower(retry.toProtocolTreeNode())
         except NoSessionException as e:
             logger.error(e)
             entity = GetKeysIqProtocolEntity([senderJid])
-            if senderJid not in self.pendingIncomingMessages:
-                self.pendingIncomingMessages[senderJid] = []
-            self.pendingIncomingMessages[senderJid].append(node)
 
-            self.getKeysFor([senderJid],  lambda: self.processPendingIncomingMessages(senderJid))
+            conversationIdentifier = (node["from"], node["participant"])
+
+            if conversationIdentifier not in self.pendingIncomingMessages:
+                self.pendingIncomingMessages[conversationIdentifier] = []
+            self.pendingIncomingMessages[conversationIdentifier].append(node)
+
+            successFn = lambda successJids, b: self.processPendingIncomingMessages(*conversationIdentifier) if len(successJids) else None
+
+            self.getKeysFor([senderJid], successFn)
 
         except DuplicateMessageException as e:
             logger.error(e)
@@ -113,7 +117,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]).toProtocolTreeNode())
 
         except UntrustedIdentityException as e:
-            if self.getProp(self.__class__.PROP_IDENTITY_AUTOTRUST, False):
+            if self.getProp(PROP_IDENTITY_AUTOTRUST, False):
                 logger.warning("Autotrusting identity for %s" % e.getName())
                 self.store.saveIdentity(e.getName(), e.getIdentityKey())
                 return self.handleEncMessage(node)
@@ -157,12 +161,11 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             plaintext = groupCipher.decrypt(enc.getData())
             padding = ord(plaintext[-1]) & 0xFF
             self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext[:-padding])
+
         except NoSessionException as e:
             logger.error(e)
-            retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node)
-            retry.setRegData(self.store.getLocalRegistrationId())
+            retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node, self.store.getLocalRegistrationId())
             self.toLower(retry.toProtocolTreeNode())
-
 
     def parseAndHandleMessageProto(self, encMessageProtocolEntity, serializedData):
         node = encMessageProtocolEntity.toProtocolTreeNode()

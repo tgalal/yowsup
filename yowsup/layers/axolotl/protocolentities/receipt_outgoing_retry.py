@@ -1,4 +1,4 @@
-from yowsup.structs import ProtocolEntity, ProtocolTreeNode
+from yowsup.structs import ProtocolTreeNode
 from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
 from yowsup.layers.axolotl.protocolentities.iq_keys_get_result import ResultGetKeysIqProtocolEntity
 class RetryOutgoingReceiptProtocolEntity(OutgoingReceiptProtocolEntity):
@@ -11,32 +11,35 @@ class RetryOutgoingReceiptProtocolEntity(OutgoingReceiptProtocolEntity):
             HEX:xxxxxxxxx
         </registration>
     </receipt>
-
     '''
 
-    def __init__(self, _id, to, t, v = "1", count = "1",regData = "", participant = None):
-        super(RetryOutgoingReceiptProtocolEntity, self).__init__(_id,to, participant=participant)
-        self.setRetryData(t,v,count,regData)
-
-    def setRetryData(self, t,v,count,regData):
-        self.t = int(t)
-        self.v = int(v)
-        self.count = int(count)
-        self.regData = regData
-
-    def setRegData(self,regData):
+    def __init__(self, _id, jid, localRegistrationId, retryTimestamp, v = 1, count = 1, participant = None):
+        super(RetryOutgoingReceiptProtocolEntity, self).__init__(_id, jid, participant=participant)
         '''
-        In axolotl layer:
-        regData = self.store.getLocalRegistrationId()
+            Note to self: Android clients won't retry sending if the retry node didn't contain the message timestamp
         '''
-        self.regData = ResultGetKeysIqProtocolEntity._intToBytes(regData)
+        self.setRetryData(localRegistrationId, v,count, retryTimestamp)
+
+    def setRetryData(self, localRegistrationId, v, count, retryTimestamp):
+        self.localRegistrationId =  localRegistrationId
+        self.v = v
+        self.count = count
+        self.retryTimestamp = int(retryTimestamp)
 
     def toProtocolTreeNode(self):
         node = super(RetryOutgoingReceiptProtocolEntity, self).toProtocolTreeNode()
         node.setAttribute("type", "retry")
-        retry = ProtocolTreeNode("retry", {"count": str(self.count),"t":str(self.t),"id":self.getId(),"v":str(self.v)})
+
+        retryAttribs = {
+            "count": str(self.count),
+            "id":self.getId(),
+            "v":str(self.v),
+            "t":  str(self.retryTimestamp)
+        }
+
+        retry = ProtocolTreeNode("retry", retryAttribs)
         node.addChild(retry)
-        registration = ProtocolTreeNode("registration",data=self.regData)
+        registration = ProtocolTreeNode("registration", data=ResultGetKeysIqProtocolEntity._intToBytes(self.localRegistrationId))
         node.addChild(registration)
         return node
 
@@ -49,15 +52,16 @@ class RetryOutgoingReceiptProtocolEntity(OutgoingReceiptProtocolEntity):
         entity = OutgoingReceiptProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = RetryOutgoingReceiptProtocolEntity
         retryNode = node.getChild("retry")
-        entity.setRetryData(retryNode["t"], retryNode["v"], retryNode["count"], node.getChild("registration").data)
+        entity.setRetryData(ResultGetKeysIqProtocolEntity._bytesToInt(node.getChild("registration").data), retryNode["v"], retryNode["count"], retryNode["t"])
 
+        return entity
 
     @staticmethod
-    def fromMessageNode(MessageNodeToBeRetried):
+    def fromMessageNode(messageNodeToBeRetried, localRegistrationId):
         return RetryOutgoingReceiptProtocolEntity(
-            MessageNodeToBeRetried.getAttributeValue("id"),
-            MessageNodeToBeRetried.getAttributeValue("from"),
-            MessageNodeToBeRetried.getAttributeValue("t"),
-            1,
-            participant=MessageNodeToBeRetried.getAttributeValue("participant")
+            messageNodeToBeRetried.getAttributeValue("id"),
+            messageNodeToBeRetried.getAttributeValue("from"),
+            localRegistrationId,
+            messageNodeToBeRetried.getAttributeValue("t"),
+            participant=messageNodeToBeRetried.getAttributeValue("participant")
         )
