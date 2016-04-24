@@ -5,16 +5,16 @@ class TokenDictionaryTest(unittest.TestCase):
         self.tokenDictionary = TokenDictionary()
 
     def test_getToken(self):
-        self.assertEqual(self.tokenDictionary.getToken(74), "iq")
+        self.assertEqual(self.tokenDictionary.getToken(80), "iq")
 
     def test_getIndex(self):
-        self.assertEqual(self.tokenDictionary.getIndex("iq"), (74, False))
+        self.assertEqual(self.tokenDictionary.getIndex("iq"), (80, False))
 
     def test_getSecondaryToken(self):
-        self.assertEqual(self.tokenDictionary.getToken(238), "wmv")
+        self.assertEqual(self.tokenDictionary.getToken(238), "amrnb")
 
     def test_getSecondaryTokenExplicit(self):
-        self.assertEqual(self.tokenDictionary.getToken(1, True), "wmv")
+        self.assertEqual(self.tokenDictionary.getToken(11, True), "wmv")
 
     def test_getSecondaryIndex(self):
-        self.assertEqual(self.tokenDictionary.getIndex("wmv"), (1, True))
+        self.assertEqual(self.tokenDictionary.getIndex("wmv"), (11, True))
