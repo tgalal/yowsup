@@ -4,7 +4,11 @@ from yowsup.layers.network import YowNetworkLayer
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from yowsup.layers.protocol_media.protocolentities.iq_requestupload import RequestUploadIqProtocolEntity
 from yowsup.layers.protocol_media.mediauploader import MediaUploader
+from yowsup.layers.network.layer import YowNetworkLayer
+from yowsup.layers import EventCallback
 import inspect
+import logging
+logger = logging.getLogger(__name__)
 
 class ProtocolEntityCallback(object):
     def __init__(self, entityType):
@@ -17,8 +21,11 @@ class ProtocolEntityCallback(object):
 
 class YowInterfaceLayer(YowLayer):
 
+    PROP_RECONNECT_ON_STREAM_ERR = "org.openwhatsapp.yowsup.prop.interface.reconnect_on_stream_error"
+
     def __init__(self):
         super(YowInterfaceLayer, self).__init__()
+        self.reconnect = False
         self.entity_callbacks = {}
         self.iqRegistry = {}
         # self.receiptsRegistry = {}
@@ -73,6 +80,27 @@ class YowInterfaceLayer(YowLayer):
                 self.entity_callbacks[entityType](entity)
             else:
                 self.toUpper(entity)
+
+    @ProtocolEntityCallback("stream:error")
+    def onStreamError(self, streamErrorEntity):
+        logger.error(streamErrorEntity)
+        if self.getProp(self.__class__.PROP_RECONNECT_ON_STREAM_ERR, True):
+            logger.info("Initiating reconnect")
+            self.reconnect = True
+            self.disconnect()
+        else:
+            logger.warn("No reconnecting because property %s is not set" % self.__class__.PROP_RECONNECT_ON_STREAM_ERR)
+        self.toUpper(streamErrorEntity)
+
+    @EventCallback(YowNetworkLayer.EVENT_STATE_CONNECTED)
+    def onConnected(self, yowLayerEvent):
+        self.reconnect = False
+
+    @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
+    def onDisconnected(self, yowLayerEvent):
+        if self.reconnect:
+            self.reconnect = False
+            self.connect()
 
     def _sendMediaMessage(self, builder, success, error = None, progress = None):
         # axolotlIface = self.getLayerInterface(YowAxolotlLayer)
