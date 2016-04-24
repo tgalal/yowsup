@@ -19,9 +19,9 @@ class RetryIncomingReceiptProtocolEntity(IncomingReceiptProtocolEntity):
 
     def setRetryData(self, remoteRegistrationId, v, count, retryTimestamp):
         self.remoteRegistrationId =  remoteRegistrationId
-        self.v = v
-        self.count = count
-        self.retryTimestamp = retryTimestamp
+        self.v = int(v)
+        self.count = int(count)
+        self.retryTimestamp = int(retryTimestamp)
 
     def toProtocolTreeNode(self):
         node = super(RetryIncomingReceiptProtocolEntity, self).toProtocolTreeNode()

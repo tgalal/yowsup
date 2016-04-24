@@ -132,7 +132,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getAuthor(False))
         plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
         if enc.getVersion() == 2:
-            padding = ord(plaintext[-1]) & 0xFF
+            paddingByte = plaintext[-1] if type(plaintext[-1]) is int else ord(plaintext[-1])
+            padding = paddingByte & 0xFF
             self.parseAndHandleMessageProto(pkMessageProtocolEntity, plaintext[:-padding])
         else:
             self.handleConversationMessage(node, plaintext)
@@ -146,7 +147,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         plaintext = sessionCipher.decryptMsg(whisperMessage)
 
         if enc.getVersion() == 2:
-            padding = ord(plaintext[-1]) & 0xFF
+            paddingByte = plaintext[-1] if type(plaintext[-1]) is int else ord(plaintext[-1])
+            padding = paddingByte & 0xFF
             self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext[:-padding])
         else:
             self.handleConversationMessage(encMessageProtocolEntity.toProtocolTreeNode(), plaintext)
@@ -160,7 +162,9 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         try:
             plaintext = groupCipher.decrypt(enc.getData())
             padding = ord(plaintext[-1]) & 0xFF
-            self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext[:-padding])
+            plaintext = plaintext[:-padding]
+            plaintext = plaintext.encode() if sys.version_info >= (3, 0) else plaintext
+            self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
 
         except NoSessionException as e:
             logger.error(e)
