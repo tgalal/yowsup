@@ -1,6 +1,7 @@
 from yowsup.layers.protocol_messages.protocolentities import MessageProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 import sys
+from yowsup.layers.axolotl.protocolentities.enc import EncProtocolEntity
 class EncryptedMessageProtocolEntity(MessageProtocolEntity):
     '''
     <message retry="1" from="49xxxxxxxx@s.whatsapp.net" t="1418906418" offline="1" type="text" id="1418906377-1" notify="Tarek Galal">
@@ -9,46 +10,40 @@ HEX:33089eb3c90312210510e0196be72fe65913c6a84e75a54f40a3ee290574d6a23f408df990e7
 </message>
     '''
 
-    TYPE_PKMSG = "pkmsg"
-    TYPE_MSG = "msg"
-
-    def __init__(self, encType, encVersion, encData, _type, _id = None,  _from = None, to = None, notify = None, timestamp = None,
+    def __init__(self, encEntities, _type, _id = None,  _from = None, to = None, notify = None, timestamp = None,
             participant = None, offline = None, retry = None ):
         super(EncryptedMessageProtocolEntity, self).__init__(_type, _id = _id,  _from = _from, to = to, notify = notify,
                                                       timestamp = timestamp, participant = participant, offline = offline,
                                                       retry = retry)
+        self.setEncEntities(encEntities)
 
-        self.setEncProps(encType, encVersion, encData)
+    def setEncEntities(self, encEntities):
+        assert len(encEntities), "Must have at least 1 enc entity"
+        self.encEntities = encEntities
 
-    def setEncProps(self, encType, encVersion, encData):
-        assert encType in "pkmsg", "msg"
-        self.encType = encType
-        self.encVersion = int(encVersion)
-        self.encData = encData
-
-    def getEncType(self):
-        return self.encType
-
-    def getEncData(self):
-        return self.encData
-
-    def getVersion(self):
-        return self.encVersion
+    def getEnc(self, encType):
+        for enc in self.encEntities:
+            if enc.type == encType:
+                return enc
 
     def toProtocolTreeNode(self):
         node = super(EncryptedMessageProtocolEntity, self).toProtocolTreeNode()
-        encNode = ProtocolTreeNode("enc", data = self.encData)
-        encNode["type"] = self.encType
-        encNode["v"] = str(self.encVersion)
+        participantsNode = ProtocolTreeNode("participants")
+        for enc in self.encEntities:
+            encNode = enc.toProtocolTreeNode()
+            if encNode.tag == "to":
+                participantsNode.addChild(encNode)
+            else:
+                node.addChild(encNode)
 
-        node.addChild(encNode)
+        if len(participantsNode.getAllChildren()):
+            node.addChild(participantsNode)
+
         return node
 
     @staticmethod
     def fromProtocolTreeNode(node):
         entity = MessageProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = EncryptedMessageProtocolEntity
-        encNode = node.getChild("enc")
-        entity.setEncProps(encNode["type"], encNode["v"],
-                           encNode.data.encode('latin-1') if sys.version_info >= (3,0) else encNode.data)
+        entity.setEncEntities([EncProtocolEntity.fromProtocolTreeNode(encNode) for encNode in node.getAllChildren("enc")])
         return entity

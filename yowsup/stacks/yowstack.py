@@ -70,8 +70,9 @@ class YowStackBuilder(object):
 
         allLayers = coreLayers
         if axolotl:
-            from yowsup.layers.axolotl import YowAxolotlLayer
-            allLayers += (YowAxolotlLayer,)
+            from yowsup.layers.axolotl import AxolotlSendLayer, AxolotlControlLayer, AxolotlReceivelayer
+            allLayers += (AxolotlControlLayer,)
+            allLayers += (YowParallelLayer((AxolotlSendLayer, AxolotlReceivelayer)),)
 
         allLayers += (YowParallelLayer(protocolLayers),)
 
