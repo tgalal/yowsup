@@ -50,7 +50,7 @@ class ReadDecoder:
     def readNibble(self, data):
         _byte = self.readInt8(data)
         ignoreLastNibble = bool(_byte & 0x80)
-        size = (_byte & 0x7f);
+        size = (_byte & 0x7f)
         nrOfNibbles = size * 2 - int(ignoreLastNibble)
         dataArr = self.readArray(size, data)
         string = ''
@@ -74,7 +74,7 @@ class ReadDecoder:
             remove = 1
         size = size & 0x7F
         text = bytearray(self.readArray(size, data))
-        hexData = binascii.hexlify(text).upper()
+        hexData = binascii.hexlify(str(text) if sys.version_info < (2,7) else text).upper()
         dataSize = len(hexData)
         out = []
         if remove == 0:
