@@ -79,7 +79,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
         isGroup =  node["participant"] is not None
         senderJid = node["participant"] if isGroup else node["from"]
-        encNode = None
         if node.getChild("enc")["v"] == "2" and node["from"] not in self.v2Jids:
             self.v2Jids.append(node["from"])
         try:
@@ -89,17 +88,12 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
                 self.handleWhisperMessage(node)
             if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG):
                 self.handleSenderKeyMessage(node)
-        except InvalidMessageException as e:
-            logger.error(e)
+        except (InvalidMessageException, InvalidKeyIdException) as e:
+            logger.warning("InvalidMessage or KeyId for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
             retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node, self.store.getLocalRegistrationId())
             self.toLower(retry.toProtocolTreeNode())
-        except InvalidKeyIdException as e:
-            logger.error(e)
-            retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node,self.store.getLocalRegistrationId())
-            self.toLower(retry.toProtocolTreeNode())
         except NoSessionException as e:
-            logger.error(e)
-            entity = GetKeysIqProtocolEntity([senderJid])
+            logger.warning("No session for %s, getting their keys now", encMessageProtocolEntity.getAuthor(False))
 
             conversationIdentifier = (node["from"], node["participant"])
 
@@ -112,18 +106,16 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.getKeysFor([senderJid], successFn)
 
         except DuplicateMessageException as e:
-            logger.error(e)
-            logger.warning("Going to send the delivery receipt myself !")
+            logger.warning("Received a message that we've previously decrypted, goint to send the delivery receipt myself", exc_info=1)
             self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]).toProtocolTreeNode())
 
         except UntrustedIdentityException as e:
             if self.getProp(PROP_IDENTITY_AUTOTRUST, False):
-                logger.warning("Autotrusting identity for %s" % e.getName())
+                logger.warning("Autotrusting identity for %s", e.getName(), exc_info=1)
                 self.store.saveIdentity(e.getName(), e.getIdentityKey())
                 return self.handleEncMessage(node)
             else:
-                logger.error(e)
-                logger.warning("Ignoring message with untrusted identity")
+                logger.error("Ignoring message with untrusted identity", exc_info=1)
 
     def handlePreKeyWhisperMessage(self, node):
         pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
@@ -167,7 +159,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
 
         except NoSessionException as e:
-            logger.error(e)
+            logger.warning("No session for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
             retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node, self.store.getLocalRegistrationId())
             self.toLower(retry.toProtocolTreeNode())
 
