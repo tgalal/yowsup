@@ -106,16 +106,16 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.getKeysFor([senderJid], successFn)
 
         except DuplicateMessageException as e:
-            logger.warning("Received a message that we've previously decrypted, goint to send the delivery receipt myself", exc_info=1)
+            logger.warning("Received a message that we've previously decrypted, goint to send the delivery receipt myself")
             self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]).toProtocolTreeNode())
 
         except UntrustedIdentityException as e:
             if self.getProp(PROP_IDENTITY_AUTOTRUST, False):
-                logger.warning("Autotrusting identity for %s", e.getName(), exc_info=1)
+                logger.warning("Autotrusting identity for %s", e.getName())
                 self.store.saveIdentity(e.getName(), e.getIdentityKey())
                 return self.handleEncMessage(node)
             else:
-                logger.error("Ignoring message with untrusted identity", exc_info=1)
+                logger.error("Ignoring message with untrusted identity")
 
     def handlePreKeyWhisperMessage(self, node):
         pkMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
