@@ -264,7 +264,7 @@ class ReadDecoder:
         else:
             nodeData = self.readString(read2, data)
 
-        if nodeData:
+        if nodeData and not type(nodeData) is str:
             nodeData = "".join(map(chr, nodeData))
 
         return ProtocolTreeNode(tag, attribs, nodeChildren, nodeData)
