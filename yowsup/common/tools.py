@@ -1,4 +1,5 @@
 import time,datetime,re, hashlib
+import calendar
 from dateutil import tz
 import os
 from .constants import YowConstants
@@ -108,9 +109,8 @@ class TimeTools:
 
     @staticmethod
     def utcTimestamp():
-        #utc = tz.gettz('UTC')
         utcNow = datetime.datetime.utcnow()
-        return TimeTools.datetimeToTimestamp(utcNow)
+        return calendar.timegm(utcNow.timetuple())
 
     @staticmethod
     def datetimeToTimestamp(dt):
