@@ -4,6 +4,8 @@ from six import with_metaclass
 
 logger = logging.getLogger(__name__)
 
+DEFAULT = "s40"
+
 class YowsupEnvType(abc.ABCMeta):
     def __init__(cls, name, bases, dct):
         if name != "YowsupEnv":
@@ -44,9 +46,12 @@ class YowsupEnv(with_metaclass(YowsupEnvType, object)):
     @classmethod
     def getCurrent(cls):
         if cls.__CURR is None:
-            newEnvName = cls.getRegisteredEnvs()[0]
-            logger.debug("Env not set, setting it to %s" % newEnvName )
-            cls.setEnv(newEnvName)
+            env = DEFAULT
+            envs = cls.getRegisteredEnvs()
+            if env not in envs:
+                env = envs[0]
+            logger.debug("Env not set, setting it to %s" % env)
+            cls.setEnv(env)
         return cls.__CURR
 
     @abc.abstractmethod
