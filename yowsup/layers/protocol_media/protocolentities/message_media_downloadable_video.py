@@ -1,6 +1,7 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
 from yowsup.common.tools import VideoTools
+from .builder_message_media_downloadable import DownloadableMediaMessageBuilder
 
 class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
     '''
@@ -129,14 +130,26 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         return entity
 
     @staticmethod
+    def getBuilder(jid, filepath):
+        return DownloadableMediaMessageBuilder(VideoDownloadableMediaMessageProtocolEntity, jid, filepath)
+ 
+    @staticmethod
     def fromFilePath(path, url, ip, to, mimeType = None, caption = None):
-        preview = VideoTools.generatePreviewFromVideo(path)
-        entity = DownloadableMediaMessageProtocolEntity.fromFilePath(path, url, DownloadableMediaMessageProtocolEntity.MEDIA_TYPE_VIDEO, ip, to, mimeType, preview)
-        entity.__class__ = VideoDownloadableMediaMessageProtocolEntity
+        #preview = VideoTools.generatePreviewFromVideo(path)
+        #entity = DownloadableMediaMessageProtocolEntity.fromFilePath(path, url, DownloadableMediaMessageProtocolEntity.MEDIA_TYPE_VIDEO, ip, to, mimeType, preview)
+        #entity.__class__ = VideoDownloadableMediaMessageProtocolEntity
 
-        width, height, bitrate, duration = VideoTools.getVideoProperties(path)
-        assert width, "Could not determine video properties"
+        #width, height, bitrate, duration = VideoTools.getVideoProperties(path)
+        #assert width, "Could not determine video properties"
 
-        duration = int(duration)
-        entity.setVideoProps('raw', width, height, duration=duration, seconds=duration, caption=caption)
-        return entity
+        #duration = int(duration)
+        #entity.setVideoProps('raw', width, height, duration=duration, seconds=duration, caption=caption)
+        #return entity
+        builder = VideoDownloadableMediaMessageProtocolEntity.getBuilder(to, path)
+        builder.set("url", url)
+        builder.set("ip", ip)
+        #builder.set("caption", caption)
+        builder.set("mimetype", mimeType)
+        #builder.set("dimensions", dimensions)
+        return VideoDownloadableMediaMessageProtocolEntity.fromBuilder(builder)
+
