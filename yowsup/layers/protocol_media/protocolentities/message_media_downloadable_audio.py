@@ -1,5 +1,6 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
+from .builder_message_media_downloadable import DownloadableMediaMessageBuilder
 class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
     '''
     <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}"
@@ -89,11 +90,16 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         )
         return entity
 
-
+    @staticmethod
+    def getBuilder(jid, filepath):
+        return DownloadableMediaMessageBuilder(AudioDownloadableMediaMessageProtocolEntity, jid, filepath)
 
     @staticmethod
     def fromFilePath(fpath, url, ip, to, mimeType = None, preview = None, filehash = None, filesize = None):
-        entity = DownloadableMediaMessageProtocolEntity.fromFilePath(fpath, url, DownloadableMediaMessageProtocolEntity.MEDIA_TYPE_AUDIO, ip, to, mimeType, preview)
-        entity.__class__ = AudioDownloadableMediaMessageProtocolEntity
-        entity.setAudioProps()
-        return entity
+        builder = AudioDownloadableMediaMessageProtocolEntity.getBuilder(to, fpath)
+        builder.set("url", url)
+        builder.set("ip", ip)
+        #builder.set("caption", caption)
+        builder.set("mimetype", mimeType)
+        #builder.set("dimensions", dimensions)
+        return AudioDownloadableMediaMessageProtocolEntity.fromBuilder(builder)
