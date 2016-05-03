@@ -1,4 +1,5 @@
 import time,datetime,re, hashlib
+import calendar
 from dateutil import tz
 import os
 from .constants import YowConstants
@@ -9,6 +10,7 @@ import base64
 import hashlib
 import os.path, mimetypes
 from .optionalmodules import PILOptionalModule, FFVideoOptionalModule
+from pkg_resources import resource_string
 
 logger = logging.getLogger(__name__)
 
@@ -107,9 +109,8 @@ class TimeTools:
 
     @staticmethod
     def utcTimestamp():
-        #utc = tz.gettz('UTC')
         utcNow = datetime.datetime.utcnow()
-        return TimeTools.datetimeToTimestamp(utcNow)
+        return calendar.timegm(utcNow.timetuple())
 
     @staticmethod
     def datetimeToTimestamp(dt):
@@ -150,10 +151,9 @@ class ImageTools:
         return preview
 
 class MimeTools:
-    MIME_FILE = os.path.join(os.path.dirname(__file__), 'mime.types')
+    MIME_FILE = resource_string(__name__, 'mime.types')
     mimetypes.init() # Load default mime.types
     mimetypes.init([MIME_FILE]) # Append whatsapp mime.types
-    decode_hex = codecs.getdecoder("hex_codec")
 
     @staticmethod
     def getMIME(filepath):

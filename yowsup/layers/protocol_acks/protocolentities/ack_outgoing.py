@@ -1,4 +1,3 @@
-from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .ack import AckProtocolEntity
 class OutgoingAckProtocolEntity(AckProtocolEntity):
 
@@ -11,15 +10,15 @@ class OutgoingAckProtocolEntity(AckProtocolEntity):
 
     '''
 
-    def __init__(self, _id, _class, _type, _to, _participant = None):
+    def __init__(self, _id, _class, _type, to, participant = None):
         super(OutgoingAckProtocolEntity, self).__init__(_id, _class)
-        self.setOutgoingData(_type, _to, _participant)
+        self.setOutgoingData(_type, to, participant)
 
     def setOutgoingData(self, _type, _to, _participant):
         self._type = _type
         self._to = _to
         self._participant = _participant
-    
+
     def toProtocolTreeNode(self):
         node = super(OutgoingAckProtocolEntity, self).toProtocolTreeNode()
         if self._type:
