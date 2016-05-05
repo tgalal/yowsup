@@ -32,7 +32,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class YowAxolotlLayer(YowProtocolLayer):
-    EVENT_PREKEYS_SET = "org.openwhatsapp.yowsup.events.axololt.setkeys"
+    EVENT_PREKEYS_SET = "org.openwhatsapp.yowsup.events.axolotl.setkeys"
     _STATE_INIT = 0
     _STATE_GENKEYS = 1
     _STATE_HASKEYS = 2
