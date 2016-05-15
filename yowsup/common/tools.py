@@ -152,8 +152,10 @@ class ImageTools:
 class MimeTools:
     MIME_FILE = os.path.join(os.path.dirname(__file__), 'mime.types')
     mimetypes.init() # Load default mime.types
-    mimetypes.init([MIME_FILE]) # Append whatsapp mime.types
-    decode_hex = codecs.getdecoder("hex_codec")
+    try:
+        mimetypes.init([MIME_FILE]) # Append whatsapp mime.types
+    except exception as e:
+        logger.warning("Mime types supported can't be read. System mimes will be used. Cause: " + e.message)
 
     @staticmethod
     def getMIME(filepath):
