@@ -44,6 +44,7 @@ class YowLayer(object):
         self.setLayers(None, None)
         self.interface = None
         self.event_callbacks = {}
+        self.__stack = None
         members = inspect.getmembers(self, predicate=inspect.ismethod)
         for m in members:
             if hasattr(m[1], "event_callback"):

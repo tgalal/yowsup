@@ -1,39 +1,30 @@
-import base64
-import binascii
-import os
-
-from Crypto.Cipher import AES
-from axolotl.kdf.hkdfv3 import HKDFv3
-from axolotl.util.byteutil import ByteUtil
-
-from yowsup.common.tools import MimeTools
-from yowsup.common.tools import WATools
 from .message_media import MediaMessageProtocolEntity
-
-
+from yowsup.common.tools import WATools
+from yowsup.common.tools import MimeTools
+import os
 class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     '''
-    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
+    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}"
         offline="{{OFFLINE}}" type="text" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
         <media type="{{DOWNLOADABLE_MEDIA_TYPE: (image | audio | video)}}"
-            mimetype="{{MIME_TYPE}}" 
+            mimetype="{{MIME_TYPE}}"
             filehash="{{FILE_HASH}}"
-            url="{{DOWNLOAD_URL}}" 
+            url="{{DOWNLOAD_URL}}"
             ip="{{IP}}"
             size="{{MEDIA SIZE}}"
-            file="{{FILENAME}}" 
+            file="{{FILENAME}}"
 
             > {{THUMBNAIL_RAWDATA (JPEG?)}}
         </media>
     </message>
     '''
     def __init__(self, mediaType,
-            mimeType, fileHash, url, ip, size, fileName, 
-            _id = None, _from = None, to = None, notify = None, timestamp = None, 
-            participant = None, preview = None, offline = None, retry = None, refkey = None):
+            mimeType, fileHash, url, ip, size, fileName, mediaKey = None,
+            _id = None, _from = None, to = None, notify = None, timestamp = None,
+            participant = None, preview = None, offline = None, retry = None):
 
         super(DownloadableMediaMessageProtocolEntity, self).__init__(mediaType, _id, _from, to, notify, timestamp, participant, preview, offline, retry)
-        self.setDownloadableMediaProps(mimeType, fileHash, url, ip, size, fileName, refkey)
+        self.setDownloadableMediaProps(mimeType, fileHash, url, ip, size, fileName, mediaKey)
 
     def __str__(self):
         out  = super(DownloadableMediaMessageProtocolEntity, self).__str__()
@@ -43,30 +34,7 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         out += "IP: %s\n" % self.ip
         out += "File Size: %s\n" % self.size
         out += "File name: %s\n" % self.fileName
-        out += "File %s encrypted\n" % "is" if self.refkey else "is NOT"
         return out
-
-    def decrypt(self, encimg, refkey):
-        derivative = HKDFv3().deriveSecrets(refkey, binascii.unhexlify('576861747341707020496d616765204b657973'), 112)
-        parts = ByteUtil.split(derivative, 16, 32)
-        iv = parts[0]
-        cipherKey = parts[1]
-        e_img = encimg[:-10]
-        AES.key_size=128
-        cr_obj = AES.new(key=cipherKey,mode=AES.MODE_CBC,IV=iv)
-        return cr_obj.decrypt(e_img)
-
-    def getMediaContent(self):
-        import sys
-        if sys.version_info >= (3, 0):
-            from urllib.request import urlopen
-        else:
-            from urllib2 import urlopen
-
-        data = urlopen(self.url).read()
-        if self.refkey:
-            data = self.decrypt(data, self.refkey)
-        return bytearray(data)
 
     def getMediaSize(self):
         return self.size
@@ -77,14 +45,14 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     def getMimeType(self):
         return self.mimeType
 
-    def setDownloadableMediaProps(self, mimeType, fileHash, url, ip, size, fileName, refkey):
+    def setDownloadableMediaProps(self, mimeType, fileHash, url, ip, size, fileName, mediaKey):
         self.mimeType   = mimeType
         self.fileHash   = fileHash
         self.url        = url
         self.ip         = ip
         self.size       = int(size)
         self.fileName   = fileName
-        self.refkey     = refkey
+        self.mediaKey   = mediaKey
 
     def toProtocolTreeNode(self):
         node = super(DownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
@@ -96,8 +64,13 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
             mediaNode.setAttribute("ip",        self.ip)
         mediaNode.setAttribute("size",      str(self.size))
         mediaNode.setAttribute("file",      self.fileName)
+        if self.mediaKey:
+            mediaNode.setAttribute("mediakey", self.mediaKey)
 
         return node
+
+    def isEncrypted(self):
+        return self.mediaKey is not None
 
     @staticmethod
     def fromProtocolTreeNode(node):
@@ -111,18 +84,17 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
             mediaNode.getAttributeValue("ip"),
             mediaNode.getAttributeValue("size"),
             mediaNode.getAttributeValue("file"),
-            base64.b64decode(mediaNode.getAttributeValue("refkey")) if mediaNode.getAttributeValue("refkey") else None
+            mediaNode.getAttributeValue("mediakey")
             )
-        f=open('/tmp/my2.jpg','wb')
-        f.write(entity.getMediaContent())
-        f.close()
         return entity
 
     @staticmethod
-    def fromFilePath(fpath, url, mediaType, ip, to, mimeType = None, preview = None, filehash = None, filesize = None):
-        mimeType = mimeType or MimeTools.getMIME(fpath)
-        filehash = filehash or WATools.getFileHashForUpload(fpath)
-        size = filesize or os.path.getsize(fpath)
-        fileName = os.path.basename(fpath)
-
-        return DownloadableMediaMessageProtocolEntity(mediaType, mimeType, filehash, url, ip, size, fileName, to = to, preview = preview)
+    def fromBuilder(builder):
+        url = builder.get("url")
+        ip = builder.get("ip")
+        assert url, "Url is required"
+        mimeType = builder.get("mimetype", MimeTools.getMIME(builder.getOriginalFilepath())[0])
+        filehash = WATools.getFileHashForUpload(builder.getFilepath())
+        size = os.path.getsize(builder.getFilepath())
+        fileName = os.path.basename(builder.getFilepath())
+        return DownloadableMediaMessageProtocolEntity(builder.mediaType, mimeType, filehash, url, ip, size, fileName, to = builder.jid, preview = builder.get("preview"))
