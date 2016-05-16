@@ -1,12 +1,15 @@
-from .message_media import MediaMessageProtocolEntity
-from yowsup.common.tools import WATools
-from yowsup.common.tools import MimeTools
+import base64
+import binascii
 import os
+
 from Crypto.Cipher import AES
 from axolotl.kdf.hkdfv3 import HKDFv3
 from axolotl.util.byteutil import ByteUtil
-import binascii
-import base64
+
+from yowsup.common.tools import MimeTools
+from yowsup.common.tools import WATools
+from .message_media import MediaMessageProtocolEntity
+
 
 class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     '''
@@ -55,7 +58,7 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
 
     def getMediaContent(self):
         import sys
-        if sys.version_info >= (3,0):
+        if sys.version_info >= (3, 0):
             from urllib.request import urlopen
         else:
             from urllib2 import urlopen
@@ -123,4 +126,3 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         fileName = os.path.basename(fpath)
 
         return DownloadableMediaMessageProtocolEntity(mediaType, mimeType, filehash, url, ip, size, fileName, to = to, preview = preview)
-
