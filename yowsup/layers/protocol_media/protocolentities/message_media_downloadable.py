@@ -113,7 +113,7 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
             mediaNode.getAttributeValue("ip"),
             mediaNode.getAttributeValue("size"),
             mediaNode.getAttributeValue("file"),
-            base64.b64decode(mediaNode.getAttributeValue("refkey"))
+            base64.b64decode(mediaNode.getAttributeValue("refkey")) if mediaNode.getAttributeValue("refkey") else None
         )
         return entity
 
