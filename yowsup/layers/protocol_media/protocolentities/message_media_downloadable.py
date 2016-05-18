@@ -1,3 +1,9 @@
+import binascii
+
+from Crypto.Cipher import AES
+from axolotl.kdf.hkdfv3 import HKDFv3
+from axolotl.util.byteutil import ByteUtil
+
 from .message_media import MediaMessageProtocolEntity
 from yowsup.common.tools import WATools
 from yowsup.common.tools import MimeTools
@@ -35,6 +41,28 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         out += "File Size: %s\n" % self.size
         out += "File name: %s\n" % self.fileName
         return out
+
+    def decrypt(self, encimg, refkey):
+        derivative = HKDFv3().deriveSecrets(refkey, binascii.unhexlify('576861747341707020496d616765204b657973'), 112)
+        parts = ByteUtil.split(derivative, 16, 32)
+        iv = parts[0]
+        cipherKey = parts[1]
+        e_img = encimg[:-10]
+        AES.key_size = 128
+        cr_obj = AES.new(key=cipherKey, mode=AES.MODE_CBC, IV=iv)
+        return cr_obj.decrypt(e_img)
+
+    def getMediaContent(self):
+        import sys
+        if sys.version_info >= (3, 0):
+            from urllib.request import urlopen
+        else:
+            from urllib2 import urlopen
+
+        data = urlopen(self.url).read()
+        if self.refkey:
+            data = self.decrypt(data, self.refkey)
+        return bytearray(data)
 
     def getMediaSize(self):
         return self.size
