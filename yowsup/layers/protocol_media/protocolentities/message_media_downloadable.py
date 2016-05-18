@@ -1,3 +1,4 @@
+import base64
 import binascii
 
 from Crypto.Cipher import AES
@@ -112,8 +113,8 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
             mediaNode.getAttributeValue("ip"),
             mediaNode.getAttributeValue("size"),
             mediaNode.getAttributeValue("file"),
-            mediaNode.getAttributeValue("mediakey")
-            )
+            base64.b64decode(mediaNode.getAttributeValue("refkey"))
+        )
         return entity
 
     @staticmethod
