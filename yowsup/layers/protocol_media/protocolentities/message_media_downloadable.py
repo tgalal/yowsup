@@ -60,8 +60,8 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
             from urllib2 import urlopen
 
         data = urlopen(self.url).read()
-        if self.refkey:
-            data = self.decrypt(data, self.refkey)
+        if self.mediaKey:
+            data = self.decrypt(data, self.mediaKey)
         return bytearray(data)
 
     def getMediaSize(self):
