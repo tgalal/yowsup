@@ -46,17 +46,6 @@ class AxolotlSendLayer(AxolotlBaseLayer):
     def send(self, node):
         if node.tag == "message" and node["to"] not in self.skipEncJids and not node.getChild("enc") and (not node.getChild("media") or node.getChild("media")["mediakey"]):
             self.processPlaintextNodeAndSend(node)
-        # elif node.tag == "iq" and node["xmlns"] == "w:m":
-        #     mediaNode = node.getChild("media")
-        #     if mediaNode and mediaNode["type"] == "image":
-        #         iqNode = IqProtocolEntity.fromProtocolTreeNode(node).toProtocolTreeNode()
-        #         iqNode.addChild(ProtocolTreeNode(
-        #             "encr_media", {
-        #                 "type": mediaNode["type"],
-        #                 "hash": mediaNode["hash"]
-        #             }
-        #         ))
-        #         self.toLower(iqNode)
         else:
             self.toLower(node)
 
