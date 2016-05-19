@@ -198,16 +198,16 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         elif m.HasField("image_message"):
             handled = True
             self.handleImageMessage(node, m.image_message)
-        elif m.HasField("audio_message"):
-            handled = True
-            self.handleAudioMessage(node, m.image_message)
-        elif m.HasField("video_message"):
-            handled = True
-            self.handleVideoMessage(node, m.image_message)
+        # elif m.HasField("audio_message"):
+        #     handled = True
+        #     self.handleAudioMessage(node, m.audio_message)
+        # elif m.HasField("video_message"):
+        #     handled = True
+        #     self.handleVideoMessage(node, m.video_message)
 
         if not handled:
             print(m)
-            raise ValueError("Unhandled")
+            raise ValueError("Unhandled %s" % str(m))
 
     def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, axolotlAddress):
         groupId = senderKeyDistributionMessage.groupId
