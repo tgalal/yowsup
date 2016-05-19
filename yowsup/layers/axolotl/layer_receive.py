@@ -198,6 +198,12 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         elif m.HasField("image_message"):
             handled = True
             self.handleImageMessage(node, m.image_message)
+        elif m.HasField("audio_message"):
+            handled = True
+            self.handleAudioMessage(node, m.image_message)
+        elif m.HasField("video_message"):
+            handled = True
+            self.handleVideoMessage(node, m.image_message)
 
         if not handled:
             print(m)
@@ -287,3 +293,39 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             groupCipher = GroupCipher(self.store, senderKeyName)
             self.groupCiphers[senderKeyName] = groupCipher
         return groupCipher
+
+    def handleVideoMessage(self, node, audio_message):
+        messageNode = copy.deepcopy(node)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "video",
+            "filehash": audio_message.file_sha256,
+            "size": str(audio_message.file_length),
+            "url": audio_message.url,
+            "mimetype": audio_message.mimeType,
+            "mediakey": audio_message.media_key,
+            "encoding": "raw",
+            "file": "enc",
+            "ip": "0"
+        }, data=audio_message.jpeg_thumbnail)
+        messageNode.addChild(mediaNode)
+
+        self.toUpper(messageNode)
+
+    def handleAudioMessage(self, node, audio_message):
+        messageNode = copy.deepcopy(node)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "audio",
+            "filehash": audio_message.file_sha256,
+            "size": str(audio_message.file_length),
+            "url": audio_message.url,
+            "mimetype": audio_message.mimeType,
+            "mediakey": audio_message.media_key,
+            "encoding": "raw",
+            "file": "enc",
+            "ip": "0"
+        }, data=audio_message.jpeg_thumbnail)
+        messageNode.addChild(mediaNode)
+
+        self.toUpper(messageNode)
