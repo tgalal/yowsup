@@ -42,7 +42,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             if protocolTreeNode.tag == "message":
                 self.onMessage(protocolTreeNode)
             elif not protocolTreeNode.tag == "receipt":
-                #receipts will be handled by send layer
+                # receipts will be handled by send layer
                 self.toUpper(protocolTreeNode)
 
             # elif protocolTreeNode.tag == "iq":
