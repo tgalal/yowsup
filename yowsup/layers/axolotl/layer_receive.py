@@ -245,7 +245,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         pass
 
     def handleLocationMessage(self, originalEncNode, locationMessage):
-        messageNode = copy.deepycopy(originalEncNode)
+        messageNode = copy.deepcopy(originalEncNode)
         messageNode["type"] = "media"
         mediaNode = ProtocolTreeNode("media", {
             "latitude": locationMessage.degrees_latitude,
@@ -259,7 +259,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         self.toUpper(messageNode)
 
     def handleContactMessage(self, originalEncNode, contactMessage):
-        messageNode = copy.deepycopy(originalEncNode)
+        messageNode = copy.deepcopy(originalEncNode)
         messageNode["type"] = "media"
         mediaNode = ProtocolTreeNode("media", {
             "type": "vcard"
