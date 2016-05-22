@@ -8,11 +8,9 @@ from yowsup.common import YowConstants
 import datetime
 import os
 import logging
-from yowsup.layers.protocol_receipts.protocolentities    import *
 from yowsup.layers.protocol_groups.protocolentities      import *
 from yowsup.layers.protocol_presence.protocolentities    import *
 from yowsup.layers.protocol_messages.protocolentities    import *
-from yowsup.layers.protocol_acks.protocolentities        import *
 from yowsup.layers.protocol_ib.protocolentities          import *
 from yowsup.layers.protocol_iq.protocolentities          import *
 from yowsup.layers.protocol_contacts.protocolentities    import *
@@ -25,7 +23,6 @@ from yowsup.common.tools import Jid
 from yowsup.common.optionalmodules import PILOptionalModule, AxolotlOptionalModule
 
 logger = logging.getLogger(__name__)
-
 class YowsupCliLayer(Cli, YowInterfaceLayer):
     PROP_RECEIPT_AUTO       = "org.openwhatsapp.yowsup.prop.cli.autoreceipt"
     PROP_RECEIPT_KEEPALIVE  = "org.openwhatsapp.yowsup.prop.cli.keepalive"
@@ -78,6 +75,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def setCredentials(self, username, password):
         self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(username, password)
 
+        return "%s@s.whatsapp.net" % username
 
     @EventCallback(EVENT_START)
     def onStart(self, layerEvent):
@@ -342,13 +340,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
                 jids = [self.aliasToJid(jid) for jid in jids.split(',')]
                 entity = GetKeysIqProtocolEntity(jids)
                 self.toLower(entity)
-
-    @clicmd("Send prekeys")
-    def keys_set(self):
-        with AxolotlOptionalModule(failMessage = self.__class__.FAIL_OPT_AXOLOTL) as axoOptMod:
-            from yowsup.layers.axolotl import YowAxolotlLayer
-            if self.assertConnected():
-                self.broadcastEvent(YowLayerEvent(YowAxolotlLayer.EVENT_PREKEYS_SET))
 
     @clicmd("Send init seq")
     def seq(self):

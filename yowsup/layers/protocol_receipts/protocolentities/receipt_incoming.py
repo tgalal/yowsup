@@ -46,8 +46,9 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
     def getType(self):
         return self.type
 
-    def getParticipant(self):
-        return self.participant
+    def getParticipant(self, full=True):
+        if self.participant:
+            return self.participant if full else self.participant.split('@')[0]
 
     def getFrom(self, full = True):
         return self._from if full else self._from.split('@')[0]
@@ -100,7 +101,7 @@ class IncomingReceiptProtocolEntity(ReceiptProtocolEntity):
         return out
 
     def ack(self):
-        return OutgoingAckProtocolEntity(self.getId(), "receipt", self.getType(), self.getFrom())
+        return OutgoingAckProtocolEntity(self.getId(), "receipt", self.getType(), self.getFrom(), participant = self.participant)
 
     @staticmethod
     def fromProtocolTreeNode(node):

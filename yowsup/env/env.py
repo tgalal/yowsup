@@ -4,6 +4,8 @@ from six import with_metaclass
 
 logger = logging.getLogger(__name__)
 
+DEFAULT = "s40"
+
 class YowsupEnvType(abc.ABCMeta):
     def __init__(cls, name, bases, dct):
         if name != "YowsupEnv":
@@ -15,7 +17,7 @@ class YowsupEnv(with_metaclass(YowsupEnvType, object)):
     __ENVS = {}
     __CURR = None
 
-    _USERAGENT_STRING = "WhatsApp/{WHATSAPP_VERSION} {OS_NAME}/{OS_VERSION} Device/{DEVICE_NAME}"
+    _USERAGENT_STRING = "WhatsApp/{WHATSAPP_VERSION} {OS_NAME}/{OS_VERSION} Device/{MANUFACTURER}-{DEVICE_NAME}"
 
     @classmethod
     def registerEnv(cls, envCls):
@@ -44,9 +46,12 @@ class YowsupEnv(with_metaclass(YowsupEnvType, object)):
     @classmethod
     def getCurrent(cls):
         if cls.__CURR is None:
-            newEnvName = cls.getRegisteredEnvs()[0]
-            logger.debug("Env not set, setting it to %s" % newEnvName )
-            cls.setEnv(newEnvName)
+            env = DEFAULT
+            envs = cls.getRegisteredEnvs()
+            if env not in envs:
+                env = envs[0]
+            logger.debug("Env not set, setting it to %s" % env)
+            cls.setEnv(env)
         return cls.__CURR
 
     @abc.abstractmethod
@@ -70,8 +75,15 @@ class YowsupEnv(with_metaclass(YowsupEnvType, object)):
         pass
 
     @abc.abstractmethod
+    def getManufacturer(self):
+        pass
+
+    @abc.abstractmethod
     def isAxolotlEnabled(self):
         pass
+
+    def getBuildVersion(self):
+        return ""
 
     def getResource(self):
         return self.getOSName() + "-" + self.getVersion()
@@ -81,5 +93,6 @@ class YowsupEnv(with_metaclass(YowsupEnvType, object)):
             WHATSAPP_VERSION = self.getVersion(),
             OS_NAME = self.getOSName(),
             OS_VERSION = self.getOSVersion(),
+            MANUFACTURER = self.getManufacturer(),
             DEVICE_NAME = self.getDeviceName()
         )

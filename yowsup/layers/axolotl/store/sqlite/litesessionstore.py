@@ -1,5 +1,6 @@
 from axolotl.state.sessionstore import SessionStore
 from axolotl.state.sessionrecord import SessionRecord
+import sys
 class LiteSessionStore(SessionStore):
     def __init__(self, dbConn):
         """
@@ -35,7 +36,8 @@ class LiteSessionStore(SessionStore):
 
         q = "INSERT INTO sessions(recipient_id, device_id, record) VALUES(?,?,?)"
         c = self.dbConn.cursor()
-        c.execute(q, (recipientId, deviceId, sessionRecord.serialize()))
+        serialized = sessionRecord.serialize()
+        c.execute(q, (recipientId, deviceId, buffer(serialized) if sys.version_info < (2,7) else serialized))
         self.dbConn.commit()
 
     def containsSession(self, recipientId, deviceId):
