@@ -239,7 +239,7 @@ class ReadDecoder:
         if size == 0 or tag is None:
             raise ValueError("nextTree sees 0 list or null tag")
 
-        attribCount = (size - 2 + size % 2)/2;
+        attribCount = (size - 2 + size % 2)/2
         attribs = self.readAttributes(attribCount, data)
         if size % 2 ==1:
             return ProtocolTreeNode(tag, attribs)
@@ -264,7 +264,7 @@ class ReadDecoder:
         else:
             nodeData = self.readString(read2, data)
 
-        if nodeData:
+        if nodeData and type(nodeData) is not str:
             nodeData = "".join(map(chr, nodeData))
 
         return ProtocolTreeNode(tag, attribs, nodeChildren, nodeData)
