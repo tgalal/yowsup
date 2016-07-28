@@ -230,7 +230,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             "caption": imageMessage.caption,
             "encoding": "raw",
             "file": "enc",
-            "ip": "0"
+            "ip": "0",
+            "mediakey": imageMessage.media_key
         }, data = imageMessage.jpeg_thumbnail)
         messageNode.addChild(mediaNode)
 
