@@ -1,12 +1,12 @@
 from .env import YowsupEnv
 import hashlib
 class S40YowsupEnv(YowsupEnv):
-    _VERSION = "2.16.7"
+    _VERSION = "2.16.9"
     _OS_NAME= "S40"
     _OS_VERSION = "14.26"
     _DEVICE_NAME = "302"
     _MANUFACTURER = "Nokia"
-    _TOKEN_STRING  = "PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk1462212402694{phone}"
+    _TOKEN_STRING  = "PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk1471306425030{phone}"
     _AXOLOTL = True
 
     def getVersion(self):
