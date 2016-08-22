@@ -1,5 +1,8 @@
 from .env import YowsupEnv
-from urllib.request import urlopen
+if sys.version_info < (3, 0):
+    from  urllib2 import urlopen
+else:
+    from urllib.request import urlopen
 import hashlib
 import ast
 class S40YowsupEnv(YowsupEnv):
