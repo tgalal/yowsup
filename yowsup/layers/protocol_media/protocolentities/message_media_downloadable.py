@@ -36,7 +36,7 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     def __str__(self):
         out  = super(DownloadableMediaMessageProtocolEntity, self).__str__()
         out += "MimeType: %s\n" % self.mimeType
-        out += "File Hash: %s\n" % self.fileHash
+        out += "File Hash: %s\n" % self.fileHash.encode('hex')
         out += "URL: %s\n" % self.url
         out += "IP: %s\n" % self.ip
         out += "File Size: %s\n" % self.size

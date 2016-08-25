@@ -2,12 +2,6 @@ from yowsup.structs import ProtocolTreeNode
 import math
 import binascii
 import sys
-
-import logging
-
-logger = logging.getLogger(__name__)
-
-
 class ReadDecoder:
     def __init__(self, tokenDictionary):
         self.streamStarted = False;
@@ -245,7 +239,7 @@ class ReadDecoder:
         if size == 0 or tag is None:
             raise ValueError("nextTree sees 0 list or null tag")
 
-        attribCount = (size - 2 + size % 2)/2;
+        attribCount = (size - 2 + size % 2)/2
         attribs = self.readAttributes(attribCount, data)
         if size % 2 ==1:
             return ProtocolTreeNode(tag, attribs)
@@ -254,7 +248,6 @@ class ReadDecoder:
 
         nodeData = None
         nodeChildren = None
-
         if self.isListTag(read2):
             nodeChildren = self.readList(read2, data)
         elif read2 == 252:
@@ -271,12 +264,8 @@ class ReadDecoder:
         else:
             nodeData = self.readString(read2, data)
 
-        if nodeData:
-            try:
-                nodeData = "".join(map(chr, nodeData))
-            except TypeError as e:
-                logger.error('failed creating node data with {} and {}', chr, nodeData)
-                raise e
+        if nodeData and type(nodeData) is not str:
+            nodeData = "".join(map(chr, nodeData))
 
         return ProtocolTreeNode(tag, attribs, nodeChildren, nodeData)
 
@@ -286,7 +275,7 @@ class ReadDecoder:
         for i in range(0,size):
             listx.append(self.nextTreeInternal(data))
 
-        return listx
+        return listx;
 
     def isListTag(self, b):
         return b in (248, 0, 249)
