@@ -1,6 +1,7 @@
 from yowsup.common.http.warequest import WARequest
 from yowsup.common.http.waresponseparser import JSONResponseParser
 from yowsup.common.tools import StorageTools, WATools
+from yowsup.env.env_android import AndroidYowsupEnv
 from yowsup.registration.existsrequest import WAExistsRequest
 from yowsup.env import YowsupEnv
 import random, hashlib, os

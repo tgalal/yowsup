@@ -25,6 +25,8 @@ class WARequest(object):
 
     def __init__(self):
 
+        YowsupEnv.setEnv("android")
+
         self.pvars = []
         self.port = 443
         self.type = "GET"
@@ -51,7 +53,6 @@ class WARequest(object):
         for i in range(0, len(self.params)):
             if self.params[i][0] == name:
                 del self.params[i]
-
 
     def addHeaderField(self, name, value):
         self.headers[name] = value
