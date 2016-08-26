@@ -8,7 +8,7 @@ if sys.version_info < (3, 0):
     from urllib import urlencode
 
     if sys.version_info >= (2, 7, 9):
-        #see https://github.com/tgalal/yowsup/issues/677
+        # see https://github.com/tgalal/yowsup/issues/677
         import ssl
         ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -24,8 +24,6 @@ class WARequest(object):
     OK = 200
 
     def __init__(self):
-
-        YowsupEnv.setEnv("android")
 
         self.pvars = []
         self.port = 443
