@@ -35,7 +35,7 @@ pip install yowsup2
 
 You need to have installed python headers (from probably python-dev package) and ncurses-dev, then run
 ```
-python setup.py install
+sudo python setup.py install
 ```
 Because of a bug with python-dateutil package you might get permission error for some dateutil file called requires.txt when you use yowsup (see [this bug report](https://bugs.launchpad.net/dateutil/+bug/1243202)) to fix you'll need to chmod 644 that file.
 
