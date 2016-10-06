@@ -44,7 +44,7 @@ You can use the CLI without installation using Docker.
      
 Using the CLI after Build:
 
-    docker --rm run yowsup yowsup-cli demos --yowsup
+    docker --rm run yowsup yowsup-cli registration --help
 
 
 ### Linux
