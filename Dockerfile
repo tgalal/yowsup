@@ -2,4 +2,10 @@ FROM debian
 RUN apt-get update
 RUN apt-get install -y python
 RUN apt-get install -y python-pip
-RUN pip install yowsup2
+RUN apt-get install -y python-setuptools
+RUN apt-get install -y build-essential 
+RUN apt-get install -y git 
+RUN git clone https://github.com/tgalal/yowsup
+WORKDIR yowsup
+RUN apt-get install -y python-dev
+RUN python setup.py install
