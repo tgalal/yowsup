@@ -31,6 +31,22 @@ Install using setup.py to pull all python dependencies, or using pip:
 pip install yowsup2
 ```
 
+### Docker
+
+You can use the CLI without installation using Docker.
+
+    docker pull aminadav/yowsup
+    docker run --ti --rm aminadav/yowsup
+    
+ Or you can build it yourself, using the Dockerfile:
+ 
+     docker build . -t yowsup
+     
+Using the CLI after Build:
+
+    docker --rm run yowsup yowsup-cli demos --yowsup
+
+
 ### Linux
 
 You need to have installed python headers (from probably python-dev package) and ncurses-dev, then run
