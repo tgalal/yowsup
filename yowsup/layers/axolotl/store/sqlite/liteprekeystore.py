@@ -1,6 +1,11 @@
 from axolotl.state.prekeystore import PreKeyStore
 from axolotl.state.prekeyrecord import PreKeyRecord
 import sys
+import os
+
+import logging
+logger = logging.getLogger(__name__)
+
 class LitePreKeyStore(PreKeyStore):
     def __init__(self, dbConn):
         """
@@ -18,6 +23,7 @@ class LitePreKeyStore(PreKeyStore):
 
         result = cursor.fetchone()
         if not result:
+            self.removeDatabase(cursor)
             raise Exception("No such prekeyRecord!")
 
         return PreKeyRecord(serialized = result[0])
@@ -49,3 +55,23 @@ class LitePreKeyStore(PreKeyStore):
         cursor = self.dbConn.cursor()
         cursor.execute(q, (preKeyId,))
         self.dbConn.commit()
+
+    def removeDatabase(self, cursor):
+        """
+        Removes sqlite files which are faulty
+        """
+        q = "PRAGMA database_list"
+        cursor.execute(q)
+        databases = cursor.fetchall()
+        if not databases:
+            logger.warning('Unable to delete sqlite database.')
+        else:
+            try:
+                # Only remove the first database as there should only be one
+                for target_database in databases:
+                    logger.warning("Removing database {0}".format(target_database[2]))
+                    os.remove(target_database[2])
+                    logger.warning("Success in removing {0}".format(target_database[2]))
+                    break
+            except Exception as e:
+                logger.error(e)
