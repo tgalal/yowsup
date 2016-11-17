@@ -252,8 +252,8 @@ class AxolotlSendLayer(AxolotlBaseLayer):
     def serializeLocationToProtobuf(self, mediaNode, message = None):
         m = message or Message()
         location_message = LocationMessage()
-        location_message.degress_latitude = float(mediaNode["latitude"])
-        location_message.degress_longitude = float(mediaNode["longitude"])
+        location_message.degrees_latitude = float(mediaNode["latitude"])
+        location_message.degrees_longitude = float(mediaNode["longitude"])
         location_message.address = mediaNode["name"]
         location_message.name = mediaNode["name"]
         location_message.url = mediaNode["url"]
