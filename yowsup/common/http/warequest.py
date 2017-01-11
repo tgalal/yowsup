@@ -158,7 +158,18 @@ class WARequest(object):
             logger.debug(params)
 
         logger.debug("Opening connection to %s" % host);
-        conn = httplib.HTTPSConnection(host ,port) if port == 443 else httplib.HTTPConnection(host ,port)
+        if port == 443:
+            conn_type = 'HTTPS'
+        else:
+            conn_type = 'HTTP'
+
+        if conn_type+'_PROXY' in os.environ:
+            proxy_host, proxy_port = os.environ[conn_type+'_PROXY'].split(':')
+            conFn = getattr(httplib, conn_type+'Connection')
+            conn = conFn(proxy_host, proxy_port)
+            conn.set_tunnel(host, port)
+        else:
+            conn = httplib.HTTPSConnection(host, port)
 
         logger.debug("Sending %s request to %s" % (reqType, path))
         conn.request(reqType, path, params, headers);
