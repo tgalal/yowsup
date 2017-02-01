@@ -23,7 +23,6 @@ from yowsup.layers.protocol_calls              import YowCallsProtocolLayer
 
 
 YOWSUP_CORE_LAYERS = (
-    YowLoggerLayer,
     YowCoderLayer,
     YowCryptLayer,
     YowStanzaRegulator,
