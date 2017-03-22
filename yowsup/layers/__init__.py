@@ -1,5 +1,7 @@
 import unittest
 import inspect
+import threading
+
 try:
     import Queue
 except ImportError:
@@ -45,6 +47,7 @@ class YowLayer(object):
         self.interface = None
         self.event_callbacks = {}
         self.__stack = None
+        self.lock = threading.Lock()
         members = inspect.getmembers(self, predicate=inspect.ismethod)
         for m in members:
             if hasattr(m[1], "event_callback"):
@@ -76,8 +79,10 @@ class YowLayer(object):
             self.__upper.receive(data)
 
     def toLower(self, data):
+        self.lock.acquire()
         if self.__lower:
             self.__lower.send(data)
+        self.lock.release()
 
     def emitEvent(self, yowLayerEvent):
         if self.__upper and not self.__upper.onEvent(yowLayerEvent):
