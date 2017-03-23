@@ -1,4 +1,5 @@
 import time,datetime,re, hashlib
+import calendar
 from dateutil import tz
 import os
 from .constants import YowConstants
@@ -107,9 +108,8 @@ class TimeTools:
 
     @staticmethod
     def utcTimestamp():
-        #utc = tz.gettz('UTC')
         utcNow = datetime.datetime.utcnow()
-        return TimeTools.datetimeToTimestamp(utcNow)
+        return calendar.timegm(utcNow.timetuple())
 
     @staticmethod
     def datetimeToTimestamp(dt):
@@ -152,8 +152,10 @@ class ImageTools:
 class MimeTools:
     MIME_FILE = os.path.join(os.path.dirname(__file__), 'mime.types')
     mimetypes.init() # Load default mime.types
-    mimetypes.init([MIME_FILE]) # Append whatsapp mime.types
-    decode_hex = codecs.getdecoder("hex_codec")
+    try:
+        mimetypes.init([MIME_FILE]) # Append whatsapp mime.types
+    except exception as e:
+        logger.warning("Mime types supported can't be read. System mimes will be used. Cause: " + e.message)
 
     @staticmethod
     def getMIME(filepath):

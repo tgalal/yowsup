@@ -53,6 +53,8 @@ class WACodeRequest(WARequest):
             result = request.send()
             if result["status"] == "ok":
                 return result
+            elif result["status"] == "fail" and "reason" in result and result["reason"] == "blocked":
+                return result
 
         self.__id = WATools.generateIdentity()
         self.addParam("id", self.__id)

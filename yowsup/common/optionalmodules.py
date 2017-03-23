@@ -40,7 +40,7 @@ class FFVideoOptionalModule(OptionalModule):
 class AxolotlOptionalModule(OptionalModule):
     def __init__(self, failMessage = None, require = False):
         super(AxolotlOptionalModule, self).__init__("axolotl",
-                failmessage=failMessage,
+                failMessage=failMessage,
                 require=require)
 
 if __name__ == "__main__":

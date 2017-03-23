@@ -5,7 +5,7 @@ import yowsup
 import platform
 import sys
 
-deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.7']
+deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.35', 'six']
 
 if sys.version_info < (2,7):
     deps += ['importlib']
@@ -33,6 +33,7 @@ setup(
     #long_description=long_description,
     packages= find_packages(),
     include_package_data=True,
+    data_files = [('yowsup/common', ['yowsup/common/mime.types'])],
     platforms='any',
     #test_suite='',
     classifiers = [
