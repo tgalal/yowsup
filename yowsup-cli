@@ -248,6 +248,12 @@ class DemosArgParser(YowArgParser):
         cmdopts = self.add_argument_group("Command line interface demo")
         cmdopts.add_argument('-y', '--yowsup', action = "store_true", help = "Start the Yowsup command line client")
 
+        fileOpts = self.add_argument_group("SendFile client demo")
+        fileOpts.add_argument('-f', '--file', action="store", help = "Send a file to a specified phone number, "
+                                                                      "wait for server receipt and exit",
+                               metavar=("phone", "filename"), nargs = 2)
+
+
         echoOpts = self.add_argument_group("Echo client demo")
         echoOpts.add_argument('-e', '--echo', action = "store_true", help = "Start the Yowsup Echo client")
 
@@ -270,6 +276,8 @@ class DemosArgParser(YowArgParser):
             self.startEcho()
         elif self.args["send"]:
             self.startSendClient()
+        elif self.args["file"]:
+            self.startSendFileClient()
         elif self.args["sync"]:
             self.startSyncContacts()
         else:
@@ -310,7 +318,20 @@ class DemosArgParser(YowArgParser):
             print("\nYowsdown")
             sys.exit(0)
 
+    def startSendFileClient(self):
+        filename = self.args["file"][1]
+        from os.path import isfile
+        if not isfile(filename):
+           print ("Error: filename {} does not exists".format(filename))
+           sys.exit(1)
+        filecontent = open(filename).read()
+        recipient = self.args["file"][0]
+        self.justSendMessage(recipient, filecontent)
+
     def startSendClient(self):
+        self.justSendMessage(self.args["send"][0], self.args["send"][1])
+
+    def justSendMessage(self, recipient, message):
         from yowsup.demos import sendclient
         credentials = self._getCredentials()
         if not credentials:
@@ -319,8 +340,7 @@ class DemosArgParser(YowArgParser):
 
         try:
             self.printInfoText()
-            stack = sendclient.YowsupSendStack(credentials, [([self.args["send"][0], self.args["send"][1]])],
-                                               not self.args["unmoxie"])
+            stack = sendclient.YowsupSendStack(credentials, [([recipient, message.encode("utf-8")])], not self.args["unmoxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
