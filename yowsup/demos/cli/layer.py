@@ -8,6 +8,7 @@ from yowsup.common import YowConstants
 import datetime
 import os
 import logging
+from bs4 import UnicodeDammit
 from yowsup.layers.protocol_groups.protocolentities      import *
 from yowsup.layers.protocol_presence.protocolentities    import *
 from yowsup.layers.protocol_messages.protocolentities    import *
@@ -369,6 +370,17 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             outgoingMessage = TextMessageProtocolEntity(content.encode("utf-8") if sys.version_info >= (3,0) else content, to = self.aliasToJid(number))
             self.toLower(outgoingMessage)
 
+    @clicmd("Send file content to a friend")
+    def message_file(self, number, filename):
+        if self.assertConnected():
+                import os
+                if not os.path.isfile(filename):
+                    self.output("{} is not a valid filename".format(filename))
+                else:
+                    content = open(filename).read()
+                    outgoingMessage = TextMessageProtocolEntity(content.encode("utf-8") if sys.version_info >= (3,0) else content, to = self.aliasToJid(number))
+                    self.toLower(outgoingMessage)
+
     @clicmd("Broadcast message. numbers should comma separated phone numbers")
     def message_broadcast(self, numbers, content):
         if self.assertConnected():
@@ -508,7 +520,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         output = self.__class__.MESSAGE_FORMAT.format(
             FROM = sender,
             TIME = formattedDate,
-            MESSAGE = messageOut.encode('latin-1').decode() if sys.version_info >= (3, 0) else messageOut,
+            MESSAGE = UnicodeDammit(messageOut).unicode_markup if sys.version_info >= (3, 0) else messageOut,
             MESSAGE_ID = message.getId()
             )
 

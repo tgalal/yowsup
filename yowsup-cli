@@ -2,7 +2,7 @@
 __version__ = "2.0.15"
 __author__ = "Tarek Galal"
 
-import sys, argparse, yowsup, logging
+import sys, argparse, yowsup, logging, os
 from yowsup.env import YowsupEnv
 
 HELP_CONFIG = """
@@ -252,9 +252,11 @@ class DemosArgParser(YowArgParser):
         echoOpts.add_argument('-e', '--echo', action = "store_true", help = "Start the Yowsup Echo client")
 
         sendOpts = self.add_argument_group("Send client demo")
-        sendOpts.add_argument('-s', '--send', action="store", help = "Send a message to specified phone number, "
-                                                                     "wait for server receipt and exit",
-                              metavar=("phone", "message"), nargs = 2)
+        sendOpts.add_argument('-s', '--send', action="store", help = "Send a message to specified phone number, " , metavar=("phone", "message"), nargs = 2)
+
+        sendOpts = self.add_argument_group("Send File client demo")
+        sendOpts.add_argument('-f', '--file', action="store", help = "Send a file to specified phone number, ", metavar=("phone", "message"), nargs = 2)
+
         syncContacts = self.add_argument_group("Sync contacts")
         syncContacts.add_argument('-S','--sync', action = "store" , help = "Sync ( check valid ) whatsapp contacts",metavar =("contacts"))
 
@@ -270,6 +272,8 @@ class DemosArgParser(YowArgParser):
             self.startEcho()
         elif self.args["send"]:
             self.startSendClient()
+        elif self.args["file"]:
+            self.startSendFileClient()
         elif self.args["sync"]:
             self.startSyncContacts()
         else:
@@ -321,6 +325,27 @@ class DemosArgParser(YowArgParser):
             self.printInfoText()
             stack = sendclient.YowsupSendStack(credentials, [([self.args["send"][0], self.args["send"][1]])],
                                                not self.args["unmoxie"])
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+    def startSendFileClient(self):
+        from yowsup.demos import sendclient
+        credentials = self._getCredentials()
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+
+        try:
+            self.printInfoText()
+            filename = self.args["file"][1]
+            if not os.path.isfile(filename):
+                print("Error: {} is not a file".format(filename))
+                sys.exit(1)
+            msg = open(filename).read()
+            stack = sendclient.YowsupSendStack(credentials, [([self.args["file"][0], msg])], not self.args["unmoxie"])
+
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
