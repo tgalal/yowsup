@@ -1,4 +1,5 @@
 *.pyc
+container
 *.class
 todo
 *.egg-info
