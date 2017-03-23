@@ -8,7 +8,7 @@ import sys
 deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.39', 'six']
 
 if sys.version_info < (2,7):
-    deps += ['importlib']
+    deps.append('importlib')
 
 if platform.system().lower() == "windows":
     deps.append('pyreadline')
