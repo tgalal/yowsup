@@ -1,11 +1,11 @@
 import unittest
 from yowsup.layers.auth.keystream import KeyStream
+
+
 class KeyStreamTest(unittest.TestCase):
-
     def setUp(self):
-
-        self.password = bytearray(list(map(ord,"password")))
-        self.salt     = bytearray(list(map(ord,"salt")))
+        self.password = bytearray(list(map(ord, "password")))
+        self.salt = bytearray(list(map(ord, "salt")))
 
         self.keysTarget = [
             bytearray(b'>\xd5\x8a\xecB\xdb\xc8\xd4}\x98\x9aBa\x89\x9fC\x08\xdcp\x8d'),
@@ -15,10 +15,9 @@ class KeyStreamTest(unittest.TestCase):
         ]
 
         self.pbkdbf2_res = bytearray(b'\xeal\x01M\xc7-o\x8c\xcd\x1e\xd9*\xce\x1dA\xf0\xd8\xde\x89W')
-        self.inputMessage = bytearray([0,0,0,0, ord('t'), ord('a'), ord('r'), ord('e'), ord('k')])
+        self.inputMessage = bytearray([0, 0, 0, 0, ord('t'), ord('a'), ord('r'), ord('e'), ord('k')])
         self.inputMessageComputedMac = bytearray(b'\xec\x82q\xab\x9f\x8d;\xac\x83\xc5X\xbb\xb6u\x1c\xb0\xd2\x82=`')
         self.inputMessageRC4Ciphered = bytearray(b'\x00\x00\x00\x00\xf4&-\x0c\xbc')
-
 
     def test_generateKeys(self):
         keys = KeyStream.generateKeys(self.password, self.salt)
@@ -28,7 +27,7 @@ class KeyStreamTest(unittest.TestCase):
         result = KeyStream.pbkdf2(self.password, self.salt, 2, 20)
         result = bytearray(result)
         self.assertEqual(result, self.pbkdbf2_res)
-    
+
     def test_computemac(self):
         keys = self.keysTarget
         kstream = KeyStream(keys[2], keys[3])
@@ -40,14 +39,3 @@ class KeyStreamTest(unittest.TestCase):
         kstream = KeyStream(keys[2], keys[3])
         kstream.rc4.cipher(self.inputMessage, 4, len(self.inputMessage) - 4)
         self.assertEqual(self.inputMessage, self.inputMessageRC4Ciphered)
-
-    def test_encodeMessage(self):
-        keys = self.keysTarget
-        kstream = KeyStream(keys[2], keys[3])
-        encoded = kstream.encodeMessage(self.inputMessage, 0, 4, len(self.inputMessage) - 4)
-
-    def test_manyEncode(self):
-        keys = self.keysTarget
-        kstream = KeyStream(keys[2], keys[3])
-        for i in range(0, 300):
-            encoded = kstream.encodeMessage(self.inputMessage, 0, 4, len(self.inputMessage) - 4)
