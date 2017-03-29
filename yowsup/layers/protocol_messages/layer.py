@@ -1,6 +1,12 @@
 from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from .protocolentities import TextMessageProtocolEntity
+
+
 class YowMessagesProtocolLayer(YowProtocolLayer):
+
+    EVENT_MESSAGE_RECEIVED = \
+    "org.openwhatsapp.yowsup.event.protocol_messages.received"
+
     def __init__(self):
         handleMap = {
             "message": (self.recvMessageStanza, self.sendMessageEntity)
@@ -16,7 +22,10 @@ class YowMessagesProtocolLayer(YowProtocolLayer):
 
     ###recieved node handlers handlers
     def recvMessageStanza(self, node):
+        self.getStack().broadcastEvent(
+            YowLayerEvent(
+                YowMessagesProtocolLayer.EVENT_MESSAGE_RECEIVED,
+                reason="Message received"))
         if node.getAttributeValue("type") == "text":
             entity = TextMessageProtocolEntity.fromProtocolTreeNode(node)
-            self.toUpper(entity) 
-
+            self.toUpper(entity)
