@@ -53,7 +53,11 @@ class YowIqProtocolLayer(YowProtocolLayer):
         self._pingQueueLock.release()
         self.__logger.debug("ping queue size: %d" % pingQueueSize)
         if pingQueueSize >= 2:
-            self.getStack().broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT, reason = "Ping Timeout"))
+            self.getStack().broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_PING_KO, reason="Ping Timeout"))
+            self.getStack().broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT, reason="Ping Timeout"))
+        else:
+            self.__logger.debug("starting ping thread success.")
+            self.getStack().broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_PING_OK, reason="Ping Received"))
 
     @EventCallback(YowAuthenticationProtocolLayer.EVENT_AUTHED)
     def onAuthed(self, event):
