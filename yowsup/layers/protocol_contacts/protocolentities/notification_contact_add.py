@@ -4,7 +4,7 @@ class AddContactNotificationProtocolEntity(ContactNotificationProtocolEntity):
     '''
     <notification offline="0" id="{{NOTIFICATION_ID}}" notify="{{NOTIFY_NAME}}" type="contacts" 
             t="{{TIMESTAMP}}" from="{{SENDER_JID}}">
-        <add jid="{{SET_JID}}"> </add>
+        <add>{{NUMBER}}"</add>
     </notification>
     '''
 
@@ -14,6 +14,8 @@ class AddContactNotificationProtocolEntity(ContactNotificationProtocolEntity):
 
     def setData(self, jid):
         self.contactJid = jid
+        if self.contactJid.find('@') >= 0:
+            self.contactJid += '@s.whatsapp.net'
 
     def toProtocolTreeNode(self):
         node = super(AddContactNotificationProtocolEntity, self).toProtocolTreeNode()
@@ -26,5 +28,5 @@ class AddContactNotificationProtocolEntity(ContactNotificationProtocolEntity):
         entity = ContactNotificationProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = AddContactNotificationProtocolEntity
         removeNode = node.getChild("add")
-        entity.setData(removeNode.getAttributeValue("jid"))
+        entity.setData(removeNode.getData())
         return entity
