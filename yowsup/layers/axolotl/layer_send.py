@@ -44,7 +44,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
 
     def send(self, node):
-        if node.tag == "message" and node["to"] not in self.skipEncJids and not node.getChild("enc") and (not node.getChild("media") or node.getChild("media")["mediakey"]):
+        if node.tag == "message" and node["to"] not in self.skipEncJids and not node.getChild("enc") or (node.getChild("media") and node.getChild("media")["mediakey"]):
             self.processPlaintextNodeAndSend(node)
         # elif node.tag == "iq" and node["xmlns"] == "w:m":
         #     mediaNode = node.getChild("media")
@@ -87,9 +87,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         recipient_id = node["to"].split('@')[0]
         isGroup = "-" in recipient_id
 
-        if node.getChild("media"):
-            self.toLower(node) # skip media enc for now, groups and non groups
-        elif isGroup:
+        if isGroup:
             self.sendToGroup(node, retryReceiptEntity)
         elif self.store.containsSession(recipient_id, 1):
             self.sendToContact(node)
@@ -279,6 +277,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         image_message.width = int(mediaNode["width"])
         image_message.height = int(mediaNode["height"])
         image_message.mime_type = mediaNode["mimetype"]
+        image_message.media_key = mediaNode["mediakey"]
         image_message.file_sha256 = mediaNode["filehash"]
         image_message.file_length = int(mediaNode["size"])
         image_message.caption = mediaNode["caption"] or ""
