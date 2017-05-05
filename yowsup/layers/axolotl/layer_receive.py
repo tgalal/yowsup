@@ -227,6 +227,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             "mimetype": imageMessage.mime_type,
             "width": imageMessage.width,
             "height": imageMessage.height,
+            "mediakey": imageMessage.media_key,
             "caption": imageMessage.caption,
             "encoding": "raw",
             "file": "enc",
