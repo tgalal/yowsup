@@ -52,8 +52,6 @@ class ProtocolTreeNode(object):
             for key, val in self.attributes.items():
                 if val is None:
                     raise ValueError("value is none for attr %s" % key)
-                if type(val) == bytes:
-                    val = ''.join(['%' + hex(b)[2:] for b in val])
                 out+= " "+key+'="'+ val + '"'
         out+= ">\n"
 
