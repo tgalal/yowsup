@@ -81,6 +81,20 @@ _MESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+	_descriptor.FieldDescriptor(
+      name='audio_message', full_name='com.whatsapp.proto.Message.audio_message', index=7,
+      number=8, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='video_message', full_name='com.whatsapp.proto.Message.video_message', index=8,
+      number=9, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -197,13 +211,13 @@ _IMAGEMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
-    _descriptor.FieldDescriptor(
-      name='jpeg_thumbnail', full_name='com.whatsapp.proto.ImageMessage.jpeg_thumbnail', index=8,
-      number=16, type=12, cpp_type=9, label=2,
-      has_default_value=False, default_value=_b(""),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
+    #_descriptor.FieldDescriptor(
+    #  name='jpeg_thumbnail', full_name='com.whatsapp.proto.ImageMessage.jpeg_thumbnail', index=8,
+    #  number=16, type=12, cpp_type=9, label=2,
+    #  has_default_value=False, default_value=_b(""),
+    #  message_type=None, enum_type=None, containing_type=None,
+    #  is_extension=False, extension_scope=None,
+    #  options=None),
   ],
   extensions=[
   ],
@@ -217,6 +231,152 @@ _IMAGEMESSAGE = _descriptor.Descriptor(
   ],
   serialized_start=553,
   serialized_end=732,
+)
+
+_VIDEOMESSAGE = _descriptor.Descriptor(
+  name='VideoMessage',
+  full_name='com.whatsapp.proto.VideoMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='url', full_name='com.whatsapp.proto.VideoMessage.url', index=0,
+      number=1, type=12, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='mime_type', full_name='com.whatsapp.proto.VideoMessage.mime_type', index=1,
+      number=2, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='file_sha256', full_name='com.whatsapp.proto.VideoMessage.file_sha256', index=2,
+      number=3, type=12, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='file_length', full_name='com.whatsapp.proto.VideoMessage.file_length', index=3,
+      number=4, type=4, cpp_type=4, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='duration', full_name='com.whatsapp.proto.VideoMessage.duration', index=4,
+      number=5, type=4, cpp_type=4, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='media_key', full_name='com.whatsapp.proto.VideoMessage.media_key', index=5,
+      number=6, type=12, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='caption', full_name='com.whatsapp.proto.VideoMessage.caption', index=6,
+      number=7, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    #_descriptor.FieldDescriptor(
+    #  name='jpeg_thumbnail', full_name='com.whatsapp.proto.VideoMessage.jpeg_thumbnail', index=7,
+    #  number=16, type=12, cpp_type=9, label=2,
+    #  has_default_value=False, default_value=_b(""),
+    #  message_type=None, enum_type=None, containing_type=None,
+    #  is_extension=False, extension_scope=None,
+    #  options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=849,
+  serialized_end=1015,
+)
+
+
+_AUDIOMESSAGE = _descriptor.Descriptor(
+  name='AudioMessage',
+  full_name='com.whatsapp.proto.AudioMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='url', full_name='com.whatsapp.proto.AudioMessage.url', index=0,
+      number=1, type=12, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='mime_type', full_name='com.whatsapp.proto.AudioMessage.mime_type', index=1,
+      number=2, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='file_sha256', full_name='com.whatsapp.proto.AudioMessage.file_sha256', index=2,
+      number=3, type=12, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='file_length', full_name='com.whatsapp.proto.AudioMessage.file_length', index=3,
+      number=4, type=4, cpp_type=4, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='duration', full_name='com.whatsapp.proto.AudioMessage.duration', index=4,
+      number=5, type=4, cpp_type=4, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='unk', full_name='com.whatsapp.proto.AudioMessage.unk', index=5,
+      number=6, type=13, cpp_type=3, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='media_key', full_name='com.whatsapp.proto.AudioMessage.media_key', index=6,
+      number=7, type=12, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  serialized_start=1018,
+  serialized_end=1156,
 )
 
 
@@ -262,13 +422,13 @@ _LOCATIONMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
-    _descriptor.FieldDescriptor(
-      name='jpeg_thumbnail', full_name='com.whatsapp.proto.LocationMessage.jpeg_thumbnail', index=5,
-      number=16, type=12, cpp_type=9, label=2,
-      has_default_value=False, default_value=_b(""),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
+    #_descriptor.FieldDescriptor(
+    #  name='jpeg_thumbnail', full_name='com.whatsapp.proto.LocationMessage.jpeg_thumbnail', index=5,
+    #  number=16, type=12, cpp_type=9, label=2,
+    #  has_default_value=False, default_value=_b(""),
+    #  message_type=None, enum_type=None, containing_type=None,
+    #  is_extension=False, extension_scope=None,
+    #  options=None),
   ],
   extensions=[
   ],
@@ -341,13 +501,13 @@ _DOCUMENTMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
-    _descriptor.FieldDescriptor(
-      name='jpeg_thumbnail', full_name='com.whatsapp.proto.DocumentMessage.jpeg_thumbnail', index=7,
-      number=16, type=12, cpp_type=9, label=2,
-      has_default_value=False, default_value=_b(""),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
+    #_descriptor.FieldDescriptor(
+    #  name='jpeg_thumbnail', full_name='com.whatsapp.proto.DocumentMessage.jpeg_thumbnail', index=7,
+    #  number=16, type=12, cpp_type=9, label=2,
+    #  has_default_value=False, default_value=_b(""),
+    #  message_type=None, enum_type=None, containing_type=None,
+    #  is_extension=False, extension_scope=None,
+    #  options=None),
   ],
   extensions=[
   ],
@@ -406,13 +566,13 @@ _URLMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
-    _descriptor.FieldDescriptor(
-      name='jpeg_thumbnail', full_name='com.whatsapp.proto.UrlMessage.jpeg_thumbnail', index=5,
-      number=16, type=9, cpp_type=9, label=2,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
+    #_descriptor.FieldDescriptor(
+    #  name='jpeg_thumbnail', full_name='com.whatsapp.proto.UrlMessage.jpeg_thumbnail', index=5,
+    #  number=16, type=9, cpp_type=9, label=2,
+    #  has_default_value=False, default_value=_b("").decode('utf-8'),
+    #  message_type=None, enum_type=None, containing_type=None,
+    #  is_extension=False, extension_scope=None,
+    #  options=None),
   ],
   extensions=[
   ],
@@ -471,9 +631,14 @@ _MESSAGE.fields_by_name['contact_message'].message_type = _CONTACTMESSAGE
 _MESSAGE.fields_by_name['location_message'].message_type = _LOCATIONMESSAGE
 _MESSAGE.fields_by_name['document_message'].message_type = _DOCUMENTMESSAGE
 _MESSAGE.fields_by_name['url_message'].message_type = _URLMESSAGE
+_MESSAGE.fields_by_name['audio_message'].message_type = _AUDIOMESSAGE
+_MESSAGE.fields_by_name['video_message'].message_type = _VIDEOMESSAGE
+
 DESCRIPTOR.message_types_by_name['Message'] = _MESSAGE
 DESCRIPTOR.message_types_by_name['SenderKeyDistributionMessage'] = _SENDERKEYDISTRIBUTIONMESSAGE
 DESCRIPTOR.message_types_by_name['ImageMessage'] = _IMAGEMESSAGE
+DESCRIPTOR.message_types_by_name['VideoMessage'] = _VIDEOMESSAGE
+DESCRIPTOR.message_types_by_name['AudioMessage'] = _AUDIOMESSAGE
 DESCRIPTOR.message_types_by_name['LocationMessage'] = _LOCATIONMESSAGE
 DESCRIPTOR.message_types_by_name['DocumentMessage'] = _DOCUMENTMESSAGE
 DESCRIPTOR.message_types_by_name['UrlMessage'] = _URLMESSAGE
@@ -499,6 +664,20 @@ ImageMessage = _reflection.GeneratedProtocolMessageType('ImageMessage', (_messag
   # @@protoc_insertion_point(class_scope:com.whatsapp.proto.ImageMessage)
   ))
 _sym_db.RegisterMessage(ImageMessage)
+
+VideoMessage = _reflection.GeneratedProtocolMessageType('VideoMessage', (_message.Message,), dict(
+  DESCRIPTOR = _VIDEOMESSAGE,
+  __module__ = 'wa_pb2'
+  # @@protoc_insertion_point(class_scope:com.whatsapp.proto.VideoMessage)
+  ))
+_sym_db.RegisterMessage(VideoMessage)
+
+AudioMessage = _reflection.GeneratedProtocolMessageType('AudioMessage', (_message.Message,), dict(
+  DESCRIPTOR = _AUDIOMESSAGE,
+  __module__ = 'wa_pb2'
+  # @@protoc_insertion_point(class_scope:com.whatsapp.proto.AudioMessage)
+  ))
+_sym_db.RegisterMessage(AudioMessage)
 
 LocationMessage = _reflection.GeneratedProtocolMessageType('LocationMessage', (_message.Message,), dict(
   DESCRIPTOR = _LOCATIONMESSAGE,
