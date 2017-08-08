@@ -51,6 +51,7 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         self.encoding  = encoding
         self.origin    = origin
         self.seconds   = seconds
+        self.cryptKeys = '576861747341707020417564696f204b657973'
 
     def toProtocolTreeNode(self):
         node = super(AudioDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
