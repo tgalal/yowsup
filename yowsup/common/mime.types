@@ -21,3 +21,4 @@ video/mpeg	 m1v mpeg mpa mpg mpe
 video/quicktime	 mov qt
 video/x-flv	 flv
 video/x-ms-asf	 asf asx
+application/pdf pdf
