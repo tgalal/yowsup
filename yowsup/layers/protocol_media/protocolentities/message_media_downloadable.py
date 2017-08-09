@@ -44,6 +44,7 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         out += "IP: %s\n" % self.ip
         out += "File Size: %s\n" % self.size
         out += "File name: %s\n" % self.fileName
+        out += "File %s encrypted\n" % "is" if self.isEncrypted() else "is NOT"
         return out
 
     def decrypt(self, encimg, refkey):
