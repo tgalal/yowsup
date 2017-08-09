@@ -11,6 +11,7 @@ from .message_media import MediaMessageProtocolEntity
 from yowsup.common.tools import WATools
 from yowsup.common.tools import MimeTools
 import os
+
 class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     '''
     <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}"
@@ -57,6 +58,12 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
 
     def isEncrypted(self):
         return self.cryptKeys and self.mediaKey
+
+    def getMediaContent(self):
+        data = urlopen(self.url).read()
+        if self.isEncrypted():
+            data = self.decrypt(data, self.mediaKey)
+        return bytearray(data)
 
     def getMediaSize(self):
         return self.size
