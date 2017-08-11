@@ -31,6 +31,16 @@ Install using setup.py to pull all python dependencies, or using pip:
 pip install yowsup2
 ```
 
+### Debian
+You need to have installed python headers (from probably python-dev package) and ncurses-dev and dependences, 
+```
+apt-get install python-dateutil python-protobuf python-pycryptopp python-axolotl-curve25519 libpython2.7-stdlib python-pil python-setuptools python-dev libevent-dev ncurses-dev
+```
+then run
+```
+python setup.py install
+```
+
 ### Linux
 
 You need to have installed python headers (from probably python-dev package) and ncurses-dev, then run
