@@ -167,7 +167,7 @@ class MimeTools:
     @staticmethod
     def getExtension(mimetype):
         ext = mimetypes.guess_extension(mimetype.split(';')[0])
-        if ext in None:
+        if ext is None:
             raise Exception("Unsupported/unrecognized mimetype: "+mimetype);
         return ext
 

@@ -48,6 +48,9 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         return out
 
     def decrypt(self, encimg, refkey):
+        if self.cryptKeys is None:
+            self.cryptKeys = '576861747341707020496d616765204b657973'
+
         derivative = HKDFv3().deriveSecrets(refkey, binascii.unhexlify(self.cryptKeys), 112)
         parts = ByteUtil.split(derivative, 16, 32)
         iv = parts[0]
@@ -76,7 +79,7 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         return self.mimeType
 
     def getExtension(self):
-        return MimeTools.getExtension(self.mediaType)
+        return MimeTools.getExtension(self.mimeType)
 
     def setDownloadableMediaProps(self, mimeType, fileHash, url, ip, size, fileName, mediaKey):
         self.mimeType   = mimeType

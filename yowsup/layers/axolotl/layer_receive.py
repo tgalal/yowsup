@@ -37,7 +37,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         :type protocolTreeNode: ProtocolTreeNode
         """
         if not self.processIqRegistry(protocolTreeNode):
-            if protocolTreeNode.tag == "message":
+            if protocolTreeNode.tag == "message" or protocolTreeNode.tag == "media":
                 self.onMessage(protocolTreeNode)
             elif not protocolTreeNode.tag == "receipt":
                 #receipts will be handled by send layer
