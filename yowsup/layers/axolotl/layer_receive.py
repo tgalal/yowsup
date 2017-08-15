@@ -1,5 +1,6 @@
 from .layer_base import AxolotlBaseLayer
 
+from yowsup.common import YowConstants
 from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
 from yowsup.layers.protocol_messages.proto.wa_pb2 import *
 from yowsup.layers.axolotl.protocolentities import *
@@ -200,8 +201,11 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.handleImageMessage(node, m.image_message)
 
         if not handled:
-            print(m)
-            raise ValueError("Unhandled")
+            if YowConstants.DONT_CRASH_ON_UNHANDLED:
+                logger.warning("Unhandled message")
+            else:
+                print(m)
+                raise ValueError("Unhandled")
 
     def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, axolotlAddress):
         groupId = senderKeyDistributionMessage.groupId
