@@ -2,6 +2,10 @@ import unittest
 import inspect
 import threading
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 try:
     import Queue
 except ImportError:
@@ -76,6 +80,7 @@ class YowLayer(object):
 
     def toUpper(self, data):
         if self.__upper:
+            logger.debug("Upper receive data")
             self.__upper.receive(data)
 
     def toLower(self, data):

@@ -23,12 +23,12 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
     '''
     def __init__(self,
             mimeType, fileHash, url, ip, size, fileName,
-            abitrate, acodec, asampfreq, duration, encoding, origin, seconds,
+            abitrate, acodec, asampfreq, duration, encoding, origin, seconds, mediakey=None,
             _id = None, _from = None, to = None, notify = None, timestamp = None,
             participant = None, preview = None, offline = None, retry = None):
 
         super(AudioDownloadableMediaMessageProtocolEntity, self).__init__("audio",
-            mimeType, fileHash, url, ip, size, fileName, None,
+            mimeType, fileHash, url, ip, size, fileName, mediakey, None,
             _id, _from, to, notify, timestamp, participant, preview, offline, retry)
         self.setAudioProps(abitrate, acodec, asampfreq, duration, encoding, origin, seconds)
 
@@ -51,6 +51,7 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         self.encoding  = encoding
         self.origin    = origin
         self.seconds   = seconds
+        self.cryptKeys = '576861747341707020417564696f204b657973'
 
     def toProtocolTreeNode(self):
         node = super(AudioDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()

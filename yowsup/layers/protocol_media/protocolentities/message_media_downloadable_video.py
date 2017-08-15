@@ -27,12 +27,12 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
     def __init__(self,
             mimeType, fileHash, url, ip, size, fileName,
             abitrate, acodec, asampfmt, asampfreq, duration, encoding, fps,
-            width, height, seconds, vbitrate, vcodec, caption = None,
+            width, height, seconds, vbitrate, vcodec, caption = None, mediaKey=None,
             _id = None, _from = None, to = None, notify = None, timestamp = None,
             participant = None, preview = None, offline = None, retry = None):
 
         super(VideoDownloadableMediaMessageProtocolEntity, self).__init__("video",
-            mimeType, fileHash, url, ip, size, fileName, None,
+            mimeType, fileHash, url, ip, size, fileName, mediaKey, None,
             _id, _from, to, notify, timestamp, participant, preview, offline, retry)
         self.setVideoProps(encoding, width, height, vbitrate, abitrate, acodec, asampfmt, asampfreq, duration, fps, seconds, vcodec, caption)
 
@@ -67,6 +67,7 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         self.vcodec    = vcodec
         self.width     = width
         self.caption   = caption
+        self.cryptKeys = '576861747341707020566964656f204b657973'
 
     def getCaption(self):
         return self.caption
