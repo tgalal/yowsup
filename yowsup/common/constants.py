@@ -26,3 +26,5 @@ class YowConstants:
 
     PREVIEW_WIDTH = 64
     PREVIEW_HEIGHT = 64
+
+    DONT_CRASH_ON_UNHANDLED = False
