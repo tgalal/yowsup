@@ -71,8 +71,10 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
     def onMessage(self, protocolTreeNode):
         encNode = protocolTreeNode.getChild("enc")
         if encNode:
+            logger.info("!!!File encrypted ENC....")
             self.handleEncMessage(protocolTreeNode)
         else:
+            logger.info("File not encrypted ENC....")
             self.toUpper(protocolTreeNode)
 
     def handleEncMessage(self, node):
@@ -83,10 +85,13 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.v2Jids.append(node["from"])
         try:
             if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_PKMSG):
+                logger.debug("Handle preKey Whisper Message")
                 self.handlePreKeyWhisperMessage(node)
             elif encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_MSG):
+                logger.debug("Handle sender key message")
                 self.handleWhisperMessage(node)
             if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG):
+                logger.debug("Handle Sender KeyMessage")
                 self.handleSenderKeyMessage(node)
         except (InvalidMessageException, InvalidKeyIdException) as e:
             logger.warning("InvalidMessage or KeyId for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
@@ -139,10 +144,12 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         plaintext = sessionCipher.decryptMsg(whisperMessage)
 
         if enc.getVersion() == 2:
+            logger.debug("ENC version 2")
             paddingByte = plaintext[-1] if type(plaintext[-1]) is int else ord(plaintext[-1])
             padding = paddingByte & 0xFF
             self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext[:-padding])
         else:
+            logger.debug("ENC version 1")
             self.handleConversationMessage(encMessageProtocolEntity.toProtocolTreeNode(), plaintext)
 
     def handleSenderKeyMessage(self, node):
@@ -166,7 +173,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
     def parseAndHandleMessageProto(self, encMessageProtocolEntity, serializedData):
         node = encMessageProtocolEntity.toProtocolTreeNode()
         m = Message()
-        handled = False
         try:
             m.ParseFromString(serializedData)
         except:
@@ -179,27 +185,38 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             raise ValueError("Empty message")
 
         if m.HasField("sender_key_distribution_message"):
-            handled = True
+            logger.debug("Sender key distribution message")
             axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
             self.handleSenderKeyDistributionMessage(m.sender_key_distribution_message, axolotlAddress)
 
+        logger.debug(m)
+
         if m.HasField("conversation"):
-            handled = True
+            logger.debug("Handle conversation")
             self.handleConversationMessage(node, m.conversation)
         elif m.HasField("contact_message"):
-            handled = True
+            logger.debug("Handle contact message")
             self.handleContactMessage(node, m.contact_message)
         elif m.HasField("url_message"):
-            handled = True
+            logger.debug("Handle url message")
             self.handleUrlMessage(node, m.url_message)
         elif m.HasField("location_message"):
-            handled = True
+            logger.debug("Handle location message")
             self.handleLocationMessage(node, m.location_message)
         elif m.HasField("image_message"):
-            handled = True
+            logger.debug("Handle image message")
             self.handleImageMessage(node, m.image_message)
-
-        if not handled:
+        elif m.HasField("document_message"):
+            logger.debug("Handle document message")
+            self.handleDocumentMessage(node, m.document_message)
+        elif m.HasField("video_message"):
+            logger.debug("Handle video message")
+            self.handleDocumentMessage(node, m.video_message)
+        elif m.HasField("audio_message"):
+            logger.debug("Handle audio message")
+            self.handleAudioMessage(node, m.audio_message)
+        else:
+            logger.debug("Unhandled message")
             print(m)
             raise ValueError("Unhandled")
 
@@ -230,19 +247,85 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             "caption": imageMessage.caption,
             "encoding": "raw",
             "file": "enc",
-            "ip": "0"
+            "ip": "0",
+            "mediaKey": imageMessage.media_key
         }, data = imageMessage.jpeg_thumbnail)
         messageNode.addChild(mediaNode)
 
         self.toUpper(messageNode)
 
+    def handleAudioMessage(self, originalEncNode, audioMessage):
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "audio",
+            "filehash": audioMessage.file_sha256,
+            "size": str(audioMessage.file_length),
+            "url": audioMessage.url,
+            "mimetype": audioMessage.mime_type.split(';')[0],
+            "duration": str(audioMessage.duration),
+            "seconds": str(audioMessage.duration),
+            "encoding": "raw",
+            "file": "enc",
+            "ip": "0",
+            "mediakey": audioMessage.media_key
+        })
+        messageNode.addChild(mediaNode)
+
+        self.toUpper(messageNode)
+
+    def handleVideoMessage(self, originalEncNode, videoMessage):
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "video",
+            "filehash": videoMessage.file_sha256,
+            "size": str(videoMessage.file_length),
+            "url": videoMessage.url,
+            "mimetype": videoMessage.mime_type.split(';')[0],
+            "duration": str(videoMessage.duration),
+            "seconds": str(videoMessage.duration),
+            "caption": videoMessage.caption,
+            "encoding": "raw",
+            "file": "enc",
+            "ip": "0",
+            "mediakey": videoMessage.media_key
+        }, data=videoMessage.jpeg_thumbnail)
+        messageNode.addChild(mediaNode)
+
+        self.toUpper(messageNode)
+
     def handleUrlMessage(self, originalEncNode, urlMessage):
-        #convert to ??
-        pass
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "url",
+            "text": urlMessage.text,
+            "match": urlMessage.matched_text,
+            "url": urlMessage.canonical_url,
+            "description": urlMessage.description,
+            "title": urlMessage.title
+        }, data=urlMessage.jpeg_thumbnail)
+        messageNode.addChild(mediaNode)
+
+        self.toUpper(messageNode)
 
     def handleDocumentMessage(self, originalEncNode, documentMessage):
-        #convert to ??
-        pass
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode["type"] = "media"
+        mediaNode = ProtocolTreeNode("media", {
+            "type": "document",
+            "url": documentMessage.url,
+            "mimetype": documentMessage.mime_type,
+            "title": documentMessage.title,
+            "filehash": documentMessage.file_sha256,
+            "size": str(documentMessage.file_length),
+            "pages": str(documentMessage.page_count),
+            "mediakey": documentMessage.media_key
+        }, data=documentMessage.jpeg_thumbnail)
+        messageNode.addChild(mediaNode)
+
+        self.toUpper(messageNode)
 
     def handleLocationMessage(self, originalEncNode, locationMessage):
         messageNode = copy.deepcopy(originalEncNode)

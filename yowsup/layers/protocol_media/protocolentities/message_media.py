@@ -123,7 +123,6 @@ class MediaMessageProtocolEntity(MessageProtocolEntity):
     def getMediaType(self):
         return self.mediaType
 
-
     def toProtocolTreeNode(self):
         node = super(MediaMessageProtocolEntity, self).toProtocolTreeNode()
         mediaNode = ProtocolTreeNode("media", {"type": self.mediaType}, None, None)

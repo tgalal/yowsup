@@ -1,4 +1,8 @@
+import logging
+
 from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
+from yowsup.layers.protocol_media.protocolentities import DocumentDownloadableMediaMessageProtocolEntity
+from yowsup.layers.protocol_media.protocolentities import UrlMediaMessageProtocolEntity
 from .protocolentities import ImageDownloadableMediaMessageProtocolEntity
 from .protocolentities import AudioDownloadableMediaMessageProtocolEntity
 from .protocolentities import VideoDownloadableMediaMessageProtocolEntity
@@ -6,6 +10,7 @@ from .protocolentities import LocationMediaMessageProtocolEntity
 from .protocolentities import VCardMediaMessageProtocolEntity
 from .protocolentities import RequestUploadIqProtocolEntity, ResultRequestUploadIqProtocolEntity
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity, ErrorIqProtocolEntity
+logger = logging.getLogger(__name__)
 
 class YowMediaProtocolLayer(YowProtocolLayer):
 
@@ -35,9 +40,11 @@ class YowMediaProtocolLayer(YowProtocolLayer):
             self.entityToLower(entity)
 
     def recvMessageStanza(self, node):
+        logger.debug("Message Stanza Recived")
         if node.getAttributeValue("type") == "media":
             mediaNode = node.getChild("media")
             if mediaNode.getAttributeValue("type") == "image":
+                logger.debug("ImageDownloadableMediaMessageProtocolEntity => fromProtocolTreeNode")
                 entity = ImageDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
             elif mediaNode.getAttributeValue("type") == "audio":
@@ -51,6 +58,12 @@ class YowMediaProtocolLayer(YowProtocolLayer):
                 self.toUpper(entity)
             elif mediaNode.getAttributeValue("type") == "vcard":
                 entity = VCardMediaMessageProtocolEntity.fromProtocolTreeNode(node)
+                self.toUpper(entity)
+            elif mediaNode.getAttributeValue("type") == "document":
+                entity = DocumentDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
+                self.toUpper(entity)
+            elif mediaNode.getAttributeValue("type") == "url":
+                entity = UrlMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
 
     def sendIq(self, entity):
