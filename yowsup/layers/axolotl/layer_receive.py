@@ -1,11 +1,11 @@
 from .layer_base import AxolotlBaseLayer
 
-from yowsup.common import YowConstants
 from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
 from yowsup.layers.protocol_messages.proto.wa_pb2 import *
 from yowsup.layers.axolotl.protocolentities import *
 from yowsup.structs import ProtocolTreeNode
 from yowsup.layers.axolotl.props import PROP_IDENTITY_AUTOTRUST
+from yowsup.layers.axolotl.props import PROP_IGNORE_UNHANDLED
 
 from axolotl.protocol.prekeywhispermessage import PreKeyWhisperMessage
 from axolotl.protocol.whispermessage import WhisperMessage
@@ -201,8 +201,9 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.handleImageMessage(node, m.image_message)
 
         if not handled:
-            if YowConstants.DONT_CRASH_ON_UNHANDLED:
-                logger.warning("Unhandled message")
+            if PROP_IGNORE_UNHANDLED:
+                self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], participant=node["participant"]).toProtocolTreeNode())
+                logger.warning("Unhandled message, sending delivery receipt")
             else:
                 print(m)
                 raise ValueError("Unhandled")
