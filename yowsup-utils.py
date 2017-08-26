@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # yowsup utilities for getting new whatsapp.apk and processing it to get whatsapp version and classdex md5
-# 
+# credit : https://github.com/mgp25/classesMD5-64
 # Output : 
 # WhatsApp Version: 2.17.296
 # WhatsApp ClassesDex: YrJNPljM3TuNFPIOZ+jziw==
@@ -54,6 +54,7 @@ with open(file_name, "wb") as f:
 				sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50-done)) )    
 				sys.stdout.flush()
 
+# this source code from https://github.com/mgp25/classesMD5-64/blob/master/dexMD5.py
 print("\n=== Processing APK ===")		
 zipFile = zipfile.ZipFile("whatsapp.apk",'r')
 classesDexFile = zipFile.read('classes.dex')
