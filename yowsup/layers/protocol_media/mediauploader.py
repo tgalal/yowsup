@@ -5,6 +5,13 @@ from time import sleep
 import threading
 import logging
 from yowsup.common.tools import MimeTools
+import base64
+import hmac
+from Crypto.Cipher import AES
+import binascii
+from axolotl.kdf.hkdfv3 import HKDFv3
+from axolotl.sessioncipher import pad
+from axolotl.util.byteutil import ByteUtil
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +43,34 @@ class MediaUploader(WARequest, threading.Thread):
         else:
             self.run()
 
+    def pad(self,s):
+        # return s + (16 - len(s) % 16) * chr(16 - len(s) % 16)
+        y = (16 - len(s) % 16) * chr(16 - len(s) % 16)
+        a = s + y.encode()
+        return a
+
+    def encryptImg(self,img, refkey):
+        derivative = HKDFv3().deriveSecrets(binascii.unhexlify(refkey),
+                                            binascii.unhexlify("576861747341707020496d616765204b657973"), 112)
+        parts = ByteUtil.split(derivative, 16, 32)
+        iv = parts[0]
+        cipherKey = parts[1]
+        macKey=derivative[48:80]
+
+        mac = hmac.new(macKey,digestmod=hashlib.sha256)
+        mac.update(iv)
+
+        cipher = AES.new(key=cipherKey, mode=AES.MODE_CBC, IV=iv)
+        imgEnc = cipher.encrypt(self.pad(img))
+
+        mac.update(imgEnc)
+        hash = mac.digest()
+        hashKey = ByteUtil.trim(mac.digest(), 10)
+
+        finalEnc =  imgEnc + hashKey
+
+        return finalEnc
+
     def run(self):
 
         sourcePath = self.sourcePath
@@ -48,7 +83,24 @@ class MediaUploader(WARequest, threading.Thread):
         try:
             filename = os.path.basename(sourcePath)
             filetype = MimeTools.getMIME(filename)
-            filesize = os.path.getsize(sourcePath)
+
+            f = open(sourcePath, 'rb')
+            stream = f.read()
+            f.close()
+            refkey = binascii.hexlify(os.urandom(32))
+            stream=self.encryptImg(stream,refkey)
+            fenc = open(filename+".enc", 'wb')  # bahtiar
+            fenc.write(stream)
+            fenc.seek(0, 2)
+            filesize=fenc.tell()
+            fenc.close()
+            filesize2=len(stream)
+
+            sha1 = hashlib.sha256()
+            sha1.update(stream)
+            b64Hash = base64.b64encode(sha1.digest())
+
+            file_enc_sha256 = hashlib.sha256(stream).hexdigest()
 
             self.sock.connect((self.url, self.port))
             ssl_sock = ssl.wrap_socket(self.sock)
@@ -60,16 +112,25 @@ class MediaUploader(WARequest, threading.Thread):
             boundary = "zzXXzzYYzzXXzzQQ"#"-------" + m.hexdigest() #"zzXXzzYYzzXXzzQQ"
             contentLength = 0
 
+            digTo = hmac.new("".encode("utf-8"), self.jid.replace("@s.whatsapp.net", "@c.us").encode("utf-8"),
+                             hashlib.sha256).digest()[:20]
+            refTo = base64.b64encode(digTo).decode()
+            digFrom = hmac.new("".encode("utf-8"), self.accountJid.replace("@s.whatsapp.net", "@c.us").encode("utf-8"),
+                               hashlib.sha256).digest()[:20]
+            refFrom = base64.b64encode(digFrom).decode()
+
             hBAOS = "--" + boundary + "\r\n"
-            hBAOS += "Content-Disposition: form-data; name=\"to\"\r\n\r\n"
-            hBAOS += self.jid + "\r\n"
-            hBAOS += "--" + boundary + "\r\n"
-            hBAOS += "Content-Disposition: form-data; name=\"from\"\r\n\r\n"
-            hBAOS += self.accountJid.replace("@whatsapp.net","") + "\r\n"
+            hBAOS += "Content-Disposition: form-data; name=\"hash\"\r\n\r\n"
+            hBAOS += b64Hash.decode() + "\r\n"
 
             hBAOS += "--" + boundary + "\r\n"
-            hBAOS += "Content-Disposition: form-data; name=\"file\"; filename=\"" + crypto + "\"\r\n"
-            hBAOS  += "Content-Type: " + filetype + "\r\n\r\n"
+            hBAOS += "Content-Disposition: form-data; name=\"refs\"\r\n\r\n"
+            hBAOS += refFrom + "\r\n"
+            hBAOS += refTo + "\r\n"
+
+            hBAOS += "--" + boundary + "\r\n"
+            hBAOS += "Content-Disposition: form-data; name=\"file\"; filename=\"" + "blob" + "\"\r\n"
+            hBAOS += "Content-Type: " + "application/octet-stream" + "\r\n\r\n"
 
             fBAOS = "\r\n--" + boundary + "--\r\n"
 
@@ -88,9 +149,6 @@ class MediaUploader(WARequest, threading.Thread):
 
             totalsent = 0
             buf = 1024
-            f = open(sourcePath, 'rb')
-            stream = f.read()
-            f.close()
             status = 0
             lastEmit = 0
 
@@ -135,7 +193,10 @@ class MediaUploader(WARequest, threading.Thread):
 
             if result["url"] is not None:
                 if self.successCallback:
-                    self.successCallback(sourcePath, self.jid, result["url"])
+                    # self.successCallback(sourcePath, self.jid, result["url"])
+                    result["mediaKey"]=refkey
+                    result["file_enc_sha256"]=file_enc_sha256
+                    self.successCallback(sourcePath, self.jid, result)
             else:
                 logger.exception("uploadUrl: %s, result of uploading media has no url" % uploadUrl)
                 if self.errorCallback:

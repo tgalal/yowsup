@@ -173,7 +173,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             print("DUMP:")
             print(serializedData)
             print([s for s in serializedData])
-            print([ord(s) for s in serializedData])
+            # print([ord(s) for s in serializedData])
             raise
         if not m or not serializedData:
             raise ValueError("Empty message")
@@ -227,6 +227,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             "mimetype": imageMessage.mime_type,
             "width": imageMessage.width,
             "height": imageMessage.height,
+            "mediakey": imageMessage.media_key,
             "caption": imageMessage.caption,
             "encoding": "raw",
             "file": "enc",
@@ -249,7 +250,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         messageNode["type"] = "media"
         mediaNode = ProtocolTreeNode("media", {
             "latitude": locationMessage.degrees_latitude,
-            "longitude": locationMessage.degress_longitude,
+            "longitude": locationMessage.degrees_longitude,
             "name": "%s %s" % (locationMessage.name, locationMessage.address),
             "url": locationMessage.url,
             "encoding": "raw",
