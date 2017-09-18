@@ -6,5 +6,5 @@ class MediaMessageProtocolEntityTest(MessageProtocolEntityTest):
     def setUp(self):
         super(MediaMessageProtocolEntityTest, self).setUp()
         self.ProtocolEntity = MediaMessageProtocolEntity
-        mediaNode = ProtocolTreeNode("media", {"type":"MEDIA_TYPE"}, None, None)
+        mediaNode = ProtocolTreeNode("encr_media", {"type":"MEDIA_TYPE"}, None, None)
         self.node.addChild(mediaNode)
