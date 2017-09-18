@@ -89,11 +89,12 @@ class MediaUploader(WARequest, threading.Thread):
             f.close()
             refkey = binascii.hexlify(os.urandom(32))
             stream=self.encryptImg(stream,refkey)
-            fenc = open(filename+".enc", 'wb')  # bahtiar
+            fenc = open(sourcePath+".enc", 'wb')  # bahtiar
             fenc.write(stream)
             fenc.seek(0, 2)
             filesize=fenc.tell()
             fenc.close()
+            os.remove(sourcePath+".enc")
             filesize2=len(stream)
 
             sha1 = hashlib.sha256()
