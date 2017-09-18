@@ -1,7 +1,7 @@
 from .env import YowsupEnv
 import hashlib
 class S40YowsupEnv(YowsupEnv):
-    _VERSION = "2.16.11"
+    _VERSION = "2.16.12"
     _OS_NAME= "S40"
     _OS_VERSION = "14.26"
     _DEVICE_NAME = "302"
