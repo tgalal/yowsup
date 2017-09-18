@@ -5,7 +5,7 @@ class DownloadableMediaMessageProtocolEntityTest(MediaMessageProtocolEntityTest)
     def setUp(self):
         super(DownloadableMediaMessageProtocolEntityTest, self).setUp()
         self.ProtocolEntity = DownloadableMediaMessageProtocolEntity
-        mediaNode = self.node.getChild("media")
+        mediaNode = self.node.getChild("encr_media")
         mediaNode.setAttribute("mimetype",  "MIMETYPE")
         mediaNode.setAttribute("filehash",  "FILEHASH")
         mediaNode.setAttribute("url",       "URL")

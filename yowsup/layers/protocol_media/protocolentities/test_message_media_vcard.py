@@ -6,6 +6,6 @@ class VCardMediaMessageProtocolEntityTest(MediaMessageProtocolEntityTest):
         super(VCardMediaMessageProtocolEntityTest, self).setUp()
         self.ProtocolEntity = VCardMediaMessageProtocolEntity
         vcardNode = ProtocolTreeNode("vcard", {"name":"abc"}, None, "VCARD_DATA")
-        mediaNode = self.node.getChild("media")
+        mediaNode = self.node.getChild("encr_media")
         mediaNode["type"] = "vcard"
         mediaNode.addChild(vcardNode)

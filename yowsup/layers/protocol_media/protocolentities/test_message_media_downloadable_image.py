@@ -5,7 +5,7 @@ class ImageDownloadableMediaMessageProtocolEntityTest(DownloadableMediaMessagePr
     def setUp(self):
         super(ImageDownloadableMediaMessageProtocolEntityTest, self).setUp()
         self.ProtocolEntity = ImageDownloadableMediaMessageProtocolEntity
-        mediaNode = self.node.getChild("media")
+        mediaNode = self.node.getChild("encr_media")
         mediaNode.setAttribute("encoding",  "ENCODING")
         mediaNode.setAttribute("width",     "1024")
         mediaNode.setAttribute("height",     "768")
