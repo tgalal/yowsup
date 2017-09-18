@@ -5,7 +5,7 @@ class LocationMediaMessageProtocolEntityTest(MediaMessageProtocolEntityTest):
     def setUp(self):
         super(LocationMediaMessageProtocolEntityTest, self).setUp()
         self.ProtocolEntity = LocationMediaMessageProtocolEntity
-        mediaNode = self.node.getChild("encr_media")
+        mediaNode = self.node.getChild("media")
         mediaNode["type"] = "location"
         mediaNode["latitude"] = "52.52393"
         mediaNode["longitude"] = "13.41747"

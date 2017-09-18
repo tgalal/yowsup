@@ -5,7 +5,7 @@ class VideoDownloadableMediaMessageProtocolEntityTest(DownloadableMediaMessagePr
     def setUp(self):
         super(VideoDownloadableMediaMessageProtocolEntityTest, self).setUp()
         self.ProtocolEntity = VideoDownloadableMediaMessageProtocolEntity
-        mediaNode = self.node.getChild("encr_media")
+        mediaNode = self.node.getChild("media")
         mediaNode.setAttribute("abitrate",  "165")
         mediaNode.setAttribute("acodec",    "aac")
         mediaNode.setAttribute("asampfmt",  "flt")

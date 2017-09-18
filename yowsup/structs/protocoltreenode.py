@@ -54,6 +54,8 @@ class ProtocolTreeNode(object):
                     raise ValueError("value is none for attr %s" % key)
                 if type(val) == bytes:
                     val = ''.join(['%' + hex(b)[2:] for b in val])
+                if type(val) == dict:
+                    val = val[key]
                 out+= " "+key+'="'+ val + '"'
         out+= ">\n"
 

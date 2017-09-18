@@ -73,7 +73,7 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
 
     def toProtocolTreeNode(self):
         node = super(VideoDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
-        mediaNode = node.getChild("media")
+        mediaNode = node.getChild("enc")
 
         mediaNode.setAttribute("abitrate",  self.abitrate)
         mediaNode.setAttribute("acodec",    self.acodec)
