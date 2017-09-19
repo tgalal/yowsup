@@ -1,8 +1,11 @@
 # Yowsup 2
 
-If you need any assistance join our Discord server: **[https://discord.gg/U7bHvfY](https://discord.gg/U7bHvfY)**
+If you need any assistance join our Discord server: **[https://discord.gg/Wa7QSxZ](https://discord.gg/Wa7QSxZ)**
 
 Donate to **tgalal** the creator of this project: <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z9KKEUVYEY6BN" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
+
+Donate to me: <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HNCEHHKWG2E4J" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
+
 
 ==========================================================
 
