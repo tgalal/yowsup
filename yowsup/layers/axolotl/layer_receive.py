@@ -22,6 +22,7 @@ from axolotl.protocol.senderkeydistributionmessage import SenderKeyDistributionM
 
 import logging
 import copy
+import sys
 logger = logging.getLogger(__name__)
 
 class AxolotlReceivelayer(AxolotlBaseLayer):
@@ -166,6 +167,9 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
     def parseAndHandleMessageProto(self, encMessageProtocolEntity, serializedData):
         node = encMessageProtocolEntity.toProtocolTreeNode()
         m = Message()
+        print(sys.version_info)
+        if sys.version_info >= (3,0):
+            serializedData = serializedData.encode() 
         handled = False
         try:
             m.ParseFromString(serializedData)
