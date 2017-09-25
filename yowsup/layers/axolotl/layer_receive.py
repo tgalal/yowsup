@@ -167,7 +167,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
     def parseAndHandleMessageProto(self, encMessageProtocolEntity, serializedData):
         node = encMessageProtocolEntity.toProtocolTreeNode()
         m = Message()
-        print(sys.version_info)
         if sys.version_info >= (3,0):
             serializedData = serializedData.encode() 
         handled = False
