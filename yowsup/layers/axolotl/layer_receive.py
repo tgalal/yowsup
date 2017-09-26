@@ -101,6 +101,10 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             logger.warning("InvalidKeyId for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
             retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node, self.store.getLocalRegistrationId())
             self.toLower(retry.toProtocolTreeNode())
+        except InvalidKeyIdException as e:
+            logger.warning("InvalidKeyId for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
+            retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node, self.store.getLocalRegistrationId())
+            self.toLower(retry.toProtocolTreeNode())
         except NoSessionException as e:
             logger.warning("No session for %s, getting their keys now", encMessageProtocolEntity.getAuthor(False))
 
@@ -164,7 +168,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             # print('Plaintext: {0}'.format(repr(plaintext)))
             # print(repr(node["id"]))
             if type(plaintext) == bytes:
-                # print('Bytes')
                 # DEBUG SET RECEIPT
                 # self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], 'read', participant=node["participant"]).toProtocolTreeNode())
                 #
@@ -224,9 +227,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             except:
                 pass
             return
-            # raise
-        # print('Pass')
-
+            
         if not m or not serializedData:
             raise ValueError("Empty message")
 
