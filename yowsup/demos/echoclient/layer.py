@@ -10,7 +10,7 @@ class EchoLayer(YowInterfaceLayer):
         elif messageProtocolEntity.getType() == 'media':
             self.onMediaMessage(messageProtocolEntity)
 
-        self.toLower(messageProtocolEntity.forward(messageProtocolEntity.getFrom()))
+        # self.toLower(messageProtocolEntity.forward(messageProtocolEntity.getFrom())) ##disable for debug
         self.toLower(messageProtocolEntity.ack())
         self.toLower(messageProtocolEntity.ack(True))
 

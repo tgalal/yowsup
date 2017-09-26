@@ -84,13 +84,21 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.v2Jids.append(node["from"])
         try:
             if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_PKMSG):
+                # print('TYPE_PKMSG')
                 self.handlePreKeyWhisperMessage(node)
             elif encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_MSG):
+                # print('TYPE_MSG')
                 self.handleWhisperMessage(node)
             if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG):
+                # print('TYPE_SKMSG')
                 self.handleSenderKeyMessage(node)
-        except (InvalidMessageException, InvalidKeyIdException) as e:
-            logger.warning("InvalidMessage or KeyId for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
+        except InvalidMessageException as e:
+            print('InvalidMessageException %s' % e)
+            # DEBUG SET RECEIPT
+            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], 'read', participant=node["participant"]).toProtocolTreeNode())
+
+        except InvalidKeyIdException as e:
+            logger.warning("InvalidKeyId for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
             retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node, self.store.getLocalRegistrationId())
             self.toLower(retry.toProtocolTreeNode())
         except NoSessionException as e:
@@ -149,15 +157,43 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
     def handleSenderKeyMessage(self, node):
         encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
         enc = encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG)
-
         senderKeyName = SenderKeyName(encMessageProtocolEntity.getFrom(True), AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0))
         groupCipher = GroupCipher(self.store, senderKeyName)
         try:
             plaintext = groupCipher.decrypt(enc.getData())
-            padding = ord(plaintext[-1]) & 0xFF
-            plaintext = plaintext[:-padding]
-            plaintext = plaintext.encode() if sys.version_info >= (3, 0) else plaintext
-            self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
+            # print('Plaintext: {0}'.format(repr(plaintext)))
+            # print(repr(node["id"]))
+            if type(plaintext) == bytes:
+                # print('Bytes')
+                # DEBUG SET RECEIPT
+                # self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], 'read', participant=node["participant"]).toProtocolTreeNode())
+                #
+                #
+                if plaintext[0:1] == b'\n':
+                    msg = plaintext[3:3+plaintext[1:2][-1]]
+                elif plaintext[2:3] == b'\x01':
+                    msg = plaintext[5:5+plaintext[4:5][-1]]
+                    if msg[0:1] == b'\x01':
+                        msg = plaintext[6:6+plaintext[4:5][-1]]
+                else:
+                    msg = plaintext[4:4+plaintext[3:4][-1]]
+
+                # print(msg)
+                # self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
+                self.handleConversationMessage(node, msg.decode())
+                # self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext.split(b'\x8a')[0])
+                return
+
+            try:
+                padding = ord(plaintext[-1]) & 0xFF
+                plaintext = plaintext[:-padding]
+                plaintext = plaintext.encode() if sys.version_info >= (3, 0) else plaintext
+                self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
+            except Exception as ex: #(AttributeError, TypeError)
+                print('Exception')
+                print('Exception %s' % ex)
+
+
 
         except NoSessionException as e:
             logger.warning("No session for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
@@ -167,21 +203,34 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
     def parseAndHandleMessageProto(self, encMessageProtocolEntity, serializedData):
         node = encMessageProtocolEntity.toProtocolTreeNode()
         m = Message()
+<<<<<<< Updated upstream
         try:
             if sys.version_info >= (3,0):
                 serializedData = serializedData.encode()
         except AttributeError:
             logger.error("AttributeError: 'bytes' object has no attribute 'encode'. Skipping 'encode()'")
             pass
+=======
+
+>>>>>>> Stashed changes
         handled = False
         try:
+            # print('print(repr(serializedData))')
+            # print(repr(serializedData))
             m.ParseFromString(serializedData)
-        except:
-            print("DUMP:")
-            print(serializedData)
-            print([s for s in serializedData])
-            # print([ord(s) for s in serializedData])
-            raise
+        except Exception as e:
+            try:
+                print("DUMP:")
+                print(e)
+                print(serializedData)
+                print([s for s in serializedData])
+                print([ord(s) for s in serializedData])
+            except:
+                pass
+            return
+            # raise
+        # print('Pass')
+
         if not m or not serializedData:
             raise ValueError("Empty message")
 
@@ -207,10 +256,15 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.handleImageMessage(node, m.image_message)
 
         if not handled:
+<<<<<<< Updated upstream
             # raise ValueError("Unhandled")
             logger.error("Unhandled message. Skipping...")
             self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], read= True, participant=node["participant"]).toProtocolTreeNode())
             return
+=======
+            # print(m)
+            raise ValueError("Unhandled")
+>>>>>>> Stashed changes
 
     def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, axolotlAddress):
         groupId = senderKeyDistributionMessage.groupId
@@ -247,8 +301,11 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         self.toUpper(messageNode)
 
     def handleUrlMessage(self, originalEncNode, urlMessage):
-        #convert to ??
-        pass
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode["type"] = "text"
+        messageNode.children = []
+        messageNode.addChild(ProtocolTreeNode("body", data = urlMessage.text))
+        self.toUpper(messageNode)
 
     def handleDocumentMessage(self, originalEncNode, documentMessage):
         #convert to ??
