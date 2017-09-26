@@ -167,8 +167,12 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
     def parseAndHandleMessageProto(self, encMessageProtocolEntity, serializedData):
         node = encMessageProtocolEntity.toProtocolTreeNode()
         m = Message()
-        if sys.version_info >= (3,0):
-            serializedData = serializedData.encode() 
+        try:
+            if sys.version_info >= (3,0):
+                serializedData = serializedData.encode()
+        except AttributeError:
+            logger.error("AttributeError: 'bytes' object has no attribute 'encode'. Skipping 'encode()'")
+            pass
         handled = False
         try:
             m.ParseFromString(serializedData)
@@ -203,8 +207,10 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.handleImageMessage(node, m.image_message)
 
         if not handled:
-            print(m)
-            raise ValueError("Unhandled")
+            # raise ValueError("Unhandled")
+            logger.error("Unhandled message. Skipping...")
+            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], read= True, participant=node["participant"]).toProtocolTreeNode())
+            return
 
     def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, axolotlAddress):
         groupId = senderKeyDistributionMessage.groupId
