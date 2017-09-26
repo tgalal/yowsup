@@ -1,4 +1,10 @@
-# Yowsup 2
+# Yowsup 2 *DEVELOP*-branch
+
+
+## Important
+Install my **python-axolotl** fork: **[https://github.com/AragurDEV/python-axolotl](https://github.com/AragurDEV/python-axolotl) *(python3 setup.py install)***
+## 
+
 
 If you need any assistance join our Discord server: **[https://discord.gg/Wa7QSxZ](https://discord.gg/Wa7QSxZ)**
 
