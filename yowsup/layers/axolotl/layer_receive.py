@@ -209,7 +209,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         handled = False
         try:
             m.ParseFromString(serializedData)
-        except Exception e:
+        except Exception as e:
             try:
                 print("DUMP:")
                 print(e)
