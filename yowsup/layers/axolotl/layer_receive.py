@@ -247,8 +247,11 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         self.toUpper(messageNode)
 
     def handleUrlMessage(self, originalEncNode, urlMessage):
-        #convert to ??
-        pass
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode["type"] = "text"
+        messageNode.children = []
+        messageNode.addChild(ProtocolTreeNode("body", data = urlMessage.text))
+        self.toUpper(messageNode)
 
     def handleDocumentMessage(self, originalEncNode, documentMessage):
         #convert to ??
