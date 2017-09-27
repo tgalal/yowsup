@@ -31,7 +31,5 @@ before_cache:
 cache:
   directories:
     - $HOME/.cache/pip
-branches:
-  only:
-    - master
-    - develop
+notifications:
+  email: false
