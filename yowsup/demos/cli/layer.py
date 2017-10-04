@@ -448,7 +448,13 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         return self.L()
 
     ######## receive #########
-
+    
+    @ProtocolEntityCallback("presence")
+    def onPresenceChange(self, entity):
+        print "TEST PRESENCE"
+        print(entity)
+        print "END OF TEST PRESENCE"
+        
     @ProtocolEntityCallback("chatstate")
     def onChatstate(self, entity):
         print(entity)
