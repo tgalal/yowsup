@@ -5,6 +5,7 @@ from yowsup.layers.network import YowNetworkLayer
 import sys
 from yowsup.common import YowConstants
 import datetime
+import time
 import os
 import logging
 import threading
@@ -430,7 +431,19 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         return True
 
     ######## receive #########
-
+    
+    @ProtocolEntityCallback("presence")
+    def onPresenceChange(self, entity):
+        status="offline"
+        if entity.getType() is None:
+            status="online"     
+        ##raw fix for iphone lastseen deny output
+        lastseen = entity.getLast()
+        if status is "offline" and lastseen is "deny":
+            lastseen = time.time()
+        ##
+        self.output("%s %s %s lastseen at: %s" % (entity.getFrom(), entity.getTag(), status, lastseen))
+        
     @ProtocolEntityCallback("chatstate")
     def onChatstate(self, entity):
         print(entity)
