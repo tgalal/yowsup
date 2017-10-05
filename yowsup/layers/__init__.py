@@ -80,7 +80,6 @@ class YowLayer(object):
 
     def toUpper(self, data):
         if self.__upper:
-            logger.debug("Upper receive data")
             self.__upper.receive(data)
 
     def toLower(self, data):
