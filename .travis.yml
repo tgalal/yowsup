@@ -7,8 +7,6 @@ env:
     - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
     - SEGFAULT_SIGNALS=all
   matrix:
-    - TOXENV=py26
-    - TOXENV=py27
     - TOXENV=py33
     - TOXENV=py34
     - TOXENV=py35

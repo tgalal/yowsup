@@ -24,6 +24,7 @@ message ImageMessage {
   required uint32 height        = 6;
   required uint32 width         = 7;
   required bytes media_key       = 8;
+  required bytes file_enc_sha256       = 9;
   required bytes jpeg_thumbnail  = 16;
 }
 

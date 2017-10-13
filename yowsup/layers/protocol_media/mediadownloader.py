@@ -17,7 +17,7 @@ class MediaDownloader:
 
     def download(self, url = ""):
         try:
-            
+
             if not url:
                 if self.url:
                     url = "https://" if self.port == 443 else "http://"
@@ -26,9 +26,9 @@ class MediaDownloader:
                     logger.debug("URL is %s" % url)
                 else:
                     raise Exception("No url specified for fetching")
-            
+
             u = urlopen(url)
-            
+
             path = tempfile.mkstemp()[1]
             with open(path, "wb") as f:
                 meta = u.info()

@@ -49,10 +49,14 @@ class ProtocolTreeNode(object):
     def toString(self):
         out = "<"+self.tag
         if self.attributes is not None:
-            for key,val in self.attributes.items():
+            for key, val in self.attributes.items():
                 if val is None:
                     raise ValueError("value is none for attr %s" % key)
-                out+= " "+key+'="'+val+'"'
+                if type(val) == bytes:
+                    val = ''.join(['%' + hex(b)[2:] for b in val])
+                if type(val) == dict:
+                    val = val[key]
+                out+= " "+key+'="'+ val + '"'
         out+= ">\n"
 
         if self.data is not None:

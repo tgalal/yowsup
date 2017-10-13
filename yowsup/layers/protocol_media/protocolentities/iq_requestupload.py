@@ -62,7 +62,7 @@ class RequestUploadIqProtocolEntity(IqProtocolEntity):
         }
         if self.origHash:
             attribs["orighash"] = self.origHash
-        mediaNode = ProtocolTreeNode("media", attribs)
+        mediaNode = ProtocolTreeNode("encr_media", attribs)
         node.addChild(mediaNode)
         return node
 
@@ -71,7 +71,7 @@ class RequestUploadIqProtocolEntity(IqProtocolEntity):
         assert node.getAttributeValue("type") == "set", "Expected set as iq type in request upload, got %s" % node.getAttributeValue("type")
         entity = IqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = RequestUploadIqProtocolEntity
-        mediaNode = node.getChild("media")
+        mediaNode = node.getChild("encr_media")
         entity.setRequestArguments(
             mediaNode.getAttributeValue("type"),
             mediaNode.getAttributeValue("hash"),

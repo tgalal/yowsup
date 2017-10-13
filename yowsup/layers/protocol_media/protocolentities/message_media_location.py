@@ -3,10 +3,10 @@ from .message_media import MediaMessageProtocolEntity
 
 class LocationMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     '''
-    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
+    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}"
     offline="{{OFFLINE}}" type="text" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
-        <media 
-            latitude="52.52393" 
+        <media
+            latitude="52.52393"
             type="location"
             longitude="13.41747"
             name="Location Name"
@@ -54,7 +54,7 @@ class LocationMediaMessageProtocolEntity(MediaMessageProtocolEntity):
 
     def toProtocolTreeNode(self):
         node = super(LocationMediaMessageProtocolEntity, self).toProtocolTreeNode()
-        mediaNode = node.getChild("media")
+        mediaNode = node.getChild("enc")
         mediaNode.setAttribute("latitude",  self.latitude)
         mediaNode.setAttribute("longitude",  self.longitude)
         mediaNode.setAttribute("encoding", self.encoding)
@@ -63,7 +63,7 @@ class LocationMediaMessageProtocolEntity(MediaMessageProtocolEntity):
             mediaNode.setAttribute("name", self.name)
         if self.url:
             mediaNode.setAttribute("url", self.url)
-            
+
         return node
 
     @staticmethod

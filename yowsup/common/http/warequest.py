@@ -2,6 +2,7 @@ import urllib,sys, os, logging
 import hashlib
 from .waresponseparser import ResponseParser
 from yowsup.env import YowsupEnv
+from .httpproxy import HttpProxy
 
 if sys.version_info < (3, 0):
     import httplib
@@ -104,18 +105,25 @@ class WARequest(object):
             }.items()) + list(self.headers.items()));
 
         host,port,path = self.getConnectionParameters()
+        proxy = HttpProxy.getFromEnviron()
+        if proxy is None:
+            self.response = WARequest.sendRequest(host, port, path, headers, params, "GET")
 
-        self.response = WARequest.sendRequest(host, port, path, headers, params, "GET")
+            if not self.response.status == WARequest.OK:
+                logger.error("Request not success, status was %s"%self.response.status)
+                return {}
 
-        if not self.response.status == WARequest.OK:
-            logger.error("Request not success, status was %s"%self.response.status)
-            return {}
+            data = self.response.read()
+            logger.info(data)
 
-        data = self.response.read()
-        logger.info(data)
-
-        self.sent = True
-        return parser.parse(data.decode(), self.pvars)
+            self.sent = True
+            return parser.parse(data.decode(), self.pvars)
+        else:
+            logger.info("Request with proxy")
+            self.response = WARequest.sendRequestWithProxy(host, port,path,headers, params, proxy)
+            logger.info(self.response)
+            return self.response
+            
 
     def sendPostRequest(self, parser = None):
         self.response = None
@@ -165,3 +173,39 @@ class WARequest(object):
 
         response = conn.getresponse()
         return response
+
+    def sendRequestWithProxy(host,port,path,headers,params,proxy):
+        import pycurl
+        import json
+        from io import BytesIO
+        logger.info("SENDING PROXY REQUEST WITH %s"%proxy.getHost())
+        bytes_buffer = BytesIO()
+        c = pycurl.Curl()
+        c.setopt(pycurl.URL, WARequest.build_get_url(host,path,params))
+        c.setopt(pycurl.PROXY,proxy.getHost())
+        c.setopt(pycurl.PROXYPORT,proxy.getPort())
+        if proxy.getUserName() is not None:
+            c.setopt(pycurl.PROXYUSERPWD, "%s:%s" % (proxy.getUser(), proxy.getPassword()))
+        c.setopt(pycurl.PORT, port)
+        c.setopt(pycurl.HTTPHEADER,WARequest.build_headers(headers))
+        c.setopt(pycurl.WRITEDATA, bytes_buffer)
+        c.perform()
+        c.close()
+        data = bytes_buffer.getvalue().decode('utf-8')
+        return json.loads(data)
+
+    @staticmethod
+    def build_get_url(host, path, params):
+        params = urlencode(params)
+        url = 'https://'+host+path+"?"+params 
+        print(url)
+        return url 
+        
+    @staticmethod
+    def build_headers(headers_tuple):
+        headers_array = []
+        for idx in headers_tuple:
+            headers_array.append(idx + ":"+headers_tuple[idx])
+        print(headers_array)
+        return headers_array
+
