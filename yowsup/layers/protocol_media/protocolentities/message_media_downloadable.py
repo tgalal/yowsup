@@ -104,8 +104,7 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     @staticmethod
     def fromFilePath(fpath, url, mediaType, ip, to, mimeType = None, preview = None, filehash = None, filesize = None):
         mimeType = mimeType or MimeTools.getMIME(fpath)
-        filehash = filehash or WATools.getFileHashForUpload(fpath)
+        filehash = filehash or WATools.getFileHashForUpload2(fpath)
         size = filesize or os.path.getsize(fpath)
         fileName = os.path.basename(fpath)
-
         return DownloadableMediaMessageProtocolEntity(mediaType, mimeType, filehash, url, ip, size, fileName, to = to, preview = preview)
