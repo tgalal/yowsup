@@ -12,7 +12,7 @@ import binascii
 from axolotl.kdf.hkdfv3 import HKDFv3
 from axolotl.sessioncipher import pad
 from axolotl.util.byteutil import ByteUtil
-
+from .protocolentities.message_media_downloadable import DownloadableMediaMessageProtocolEntity 
 logger = logging.getLogger(__name__)
 
 class MediaUploader(WARequest, threading.Thread):
@@ -49,9 +49,21 @@ class MediaUploader(WARequest, threading.Thread):
         a = s + y.encode()
         return a
 
-    def encryptImg(self,img, refkey):
+    def getKey(self, filetype):
+        if "video" in filetype:
+            return DownloadableMediaMessageProtocolEntity.VIDEO_KEY
+        elif "image" in filetype:
+            return DownloadableMediaMessageProtocolEntity.IMAGE_KEY
+        elif "audio" in filetype:
+            return DownloadableMediaMessageProtocolEntity.AUDIO_KEY
+        raise Exception ("FILE TYPE NOT SUPPORTED")
+        
+        
+
+    def encryptMedia(self,img, refkey,filetype):
+        key = self.getKey(filetype)
         derivative = HKDFv3().deriveSecrets(binascii.unhexlify(refkey),
-                                            binascii.unhexlify("576861747341707020496d616765204b657973"), 112)
+                                            binascii.unhexlify(key), 112)
         parts = ByteUtil.split(derivative, 16, 32)
         iv = parts[0]
         cipherKey = parts[1]
@@ -88,7 +100,7 @@ class MediaUploader(WARequest, threading.Thread):
             stream = f.read()
             f.close()
             refkey = binascii.hexlify(os.urandom(32))
-            stream=self.encryptImg(stream,refkey)
+            stream=self.encryptMedia(stream,refkey,filetype)
             fenc = open(sourcePath+".enc", 'wb')  # bahtiar
             fenc.write(stream)
             fenc.seek(0, 2)
