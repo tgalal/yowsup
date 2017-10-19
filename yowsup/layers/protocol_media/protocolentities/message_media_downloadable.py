@@ -18,6 +18,10 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         </media>
     </message>
     '''
+    AUDIO_KEY = "576861747341707020417564696f204b657973"
+    VIDEO_KEY = "576861747341707020566964656f204b657973"
+    IMAGE_KEY = "576861747341707020496d616765204b657973" 
+    
     def __init__(self, mediaType,
             mimeType, fileHash, url, ip, size, fileName, mediaKey = None,
             _id = None, _from = None, to = None, notify = None, timestamp = None,

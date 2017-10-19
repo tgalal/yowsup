@@ -37,6 +37,7 @@ message VideoMessage {
      required uint64 duration       =  5;
      required bytes media_key       =  6;
      required string caption        =  7;
+     required bytes file_enc_sha256 = 8;
      required bytes jpeg_thumbnail  = 16;
 }
 
