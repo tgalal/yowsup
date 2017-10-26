@@ -37,7 +37,7 @@ class LiteSessionStore(SessionStore):
         q = "INSERT INTO sessions(recipient_id, device_id, record) VALUES(?,?,?)"
         c = self.dbConn.cursor()
         serialized = sessionRecord.serialize()
-        c.execute(q, (recipientId, deviceId, buffer(serialized) if sys.version_info < (2,7) else serialized))
+        c.execute(q, (recipientId, deviceId, buffer(serialized) if sys.version_info[0] < 3 else serialized))
         self.dbConn.commit()
 
     def containsSession(self, recipientId, deviceId):
