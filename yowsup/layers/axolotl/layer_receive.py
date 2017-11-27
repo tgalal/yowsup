@@ -84,16 +84,13 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.v2Jids.append(node["from"])
         try:
             if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_PKMSG):
-                # print('TYPE_PKMSG')
                 self.handlePreKeyWhisperMessage(node)
             elif encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_MSG):
-                # print('TYPE_MSG')
                 self.handleWhisperMessage(node)
             if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG):
-                # print('TYPE_SKMSG')
                 self.handleSenderKeyMessage(node)
         except InvalidMessageException as e:
-            print('InvalidMessageException %s' % e)
+            logger.error('InvalidMessageException %s' % e)
             # DEBUG SET RECEIPT
             self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], 'read', participant=node["participant"]).toProtocolTreeNode())
 
@@ -161,13 +158,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         groupCipher = GroupCipher(self.store, senderKeyName)
         try:
             plaintext = groupCipher.decrypt(enc.getData())
-            # print('Plaintext: {0}'.format(repr(plaintext)))
-            # print(repr(node["id"]))
             if type(plaintext) == bytes:
-                # DEBUG SET RECEIPT
-                # self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], 'read', participant=node["participant"]).toProtocolTreeNode())
-                #
-                #
                 if plaintext[0:1] == b'\n':
                     msg = plaintext[3:3+plaintext[1:2][-1]]
                 elif plaintext[2:3] == b'\x01':
@@ -177,10 +168,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
                 else:
                     msg = plaintext[4:4+plaintext[3:4][-1]]
 
-                # print(msg)
-                # self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
                 self.handleConversationMessage(node, msg.decode())
-                # self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext.split(b'\x8a')[0])
                 return
 
             try:
@@ -189,8 +177,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
                 plaintext = plaintext.encode() if sys.version_info >= (3, 0) else plaintext
                 self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
             except Exception as ex: #(AttributeError, TypeError)
-                print('Exception')
-                print('Exception %s' % ex)
+                logger.error('Exception %s' % ex)
 
 
 
@@ -210,8 +197,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             pass
         handled = False
         try:
-            # print('print(repr(serializedData))')
-            # print(repr(serializedData))
             m.ParseFromString(serializedData)
         except Exception as e:
             try:
