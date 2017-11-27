@@ -206,7 +206,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             if sys.version_info >= (3,0):
                 serializedData = serializedData.encode()
         except AttributeError:
-            logger.error("AttributeError: 'bytes' object has no attribute 'encode'. Skipping 'encode()'")
+            logger.warning("AttributeError: 'bytes' object has no attribute 'encode'. Skipping 'encode()'")
             pass
         handled = False
         try:
