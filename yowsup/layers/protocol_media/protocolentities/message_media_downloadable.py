@@ -18,6 +18,10 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         </media>
     </message>
     '''
+    AUDIO_KEY = "576861747341707020417564696f204b657973"
+    VIDEO_KEY = "576861747341707020566964656f204b657973"
+    IMAGE_KEY = "576861747341707020496d616765204b657973" 
+    
     def __init__(self, mediaType,
             mimeType, fileHash, url, ip, size, fileName, mediaKey = None,
             _id = None, _from = None, to = None, notify = None, timestamp = None,
@@ -104,8 +108,7 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     @staticmethod
     def fromFilePath(fpath, url, mediaType, ip, to, mimeType = None, preview = None, filehash = None, filesize = None):
         mimeType = mimeType or MimeTools.getMIME(fpath)
-        filehash = filehash or WATools.getFileHashForUpload(fpath)
+        filehash = filehash or WATools.getFileHashForUpload2(fpath)
         size = filesize or os.path.getsize(fpath)
         fileName = os.path.basename(fpath)
-
         return DownloadableMediaMessageProtocolEntity(mediaType, mimeType, filehash, url, ip, size, fileName, to = to, preview = preview)

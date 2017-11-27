@@ -74,13 +74,18 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
     def toProtocolTreeNode(self):
         node = super(VideoDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
         mediaNode = node.getChild("enc")
-
-        mediaNode.setAttribute("abitrate",  self.abitrate)
-        mediaNode.setAttribute("acodec",    self.acodec)
-        mediaNode.setAttribute("asampfmt",  self.asampfmt)
-        mediaNode.setAttribute("asampfreq", self.asampfreq)
-        mediaNode.setAttribute("duration",  self.duration)
-        mediaNode.setAttribute("encoding",  self.encoding)
+        if self.abitrate is not None:
+            mediaNode.setAttribute("abitrate",  self.abitrate)
+        if self.acodec is not None:
+            mediaNode.setAttribute("acodec",    self.acodec)
+        if self.asampfmt is not None:
+            mediaNode.setAttribute("asampfmt",  self.asampfmt)
+        if self.asampfreq is not None:
+            mediaNode.setAttribute("asampfreq", self.asampfreq)
+        if self.duration is not None:
+            mediaNode.setAttribute("duration",  self.duration)
+        if self.encoding is not None:
+            mediaNode.setAttribute("encoding",  self.encoding)
         mediaNode.setAttribute("height",    str(self.height))
         mediaNode.setAttribute("width",     str(self.width))
         if self.abitrate is not None:
@@ -128,6 +133,7 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         )
         return entity
 
+    
     @staticmethod
     def fromFilePath(path, url, ip, to, mimeType = None, caption = None):
         preview = VideoTools.generatePreviewFromVideo(path)
@@ -138,5 +144,5 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         assert width, "Could not determine video properties"
 
         duration = int(duration)
-        entity.setVideoProps('raw', width, height, duration=duration, seconds=duration, caption=caption)
+        entity.setVideoProps('raw', width, height, bitrate, duration=duration, seconds=duration, caption=caption)
         return entity

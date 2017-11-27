@@ -8,3 +8,4 @@ dist
 build
 .idea
 .tox
+.DS_*
