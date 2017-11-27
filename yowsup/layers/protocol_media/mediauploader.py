@@ -146,9 +146,7 @@ class MediaUploader(WARequest, threading.Thread):
             data = bytearray(hBAOS, 'utf-8') + stream + bytearray(fBAOS, 'utf-8')
 
             response = requests.post(uploadUrl, data=data, headers=headers)
-            print(response)
-
-
+            
             result = None
 
             if response.text.startswith("{"):
