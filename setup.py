@@ -7,9 +7,9 @@ import sys
 
 deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.39', 'six', 'requests']
 
-if sys.version_info < (2,7):
-    deps += ['importlib']
-
+if sys.version_info < (3,0):
+    print("Python2 is not supported!")
+    sys.exit()
 if platform.system().lower() == "windows":
     deps.append('pyreadline')
 else:
@@ -21,14 +21,15 @@ else:
 setup(
     name='yowsup2',
     version=yowsup.__version__,
-    url='http://github.com/tgalal/yowsup/',
+    url='https://github.com/AragurDEV/yowsup',
     license='GPL-3+',
-    author='Tarek Galal',
+    author='Tarek Galal, AragurDEV',
     tests_require=[],
     install_requires = deps,
+    dependency_links = ['https://github.com/AragurDEV/python-axolotl/tarball/master'],
     scripts = ['yowsup-cli'],
     #cmdclass={'test': PyTest},
-    author_email='tare2.galal@gmail.com',
+    author_email='tare2.galal@gmail.com, aragurlp@gmail.com',
     description='A WhatsApp python library',
     #long_description=long_description,
     packages= find_packages(),
@@ -40,13 +41,9 @@ setup(
         'Programming Language :: Python',
         'Development Status :: 4 - Beta',
         'Natural Language :: English',
-        #'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Libraries :: Python Modules'
         ],
-    #extras_require={
-    #    'testing': ['pytest'],
-    #}
 )
