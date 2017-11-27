@@ -1,10 +1,4 @@
-# Yowsup 2 *DEVELOP*-branch
-
-
-## Important
-Install my **python-axolotl** fork: **[https://github.com/AragurDEV/python-axolotl](https://github.com/AragurDEV/python-axolotl) *(python3 setup.py install)***
-## 
-
+# Yowsup 2
 
 If you need any assistance join our Discord server: **[https://discord.gg/Wa7QSxZ](https://discord.gg/Wa7QSxZ)**
 
@@ -82,6 +76,7 @@ Special thanks to:
 - [bahtiarp](https://github.com/bahtiarp)
 - [langioletto](https://github.com/langioletto)
 - [ventrixcode](https://github.com/ventrixcode)
+- [pabloruan0710](https://github.com/pabloruan0710)
 
 
 and everyone else on the [WhatsAPI](https://github.com/mgp25/WhatsAPI-Official) project for their contributions to yowsup and the amazing effort they put into WhatsAPI, the PHP WhatsApp library
