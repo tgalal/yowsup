@@ -3,10 +3,10 @@ from .message_media import MediaMessageProtocolEntity
 
 class LocationMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     '''
-    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}"
+    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
     offline="{{OFFLINE}}" type="text" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
-        <media
-            latitude="52.52393"
+        <media 
+            latitude="52.52393" 
             type="location"
             longitude="13.41747"
             name="Location Name"
@@ -17,19 +17,19 @@ class LocationMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     '''
 
 
-    def __init__(self, latitude, longitude, name, url, encoding, _id = None, _from = None, to = None, notify = None, timestamp = None, participant = None,
-            preview = None, offline = None, retry = None):
+    def __init__(self, latitude, longitude, name=None, url=None, encoding=None, _id = None, _from = None, to = None, notify = None, timestamp = None, participant = None,
+            preview = None, offline = None, retry = None, address = None):
 
         super(LocationMediaMessageProtocolEntity, self).__init__("location", _id, _from, to, notify, timestamp, participant, preview, offline, retry)
-        self.setLocationMediaProps(latitude,longitude,name,url,encoding)
+        self.setLocationMediaProps(latitude,longitude,name,address, url)
 
     def __str__(self):
         out  = super(MediaMessageProtocolEntity, self).__str__()
         out += "Latitude: %s\n" % self.latitude
         out += "Longitude: %s\n" % self.longitude
         out += "Name: %s\n" % self.name
+        out += "Address: %s\n" % self.address
         out += "URL: %s\n" % self.url
-        out += "Encoding: %s\n" % self.encoding
 
         return out
 
@@ -45,24 +45,35 @@ class LocationMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     def getLocationURL(self):
         return self.url
 
-    def setLocationMediaProps(self, latitude, longitude, locationName, url, encoding):
+    def getAddress(self):
+        return self.address
+
+
+    def setLocationMediaProps(self, latitude, longitude, locationName=None, address=None, url=None):
         self.latitude = str(latitude)
         self.longitude = str(longitude)
-        self.name = locationName
-        self.url = url
-        self.encoding= encoding
+        self.name = str(locationName)
+        self.address = str(address)
+        self.url = str(url)
 
     def toProtocolTreeNode(self):
         node = super(LocationMediaMessageProtocolEntity, self).toProtocolTreeNode()
+        print("TO PROTOCOL TREE NODE")
+        print(node)
+
         mediaNode = node.getChild("enc")
+
         mediaNode.setAttribute("latitude",  self.latitude)
         mediaNode.setAttribute("longitude",  self.longitude)
-        mediaNode.setAttribute("encoding", self.encoding)
 
         if self.name:
             mediaNode.setAttribute("name", self.name)
+        if self.address:
+            mediaNode.setAttribute("address", self.address)
         if self.url:
             mediaNode.setAttribute("url", self.url)
+
+        print(mediaNode)
 
         return node
 
@@ -76,6 +87,6 @@ class LocationMediaMessageProtocolEntity(MediaMessageProtocolEntity):
             mediaNode.getAttributeValue("longitude"),
             mediaNode.getAttributeValue("name"),
             mediaNode.getAttributeValue("url"),
-            mediaNode.getAttributeValue("encoding")
-            )
+            mediaNode.getAttributeValue("address")
+        )
         return entity

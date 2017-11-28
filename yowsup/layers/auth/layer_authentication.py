@@ -150,6 +150,10 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         strCat += currentEnv.getManufacturer() + "\x00"
         strCat += currentEnv.getDeviceName() + "\x00"
         strCat += currentEnv.getBuildVersion()
+
+        print("STR CAT")
+        print(currentEnv.getUserAgent())
+        print(strCat)
         nums.extend(list(map(ord, strCat)))
 
         encoded = outputKey.encodeMessage(nums, 0, 4, len(nums) - 4)

@@ -27,6 +27,8 @@ except ImportError:
     from urlparse import urlparse
 
 class HttpProxy:
+    
+    instance = None
 
     def __init__(self, address, username = None, password = None):
         self.address = address
@@ -40,7 +42,14 @@ class HttpProxy:
         return HttpProxyHandler(self)
 
     @staticmethod
+    def setProxy(address, port=443, username = None, password = None):
+       proxy = HttpProxy((address,port),username, password)
+       HttpProxy.instance = proxy
+
+    @staticmethod
     def getFromEnviron():
+        if HttpProxy.instance is not None:
+            return HttpProxy.instance
         url = None
         for key in ('http_proxy', 'https_proxy'):
             url = os.environ.get(key)
@@ -52,6 +61,18 @@ class HttpProxy:
         if dat.port != None: port = int(dat.port)
         host = dat.hostname
         return HttpProxy((host, port), dat.username, dat.password)
+
+    def getHost(self):
+        return self.address[0]
+
+    def getPort(self):
+        return self.address[1]
+
+    def getUserName(self):
+        return self.username
+
+    def getPassword(self):
+        return self.password
 
 class HttpProxyHandler:
 

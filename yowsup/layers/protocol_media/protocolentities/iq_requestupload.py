@@ -15,9 +15,10 @@ class RequestUploadIqProtocolEntity(IqProtocolEntity):
     MEDIA_TYPE_IMAGE = "image"
     MEDIA_TYPE_VIDEO = "video"
     MEDIA_TYPE_AUDIO = "audio"
+    MEDIA_TYPE_DOCUMENT = "document"
     XMLNS = "w:m"
 
-    TYPES_MEDIA = (MEDIA_TYPE_AUDIO, MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO)
+    TYPES_MEDIA = (MEDIA_TYPE_AUDIO, MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO, MEDIA_TYPE_DOCUMENT)
 
     def __init__(self, mediaType, b64Hash = None, size = None, origHash = None, filePath = None ):
         super(RequestUploadIqProtocolEntity, self).__init__("w:m", _type = "set", to = YowConstants.WHATSAPP_SERVER)

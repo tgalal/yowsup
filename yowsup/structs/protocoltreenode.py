@@ -56,9 +56,11 @@ class ProtocolTreeNode(object):
                     val = ''.join(['%' + hex(b)[2:] for b in val])
                 if type(val) == dict:
                     val = val[key]
-                out+= " "+key+'="'+ val + '"'
+                out+= " "+key+'="'+ str(val) + '"'
         out+= ">\n"
 
+        # if self.data is not None:
+        #    out += "%s byte data" % len(self.data)
         if self.data is not None:
             if type(self.data) is bytearray:
                 try:
