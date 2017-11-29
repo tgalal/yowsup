@@ -1,7 +1,8 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
 from .builder_message_media_downloadable import DownloadableMediaMessageBuilder
-from yowsup.layers.protocol_messages.proto.wa_pb2 import ImageMessage
+#from yowsup.layers.protocol_messages.proto.wa_pb2 import ImageMessage
+from yowsup.yowsup.layers.protocol_messages.proto.wa_pb2 import ImageMessage
 from yowsup.common.tools import ImageTools, MimeTools
 from Crypto.Cipher import AES
 try:
