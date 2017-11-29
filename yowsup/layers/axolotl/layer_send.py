@@ -372,7 +372,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         video_message.file_sha256 = binascii.unhexlify(mediaNode["filehash"].encode())
         video_message.file_length = int(mediaNode["size"])
         video_message.media_key = binascii.unhexlify(mediaNode["anu"])
-        video_message.file_enc_sha256 = binascii.unhexlify(mediaNode["file_enc_sha256"])
+        #video_message.file_enc_sha256 = binascii.unhexlify(mediaNode["file_enc_sha256"])
         video_message.caption = mediaNode["caption"] or ""
         video_message.jpeg_thumbnail = mediaNode.getData()
         video_message.duration = int(mediaNode["duration"])
