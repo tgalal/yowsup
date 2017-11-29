@@ -352,7 +352,6 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         image_message.width = int(mediaNode["width"])
         image_message.height = int(mediaNode["height"])
         image_message.mime_type = mediaNode["mimetype"]
-        #image_message.media_key = mediaNode["mediakey"]
         image_message.file_sha256 = binascii.unhexlify(mediaNode["filehash"].encode())
         image_message.file_length = int(mediaNode["size"])
         image_message.media_key = binascii.unhexlify(mediaNode["anu"])
@@ -361,8 +360,6 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         image_message.jpeg_thumbnail = mediaNode.getData()
 
         m.image_message.MergeFrom(image_message)
-        #print("IMAGE")
-        #print(m)
         return m
 
     def serializeVideoToProtobuf(self,mediaNode, message = None):

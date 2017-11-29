@@ -229,10 +229,8 @@ _IMAGEMESSAGE = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=610,
-  serialized_end=814,
+  serialized_start=667,
+  serialized_end=846,
 )
 
 

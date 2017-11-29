@@ -93,7 +93,7 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         image_message.caption = self.caption
         image_message.jpeg_thumbnail = self.preview
         image_message.media_key = self.mediaKey
-        image_message.file_enc_sha256 = self.url["file_enc_sha256"]
+        #image_message.file_enc_sha256 = self.url["file_enc_sha256"]
 
         return image_message
 

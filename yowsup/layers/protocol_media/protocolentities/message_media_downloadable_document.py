@@ -88,7 +88,6 @@ class DocumentDownloadableMediaMessageProtocolEntity(DownloadableMediaMessagePro
         document_message.media_key = self.mediaKey
         document_message.jpeg_thumbnail = self.preview
 
-        print(document_message)
         return document_message
 
     @staticmethod
