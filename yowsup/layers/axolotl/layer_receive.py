@@ -183,8 +183,12 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
     def parseAndHandleMessageProto(self, encMessageProtocolEntity, serializedData):
         node = encMessageProtocolEntity.toProtocolTreeNode()
         m = Message()
-        if sys.version_info >= (3,0) and isinstance(serializedData,str):
-            serializedData = serializedData.encode() 
+        try:
+            if sys.version_info >= (3,0) and isinstance(serializedData, str):
+                serializedData = serializedData.encode()
+        except AttributeError:
+            logger.warning("AttributeError: 'bytes' object has no attribute 'encode'. Skipping 'encode()'")
+            pass
         handled = False
         try:
             #print("SERIALIZED DATA")
