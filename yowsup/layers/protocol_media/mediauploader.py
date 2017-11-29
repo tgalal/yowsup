@@ -108,7 +108,6 @@ class MediaUploader(WARequest, threading.Thread):
             fenc.seek(0, 2)
             filesize=fenc.tell()
             fenc.close()
-            print(sourcePath+".enc")
             os.remove(sourcePath+".enc")
             filesize2=len(stream)
 
