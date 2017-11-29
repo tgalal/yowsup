@@ -355,7 +355,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         image_message.file_sha256 = binascii.unhexlify(mediaNode["filehash"].encode())
         image_message.file_length = int(mediaNode["size"])
         image_message.media_key = binascii.unhexlify(mediaNode["anu"])
-        image_message.file_enc_sha256 = binascii.unhexlify(mediaNode["file_enc_sha256"])
+        #image_message.file_enc_sha256 = binascii.unhexlify(mediaNode["file_enc_sha256"])
         image_message.caption = mediaNode["caption"] or ""
         image_message.jpeg_thumbnail = mediaNode.getData()
 

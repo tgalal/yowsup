@@ -1,8 +1,7 @@
 from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
 from .builder_message_media_downloadable import DownloadableMediaMessageBuilder
-#from yowsup.layers.protocol_messages.proto.wa_pb2 import ImageMessage
-from yowsup.yowsup.layers.protocol_messages.proto.wa_pb2 import ImageMessage
+from yowsup.layers.protocol_messages.proto.wa_pb2 import ImageMessage
 from yowsup.common.tools import ImageTools, MimeTools
 from Crypto.Cipher import AES
 try:
@@ -94,7 +93,6 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         image_message.caption = self.caption
         image_message.jpeg_thumbnail = self.preview
         image_message.media_key = self.mediaKey
-        #image_message.file_enc_sha256 = self.url["file_enc_sha256"]
 
         return image_message
 
