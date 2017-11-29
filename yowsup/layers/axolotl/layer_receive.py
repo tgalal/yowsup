@@ -190,7 +190,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         node = encMessageProtocolEntity.toProtocolTreeNode()
         m = Message()
         try:
-            if sys.version_info >= (3,0):
+            if sys.version_info >= (3,0) and isinstance(serializedData, str):
                 serializedData = serializedData.encode()
         except AttributeError:
             logger.warning("AttributeError: 'bytes' object has no attribute 'encode'. Skipping 'encode()'")
