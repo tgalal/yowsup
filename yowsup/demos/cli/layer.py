@@ -597,7 +597,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         # or open
         # or do nothing
         # write to file example:
-        resultGetPictureIqProtocolEntiy.writeToFile("/home/anderson/Desktop/%s_%s.jpg" % (getPictureIqProtocolEntity.getTo(), "preview" if resultGetPictureIqProtocolEntiy.isPreview() else "full"))
         pass
 
     def __str__(self):
