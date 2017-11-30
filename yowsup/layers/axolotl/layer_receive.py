@@ -92,7 +92,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         except InvalidMessageException as e:
             logger.error('InvalidMessageException %s' % e)
             # DEBUG SET RECEIPT
-            self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], 'read', participant=node["participant"]).toProtocolTreeNode())
+            # self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], 'read', participant=node["participant"]).toProtocolTreeNode())
 
         except InvalidKeyIdException as e:
             logger.warning("InvalidKeyId for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
