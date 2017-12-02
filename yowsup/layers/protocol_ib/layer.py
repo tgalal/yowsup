@@ -24,5 +24,6 @@ class YowIbProtocolLayer(YowProtocolLayer):
         elif node.getChild("account"):
             self.toUpper(AccountIbProtocolEntity.fromProtocolTreeNode(node))
         else:
-            raise ValueError("Unkown ib node %s" % node)
+            print("Unknown ib node %s" % node)
+            #raise ValueError("Unkown ib node %s" % node)
 

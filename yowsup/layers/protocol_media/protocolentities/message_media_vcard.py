@@ -3,7 +3,7 @@ from .message_media import MediaMessageProtocolEntity
 
 class VCardMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     '''
-    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}"
+    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
     offline="{{OFFLINE}}" type="text" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
         <media type="vcard">
             <vcard name="Hany Yasser">
@@ -47,7 +47,7 @@ class VCardMediaMessageProtocolEntity(MediaMessageProtocolEntity):
 
     def getCardData(self):
         return self.card_data
-
+   
     def setVcardMediaProps(self, name, card_data):
         self.name = name
         self.card_data = card_data

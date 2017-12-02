@@ -44,9 +44,9 @@ message VideoMessage {
 message LocationMessage {
   required double degrees_latitude   = 1;
   required double degrees_longitude  = 2;
-  required string name              = 3;
-  required string address           = 4;
-  required string url               = 5;
+  optional string name               = 3;
+  optional string address            = 4;
+  optional string url                = 5;
   required bytes  jpeg_thumbnail     = 16;
 
 }
@@ -58,7 +58,7 @@ message DocumentMessage {
   required uint64 file_length = 5;
   required uint32 page_count = 6;
   required bytes media_key = 7;
-  required bytes jpeg_thumbnail = 16;
+  optional bytes jpeg_thumbnail = 16;
 }
 
 

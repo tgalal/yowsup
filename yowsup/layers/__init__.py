@@ -24,7 +24,7 @@ class YowLayerEvent:
 
     def getArg(self, name):
         return self.args[name] if name in self.args else None
-
+    
 class EventCallback(object):
     def __init__(self, eventName):
         self.eventName = eventName
@@ -238,20 +238,20 @@ class YowLayerTest(unittest.TestCase):
 
     def sendOverrider(self, data):
         self.lowerSink.append(data)
-
+        
     def emitEventOverrider(self, event):
         self.upperEventSink.append(event)
-
+    
     def broadcastEventOverrider(self, event):
         self.lowerEventSink.append(event)
-
+        
     def assert_emitEvent(self, event):
         self.emitEvent(event)
         try:
             self.assertEqual(event, self.upperEventSink.pop())
         except IndexError:
             raise AssertionError("Event '%s' was not emited through this layer" % (event.getName()))
-
+        
     def assert_broadcastEvent(self, event):
         self.broadcastEvent(event)
         try:

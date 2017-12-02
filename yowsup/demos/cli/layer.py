@@ -384,6 +384,19 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def message_delivered(self, message_id):
         pass
 
+    @clicmd("Send vcard")
+    def vcard(self, number, vcardName, contactName, contactNumber):
+        vcard = "BEGIN:VCARD\nVERSION:3.0\nN:;%s;;;\nFN:%s\nitem1.TEL;waid=%s:+%s\nitem1.X-ABLabel:Celular\nEND:VCARD" % (contactName, contactName, str(contactNumber), str(contactNumber))
+        vcard = bytes(vcard, "utf-8")
+        vcardEntity = VCardMediaMessageProtocolEntity(name=vcardName, card_data=vcard, to="%s@s.whatsapp.net" % number)
+        self.toLower(vcardEntity)
+
+    @clicmd("Send a location with optional params", 0)
+    def location(self, number, latitude, longitude, name=None, address=None, url=None):
+        locationEntity = LocationMediaMessageProtocolEntity(latitude, longitude, name=name, address=address, url=url,
+                                                            to="%s@s.whatsapp.net" % number)
+        self.toLower(locationEntity)
+
     @clicmd("Send a video with optional caption")
     def video_send(self, number, path, caption = None):
         self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO, caption)
@@ -395,6 +408,10 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Send audio file")
     def audio_send(self, number, path):
         self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO)
+
+    @clicmd("Send document file")
+    def document_send(self, number, path):
+        self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_DOCUMENT)
 
     def media_send(self, number, path, mediaType, caption = None):
         if self.assertConnected():
@@ -542,6 +559,8 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         	entity = AudioDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
         elif mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO:
         	entity = VideoDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to, caption = caption)
+        elif mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_DOCUMENT:
+            entity = DocumentDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
         self.toLower(entity)
 
     def __str__(self):
@@ -578,7 +597,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         # or open
         # or do nothing
         # write to file example:
-        #resultGetPictureIqProtocolEntiy.writeToFile("/tmp/yowpics/%s_%s.jpg" % (getPictureIqProtocolEntity.getTo(), "preview" if resultGetPictureIqProtocolEntiy.isPreview() else "full"))
         pass
 
     def __str__(self):

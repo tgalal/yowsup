@@ -63,5 +63,7 @@ class SetPictureIqProtocolEntity(PictureIqProtocolEntity):
             elif nodeType == "preview":
                 previewNode = child
 
+        print("IMAGE")
+        print(previewNode.getData())
         entity.setSetPictureProps(previewNode.getData(), pictureNode.getData(), pictureNode.getAttributeValue("id"))
         return entity
