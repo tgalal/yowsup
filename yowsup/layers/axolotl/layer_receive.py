@@ -43,9 +43,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         :type protocolTreeNode: ProtocolTreeNode
         """
         if not self.processIqRegistry(protocolTreeNode):
-            print("RECEIVE: %s" % protocolTreeNode["type"])
-            print(protocolTreeNode.tag)
-            #print(protocolTreeNode)
             if protocolTreeNode.tag == "message":
                 self.onMessage(protocolTreeNode)
             elif protocolTreeNode.tag == "notification": #and protocolTreeNode["type"] == "encrypt":
@@ -196,14 +193,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             pass
         handled = False
         try:
-            #print("SERIALIZED DATA")
-            #print(serializedData)
             m.ParseFromString(serializedData)
         except:
-            print("DUMP:")
-            print(serializedData)
-            print([s for s in serializedData])
-            #print([ord(s) for s in serializedData])
             raise
         if not m or not serializedData:
             raise ValueError("Empty message")
@@ -212,7 +203,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             handled = True
             axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
             self.handleSenderKeyDistributionMessage(m.sender_key_distribution_message, axolotlAddress)
-        
+
         if m.HasField("conversation"):
             handled = True
             self.handleConversationMessage(node, m.conversation)
@@ -227,8 +218,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.handleLocationMessage(node, m.location_message)
         elif m.HasField("image_message"):
             handled = True
-            #print("IMAGE")
-            #print(m)
             self.handleImageMessage(node, m.image_message)
         elif m.HasField("video_message"):
             handled = True
@@ -237,11 +226,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.handleAudioMessage(node, m.audio_message)
         elif m.HasField("document_message"):
             handled = True
-            #print("DOCUMENT MESSAGE")
-            #print(m)
             self.handleDocumentMessage(node, m.document_message)
         elif not handled:
-            print(m)
             raise ValueError("Unhandled")
 
     def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, axolotlAddress):

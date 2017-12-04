@@ -13,7 +13,7 @@ import binascii
 from axolotl.kdf.hkdfv3 import HKDFv3
 from axolotl.sessioncipher import pad
 from axolotl.util.byteutil import ByteUtil
-from .protocolentities.message_media_downloadable import DownloadableMediaMessageProtocolEntity 
+from .protocolentities.message_media_downloadable import DownloadableMediaMessageProtocolEntity
 logger = logging.getLogger(__name__)
 
 class MediaUploader(WARequest, threading.Thread):
@@ -51,8 +51,6 @@ class MediaUploader(WARequest, threading.Thread):
         return a
 
     def getKey(self, filetype):
-        print("FILE TYPE")
-        print(filetype)
         if "video" in filetype:
             return DownloadableMediaMessageProtocolEntity.VIDEO_KEY
         elif "image" in filetype:
@@ -64,8 +62,8 @@ class MediaUploader(WARequest, threading.Thread):
         elif "text" in filetype:
             return DownloadableMediaMessageProtocolEntity.DOCUMENT_KEY
         raise Exception ("FILE TYPE NOT SUPPORTED")
-        
-        
+
+
 
     def encryptMedia(self,img, refkey,filetype):
         key = self.getKey(filetype)

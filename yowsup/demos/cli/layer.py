@@ -481,7 +481,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @ProtocolEntityCallback("ack")
     def onAck(self, entity):
         #formattedDate = datetime.datetime.fromtimestamp(self.sentCache[entity.getId()][0]).strftime('%d-%m-%Y %H:%M')
-        #print("%s [%s]:%s"%(self.username, formattedDate, self.sentCache[entity.getId()][1]))
         if entity.getClass() == "message":
             self.output(entity.getId(), tag = "Sent")
             #self.notifyInputThread()

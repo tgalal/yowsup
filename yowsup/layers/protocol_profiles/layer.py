@@ -40,8 +40,6 @@ class YowProfilesProtocolLayer(YowProtocolLayer):
         self.toUpper(ErrorIqProtocolEntity.fromProtocolTreeNode(errorNode))
 
     def onGetPictureResult(self, resultNode, originalIqRequestEntity):
-        #print("RESULT NODE")
-        #print(resultNode)
         self.toUpper(ResultGetPictureIqProtocolEntity.fromProtocolTreeNode(resultNode))
 
     def onGetPictureError(self, errorNode, originalIqRequestEntity):
