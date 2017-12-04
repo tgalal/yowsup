@@ -1,4 +1,6 @@
 from yowsup.layers.interface                           import YowInterfaceLayer, ProtocolEntityCallback
+import logging
+logger = logging.getLogger(__name__)
 
 class EchoLayer(YowInterfaceLayer):
 
@@ -21,38 +23,38 @@ class EchoLayer(YowInterfaceLayer):
 
     def onTextMessage(self,messageProtocolEntity):
         # just print info
-        print("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))
+        logger.info("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))
 
     def onMediaMessage(self, messageProtocolEntity):
         if not os.path.exists("/tmp/yowfiles"):
             os.makedirs("/tmp/yowfiles")
         if messageProtocolEntity.getMediaType() == "image":
-            print("Echoing image %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
+            logger.info("Echoing image %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
             data = messageProtocolEntity.getMediaContent()
             f = open("/tmp/yowfiles/%s%s" % (self.generateIdentity(), messageProtocolEntity.getExtension()), 'wb')
             f.write(data)
             f.close()
         elif messageProtocolEntity.getMediaType() == "video":
-            print("Echoing video %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
+            logger.info("Echoing video %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
             data = messageProtocolEntity.getMediaContent()
             f = open("/tmp/yowfiles/%s%s" % (self.generateIdentity(), messageProtocolEntity.getExtension()), 'wb')
             f.write(data)
             f.close()
         elif messageProtocolEntity.getMediaType() == "audio":
-            print("Echoing audio %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
+            logger.info("Echoing audio %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
             data = messageProtocolEntity.getMediaContent()
             f = open("/tmp/yowfiles/%s%s" % (self.generateIdentity(), messageProtocolEntity.getExtension()), 'wb')
             f.write(data)
             f.close()
         elif messageProtocolEntity.getMediaType() == "document":
-            print("Echoing document %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
+            logger.info("Echoing document %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
             data = messageProtocolEntity.getMediaContent()
             f = open("/tmp/yowfiles/%s" % (messageProtocolEntity.getFileName()), 'wb')
             f.write(data)
             f.close()
         elif messageProtocolEntity.getMediaType() == "location":
-            print("Echoing location (%s, %s) to %s" % (messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude(), messageProtocolEntity.getFrom(False)))
+            logger.info("Echoing location (%s, %s) to %s" % (messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude(), messageProtocolEntity.getFrom(False)))
 
         elif messageProtocolEntity.getMediaType() == "vcard":
-            print("Echoing vcard (%s, %s) to %s" % (messageProtocolEntity.getName(), messageProtocolEntity.getCardData(), messageProtocolEntity.getFrom(False)))
+            logger.info("Echoing vcard (%s, %s) to %s" % (messageProtocolEntity.getName(), messageProtocolEntity.getCardData(), messageProtocolEntity.getFrom(False)))
 

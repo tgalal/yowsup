@@ -123,7 +123,7 @@ class WARequest(object):
             self.response = WARequest.sendRequestWithProxy(host, port,path,headers, params, proxy)
             logger.info(self.response)
             return self.response
-            
+
 
     def sendPostRequest(self, parser = None):
         self.response = None
@@ -197,15 +197,13 @@ class WARequest(object):
     @staticmethod
     def build_get_url(host, path, params):
         params = urlencode(params)
-        url = 'https://'+host+path+"?"+params 
-        print(url)
-        return url 
-        
+        url = 'https://'+host+path+"?"+params
+        return url
+
     @staticmethod
     def build_headers(headers_tuple):
         headers_array = []
         for idx in headers_tuple:
             headers_array.append(idx + ":"+headers_tuple[idx])
-        print(headers_array)
         return headers_array
 

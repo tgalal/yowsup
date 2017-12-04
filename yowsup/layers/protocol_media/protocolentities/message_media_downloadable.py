@@ -107,8 +107,6 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         mediaNode.setAttribute("file", self.fileName)
 
         mediaNode.setAttribute("mediakey", self.url["mediaKey"])
-        print("ANU")
-        print(self.url["mediaKey"])
         mediaNode.setAttribute("anu", self.url["mediaKey"])
         mediaNode.setAttribute("file_enc_sha256", self.url["file_enc_sha256"])
 

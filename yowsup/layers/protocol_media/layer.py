@@ -32,8 +32,6 @@ class YowMediaProtocolLayer(YowProtocolLayer):
 
 
     def sendMessageEntity(self, entity):
-        print("SEND MESSAGE ENTITY")
-        print(entity.getType())
         if entity.getType() == "media":
             self.entityToLower(entity)
 

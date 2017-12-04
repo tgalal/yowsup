@@ -69,7 +69,6 @@ class AxolotlSendLayer(AxolotlBaseLayer):
                 if messageData:
                     if not self.store.containsSession(recipient_id, 1):
                         def on_get_keys(successJids,b):
-                            print(successJids)
                             if len(successJids) == 1:
                                 self.sendToContact(node)
                             else:
@@ -96,7 +95,6 @@ class AxolotlSendLayer(AxolotlBaseLayer):
                             offline=node["offline"],
                             retry=node["retry"]
                         )
-                        print(encEntity.toProtocolTreeNode())
                         self.toLower(encEntity.toProtocolTreeNode())
                 else:  # case of unserializable messages (audio, video) ?
                     self.toLower(node)
@@ -104,9 +102,6 @@ class AxolotlSendLayer(AxolotlBaseLayer):
             self.toLower(node)
 
     def send(self, node):
-        print("SEND: %s" % node["type"])
-        print(node.tag)
-        #print(node)
         # if node.tag == "message" and node["to"] not in self.skipEncJids and not node.getChild("enc") or (node.getChild("media") and node.getChild("media")["mediakey"]):
         if node.tag == "message" and node["to"] not in self.skipEncJids and not node.getChild("enc"):
             self.processPlaintextNodeAndSend(node)
@@ -377,7 +372,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         video_message.jpeg_thumbnail = mediaNode.getData()
         video_message.duration = int(mediaNode["duration"])
         m.video_message.MergeFrom(video_message)
-        
+
         return m
 
     def serializeAudioToProtobuf(self, mediaNode, message=None):

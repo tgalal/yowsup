@@ -3,6 +3,8 @@ from .layer import EchoLayer
 from yowsup.layers.auth import AuthError
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.network import YowNetworkLayer
+import logging
+logger = logging.getLogger(__name__)
 
 class YowsupEchoStack(object):
     def __init__(self, credentials, encryptionEnabled = True):
@@ -20,4 +22,4 @@ class YowsupEchoStack(object):
         try:
             self.stack.loop()
         except AuthError as e:
-            print("Authentication Error: %s" % e.message)
+            logger.error("Authentication Error: %s" % e.message)

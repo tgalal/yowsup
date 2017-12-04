@@ -45,8 +45,6 @@ class DocumentDownloadableMediaMessageProtocolEntity(DownloadableMediaMessagePro
         super(DocumentDownloadableMediaMessageProtocolEntity, self).__init__("document",
             mimeType, fileHash, url, ip, size, fileName, pageCount, mediaKey,
             _id, _from, to, notify, timestamp, participant, preview, offline, retry)
-        print("ENCONDING")
-        print(encoding)
         self.setDocumentProps(pageCount)
 
     def __str__(self):
@@ -117,7 +115,6 @@ class DocumentDownloadableMediaMessageProtocolEntity(DownloadableMediaMessagePro
 
     @staticmethod
     def fromFilePath(path, url, ip, to, mimeType = None):
-        print("FROM FILE PATH")
         builder = DocumentDownloadableMediaMessageProtocolEntity.getBuilder(to, path)
         builder.set("url", url)
         builder.set("ip", ip)
@@ -128,12 +125,7 @@ class DocumentDownloadableMediaMessageProtocolEntity(DownloadableMediaMessagePro
         return s[:-ord(s[len(s) - 1:])]
 
     def decrypt(self, encdoc, refkey):
-
-        print("REF KEY")
-        print(refkey)
-        derivative = HKDFv3().deriveSecrets(refkey,
-                                            binascii.unhexlify(self.cryptKeys), 112)
-
+        derivative = HKDFv3().deriveSecrets(refkey, binascii.unhexlify(self.cryptKeys), 112)
         parts = ByteUtil.split(derivative, 16, 32)
         iv = parts[0]
         cipherKey = parts[1]

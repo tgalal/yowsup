@@ -21,8 +21,8 @@ from yowsup.layers.protocol_media.mediauploader import MediaUploader
 from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.common.tools import Jid
 from yowsup.common.optionalmodules import PILOptionalModule, AxolotlOptionalModule
-
 logger = logging.getLogger(__name__)
+
 class YowsupCliLayer(Cli, YowInterfaceLayer):
     PROP_RECEIPT_AUTO       = "org.openwhatsapp.yowsup.prop.cli.autoreceipt"
     PROP_RECEIPT_KEEPALIVE  = "org.openwhatsapp.yowsup.prop.cli.keepalive"
@@ -468,11 +468,11 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @ProtocolEntityCallback("chatstate")
     def onChatstate(self, entity):
-        print(entity)
+        logger.info(entity)
 
     @ProtocolEntityCallback("iq")
     def onIq(self, entity):
-        print(entity)
+        logger.info(entity)
 
     @ProtocolEntityCallback("receipt")
     def onReceipt(self, entity):
@@ -481,7 +481,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @ProtocolEntityCallback("ack")
     def onAck(self, entity):
         #formattedDate = datetime.datetime.fromtimestamp(self.sentCache[entity.getId()][0]).strftime('%d-%m-%Y %H:%M')
-        #print("%s [%s]:%s"%(self.username, formattedDate, self.sentCache[entity.getId()][1]))
         if entity.getClass() == "message":
             self.output(entity.getId(), tag = "Sent")
             #self.notifyInputThread()
