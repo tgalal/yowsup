@@ -1,5 +1,7 @@
 from .protocoltreenode import ProtocolTreeNode
 import unittest, time
+import logging
+logger = logging.getLogger(__name__)
 
 class ProtocolEntity(object):
     __ID_GEN = 0
@@ -49,7 +51,7 @@ class ProtocolEntityTest(object):
         # try:
         #     self.assertEqual(entity.toProtocolTreeNode(), self.node)
         # except:
-        #     print(entity.toProtocolTreeNode())
-        #     print("\nNOTEQ\n")
-        #     print(self.node)
+        #     logger.info(entity.toProtocolTreeNode())
+        #     logger.info("\nNOTEQ\n")
+        #     logger.info(self.node)
         #     raise

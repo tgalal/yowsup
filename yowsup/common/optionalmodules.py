@@ -46,5 +46,3 @@ class AxolotlOptionalModule(OptionalModule):
 if __name__ == "__main__":
     with PILOptionalModule() as imp:
         imp()
-        print("OK")
-    print("DONE")
