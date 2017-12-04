@@ -23,6 +23,7 @@ from axolotl.groups.senderkeyname import SenderKeyName
 from axolotl.groups.groupsessionbuilder import GroupSessionBuilder
 from axolotl.protocol.senderkeydistributionmessage import SenderKeyDistributionMessage
 
+import binascii
 import logging
 import copy
 import sys
