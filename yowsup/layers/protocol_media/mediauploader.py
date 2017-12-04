@@ -144,7 +144,7 @@ class MediaUploader(WARequest, threading.Thread):
             contentLength = len(hBAOS) + len(fBAOS) + len(stream)
 
             headers = {
-                "content-length": contentLength,
+                "content-length": str(contentLength),
                 "user-agent": self.getUserAgent(),
                 "content-type": "multipart/form-data; boundary=----zzXXzzYYzzXXzzQQ"}
 
