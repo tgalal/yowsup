@@ -401,3 +401,9 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
 
     def adjustArray(self, arr):
         return HexUtil.decodeHex(binascii.hexlify(arr))
+
+    def adjustId(self, _id):
+        _id = format(_id, 'x')
+        zfiller = len(_id) if len(_id) % 2 == 0 else len(_id) + 1
+        _id = _id.zfill(zfiller if zfiller > 6 else 6)
+        return binascii.unhexlify(_id)
