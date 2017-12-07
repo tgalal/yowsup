@@ -1,5 +1,5 @@
 from yowsup.layers.interface                           import YowInterfaceLayer, ProtocolEntityCallback
-from yowsup.common.tools                               import WATools
+import uuid
 import logging
 logger = logging.getLogger(__name__)
 
@@ -27,31 +27,35 @@ class EchoLayer(YowInterfaceLayer):
         logger.info("Echoing %s to %s" % (messageProtocolEntity.getBody(), messageProtocolEntity.getFrom(False)))
 
     def onMediaMessage(self, messageProtocolEntity):
+
         if not os.path.exists("/tmp/yowfiles"):
             os.makedirs("/tmp/yowfiles")
+
+        # set unique filename
+        uniqueFilename = "/tmp/yowfiles/%s-%s%s" % (messageProtocolEntity.getFrom(False), uuid.uuid4().hex, messageProtocolEntity.getExtension())
 
         if messageProtocolEntity.getMediaType() == "image":
             logger.info("Echoing image %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
             data = messageProtocolEntity.getMediaContent()
-            f = open("/tmp/yowfiles/%s%s" % (WATools.generateIdentity(), messageProtocolEntity.getExtension()), 'wb')
+            f = open(uniqueFilename, 'wb')
             f.write(data)
             f.close()
         elif messageProtocolEntity.getMediaType() == "video":
             logger.info("Echoing video %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
             data = messageProtocolEntity.getMediaContent()
-            f = open("/tmp/yowfiles/%s%s" % (WATools.generateIdentity(), messageProtocolEntity.getExtension()), 'wb')
+            f = open(uniqueFilename, 'wb')
             f.write(data)
             f.close()
         elif messageProtocolEntity.getMediaType() == "audio":
             logger.info("Echoing audio %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
             data = messageProtocolEntity.getMediaContent()
-            f = open("/tmp/yowfiles/%s%s" % (WATools.generateIdentity(), messageProtocolEntity.getExtension()), 'wb')
+            f = open(uniqueFilename, 'wb')
             f.write(data)
             f.close()
         elif messageProtocolEntity.getMediaType() == "document":
             logger.info("Echoing document %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
             data = messageProtocolEntity.getMediaContent()
-            f = open("/tmp/yowfiles/%s" % (messageProtocolEntity.getFileName()), 'wb')
+            f = open(uniqueFilename, 'wb')
             f.write(data)
             f.close()
         elif messageProtocolEntity.getMediaType() == "location":
