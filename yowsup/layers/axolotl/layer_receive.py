@@ -173,10 +173,34 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         groupCipher = GroupCipher(self.store, senderKeyName)
         try:
             plaintext = groupCipher.decrypt(enc.getData())
-            padding = ord(plaintext[-1]) & 0xFF
-            plaintext = plaintext[:-padding]
-            plaintext = plaintext.encode() if sys.version_info >= (3, 0) else plaintext
-            self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
+            if type(plaintext) == bytes:
+                # DEBUG SET RECEIPT
+                # self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], 'read', participant=node["participant"]).toProtocolTreeNode())
+
+                if plaintext[0:1] == b'\n':
+                    msg = plaintext[3:3+plaintext[1:2][-1]]
+                elif plaintext[2:3] == b'\x01':
+                    msg = plaintext[5:5+plaintext[4:5][-1]]
+                    if msg[0:1] == b'\x01':
+                        msg = plaintext[6:6+plaintext[4:5][-1]]
+                else:
+                    msg = plaintext[4:4+plaintext[3:4][-1]]
+
+                # self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
+                self.handleConversationMessage(node, msg.decode())
+                # self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext.split(b'\x8a')[0])
+                return
+
+            try:
+                padding = ord(plaintext[-1]) & 0xFF
+                plaintext = plaintext[:-padding]
+                plaintext = plaintext.encode() if sys.version_info >= (3, 0) else plaintext
+                self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
+            except Exception as ex: #(AttributeError, TypeError)
+                print('Exception')
+                print('Exception %s' % ex)
+
+
 
         except NoSessionException as e:
             logger.warning("No session for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
@@ -308,9 +332,13 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
 
         self.toUpper(messageNode)
 
+    # TODO: Create own URLNode
     def handleUrlMessage(self, originalEncNode, urlMessage):
-        #convert to ??
-        pass
+        messageNode = copy.deepcopy(originalEncNode)
+        messageNode["type"] = "text"
+        messageNode.children = []
+        messageNode.addChild(ProtocolTreeNode("body", data = urlMessage.text))
+        self.toUpper(messageNode)
 
     def handleDocumentMessage(self, originalEncNode, documentMessage):
         messageNode = copy.deepcopy(originalEncNode)
