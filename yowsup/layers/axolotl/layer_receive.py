@@ -197,8 +197,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
                 plaintext = plaintext.encode() if sys.version_info >= (3, 0) else plaintext
                 self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
             except Exception as ex: #(AttributeError, TypeError)
-                print('Exception')
-                print('Exception %s' % ex)
+                logger.error('Exception')
+                logger.error('Exception %s' % ex)
 
 
 
