@@ -84,7 +84,7 @@ class YowArgParser(argparse.ArgumentParser):
         else:
             if self.args["logfile"]:
                 if os.access(os.path.dirname(self.args["logfile"]), os.W_OK):
-                    logging.basicConfig(level = logging.INFO, format='%(asctime)s %(levelname)s %(message)s', filename='/tmp/yowsup-cli.log')
+                    logging.basicConfig(level = logging.INFO, format='%(asctime)s %(levelname)s %(message)s', filename=self.args["logfile"])
                 else:
                     print("Folder %s is not writable" % (os.path.dirname(self.args["logfile"])))
                     sys.exit(1)
