@@ -96,6 +96,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         senderJid = node["participant"] if isGroup else node["from"]
         if node.getChild("enc")["v"] == "2" and node["from"] not in self.v2Jids:
             self.v2Jids.append(node["from"])
+
         try:
             if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_PKMSG):
                 self.handlePreKeyWhisperMessage(node)
@@ -103,26 +104,26 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
                 self.handleWhisperMessage(node)
             if encMessageProtocolEntity.getEnc(EncProtocolEntity.TYPE_SKMSG):
                 self.handleSenderKeyMessage(node)
-        except InvalidMessageException as e:
-            logger.error('InvalidMessageException %s' % e)
-            # DEBUG SET RECEIPT
-            # self.toLower(OutgoingReceiptProtocolEntity(node["id"], node["from"], 'read', participant=node["participant"]).toProtocolTreeNode())
 
-        except InvalidKeyIdException as e:
-            logger.warning("InvalidKeyId for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
+        except (InvalidMessageException, InvalidKeyIdException) as e:
+            logger.warning("InvalidMessage or InvalidKeyIdException for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
+
+            from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
+            logger.info("Trying GetKeys for %s, getting keys now", encMessageProtocolEntity.getAuthor(False))
+            entity = GetKeysIqProtocolEntity([encMessageProtocolEntity.getAuthor(False)])
+
             retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node, self.store.getLocalRegistrationId())
             self.toLower(retry.toProtocolTreeNode())
+
         except NoSessionException as e:
             logger.warning("No session for %s, getting their keys now", encMessageProtocolEntity.getAuthor(False))
 
             conversationIdentifier = (node["from"], node["participant"])
-
             if conversationIdentifier not in self.pendingIncomingMessages:
                 self.pendingIncomingMessages[conversationIdentifier] = []
             self.pendingIncomingMessages[conversationIdentifier].append(node)
 
             successFn = lambda successJids, b: self.processPendingIncomingMessages(*conversationIdentifier) if len(successJids) else None
-
             self.getKeysFor([senderJid], successFn)
 
         except DuplicateMessageException as e:
