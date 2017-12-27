@@ -2,7 +2,7 @@
 __version__ = "2.0.15"
 __author__ = "Tarek Galal"
 
-import sys, argparse, yowsup, logging
+import sys, os, argparse, yowsup, logging
 from yowsup.env import YowsupEnv
 
 HELP_CONFIG = """
@@ -82,7 +82,14 @@ class YowArgParser(argparse.ArgumentParser):
         if self.args["debug"]:
             logging.basicConfig(level = logging.DEBUG)
         else:
-            logging.basicConfig(level = logging.INFO)
+            if self.args["logfile"]:
+                if os.access(os.path.dirname(self.args["logfile"]), os.W_OK):
+                    logging.basicConfig(level = logging.INFO, format='%(asctime)s %(levelname)s %(message)s', filename=self.args["logfile"])
+                else:
+                    print("Folder %s is not writable" % (os.path.dirname(self.args["logfile"])))
+                    sys.exit(1)
+            else:
+                logging.basicConfig(level = logging.INFO)
 
         if self.args["version"]:
             print("yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__))
@@ -244,6 +251,8 @@ class DemosArgParser(YowArgParser):
                                   choices = YowsupEnv.getRegisteredEnvs())
 
         configGroup.add_argument("-M", "--unmoxie", action="store_true", help="Disable E2E Encryption")
+
+        configGroup.add_argument("-L", "--logfile", action="store", metavar="/tmp/yowsup-cli.log", help="Set the yowsup logging output file")
 
         cmdopts = self.add_argument_group("Command line interface demo")
         cmdopts.add_argument('-y', '--yowsup', action = "store_true", help = "Start the Yowsup command line client")
