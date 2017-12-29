@@ -46,6 +46,7 @@ class YowStackBuilder(object):
 
     def setProp(self, key, value):
         self._props[key] = value
+        return self
 
     def pushDefaultLayers(self, axolotl = False):
         defaultLayers = YowStackBuilder.getDefaultLayers(axolotl)
