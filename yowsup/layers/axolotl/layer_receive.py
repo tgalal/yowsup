@@ -123,6 +123,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         preKeyWhisperMessage = PreKeyWhisperMessage(serialized=enc.getData())
         sessionCipher = self.getSessionCipher(pkMessageProtocolEntity.getAuthor(False))
         plaintext = sessionCipher.decryptPkmsg(preKeyWhisperMessage)
+        plaintext = plaintext.encode()
+
         if enc.getVersion() == 2:
             paddingByte = plaintext[-1] if type(plaintext[-1]) is int else ord(plaintext[-1])
             padding = paddingByte & 0xFF
@@ -137,6 +139,9 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         whisperMessage = WhisperMessage(serialized=enc.getData())
         sessionCipher = self.getSessionCipher(encMessageProtocolEntity.getAuthor(False))
         plaintext = sessionCipher.decryptMsg(whisperMessage)
+
+        if(type(plaintext) is not bytes):
+            plaintext = plaintext.encode()
 
         if enc.getVersion() == 2:
             paddingByte = plaintext[-1] if type(plaintext[-1]) is int else ord(plaintext[-1])
