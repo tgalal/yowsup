@@ -10,7 +10,6 @@ from yowsup.axolotl import exceptions
 from axolotl.untrustedidentityexception import UntrustedIdentityException
 
 import logging
-import copy
 logger = logging.getLogger(__name__)
 
 
@@ -113,8 +112,11 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
 
         if enc.getVersion() == 2:
             self.parseAndHandleMessageProto(pkMessageProtocolEntity, plaintext)
-        else:
-            self.handleConversationMessage(node, plaintext)
+
+        node = pkMessageProtocolEntity.toProtocolTreeNode()
+        node.addChild((DecProtocolEntity(plaintext, enc.getMediaType())).toProtocolTreeNode())
+
+        self.toUpper(node)
 
     def handleWhisperMessage(self, node):
         encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
@@ -125,8 +127,11 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
 
         if enc.getVersion() == 2:
             self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
-        else:
-            self.handleConversationMessage(encMessageProtocolEntity.toProtocolTreeNode(), plaintext)
+
+        node = encMessageProtocolEntity.toProtocolTreeNode()
+        node.addChild((DecProtocolEntity(plaintext, enc.getMediaType())).toProtocolTreeNode())
+
+        self.toUpper(node)
 
     def handleSenderKeyMessage(self, node):
         encMessageProtocolEntity = EncryptedMessageProtocolEntity.fromProtocolTreeNode(node)
@@ -140,52 +145,35 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             )
             plaintext = plaintext.encode() if sys.version_info >= (3, 0) else plaintext
             self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
+
+            node = encMessageProtocolEntity.toProtocolTreeNode()
+            node.addChild((DecProtocolEntity(plaintext, enc.getMediaType())).toProtocolTreeNode())
+
+            self.toUpper(node)
+
         except exceptions.NoSessionException:
             logger.warning("No session for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
             retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node, self.manager.registration_id)
             self.toLower(retry.toProtocolTreeNode())
 
     def parseAndHandleMessageProto(self, encMessageProtocolEntity, serializedData):
-        node = encMessageProtocolEntity.toProtocolTreeNode()
         m = Message()
-        handled = False
         try:
             m.ParseFromString(serializedData)
         except:
             print("DUMP:")
             print(serializedData)
             print([s for s in serializedData])
-            print([ord(s) for s in serializedData])
+            # print([ord(s) for s in serializedData])
             raise
         if not m or not serializedData:
             raise ValueError("Empty message")
 
         if m.HasField("sender_key_distribution_message"):
-            handled = True
             self.handleSenderKeyDistributionMessage(
                 m.sender_key_distribution_message,
                 encMessageProtocolEntity.getParticipant(False)
             )
-
-        if m.HasField("conversation"):
-            handled = True
-            self.handleConversationMessage(node, m.conversation)
-        elif m.HasField("contact_message"):
-            handled = True
-            self.handleContactMessage(node, m.contact_message)
-        elif m.HasField("url_message"):
-            handled = True
-            self.handleUrlMessage(node, m.url_message)
-        elif m.HasField("location_message"):
-            handled = True
-            self.handleLocationMessage(node, m.location_message)
-        elif m.HasField("image_message"):
-            handled = True
-            self.handleImageMessage(node, m.image_message)
-
-        if not handled:
-            print(m)
-            raise ValueError("Unhandled")
 
     def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, participantId):
         groupId = senderKeyDistributionMessage.groupId
@@ -194,62 +182,5 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             participantid=participantId,
             skmsgdata=senderKeyDistributionMessage.axolotl_sender_key_distribution_message
         )
-    def handleConversationMessage(self, originalEncNode, text):
-        messageNode = copy.deepcopy(originalEncNode)
-        messageNode.children = []
-        messageNode.addChild(ProtocolTreeNode("body", data = text))
-        self.toUpper(messageNode)
 
-    def handleImageMessage(self, originalEncNode, imageMessage):
-        messageNode = copy.deepcopy(originalEncNode)
-        messageNode["type"] = "media"
-        mediaNode = ProtocolTreeNode("media", {
-            "type": "image",
-            "filehash": imageMessage.file_sha256,
-            "size": str(imageMessage.file_length),
-            "url": imageMessage.url,
-            "mimetype": imageMessage.mime_type,
-            "width": imageMessage.width,
-            "height": imageMessage.height,
-            "caption": imageMessage.caption,
-            "encoding": "raw",
-            "file": "enc",
-            "ip": "0"
-        }, data = imageMessage.jpeg_thumbnail)
-        messageNode.addChild(mediaNode)
-
-        self.toUpper(messageNode)
-
-    def handleUrlMessage(self, originalEncNode, urlMessage):
-        #convert to ??
-        pass
-
-    def handleDocumentMessage(self, originalEncNode, documentMessage):
-        #convert to ??
-        pass
-
-    def handleLocationMessage(self, originalEncNode, locationMessage):
-        messageNode = copy.deepcopy(originalEncNode)
-        messageNode["type"] = "media"
-        mediaNode = ProtocolTreeNode("media", {
-            "latitude": locationMessage.degrees_latitude,
-            "longitude": locationMessage.degrees_longitude,
-            "name": "%s %s" % (locationMessage.name, locationMessage.address),
-            "url": locationMessage.url,
-            "encoding": "raw",
-            "type": "location"
-        }, data=locationMessage.jpeg_thumbnail)
-        messageNode.addChild(mediaNode)
-        self.toUpper(messageNode)
-
-    def handleContactMessage(self, originalEncNode, contactMessage):
-        messageNode = copy.deepcopy(originalEncNode)
-        messageNode["type"] = "media"
-        mediaNode = ProtocolTreeNode("media", {
-            "type": "vcard"
-        }, [
-            ProtocolTreeNode("vcard", {"name": contactMessage.display_name}, data = contactMessage.vcard)
-        ] )
-        messageNode.addChild(mediaNode)
-        self.toUpper(messageNode)
 
