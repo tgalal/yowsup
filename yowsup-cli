@@ -83,7 +83,7 @@ class YowArgParser(argparse.ArgumentParser):
         loggingLevel = logging.DEBUG if self.args["debug"] else logging.INFO
 
         # log to file argument is set
-        if self.args["logfile"]:
+        if "logfile" in self.args and self.args["logfile"] is not None:
             # check if folder is writable
             if not os.access(os.path.dirname(self.args["logfile"]), os.W_OK):
                 print("Folder %s is not writable" % (os.path.dirname(self.args["logfile"])))

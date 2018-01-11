@@ -4,6 +4,8 @@ from yowsup.layers.auth import AuthError
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.axolotl.props import PROP_IDENTITY_AUTOTRUST
 import sys
+import logging
+logger = logging.getLogger(__name__)
 
 class YowsupCliStack(object):
     def __init__(self, credentials, encryptionEnabled = True):
@@ -14,7 +16,6 @@ class YowsupCliStack(object):
             .push(YowsupCliLayer)\
             .build()
 
-        # self.stack.setCredentials(credentials)
         self.stack.setCredentials(credentials)
         self.stack.setProp(PROP_IDENTITY_AUTOTRUST, True)
 
@@ -25,7 +26,7 @@ class YowsupCliStack(object):
         try:
             self.stack.loop(timeout = 0.5, discrete = 0.5)
         except AuthError as e:
-            print("Auth Error, reason %s" % e)
+            logger.error("Auth Error, reason %s" % e)
         except KeyboardInterrupt:
             print("\nYowsdown")
             sys.exit(0)
