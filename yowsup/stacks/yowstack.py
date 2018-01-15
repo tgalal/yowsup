@@ -1,5 +1,5 @@
 from yowsup.layers import YowParallelLayer
-import asyncore, time, logging, random
+import time, logging, random
 from yowsup.layers import YowLayer
 from yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer
 from yowsup.layers.coder                       import YowCoderLayer
@@ -182,19 +182,9 @@ class YowStack(object):
         self.__class__.__detachedQueue.put(fn)
 
     def loop(self, *args, **kwargs):
-        if "discrete" in kwargs:
-            discreteVal = kwargs["discrete"]
-            del kwargs["discrete"]
-            while True:
-                asyncore.loop(*args, **kwargs)
-                time.sleep(discreteVal)
-                try:
-                    callback = self.__class__.__detachedQueue.get(False) #doesn't block
-                    callback()
-                except Queue.Empty:
-                    pass
-        else:
-            asyncore.loop(*args, **kwargs)
+        while True:
+            #useless for now
+            time.sleep(0.1)
 
     def _construct(self):
         logger.debug("Initializing stack")
