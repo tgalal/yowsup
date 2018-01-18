@@ -422,7 +422,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
                                             signedKeyTuple, preKeysDict, Curve.DJB_TYPE, self.adjustId(registrationId))
 
         onResult = lambda _, __: self.persistKeys(registrationId, identityKeyPair, preKeys, signedPreKey, fresh)
-        self._sendIq(setKeysIq, onResult, self.onSentKeysError)
+        self._sendIq(setKeysIq, onResult) # TODO: reintroduce error handler (was _sendIq(setKeysIq, onResult, self.onSentKeysError))
 
     def persistKeys(self, registrationId, identityKeyPair, preKeys, signedPreKey, fresh):
         total = len(preKeys)
