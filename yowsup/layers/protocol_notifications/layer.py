@@ -33,6 +33,9 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
             # implement individually at some point
             # but keep this pass block so system doesn't crash on these types
             pass
+        elif node["type"] in ["business"]:
+            print("unhandler business notification")
+            pass        
         else:
             self.raiseErrorForNode(node)
 
