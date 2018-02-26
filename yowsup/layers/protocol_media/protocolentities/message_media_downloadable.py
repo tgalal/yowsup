@@ -27,14 +27,15 @@ class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
         self.setDownloadableMediaProps(mimeType, fileHash, url, ip, size, fileName, mediaKey)
 
     def __str__(self):
-        out  = super(DownloadableMediaMessageProtocolEntity, self).__str__()
-        out += "MimeType: %s\n" % self.mimeType
-        out += "File Hash: %s\n" % self.fileHash.encode('hex')
-        out += "URL: %s\n" % self.url
-        out += "IP: %s\n" % self.ip
-        out += "File Size: %s\n" % self.size
-        out += "File name: %s\n" % self.fileName
-        return out
+        return ""
+        # out  = super(DownloadableMediaMessageProtocolEntity, self).__str__()
+        # out += "MimeType: %s\n" % self.mimeType
+        # out += "File Hash: %s\n" % self.fileHash.encode('hex')
+        # out += "URL: %s\n" % self.url
+        # out += "IP: %s\n" % self.ip
+        # out += "File Size: %s\n" % self.size
+        # out += "File name: %s\n" % self.fileName
+        # return out
 
     def getMediaSize(self):
         return self.size
