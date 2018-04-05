@@ -27,7 +27,7 @@ import os
 
 class WARegRequest(WARequest):
 
-    def __init__(self,cc, p_in, code):
+    def __init__(self,cc, p_in, code, lc="DO", lg="en"):
         super(WARegRequest,self).__init__()
         idx = StorageTools.getIdentity(cc + p_in)
 
@@ -40,7 +40,7 @@ class WARegRequest(WARequest):
         self.addParam("id", idx)
         self.addParam("code", code)
 
-        self.addParam("lc", "GB")
+        self.addParam("lc", lc)
         self.addParam("lg", "en")
 
         self.addParam("mistyped", '6')

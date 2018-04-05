@@ -2,7 +2,7 @@ from .notification_groups import GroupsNotificationProtocolEntity
 from yowsup.structs import ProtocolTreeNode
 class RemoveGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
     '''
-<notification notify="{{NOTIFY_NAME}}" id="{{id}}" t="{{TIMESTAMP}}" participant="{{participant_jiid}}" from="{{group_jid}}" type="w:gp2">
+<notification notify="{{NOTIFY_NAME}}" id="{{id}}" t="{{TIMESTAMP}}" participant="{{participant_jiid}}" from="{{group_jid}}" type="w:gp2" mode="none">
 <remove subject="{{subject}}">
 <participant jid="{{participant_jid}}">
 </participant>
@@ -20,7 +20,7 @@ class RemoveGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
                       subject,
                       participants):
 
-        assert type(participants) is dict, "Participants must be a dict {jid => type?}"
+        assert type(participants) is list, "Must be a list of jids, got %s instead." % type(participants)
 
         self.subject = subject
         self.participants = participants

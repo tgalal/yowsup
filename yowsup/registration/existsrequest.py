@@ -5,14 +5,14 @@ import os
 
 class WAExistsRequest(WARequest):
 
-    def __init__(self,cc, p_in, idx):
+    def __init__(self,cc, p_in, idx, lg="en", lc="DO"):
         super(WAExistsRequest,self).__init__()
 
         self.addParam("cc", cc)
         self.addParam("in", p_in)
         self.addParam("id", idx)
-        self.addParam("lg", "en")
-        self.addParam("lc", "GB")
+        self.addParam("lg", lg)
+        self.addParam("lc", lc)
         self.addParam("token", YowsupEnv.getCurrent().getToken(p_in))
         self.addParam("mistyped", '6')
         self.addParam('network_radio_type', '1')
