@@ -215,8 +215,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.handleAudioMessage(node, m.audio_message)
         else:
             logger.debug("Unhandled message")
-            print(m)
-            raise ValueError("Unhandled")
+            logger.debug(m)
+            #raise ValueError("Unhandled")
 
     def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, axolotlAddress):
         groupId = senderKeyDistributionMessage.groupId
