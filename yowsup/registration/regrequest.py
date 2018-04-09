@@ -27,7 +27,7 @@ import os
 
 class WARegRequest(WARequest):
 
-    def __init__(self,cc, p_in, code, lc="DO", lg="en"):
+    def __init__(self,cc, p_in, code, lc="GB", lg="en"):
         super(WARegRequest,self).__init__()
         idx = StorageTools.getIdentity(cc + p_in)
 
@@ -41,7 +41,7 @@ class WARegRequest(WARequest):
         self.addParam("code", code)
 
         self.addParam("lc", lc)
-        self.addParam("lg", "en")
+        self.addParam("lg", lg)
 
         self.addParam("mistyped", '6')
         # self.addParam('network_radio_type', '1')

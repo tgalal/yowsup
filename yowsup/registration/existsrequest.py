@@ -5,7 +5,7 @@ import os
 
 class WAExistsRequest(WARequest):
 
-    def __init__(self,cc, p_in, idx, lg="en", lc="DO"):
+    def __init__(self,cc, p_in, idx, lg="en", lc="GB"):
         super(WAExistsRequest,self).__init__()
 
         self.addParam("cc", cc)

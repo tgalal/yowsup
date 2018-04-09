@@ -7,7 +7,7 @@ import random, hashlib, os
 
 class WACodeRequest(WARequest):
 
-    def __init__(self,cc, p_in, mcc= "000", mnc = "000", sim_mcc = "000", sim_mnc = "000", method="sms", lc="DO", lg="en"):
+    def __init__(self,cc, p_in, mcc= "000", mnc = "000", sim_mcc = "000", sim_mnc = "000", method="sms", lc="GB", lg="en"):
         super(WACodeRequest,self).__init__()
         idx = StorageTools.getIdentity(cc + p_in)
 
