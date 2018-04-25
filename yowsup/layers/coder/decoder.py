@@ -203,17 +203,29 @@ class ReadDecoder:
         if token == 252:
             size8 = self.readInt8(data)
             buf8 = self.readArray(size8, data)
-            return "".join(map(chr, buf8))
+            charlist = list(map(chr, buf8))
+            hexstr = ''
+            for char in charlist:
+                hexstr += hex(ord(char)).replace('0x','')
+            return bytes.fromhex(hexstr).decode('utf-8')
 
         if token == 253:
             size20 = self.readInt20(data)
             buf20 = self.readArray(size20, data)
-            return "".join(map(chr, buf20))
+            charlist = list(map(chr, buf20))
+            hexstr = ''
+            for char in charlist:
+                hexstr += hex(ord(char)).replace('0x','')
+            return bytes.fromhex(hexstr).decode('utf-8')
 
         if token == 254:
             size31 = self.readInt31()
             buf31 = self.readArray(size31, data)
-            return "".join(map(chr, buf31))
+            charlist = list(map(chr, buf31))
+            hexstr = ''
+            for char in charlist:
+                hexstr += hex(ord(char)).replace('0x','')
+            return bytes.fromhex(hexstr).decode('utf-8')
 
 
         raise Exception("readString couldn't match token "+str(token))

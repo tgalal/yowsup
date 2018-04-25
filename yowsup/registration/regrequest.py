@@ -32,7 +32,7 @@ class WARegRequest(WARequest):
         idx = StorageTools.getIdentity(cc + p_in)
 
         if idx is None:
-            raise ValueError("You have to request code first")
+            print("You have to request code first")
 
         self.addParam("cc", cc)
         self.addParam("in", p_in)

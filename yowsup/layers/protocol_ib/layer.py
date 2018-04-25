@@ -1,5 +1,8 @@
 from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from .protocolentities import *
+import logging
+logger = logging.getLogger(__name__)
+
 class YowIbProtocolLayer(YowProtocolLayer):
 
     def __init__(self):
@@ -24,5 +27,5 @@ class YowIbProtocolLayer(YowProtocolLayer):
         elif node.getChild("account"):
             self.toUpper(AccountIbProtocolEntity.fromProtocolTreeNode(node))
         else:
-            raise ValueError("Unkown ib node %s" % node)
-
+            logger.error("Unknown ib node %s" % node)
+            #raise ValueError("Unkown ib node %s" % node)

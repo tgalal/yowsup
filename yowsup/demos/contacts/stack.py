@@ -1,10 +1,11 @@
 from .layer import SyncLayer
-
 from yowsup.stacks import  YowStackBuilder
 from yowsup.layers.auth import AuthError
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from yowsup.layers.network import YowNetworkLayer
+import logging
+logger = logging.getLogger(__name__)
 
 class YowsupSyncStack(object):
     def __init__(self, credentials, contacts, encryptionEnabled = False):
@@ -30,4 +31,4 @@ class YowsupSyncStack(object):
         try:
             self.stack.loop()
         except AuthError as e:
-            print("Authentication Error: %s" % e.message)
+            logger.error("Authentication Error: %s" % e.message)

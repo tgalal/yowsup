@@ -2,7 +2,7 @@ from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from yowsup.layers.protocol_messages.protocolentities import MessageProtocolEntity
 class MediaMessageProtocolEntity(MessageProtocolEntity):
     '''
-    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
+    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}"
         offline="{{OFFLINE}}" type="text" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
         <media type="{{DOWNLOADABLE_MEDIA_TYPE: (image | audio | video)}}"
             > {{THUMBNAIL_RAWDATA (JPEG?)}}
@@ -11,11 +11,11 @@ class MediaMessageProtocolEntity(MessageProtocolEntity):
     '''
 
     '''
-    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
+    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}"
         offline="{{OFFLINE}}" type="text" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
 
         <media type="audio"
-            
+
             mimetype="audio/aac"
             filehash="86nonv++wq864nlkmbhJXZyPbILLlQ2KyYZxsLo8z1g="
             url="https://mms884.whatsapp.net/d/h72eS2EAV6YrHfZLBaqzFVRffGUABQdt_-pVhg/Arlt8j7XkRsfFw22i-KRffXxl7j9iVsYLbJN4APwsKGJ.aac"
@@ -25,7 +25,7 @@ class MediaMessageProtocolEntity(MessageProtocolEntity):
 
 
             origin="live"
-            seconds="1" 
+            seconds="1"
             abitrate="32"
             duration="1"
             asampfreq="22050"
@@ -56,13 +56,13 @@ class MediaMessageProtocolEntity(MessageProtocolEntity):
         >{{THUMBNAIL_RAWDATA}}</media>
 
 
-        <media 
-            latitude="52.52393" 
+        <media
+            latitude="52.52393"
             type="location"
             longitude="13.41747"
             encoding="raw"
         >{{THUMBNAIL_RAWDATA}}</media>
-            
+
 
         <media type="vcard">
             <vcard name="Hany Yasser">
@@ -94,9 +94,10 @@ class MediaMessageProtocolEntity(MessageProtocolEntity):
     MEDIA_TYPE_IMAGE = "image"
     MEDIA_TYPE_VIDEO = "video"
     MEDIA_TYPE_AUDIO = "audio"
+    MEDIA_TYPE_DOCUMENT = "document"
     MEDIA_TYPE_VCARD = "vcard"
     MEDIA_TYPE_LOCATION = "location"
-    TYPES_MEDIA = (MEDIA_TYPE_AUDIO, MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO, MEDIA_TYPE_VCARD, MEDIA_TYPE_LOCATION)
+    TYPES_MEDIA = (MEDIA_TYPE_AUDIO, MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO, MEDIA_TYPE_DOCUMENT, MEDIA_TYPE_VCARD, MEDIA_TYPE_LOCATION)
 
     def __init__(self, mediaType, _id = None, _from = None, to = None, notify = None, timestamp = None, participant = None, preview = None, offline = None, retry = None):
         super(MediaMessageProtocolEntity, self).__init__("media", _id, _from, to, notify, timestamp, participant, offline, retry)
@@ -124,7 +125,7 @@ class MediaMessageProtocolEntity(MessageProtocolEntity):
 
     def toProtocolTreeNode(self):
         node = super(MediaMessageProtocolEntity, self).toProtocolTreeNode()
-        mediaNode = ProtocolTreeNode("media", {"type": self.mediaType}, None, None)
+        mediaNode = ProtocolTreeNode("enc", {"type": self.mediaType}, None, None)
         node.addChild(mediaNode)
         if self.preview:
             mediaNode.setData(self.preview)

@@ -2,7 +2,16 @@ from yowsup.structs import ProtocolEntity, ProtocolTreeNode
 from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
 from .builder_message_media_downloadable import DownloadableMediaMessageBuilder
 from yowsup.layers.protocol_messages.proto.wa_pb2 import ImageMessage
-from yowsup.common.tools import ImageTools
+from yowsup.common.tools import ImageTools, MimeTools
+from Crypto.Cipher import AES
+try:
+    from urllib.request import urlopen
+except ImportError:
+    from urllib2 import urlopen
+from axolotl.kdf.hkdfv3 import HKDFv3
+from axolotl.util.byteutil import ByteUtil
+import binascii
+import base64
 
 class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
     '''
@@ -50,13 +59,20 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         self.width      = int(width)
         self.height     = int(height)
         self.caption    = caption
+        self.cryptKeys = '576861747341707020496d616765204b657973'
+
+    def setMimeType(self, mimeType):
+        self.mimeType = mimeType
+
+    def getExtension(self):
+        return MimeTools.getExtension(self.mimeType)
 
     def getCaption(self):
         return self.caption
 
     def toProtocolTreeNode(self):
         node = super(ImageDownloadableMediaMessageProtocolEntity, self).toProtocolTreeNode()
-        mediaNode = node.getChild("media")
+        mediaNode = node.getChild("enc")
 
         mediaNode.setAttribute("encoding",  self.encoding)
         mediaNode.setAttribute("width",     str(self.width))
@@ -82,14 +98,16 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
 
     @staticmethod
     def fromProtocolTreeNode(node):
+
         entity = DownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = ImageDownloadableMediaMessageProtocolEntity
         mediaNode = node.getChild("media")
+        entity.setMimeType(mediaNode.getAttributeValue("mimetype"))
         entity.setImageProps(
             mediaNode.getAttributeValue("encoding"),
             mediaNode.getAttributeValue("width"),
             mediaNode.getAttributeValue("height"),
-            mediaNode.getAttributeValue("caption"),
+            mediaNode.getAttributeValue("caption")
         )
         return entity
 
@@ -103,6 +121,7 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         builder.getOrSet("preview", lambda: ImageTools.generatePreviewFromImage(builder.getOriginalFilepath()))
         filepath = builder.getFilepath()
         caption = builder.get("caption")
+        mimeType = builder.get("mimetype")
         dimensions = builder.get("dimensions",  ImageTools.getImageDimensions(builder.getOriginalFilepath()))
         assert dimensions, "Could not determine image dimensions"
         width, height = dimensions
@@ -121,3 +140,25 @@ class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         builder.set("mimetype", mimeType)
         builder.set("dimensions", dimensions)
         return ImageDownloadableMediaMessageProtocolEntity.fromBuilder(builder)
+
+
+    def decrypt(self, encimg, refkey):
+        derivative = HKDFv3().deriveSecrets(refkey, binascii.unhexlify(self.cryptKeys), 112)
+        parts = ByteUtil.split(derivative, 16, 32)
+        iv = parts[0]
+        cipherKey = parts[1]
+        e_img = encimg[:-10]
+        AES.key_size = 128
+        cr_obj = AES.new(key=cipherKey, mode=AES.MODE_CBC, IV=iv)
+        return cr_obj.decrypt(e_img)
+
+    def isEncrypted(self):
+        return self.cryptKeys and self.mediaKey
+
+
+    def getMediaContent(self):
+        data = urlopen(self.url.decode('ASCII')).read()
+        #data = urlopen(self.url).read()
+        if self.isEncrypted():
+            data = self.decrypt(data, self.mediaKey)
+        return bytearray(data)

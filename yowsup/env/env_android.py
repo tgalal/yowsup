@@ -22,6 +22,7 @@ class AndroidYowsupEnv(YowsupEnv):
 
     _VERSION = "2.17.337"
     _OS_NAME = "Android"
+	#new
     _OS_VERSION = "4.3"
     _DEVICE_NAME = "endeavoru"
     _MANUFACTURER = "HTC"

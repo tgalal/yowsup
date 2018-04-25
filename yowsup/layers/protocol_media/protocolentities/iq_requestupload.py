@@ -15,9 +15,10 @@ class RequestUploadIqProtocolEntity(IqProtocolEntity):
     MEDIA_TYPE_IMAGE = "image"
     MEDIA_TYPE_VIDEO = "video"
     MEDIA_TYPE_AUDIO = "audio"
+    MEDIA_TYPE_DOCUMENT = "document"
     XMLNS = "w:m"
 
-    TYPES_MEDIA = (MEDIA_TYPE_AUDIO, MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO)
+    TYPES_MEDIA = (MEDIA_TYPE_AUDIO, MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO, MEDIA_TYPE_DOCUMENT)
 
     def __init__(self, mediaType, b64Hash = None, size = None, origHash = None, filePath = None ):
         super(RequestUploadIqProtocolEntity, self).__init__("w:m", _type = "set", to = YowConstants.WHATSAPP_SERVER)
@@ -62,7 +63,7 @@ class RequestUploadIqProtocolEntity(IqProtocolEntity):
         }
         if self.origHash:
             attribs["orighash"] = self.origHash
-        mediaNode = ProtocolTreeNode("media", attribs)
+        mediaNode = ProtocolTreeNode("encr_media", attribs)
         node.addChild(mediaNode)
         return node
 
@@ -71,7 +72,7 @@ class RequestUploadIqProtocolEntity(IqProtocolEntity):
         assert node.getAttributeValue("type") == "set", "Expected set as iq type in request upload, got %s" % node.getAttributeValue("type")
         entity = IqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = RequestUploadIqProtocolEntity
-        mediaNode = node.getChild("media")
+        mediaNode = node.getChild("encr_media")
         entity.setRequestArguments(
             mediaNode.getAttributeValue("type"),
             mediaNode.getAttributeValue("hash"),

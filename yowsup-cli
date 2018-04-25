@@ -2,7 +2,7 @@
 __version__ = "2.0.15"
 __author__ = "Tarek Galal"
 
-import sys, argparse, yowsup, logging
+import sys, os, argparse, yowsup, logging
 from yowsup.env import YowsupEnv
 
 HELP_CONFIG = """
@@ -79,10 +79,24 @@ class YowArgParser(argparse.ArgumentParser):
     def process(self):
         self.args = vars(self.parse_args())
 
-        if self.args["debug"]:
-            logging.basicConfig(level = logging.DEBUG)
+        # set the logging level
+        loggingLevel = logging.DEBUG if self.args["debug"] else logging.INFO
+
+        # log to file argument is set
+        if "logfile" in self.args and self.args["logfile"] is not None:
+            # check if folder is writable
+            if not os.access(os.path.dirname(self.args["logfile"]), os.W_OK):
+                print("Folder %s is not writable" % (os.path.dirname(self.args["logfile"])))
+                sys.exit(1)
+
+            # set the logger config
+            logging.basicConfig(level = loggingLevel, format='%(asctime)s %(levelname)s %(message)s', filename=self.args["logfile"])
+
+            # if debug argument, add a stream handler to the logger
+            if self.args["debug"]:
+                logging.getLogger().addHandler(logging.StreamHandler())
         else:
-            logging.basicConfig(level = logging.INFO)
+            logging.basicConfig(level = loggingLevel)
 
         if self.args["version"]:
             print("yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__))
@@ -244,6 +258,8 @@ class DemosArgParser(YowArgParser):
                                   choices = YowsupEnv.getRegisteredEnvs())
 
         configGroup.add_argument("-M", "--unmoxie", action="store_true", help="Disable E2E Encryption")
+
+        configGroup.add_argument("-L", "--logfile", action="store", metavar="/tmp/yowsup-cli.log", help="Set the yowsup logging output file")
 
         cmdopts = self.add_argument_group("Command line interface demo")
         cmdopts.add_argument('-y', '--yowsup', action = "store_true", help = "Start the Yowsup command line client")

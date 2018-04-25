@@ -20,9 +20,9 @@ class SyncLayer(YowInterfaceLayer):
         self._sendIq(contactEntity, self.onGetSyncResult, self.onGetSyncError)
 
     def onGetSyncResult(self, resultSyncIqProtocolEntity, originalIqProtocolEntity):
-        print(resultSyncIqProtocolEntity)
+        logger.error(resultSyncIqProtocolEntity)
         raise KeyboardInterrupt()
 
     def onGetSyncError(self, errorSyncIqProtocolEntity, originalIqProtocolEntity):
-        print(errorSyncIqProtocolEntity)
+        logger.error(errorSyncIqProtocolEntity)
         raise KeyboardInterrupt()
