@@ -21,8 +21,8 @@ from yowsup.layers.protocol_media.mediauploader import MediaUploader
 from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.common.tools import Jid
 from yowsup.common.optionalmodules import PILOptionalModule, AxolotlOptionalModule
-
 logger = logging.getLogger(__name__)
+
 class YowsupCliLayer(Cli, YowInterfaceLayer):
     PROP_RECEIPT_AUTO       = "org.openwhatsapp.yowsup.prop.cli.autoreceipt"
     PROP_RECEIPT_KEEPALIVE  = "org.openwhatsapp.yowsup.prop.cli.keepalive"
@@ -384,17 +384,34 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def message_delivered(self, message_id):
         pass
 
+    @clicmd("Send vcard")
+    def vcard(self, number, vcardName, contactName, contactNumber):
+        vcard = "BEGIN:VCARD\nVERSION:3.0\nN:;%s;;;\nFN:%s\nitem1.TEL;waid=%s:+%s\nitem1.X-ABLabel:Celular\nEND:VCARD" % (contactName, contactName, str(contactNumber), str(contactNumber))
+        vcard = bytes(vcard, "utf-8")
+        vcardEntity = VCardMediaMessageProtocolEntity(name=vcardName, card_data=vcard, to="%s@s.whatsapp.net" % number)
+        self.toLower(vcardEntity)
+
+    @clicmd("Send a location with optional params", 0)
+    def location(self, number, latitude, longitude, name=None, address=None, url=None):
+        locationEntity = LocationMediaMessageProtocolEntity(latitude, longitude, name=name, address=address, url=url,
+                                                            to="%s@s.whatsapp.net" % number)
+        self.toLower(locationEntity)
+
     @clicmd("Send a video with optional caption")
     def video_send(self, number, path, caption = None):
-        self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO)
+        self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO, caption)
 
     @clicmd("Send an image with optional caption")
     def image_send(self, number, path, caption = None):
-        self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE)
+        self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE, caption)
 
     @clicmd("Send audio file")
     def audio_send(self, number, path):
         self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_AUDIO)
+
+    @clicmd("Send document file")
+    def document_send(self, number, path):
+        self.media_send(number, path, RequestUploadIqProtocolEntity.MEDIA_TYPE_DOCUMENT)
 
     def media_send(self, number, path, mediaType, caption = None):
         if self.assertConnected():
@@ -404,7 +421,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             errorFn = lambda errorEntity, originalEntity: self.onRequestUploadError(jid, path, errorEntity, originalEntity)
             self._sendIq(entity, successFn, errorFn)
 
-            self._sendIq(entity, successFn, errorFn)
     @clicmd("Send typing state")
     def state_typing(self, jid):
         if self.assertConnected():
@@ -451,11 +467,11 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @ProtocolEntityCallback("chatstate")
     def onChatstate(self, entity):
-        print(entity)
+        logger.info(entity)
 
     @ProtocolEntityCallback("iq")
     def onIq(self, entity):
-        print(entity)
+        logger.info(entity)
 
     @ProtocolEntityCallback("receipt")
     def onReceipt(self, entity):
@@ -464,7 +480,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @ProtocolEntityCallback("ack")
     def onAck(self, entity):
         #formattedDate = datetime.datetime.fromtimestamp(self.sentCache[entity.getId()][0]).strftime('%d-%m-%Y %H:%M')
-        #print("%s [%s]:%s"%(self.username, formattedDate, self.sentCache[entity.getId()][1]))
         if entity.getClass() == "message":
             self.output(entity.getId(), tag = "Sent")
             #self.notifyInputThread()
@@ -500,7 +515,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             messageOut = self.getMediaMessageBody(message)
         else:
             messageOut = "Unknown message type %s " % message.getType()
-            print(messageOut.toProtocolTreeNode())
+            logger.error(messageOut.toProtocolTreeNode())
 
 
         formattedDate = datetime.datetime.fromtimestamp(message.getTimestamp()).strftime('%d-%m-%Y %H:%M')
@@ -508,7 +523,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         output = self.__class__.MESSAGE_FORMAT.format(
             FROM = sender,
             TIME = formattedDate,
-            MESSAGE = messageOut.encode('latin-1').decode() if sys.version_info >= (3, 0) else messageOut,
+            MESSAGE = messageOut,
             MESSAGE_ID = message.getId()
             )
 
@@ -542,6 +557,8 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         	entity = AudioDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
         elif mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_VIDEO:
         	entity = VideoDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to, caption = caption)
+        elif mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_DOCUMENT:
+            entity = DocumentDownloadableMediaMessageProtocolEntity.fromFilePath(filePath, url, ip, to)
         self.toLower(entity)
 
     def __str__(self):
@@ -578,7 +595,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         # or open
         # or do nothing
         # write to file example:
-        #resultGetPictureIqProtocolEntiy.writeToFile("/tmp/yowpics/%s_%s.jpg" % (getPictureIqProtocolEntity.getTo(), "preview" if resultGetPictureIqProtocolEntiy.isPreview() else "full"))
         pass
 
     def __str__(self):

@@ -26,25 +26,18 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
                 self.raiseErrorForNode(node)
         elif node["type"] == "status":
             self.toUpper(StatusNotificationProtocolEntity.fromProtocolTreeNode(node))
-        elif node["type"] == "features":
-            # Not implemented
-            pass
-        elif node["type"] in [ "contacts", "subject", "w:gp2" ]:
+        elif node["type"] in ["contacts", "subject", "w:gp2"]:
             # Implemented in respectively the protocol_contacts and protocol_groups layer
             pass
-        elif node["type"] == "contacts":
+        elif node["type"] in ["features", "contacts", "web", "location"]:
+            # implement individually at some point
+            # but keep this pass block so system doesn't crash on these types
             pass
-        elif node["type"] == "web":
-            # Not implemented
-            pass
+        elif node["type"] in ["business"]:
+            print("unhandled business notification")
+            pass        
         else:
             self.raiseErrorForNode(node)
 
         ack = OutgoingAckProtocolEntity(node["id"], "notification", node["type"], node["from"])
         self.toLower(ack.toProtocolTreeNode())
-
-
-
-
-
-

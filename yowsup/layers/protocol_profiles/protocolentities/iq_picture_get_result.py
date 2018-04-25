@@ -27,7 +27,7 @@ class ResultGetPictureIqProtocolEntity(PictureIqProtocolEntity):
         return self.pictureId
 
     def writeToFile(self, path):
-        with open(path, "wb") as outFile:
+        with open(path, "w") as outFile:
             outFile.write(self.getPictureData())
 
     def toProtocolTreeNode(self):

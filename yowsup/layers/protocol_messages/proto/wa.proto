@@ -8,6 +8,7 @@ message Message {
   optional LocationMessage location_message      = 5;
   optional DocumentMessage document_message      = 7;
   optional UrlMessage url_message                = 6;
+  optional VideoMessage video_message            = 9;
 }
 
 message SenderKeyDistributionMessage {
@@ -24,15 +25,28 @@ message ImageMessage {
   required uint32 height        = 6;
   required uint32 width         = 7;
   required bytes media_key       = 8;
+  required bytes file_enc_sha256       = 9;
   required bytes jpeg_thumbnail  = 16;
+}
+
+message VideoMessage {
+     required bytes url             =  1;
+     required string mime_type      =  2;
+     required bytes file_sha256     =  3;
+     required uint64 file_length    =  4;
+     required uint64 duration       =  5;
+     required bytes media_key       =  6;
+     required string caption        =  7;
+     required bytes file_enc_sha256 = 8;
+     required bytes jpeg_thumbnail  = 16;
 }
 
 message LocationMessage {
   required double degrees_latitude   = 1;
   required double degrees_longitude  = 2;
-  required string name              = 3;
-  required string address           = 4;
-  required string url               = 5;
+  optional string name               = 3;
+  optional string address            = 4;
+  optional string url                = 5;
   required bytes  jpeg_thumbnail     = 16;
 
 }
@@ -44,7 +58,7 @@ message DocumentMessage {
   required uint64 file_length = 5;
   required uint32 page_count = 6;
   required bytes media_key = 7;
-  required bytes jpeg_thumbnail = 16;
+  optional bytes jpeg_thumbnail = 16;
 }
 
 

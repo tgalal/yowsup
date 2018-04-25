@@ -54,7 +54,7 @@ class VCardMediaMessageProtocolEntity(MediaMessageProtocolEntity):
 
     def toProtocolTreeNode(self):
         node = super(VCardMediaMessageProtocolEntity, self).toProtocolTreeNode()
-        mediaNode = node.getChild("media")
+        mediaNode = node.getChild("enc")
         mediaNode["type"] = "vcard"
         vcardNode = ProtocolTreeNode("vcard", {"name":self.name}, None,self.card_data)
         mediaNode.addChild(vcardNode)

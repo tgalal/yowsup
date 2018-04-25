@@ -10,8 +10,8 @@ class IqProtocolEntity(ProtocolEntity):
     TYPE_GET = "get"
     TYPE_ERROR = "error"
     TYPE_RESULT = "result"
-
-    TYPES = (TYPE_SET, TYPE_GET, TYPE_RESULT, TYPE_ERROR)
+    TYPE_DELETE = "delete"
+    TYPES = (TYPE_SET, TYPE_GET, TYPE_RESULT, TYPE_ERROR, TYPE_DELETE)
     def __init__(self, xmlns = None, _id = None, _type = None, to = None, _from = None):
         super(IqProtocolEntity, self).__init__("iq")
 
