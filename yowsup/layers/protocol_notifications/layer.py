@@ -37,6 +37,8 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
         elif node["type"] == "web":
             # Not implemented
             pass
+	elif node["type"] == "business":
+	    pass
         else:
             self.raiseErrorForNode(node)
 
