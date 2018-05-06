@@ -272,7 +272,8 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         def sendToGroup(resultNode, requestEntity):
             groupInfo = InfoGroupsResultIqProtocolEntity.fromProtocolTreeNode(resultNode)
             jids = list(groupInfo.getParticipants().keys()) #keys in py3 returns dict_keys
-            jids.remove(ownJid)
+            if ownJid in jids:
+                jids.remove(ownJid)
             return self.ensureSessionsAndSendToGroup(node, jids)
 
         if senderKeyRecord.isEmpty():

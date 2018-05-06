@@ -5,7 +5,10 @@ import yowsup
 import platform
 import sys
 
-deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.39', 'six', 'requests', 'preview-generator', 'audioread']
+deps = ['python-dateutil', 'argparse', 'python-axolotl>=0.1.39', 'six==1.10', 'requests', 'preview-generator', 'audioread']
+
+if sys.version_info < (2,7):
+    deps += ['importlib', "protobuf==3.4.0"]
 
 if sys.version_info < (3,0):
     print("Python2 is not supported!")
