@@ -7,11 +7,9 @@ Donate to **tgalal** the creator of this project: <a href="https://www.paypal.co
 Donate to me: <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HNCEHHKWG2E4J" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
 
 
-==========================================================
-
 ## Yowsup opened WhatsApp service under platforms!
 
-Yowsup is a python library that enables you build application which use WhatsApp service. Yowsup has been used to create an unofficial WhatsApp client Nokia N9 through the Wazapp project which was in use by 200K + users as well as another fully featured unofficial client for Blackberry 10
+Yowsup is a Python library that enables you to build applications which use the WhatsApp service. Yowsup has been used to create two clients: 1) An unofficial WhatsApp client Nokia N9 through the Wazapp project which was in use by more than 200K users; 2) Another fully featured unofficial client for Blackberry 10.
 
 ## Quickstart
 
@@ -31,7 +29,7 @@ Install using setup.py to pull all python dependencies
 
 ### Linux
 
-You need to have installed python headers (from probably python-dev package) and ncurses-dev, then run
+You need to have installed Python headers (probably from python-dev package) and ncurses-dev, then run
 ```
 python3 setup.py install
 ```

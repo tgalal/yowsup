@@ -6,7 +6,7 @@ class S40YowsupEnv(YowsupEnv):
     _OS_VERSION = "14.26"
     _DEVICE_NAME = "302"
     _MANUFACTURER = "Nokia"
-    _TOKEN_STRING  = "PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk1478194306452{phone}"
+    _TOKEN_STRING  = "PdA2DJyKoUrwLw1Bg6EIhzh502dF9noR9uFCllGk1494451854337{phone}"
     _AXOLOTL = True
 
     def getVersion(self):
