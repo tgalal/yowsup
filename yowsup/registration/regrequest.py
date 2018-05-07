@@ -24,6 +24,8 @@ from yowsup.common.http.waresponseparser import JSONResponseParser
 from yowsup.common.tools import StorageTools
 import hashlib
 import os
+import logging
+logger = logging.getLogger(__name__)
 
 class WARegRequest(WARequest):
 
@@ -32,7 +34,7 @@ class WARegRequest(WARequest):
         idx = StorageTools.getIdentity(cc + p_in)
 
         if idx is None:
-            raise ValueError("You have to request code first")
+            logger.error("You have to request code first")
 
         self.addParam("cc", cc)
         self.addParam("in", p_in)
