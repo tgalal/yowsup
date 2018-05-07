@@ -1,4 +1,4 @@
-# Yowsup 2  ![ ](https://travis-ci.org/AragurDEV/yowsup.svg?branch=master "Build status")
+# Yowsup 2  [![Build Status](https://travis-ci.org/AragurDEV/yowsup.svg?branch=master)](https://travis-ci.org/AragurDEV/yowsup)
 
 If you need any assistance join our Discord server: **[https://discord.gg/Wa7QSxZ](https://discord.gg/Wa7QSxZ)**
 
