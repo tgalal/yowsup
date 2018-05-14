@@ -189,7 +189,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
             self.handleSenderKeyDistributionMessage(m.sender_key_distribution_message, axolotlAddress)
             logger.debug(m)
-        elif m.HasField("conversation"):
+
+        if m.HasField("conversation"):
             logger.debug("Handle conversation")
             self.handleConversationMessage(node, m.conversation)
         elif m.HasField("contact_message"):
@@ -209,7 +210,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.handleDocumentMessage(node, m.document_message)
         elif m.HasField("video_message"):
             logger.debug("Handle video message")
-            self.handleDocumentMessage(node, m.video_message)
+            self.handleVideoMessage(node, m.video_message)
         elif m.HasField("audio_message"):
             logger.debug("Handle audio message")
             self.handleAudioMessage(node, m.audio_message)
@@ -291,6 +292,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         }, data=videoMessage.jpeg_thumbnail)
         messageNode.addChild(mediaNode)
 
+        logger.debug(mediaNode)
+
         self.toUpper(messageNode)
 
     def handleUrlMessage(self, originalEncNode, urlMessage):
@@ -328,6 +331,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
     def handleLocationMessage(self, originalEncNode, locationMessage):
         messageNode = copy.deepcopy(originalEncNode)
         messageNode["type"] = "media"
+        """
         mediaNode = ProtocolTreeNode("media", {
             "latitude": locationMessage.degrees_latitude,
             "longitude": locationMessage.degress_longitude,
@@ -338,6 +342,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         }, data=locationMessage.jpeg_thumbnail)
         messageNode.addChild(mediaNode)
         self.toUpper(messageNode)
+        """
 
     def handleContactMessage(self, originalEncNode, contactMessage):
         messageNode = copy.deepcopy(originalEncNode)

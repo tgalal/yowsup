@@ -19,7 +19,6 @@ class RemoveGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
     def setGroupProps(self,
                       subject,
                       participants):
-
         assert type(participants) is list, "Must be a list of jids, got %s instead." % type(participants)
 
         self.subject = subject
@@ -47,9 +46,9 @@ class RemoveGroupsNotificationProtocolEntity(GroupsNotificationProtocolEntity):
     @staticmethod
     def fromProtocolTreeNode(node):
         removeNode = node.getChild("remove")
-        participants = {}
+        participants = []
         for p in removeNode.getAllChildren("participant"):
-            participants[p["jid"]] = p["type"]
+            participants.append(p["jid"])
 
         return RemoveGroupsNotificationProtocolEntity(
             node["id"], node["from"], node["t"], node["notify"], node["participant"], node["offline"],
