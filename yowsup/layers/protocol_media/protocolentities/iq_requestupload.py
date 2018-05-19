@@ -20,7 +20,7 @@ class RequestUploadIqProtocolEntity(IqProtocolEntity):
 
     TYPES_MEDIA = (MEDIA_TYPE_AUDIO, MEDIA_TYPE_IMAGE, MEDIA_TYPE_VIDEO, MEDIA_TYPE_DOCUMENT)
 
-    def __init__(self, mediaType, b64Hash = None, size = None, origHash = None, filePath = None ):
+    def __init__(self, mediaType, b64Hash = None, size = None, origHash = None, filePath = None):
         super(RequestUploadIqProtocolEntity, self).__init__("w:m", _type = "set", to = YowConstants.WHATSAPP_SERVER)
 
         assert (b64Hash and size) or filePath, "Either specify hash and size, or specify filepath and let me generate the rest"

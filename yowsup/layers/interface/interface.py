@@ -110,7 +110,7 @@ class YowInterfaceLayer(YowLayer):
         # if axolotlIface:
         #     axolotlIface.encryptMedia(builder)
 
-        iq = RequestUploadIqProtocolEntity(builder.mediaType, filePath = builder.getFilepath(), encrypted = builder.isEncrypted())
+        iq = RequestUploadIqProtocolEntity(builder.mediaType, filePath = builder.getFilepath())
         successFn = lambda resultEntity, requestUploadEntity: self.__onRequestUploadSuccess(resultEntity, requestUploadEntity, builder, success, error, progress)
         errorFn = lambda errorEntity, requestUploadEntity: self.__onRequestUploadError(errorEntity, requestUploadEntity, error)
         self._sendIq(iq, successFn, errorFn)
