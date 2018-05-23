@@ -2,6 +2,7 @@ from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from yowsup.layers.protocol_iq.protocolentities import ErrorIqProtocolEntity
 from yowsup.layers.protocol_iq.protocolentities.iq_result import ResultIqProtocolEntity
 from .protocolentities import *
+from yowsup.common.tools import Jid
 import logging
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,8 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
         AddParticipantsIqProtocolEntity,
         PromoteParticipantsIqProtocolEntity,
         DemoteParticipantsIqProtocolEntity,
-        RemoveParticipantsIqProtocolEntity
+        RemoveParticipantsIqProtocolEntity,
+        RemoveAllParticipantsGroupIqProtocolEntity
     )
 
     def __init__(self):
@@ -53,6 +55,8 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
                 self._sendIq(entity, self.onLeaveGroupSuccess, self.onLeaveGroupFailed)
             elif entity.__class__ == InfoGroupsIqProtocolEntity:
                 self._sendIq(entity, self.onInfoGroupSuccess, self.onInfoGroupFailed)
+            elif entity.__class__ == RemoveAllParticipantsGroupIqProtocolEntity:
+                self._sendIq(entity, self.onRemoveAllParticipantsGroup)
             else:
                 self.entityToLower(entity)
 
@@ -125,6 +129,26 @@ class YowGroupsProtocolLayer(YowProtocolLayer):
     def onInfoGroupFailed(self, node, originalIqEntity):
         logger.error("Group info failed")
         self.toUpper(ErrorIqProtocolEntity.fromProtocolTreeNode(node))
+
+    def onRemoveAllParticipantsGroup(self, node, originalIqEntity):
+        logger.info("Group remove participants success")
+        g = RemoveAllParticipantsResultIqProtocolEntity.fromProtocolTreeNode(node)
+        participants = []
+        for participant in g.getParticipants():
+            isAdm = False
+            for adm in g.getGroupAdmins():
+                if participant == adm:
+                    isAdm = True
+            if isAdm == False:
+                participants.append(Jid.normalize(participant))
+        
+        if len(participants) > 0:
+            entity = RemoveParticipantsIqProtocolEntity(group_jid=Jid.normalize(g.getGroupId()), participantList=participants)
+            entity.toProtocolTreeNode()
+            self.getStack().broadcastEvent(YowLayerEvent(name="org.openwhatsapp.yowsup.event.cli.removeallparticipants", entity=entity))
+        else:
+            self.toUpper(RemoveAllParticipantsResultIqProtocolEntity.fromProtocolTreeNode(node))
+
 
     def recvNotification(self, node):
         if node["type"] == "w:gp2":

@@ -30,6 +30,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     EVENT_LOGIN             = "org.openwhatsapp.yowsup.event.cli.login"
     EVENT_START             = "org.openwhatsapp.yowsup.event.cli.start"
     EVENT_SENDANDEXIT       = "org.openwhatsapp.yowsup.event.cli.sendandexit"
+    EVENT_REMOVE_PARTICIPANTS = "org.openwhatsapp.yowsup.event.cli.removeallparticipants"
 
     MESSAGE_FORMAT          = "[{FROM}({TIME})]:[{MESSAGE_ID}]\t {MESSAGE}"
 
@@ -297,6 +298,17 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             jids = [self.aliasToJid(jid) for jid in jids.split(',')]
             entity = RemoveParticipantsIqProtocolEntity(self.aliasToJid(group_jid), jids)
             self.toLower(entity)
+
+    @clicmd("Remove all participants Group")
+    def group_clean(self, group_jid, jids = None):
+        if self.assertConnected():
+            groups = RemoveAllParticipantsGroupIqProtocolEntity(self.aliasToJid(group_jid))
+            self.toLower(groups)
+
+    @EventCallback(EVENT_REMOVE_PARTICIPANTS)
+    def group_removing_participants(self, layerEvent):
+        if self.assertConnected():
+            self.toLower(layerEvent.getArg("entity"))
 
     @clicmd("Change group subject")
     def group_setSubject(self, group_jid, subject):
