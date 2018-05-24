@@ -138,7 +138,7 @@ class DocumentDownloadableMediaMessageProtocolEntity(DownloadableMediaMessagePro
         return self.cryptKeys and self.mediaKey
 
     def getMediaContent(self):
-        data = urlopen(self.url.decode('ASCII')).read()
+        data = urlopen(self.url).read()
         if self.isEncrypted():
             data = self.decrypt(data, self.mediaKey)
         return data
