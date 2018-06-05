@@ -189,7 +189,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             axolotlAddress = AxolotlAddress(encMessageProtocolEntity.getParticipant(False), 0)
             self.handleSenderKeyDistributionMessage(m.sender_key_distribution_message, axolotlAddress)
             logger.debug(m)
-        elif m.HasField("conversation"):
+
+        if m.HasField("conversation"):
             logger.debug("Handle conversation")
             self.handleConversationMessage(node, m.conversation)
         elif m.HasField("contact_message"):
@@ -209,14 +210,14 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.handleDocumentMessage(node, m.document_message)
         elif m.HasField("video_message"):
             logger.debug("Handle video message")
-            self.handleDocumentMessage(node, m.video_message)
+            self.handleVideoMessage(node, m.video_message)
         elif m.HasField("audio_message"):
             logger.debug("Handle audio message")
             self.handleAudioMessage(node, m.audio_message)
         else:
             logger.debug("Unhandled message")
-            print(m)
-            raise ValueError("Unhandled")
+            logger.debug(m)
+            #raise ValueError("Unhandled")
 
     def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, axolotlAddress):
         groupId = senderKeyDistributionMessage.groupId
@@ -291,6 +292,8 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         }, data=videoMessage.jpeg_thumbnail)
         messageNode.addChild(mediaNode)
 
+        logger.debug(mediaNode)
+
         self.toUpper(messageNode)
 
     def handleUrlMessage(self, originalEncNode, urlMessage):
@@ -314,7 +317,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         mediaNode = ProtocolTreeNode("media", {
             "type": "document",
             "url": documentMessage.url,
-            "mimetype": documentMessage.mime_type,
+            "mimetype": documentMessage.mimeType,
             "title": documentMessage.title,
             "filehash": documentMessage.file_sha256,
             "size": str(documentMessage.file_length),
@@ -326,11 +329,12 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         self.toUpper(messageNode)
 
     def handleLocationMessage(self, originalEncNode, locationMessage):
+        print locationMessage
         messageNode = copy.deepcopy(originalEncNode)
         messageNode["type"] = "media"
         mediaNode = ProtocolTreeNode("media", {
             "latitude": locationMessage.degrees_latitude,
-            "longitude": locationMessage.degress_longitude,
+            "longitude": locationMessage.degrees_longitude,
             "name": "%s %s" % (locationMessage.name, locationMessage.address),
             "url": locationMessage.url,
             "encoding": "raw",
