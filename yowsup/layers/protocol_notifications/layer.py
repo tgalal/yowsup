@@ -17,6 +17,7 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
             self.toLower(entity.toProtocolTreeNode())
 
     def recvNotification(self, node):
+        print node
         if node["type"] == "picture":
             if node.getChild("set"):
                 self.toUpper(SetPictureNotificationProtocolEntity.fromProtocolTreeNode(node))
@@ -33,6 +34,8 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
             # Implemented in respectively the protocol_contacts and protocol_groups layer
             pass
         elif node["type"] == "contacts":
+            pass
+        elif node["type"] == "location":
             pass
         elif node["type"] == "web":
             # Not implemented

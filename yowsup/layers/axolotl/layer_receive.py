@@ -317,7 +317,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         mediaNode = ProtocolTreeNode("media", {
             "type": "document",
             "url": documentMessage.url,
-            "mimetype": documentMessage.mime_type,
+            "mimetype": documentMessage.mimeType,
             "title": documentMessage.title,
             "filehash": documentMessage.file_sha256,
             "size": str(documentMessage.file_length),
@@ -329,12 +329,12 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         self.toUpper(messageNode)
 
     def handleLocationMessage(self, originalEncNode, locationMessage):
+        print locationMessage
         messageNode = copy.deepcopy(originalEncNode)
         messageNode["type"] = "media"
-        """
         mediaNode = ProtocolTreeNode("media", {
             "latitude": locationMessage.degrees_latitude,
-            "longitude": locationMessage.degress_longitude,
+            "longitude": locationMessage.degrees_longitude,
             "name": "%s %s" % (locationMessage.name, locationMessage.address),
             "url": locationMessage.url,
             "encoding": "raw",
@@ -342,7 +342,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
         }, data=locationMessage.jpeg_thumbnail)
         messageNode.addChild(mediaNode)
         self.toUpper(messageNode)
-        """
 
     def handleContactMessage(self, originalEncNode, contactMessage):
         messageNode = copy.deepcopy(originalEncNode)
