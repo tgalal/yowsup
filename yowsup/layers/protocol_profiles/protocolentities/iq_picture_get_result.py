@@ -21,13 +21,13 @@ class ResultGetPictureIqProtocolEntity(PictureIqProtocolEntity):
         return self.preview
 
     def getPictureData(self):
-        return self.pictureData
+        return self.pictureData.encode('latin-1')
 
     def getPictureId(self):
         return self.pictureId
 
     def writeToFile(self, path):
-        with open(path, "w") as outFile:
+        with open(path, "wb") as outFile:
             outFile.write(self.getPictureData())
 
     def toProtocolTreeNode(self):
