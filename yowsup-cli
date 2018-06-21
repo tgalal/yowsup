@@ -209,7 +209,7 @@ class RegistrationArgParser(YowArgParser):
         print(self.resultToString(result))
 
     def handleRegister(self, code, config):
-        from yowsup.registration import WARegRequest
+        from yowsup.registration import WARegRqequest
         self.printInfoText()
         code = code.replace('-', '')
         req = WARegRequest(config["cc"], config["phone"], code)
