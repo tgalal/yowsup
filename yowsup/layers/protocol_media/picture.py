@@ -1,5 +1,5 @@
 from yowsup.layers import YowLayer
-from yowsup import ProtocolTreeNode
+from yowsup.structs import ProtocolTreeNode
 from .mediadownloader import MediaDownloader
 import shutil, os, logging
 logger = logging.getLogger(__name__)
