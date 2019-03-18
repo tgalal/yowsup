@@ -1,5 +1,9 @@
 from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from .protocolentities import *
+import logging
+
+logger = logging.getLogger(__name__)
+
 class YowIbProtocolLayer(YowProtocolLayer):
 
     def __init__(self):
@@ -23,6 +27,8 @@ class YowIbProtocolLayer(YowProtocolLayer):
             self.toUpper(OfflineIbProtocolEntity.fromProtocolTreeNode(node))
         elif node.getChild("account"):
             self.toUpper(AccountIbProtocolEntity.fromProtocolTreeNode(node))
+        elif node.getChild("edge_routing"):
+            logger.debug("ignoring edge_routing ib node for now")
         else:
             raise ValueError("Unkown ib node %s" % node)
 

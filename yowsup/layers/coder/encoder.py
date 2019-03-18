@@ -2,31 +2,12 @@ class WriteEncoder:
 
     def __init__(self, tokenDictionary):
         self.tokenDictionary = tokenDictionary
-        self.streamStarted = False
-
-    def reset(self):
-        self.streamStarted = False
-
-    def getStreamStartBytes(self, domain, resource):
-        data = []
-        self.streamStarted = True
-        data.append(87)
-        data.append(65)
-        data.append(1)
-        data.append(6)
-
-        streamOpenAttributes = {"to": domain, "resource": resource}
-        self.writeListStart(len(streamOpenAttributes) * 2 + 1, data)
-        data.append(1);
-        self.writeAttributes(streamOpenAttributes, data)
-        return data
 
     def protocolTreeNodeToBytes(self, node):
-        outBytes = []
+        outBytes = [0] # flags
         self.writeInternal(node, outBytes)
 
         return outBytes
-
 
     def writeInternal(self, node, data):
 

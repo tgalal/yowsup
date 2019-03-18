@@ -4,16 +4,14 @@ import binascii
 import sys
 class ReadDecoder:
     def __init__(self, tokenDictionary):
-        self.streamStarted = False;
         self.tokenDictionary = tokenDictionary
 
-    def reset(self):
-        self.streamStarted = False
-
     def getProtocolTreeNode(self, data):
-        if not self.streamStarted:
-            return self.streamStart(data)
-        return self.nextTreeInternal(data)
+        if data[0] & self.tokenDictionary.FLAG_DEFLATE != 0:
+            raise ValueError("deflate payloads are not supported")
+        if data[0] & self.tokenDictionary.FLAG_SEGMENTED != 0:
+            raise ValueError("server to client stanza fragmentation not supported")
+        return self.nextTreeInternal(data[1:])
 
     def getToken(self, index, data):
         token = self.tokenDictionary.getToken(index)

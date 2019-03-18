@@ -1,12 +1,14 @@
 from yowsup.layers import YowParallelLayer
 import time, logging, random
 from yowsup.layers import YowLayer
-from yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer
+from yowsup.layers.noise.layer import YowNoiseLayer
+from yowsup.layers.noise.layer_noise_segments import YowNoiseSegmentsLayer
+from yowsup.layers.auth                        import YowAuthenticationProtocolLayer
 from yowsup.layers.coder                       import YowCoderLayer
 from yowsup.layers.logger                      import YowLoggerLayer
 from yowsup.layers.network                     import YowNetworkLayer
 from yowsup.layers.protocol_messages           import YowMessagesProtocolLayer
-from yowsup.layers.stanzaregulator             import YowStanzaRegulator
+# from yowsup.layers.stanzaregulator             import YowStanzaRegulator
 from yowsup.layers.protocol_media              import YowMediaProtocolLayer
 from yowsup.layers.protocol_acks               import YowAckProtocolLayer
 from yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
@@ -99,8 +101,8 @@ class YowStackBuilder(object):
         return (
             YowLoggerLayer,
             YowCoderLayer,
-            YowCryptLayer,
-            YowStanzaRegulator,
+            YowNoiseLayer,
+            YowNoiseSegmentsLayer,
             YowNetworkLayer
         )[::-1]
 
@@ -132,8 +134,6 @@ class YowStack(object):
         self._props = props or {}
 
         self.setProp(YowNetworkLayer.PROP_ENDPOINT, YowConstants.ENDPOINTS[random.randint(0,len(YowConstants.ENDPOINTS)-1)])
-        self.setProp(YowCoderLayer.PROP_DOMAIN, YowConstants.DOMAIN)
-        self.setProp(YowCoderLayer.PROP_RESOURCE, YowsupEnv.getCurrent().getResource())
         self._construct()
 
 

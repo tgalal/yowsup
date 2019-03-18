@@ -1,4 +1,6 @@
 class TokenDictionary:
+    FLAG_SEGMENTED = 0x1
+    FLAG_DEFLATE = 0x2
 
     def __init__(self):
         self.dictionary = [
@@ -503,7 +505,48 @@ class TokenDictionary:
           'srtp',
           'os',
           'browser',
-          'encrypt_group_gen2'
+          'encrypt_group_gen2',
+          "encrypt_audio",
+          "encrypt_blist",
+          "encrypt_contact",
+          "encrypt_location",
+          "encrypt_url",
+          "encrypt_video",
+          "doc_types",
+          "upload_oom_hprof_enabled",
+          "tos",
+          "client",
+          "e2e_audio",
+          "e2e_blists",
+          "e2e_video",
+          "document",
+          "contact",
+          "file_max_size",
+          "small_call_btn",
+          "enable_mp4_operations_mux",
+          "android_vacuuming_enabled",
+          "android_vacuum_experiment_enabled",
+          "aec",
+          "agc",
+          "options",
+          "encode",
+          "bwe",
+          "rc",
+          "ns",
+          "ec_threshold",
+          "ec_off_threshold",
+          "algorithm",
+          "targetlevel",
+          "compressiongain",
+          "limiterenable",
+          "cbr",
+          "complexity",
+          "minfpp",
+          "maxrtt",
+          "low_data_usage_bitrate",
+          "usync",
+          "refresh",
+          "media_max_autodownload"
         ]
 
 

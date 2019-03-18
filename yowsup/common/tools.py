@@ -76,21 +76,6 @@ class StorageTools:
                 out = idFile.read()
         return out
 
-    @staticmethod
-    def writeNonce(phone, nonce):
-        path = StorageTools.getStorageForPhone(phone)
-        with open(os.path.join(path, "nonce"), 'wb') as idFile:
-            idFile.write(nonce.encode("latin-1") if sys.version_info >= (3,0) else nonce)
-
-    @staticmethod
-    def getNonce(phone):
-        path = StorageTools.getStorageForPhone(phone)
-        out = None
-        noncePath = os.path.join(path, "nonce")
-        if os.path.isfile(noncePath):
-            with open(noncePath, 'rb') as idFile:
-                out = idFile.read()
-        return out
 
 class TimeTools:
     @staticmethod
