@@ -2,7 +2,7 @@ from noisewa.protocol import WANoiseProtocol
 from noisewa.streams.segmented.segmented import SegmentedStream
 from noisewa.config.client import ClientConfig
 from dissononce.dh.keypair import KeyPair
-from dissononce.dh.key_public import PublicKey
+from dissononce.dh.x25519.x25519 import PublicKey
 
 import threading
 

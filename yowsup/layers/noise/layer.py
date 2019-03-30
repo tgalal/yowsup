@@ -2,8 +2,8 @@ from noisewa.protocol import WANoiseProtocol
 from noisewa.config.client import ClientConfig
 from noisewa.config.templates.useragent_vbox import VBoxUserAgentConfig
 from noisewa.streams.segmented.blockingqueue import BlockingQueueSegmentedStream
-from dissononce.dh.key_public import PublicKey
-from dissononce.dh.keypair import KeyPair
+from dissononce.dh.x25519.x25519 import PublicKey
+from dissononce.dh.x25519.keypair import KeyPair
 
 from yowsup.layers.noise.workers.handshake import WANoiseProtocolHandshakeWorker
 from yowsup.layers import YowLayer, EventCallback
