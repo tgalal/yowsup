@@ -181,9 +181,6 @@ class RegistrationArgParser(YowArgParser):
         if not "sim_mcc" in config: config["sim_mcc"] = "000"
         if not "sim_mnc" in config: config["sim_mnc"] = "000"
 
-
-
-
         try:
             assert self.args["requestcode"] or self.args["register"], "Must specify one of the modes -r/-R"
             assert "cc"      in config, "Must specify cc (country code)"
@@ -257,8 +254,6 @@ class DemosArgParser(YowArgParser):
                                   help = "Set the environment yowsup simulates",
                                   choices = YowsupEnv.getRegisteredEnvs())
 
-        configGroup.add_argument("-M", "--unmoxie", action="store_true", help="Disable E2E Encryption")
-
         cmdopts = self.add_argument_group("Command line interface demo")
         cmdopts.add_argument('-y', '--yowsup', action = "store_true", help = "Start the Yowsup command line client")
 
@@ -307,7 +302,7 @@ class DemosArgParser(YowArgParser):
             print("Error: You must specify a configuration method")
             sys.exit(1)
         self.printInfoText()
-        stack = cli.YowsupCliStack(credentials, not self.args["unmoxie"])
+        stack = cli.YowsupCliStack(credentials)
         stack.start()
 
     def startEcho(self):
