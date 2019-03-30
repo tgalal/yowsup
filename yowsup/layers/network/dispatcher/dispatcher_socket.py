@@ -2,6 +2,7 @@ from yowsup.layers.network.dispatcher.dispatcher import YowConnectionDispatcher
 import socket
 import threading
 import logging
+import traceback
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +44,9 @@ class SocketConnectionDispatcher(YowConnectionDispatcher):
                     break
             self.connectionCallbacks.onDisconnected()
         except Exception as e:
+            # import traceback
+            #
+            traceback.print_exc()
             logger.error(e)
             self.connectionCallbacks.onConnectionError(e)
         finally:
