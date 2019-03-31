@@ -49,9 +49,6 @@ class NotificationProtocolEntity(ProtocolEntity):
        
         return self._createProtocolTreeNode(attribs, children = None, data = None)
 
-    def ack(self):
-        return OutgoingReceiptProtocolEntity(self.getId(), self.getFrom())
-
     @staticmethod
     def fromProtocolTreeNode(node):
         return NotificationProtocolEntity(

@@ -487,8 +487,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             self.output(notificationData, tag = "Notification")
         else:
             self.output("From :%s, Type: %s" % (self.jidToAlias(notification.getFrom()), notification.getType()), tag = "Notification")
-        if self.sendReceipts:
-            self.toLower(notification.ack())
 
     @ProtocolEntityCallback("message")
     def onMessage(self, message):
