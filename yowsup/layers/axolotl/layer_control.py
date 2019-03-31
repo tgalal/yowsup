@@ -1,7 +1,6 @@
 from .layer_base import AxolotlBaseLayer
 from yowsup.layers import YowLayerEvent, EventCallback
 from yowsup.layers.network.layer import YowNetworkLayer
-from axolotl.util.keyhelper import KeyHelper
 from yowsup.layers.axolotl.protocolentities import *
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from yowsup.layers.protocol_acks.protocolentities import OutgoingAckProtocolEntity
@@ -9,26 +8,15 @@ from axolotl.util.hexutil import HexUtil
 from axolotl.ecc.curve import Curve
 import logging
 import binascii
-import sys
 
 logger = logging.getLogger(__name__)
 
-class AxolotlControlLayer(AxolotlBaseLayer):
-    _STATE_INIT = 0
-    _STATE_GENKEYS = 1
-    _STATE_HASKEYS = 2
-    _COUNT_PREKEYS = 200
-    EVENT_PREKEYS_SET = "org.openwhatsapp.yowsup.events.axololt.setkeys"
 
+class AxolotlControlLayer(AxolotlBaseLayer):
     def __init__(self):
         super(AxolotlControlLayer, self).__init__()
-        self.state = self.__class__._STATE_INIT
-
-    def onNewStoreSet(self, store):
-        super(AxolotlControlLayer, self).onNewStoreSet(store)
-        if store is not None:
-            self.state = self.__class__._STATE_HASKEYS if  store.getLocalRegistrationId() is not None \
-                else self.__class__._STATE_INIT
+        self._unsent_prekeys = []
+        self._reboot_connection = False
 
     def send(self, node):
         self.toLower(node)
@@ -43,86 +31,73 @@ class AxolotlControlLayer(AxolotlBaseLayer):
                 return
             self.toUpper(protocolTreeNode)
 
-    def isInitState(self):
-        return self.store == None or self.state == self.__class__._STATE_INIT
-
-    def isGenKeysState(self):
-        return self.state == self.__class__._STATE_GENKEYS
-
-
     def onEncryptNotification(self, protocolTreeNode):
         entity = EncryptNotification.fromProtocolTreeNode(protocolTreeNode)
         ack = OutgoingAckProtocolEntity(protocolTreeNode["id"], "notification", protocolTreeNode["type"], protocolTreeNode["from"])
         self.toLower(ack.toProtocolTreeNode())
-        self.sendKeys(fresh=False, countPreKeys = self.__class__._COUNT_PREKEYS - entity.getCount())
-
-    @EventCallback(EVENT_PREKEYS_SET)
-    def onPreKeysSet(self, yowLayerEvent):
-        self.sendKeys(fresh=False)
+        self.flush_keys(
+            self.manager.level_prekeys(force=True)
+        )
 
     @EventCallback(YowNetworkLayer.EVENT_STATE_CONNECTED)
-    def onConnected(self, yowLayerEvent):
-        if self.isInitState():
+    def on_connected(self, yowLayerEvent):
+        super(AxolotlControlLayer, self).on_connected(yowLayerEvent)
+        self.manager.level_prekeys()
+        self._unsent_prekeys.extend(self.manager.load_unsent_prekeys())
+        if len(self._unsent_prekeys):
             self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
 
     @EventCallback(YowAuthenticationProtocolLayer.EVENT_AUTHED)
     def onAuthed(self, yowLayerEvent):
-        if yowLayerEvent.getArg("passive") and self.isInitState():
-            logger.info("Axolotl layer is generating keys")
-            self.sendKeys()
+        if yowLayerEvent.getArg("passive") and len(self._unsent_prekeys):
+            logger.debug("SHOULD FLUSH KEYS %d NOW!!" % len(self._unsent_prekeys))
+            self.flush_keys(self._unsent_prekeys[:], reboot_connection=True)
+            self._unsent_prekeys.clear()
 
     @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
-    def onDisconnected(self, yowLayerEvent):
-        if self.isGenKeysState():
+    def on_disconnected(self, yowLayerEvent):
+        super(AxolotlControlLayer, self).on_disconnected(yowLayerEvent)
+        logger.debug(("Disconnected, reboot_connect? = %s" % self._reboot_connection))
+        if self._reboot_connection:
+            self._reboot_connection = False
             #we requested this disconnect in this layer to switch off passive
             #no need to traverse it to upper layers?
             self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, False)
-            self.state = self.__class__._STATE_HASKEYS
             self.getLayerInterface(YowNetworkLayer).connect()
-        else:
-            self.store = None
-    ### keys set and get
-    def sendKeys(self, fresh = True, countPreKeys = _COUNT_PREKEYS):
-        identityKeyPair     = KeyHelper.generateIdentityKeyPair() if fresh else self.store.getIdentityKeyPair()
-        registrationId      = KeyHelper.generateRegistrationId() if fresh else self.store.getLocalRegistrationId()
-        preKeys             = KeyHelper.generatePreKeys(KeyHelper.getRandomSequence(), countPreKeys)
-        signedPreKey        = KeyHelper.generateSignedPreKey(identityKeyPair, KeyHelper.getRandomSequence(65536))
+
+    def flush_keys(self, prekeys, reboot_connection=False):
+        """
+        sends prekeys
+        :return:
+        :rtype:
+        """
+        signedPrekey = self.manager.generate_signed_prekey()
         preKeysDict = {}
-        for preKey in preKeys:
-            keyPair = preKey.getKeyPair()
-            preKeysDict[self.adjustId(preKey.getId())] = self.adjustArray(keyPair.getPublicKey().serialize()[1:])
+        for prekey in prekeys:
+            keyPair = prekey.getKeyPair()
+            preKeysDict[self.adjustId(prekey.getId())] = self.adjustArray(keyPair.getPublicKey().serialize()[1:])
 
-        signedKeyTuple = (self.adjustId(signedPreKey.getId()),
-                          self.adjustArray(signedPreKey.getKeyPair().getPublicKey().serialize()[1:]),
-                          self.adjustArray(signedPreKey.getSignature()))
+        signedKeyTuple = (self.adjustId(signedPrekey.getId()),
+                          self.adjustArray(signedPrekey.getKeyPair().getPublicKey().serialize()[1:]),
+                          self.adjustArray(signedPrekey.getSignature()))
 
-        setKeysIq = SetKeysIqProtocolEntity(self.adjustArray(identityKeyPair.getPublicKey().serialize()[1:]), signedKeyTuple, preKeysDict, Curve.DJB_TYPE, self.adjustId(registrationId))
+        setKeysIq = SetKeysIqProtocolEntity(
+            self.adjustArray(
+                self.manager.identity.getPublicKey().serialize()[1:]
+            ),
+            signedKeyTuple,
+            preKeysDict,
+            Curve.DJB_TYPE,
+            self.adjustId(self.manager.registration_id)
+        )
 
-        onResult = lambda _, __: self.persistKeys(registrationId, identityKeyPair, preKeys, signedPreKey, fresh)
+        onResult = lambda _, __: self.on_keys_flushed(prekeys, reboot_connection=reboot_connection)
         self._sendIq(setKeysIq, onResult, self.onSentKeysError)
 
-    def persistKeys(self, registrationId, identityKeyPair, preKeys, signedPreKey, fresh):
-        total = len(preKeys)
-        curr = 0
-        prevPercentage = 0
-
-        if fresh:
-            self.store.storeLocalData(registrationId, identityKeyPair)
-        self.store.storeSignedPreKey(signedPreKey.getId(), signedPreKey)
-
-        for preKey in preKeys:
-            self.store.storePreKey(preKey.getId(), preKey)
-            curr += 1
-            currPercentage = int((curr * 100) / total)
-            if currPercentage == prevPercentage:
-                continue
-            prevPercentage = currPercentage
-            #logger.debug("%s" % currPercentage + "%")
-            sys.stdout.write("Storing prekeys %d%% \r" % (currPercentage))
-            sys.stdout.flush()
-
-        if fresh:
-            self.state = self.__class__._STATE_GENKEYS
+    def on_keys_flushed(self, prekeys, reboot_connection):
+        self.manager.set_prekeys_as_sent(prekeys)
+        if reboot_connection:
+            self._reboot_connection = True
             self.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_DISCONNECT))
 
     def onSentKeysError(self, errorNode, keysEntity):

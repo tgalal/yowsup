@@ -1,24 +1,22 @@
-from yowsup.layers.axolotl.store.sqlite.liteaxolotlstore import LiteAxolotlStore
 from yowsup.layers import YowProtocolLayer
-from yowsup.common.tools import StorageTools
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from yowsup.layers.axolotl.protocolentities import *
+from yowsup.axolotl.factory import AxolotlManagerFactory
+from yowsup.layers.network.layer import YowNetworkLayer
+from yowsup.layers import EventCallback
 
-from axolotl.sessionbuilder import SessionBuilder
-from axolotl.untrustedidentityexception import UntrustedIdentityException
+from yowsup.axolotl import exceptions
 from yowsup.layers.axolotl.props import PROP_IDENTITY_AUTOTRUST
 
 import logging
 logger = logging.getLogger(__name__)
+
+
 class AxolotlBaseLayer(YowProtocolLayer):
-    _DB = "axolotl.db"
     def __init__(self):
         super(AxolotlBaseLayer, self).__init__()
-        self._store = None
+        self._manager = None  # type: yowsup.axolotl.manager.AxolotlManager | None
         self.skipEncJids = []
-
-    def onNewStoreSet(self, store):
-        pass
 
     def send(self, node):
         pass
@@ -27,24 +25,22 @@ class AxolotlBaseLayer(YowProtocolLayer):
         self.processIqRegistry(node)
 
     @property
-    def store(self):
-        try:
-            if self._store is None:
-                self.store = LiteAxolotlStore(
-                    StorageTools.constructPath(
-                        self.getProp(
-                            YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0],
-                        self.__class__._DB
-                    )
-                )
-            return self._store
-        except AttributeError:
-            return None
+    def manager(self):
+        """
+        :return:
+        :rtype: AxolotlManager
+        """
+        return self._manager
 
-    @store.setter
-    def store(self, store):
-        self._store = store
-        self.onNewStoreSet(self._store)
+    @EventCallback(YowNetworkLayer.EVENT_STATE_CONNECTED)
+    def on_connected(self, yowLayerEvent):
+        self._manager = AxolotlManagerFactory().get_manager(
+                self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0]
+        )
+
+    @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
+    def on_disconnected(self, yowLayerEvent):
+        self._manager = None
 
     def getKeysFor(self, jids, resultClbk, errorClbk = None):
         def onSuccess(resultNode, getKeysEntity):
@@ -60,16 +56,11 @@ class AxolotlBaseLayer(YowProtocolLayer):
 
                 recipient_id = jid.split('@')[0]
                 preKeyBundle = entity.getPreKeyBundleFor(jid)
-                sessionBuilder = SessionBuilder(self.store, self.store, self.store, self.store, recipient_id, 1)
                 try:
-                    sessionBuilder.processPreKeyBundle(preKeyBundle)
+                    self.manager.create_session(recipient_id, preKeyBundle,
+                                                autotrust=self.getProp(PROP_IDENTITY_AUTOTRUST, False))
                     successJids.append(jid)
-                except UntrustedIdentityException as e:
-                    if self.getProp(PROP_IDENTITY_AUTOTRUST, False):
-                        logger.warning("Autotrusting identity for %s" % e.getName())
-                        self.store.saveIdentity(e.getName(), e.getIdentityKey())
-                        successJids.append(jid)
-                    else:
+                except exceptions.UntrustedIdentityException as e:
                         errorJids[jid] = e
                         logger.error(e)
                         logger.warning("Ignoring message with untrusted identity")

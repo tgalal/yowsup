@@ -1,6 +1,7 @@
 from axolotl.state.identitykeystore import IdentityKeyStore
 from axolotl.identitykey import IdentityKey
 from axolotl.identitykeypair import IdentityKeyPair
+from axolotl.util.keyhelper import KeyHelper
 from axolotl.ecc.djbec import *
 import sys
 
@@ -16,10 +17,10 @@ class LiteIdentityKeyStore(IdentityKeyStore):
                        "registration_id INTEGER, public_key BLOB, private_key BLOB,"
                        "next_prekey_id INTEGER, timestamp INTEGER);")
 
-        #identityKeyPairKeys = Curve.generateKeyPair()
-        #self.identityKeyPair = IdentityKeyPair(IdentityKey(identityKeyPairKeys.getPublicKey()),
-        #                                       identityKeyPairKeys.getPrivateKey())
-        # self.localRegistrationId = KeyHelper.generateRegistrationId()
+        if self.getLocalRegistrationId() is None or self.getIdentityKeyPair() is None:
+            identity = KeyHelper.generateIdentityKeyPair()
+            registration_id = KeyHelper.generateRegistrationId()
+            self._storeLocalData(registration_id, identity)
 
     def getIdentityKeyPair(self):
         q = "SELECT public_key, private_key FROM identities WHERE recipient_id = -1"
@@ -27,8 +28,10 @@ class LiteIdentityKeyStore(IdentityKeyStore):
         c.execute(q)
         result = c.fetchone()
 
-        publicKey, privateKey = result
-        return IdentityKeyPair(IdentityKey(DjbECPublicKey(publicKey[1:])), DjbECPrivateKey(privateKey))
+        if result:
+            publicKey, privateKey = result
+            return IdentityKeyPair(IdentityKey(DjbECPublicKey(publicKey[1:])), DjbECPrivateKey(privateKey))
+        return None
 
     def getLocalRegistrationId(self):
         q = "SELECT registration_id FROM identities WHERE recipient_id = -1"
@@ -38,7 +41,7 @@ class LiteIdentityKeyStore(IdentityKeyStore):
         return result[0] if result else None
 
 
-    def storeLocalData(self, registrationId, identityKeyPair):
+    def _storeLocalData(self, registrationId, identityKeyPair):
         q = "INSERT INTO identities(recipient_id, registration_id, public_key, private_key) VALUES(-1, ?, ?, ?)"
         c = self.dbConn.cursor()
         pubKey = identityKeyPair.getPublicKey().getPublicKey().serialize()

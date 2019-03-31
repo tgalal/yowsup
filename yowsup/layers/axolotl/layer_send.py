@@ -3,12 +3,7 @@ from yowsup.layers.protocol_messages.proto.wa_pb2 import SenderKeyDistributionMe
 from yowsup.layers.axolotl.protocolentities import *
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from yowsup.layers.protocol_groups.protocolentities import InfoGroupsIqProtocolEntity, InfoGroupsResultIqProtocolEntity
-from axolotl.sessioncipher import SessionCipher
-from axolotl.groups.groupcipher import GroupCipher
-from axolotl.axolotladdress import AxolotlAddress
 from axolotl.protocol.whispermessage import WhisperMessage
-from axolotl.groups.senderkeyname import SenderKeyName
-from axolotl.groups.groupsessionbuilder import GroupSessionBuilder
 
 import logging
 from random import randint
@@ -23,10 +18,9 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         super(AxolotlSendLayer, self).__init__()
 
         self.sessionCiphers = {}
-        self.groupSessionBuilder = None
         self.groupCiphers = {}
         '''
-            Sent messages will be put in skalti entQueue until we receive a receipt for them.
+            Sent messages will be put in Queue until we receive a receipt for them.
             This is for handling retry receipts which requires re-encrypting and resend of the original message
             As the receipt for a sent message might arrive at a different yowsup instance,
             ideally the original message should be fetched from a persistent storage.
@@ -35,9 +29,6 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         '''
         self.sentQueue = []
 
-    def onNewStoreSet(self, store):
-        if store is not None:
-            self.groupSessionBuilder = GroupSessionBuilder(store)
 
     def __str__(self):
         return "Axolotl Layer"
@@ -91,16 +82,11 @@ class AxolotlSendLayer(AxolotlBaseLayer):
             self.toLower(node) # skip media enc for now, groups and non groups
         elif isGroup:
             self.sendToGroup(node, retryReceiptEntity)
-        elif self.store.containsSession(recipient_id, 1):
+        elif self.manager.session_exists(recipient_id):
             self.sendToContact(node)
         else:
             self.getKeysFor([node["to"]], lambda successJids, b: self.sendToContact(node) if len(successJids) == 1 else self.toLower(node), lambda: self.toLower(node))
 
-
-
-    def getPadding(self):
-        num = randint(1,255)
-        return bytearray([num] * num)
 
     def groupSendSequence(self):
         """
@@ -149,10 +135,10 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
     def sendToContact(self, node):
         recipient_id = node["to"].split('@')[0]
-        cipher = self.getSessionCipher(recipient_id)
-        messageData = self.serializeToProtobuf(node).SerializeToString() + self.getPadding()
-
-        ciphertext = cipher.encrypt(messageData)
+        ciphertext = self.manager.encrypt(
+            recipient_id,
+            self.serializeToProtobuf(node).SerializeToString()
+        )
         mediaType = node.getChild("media")["type"] if node.getChild("media") else None
 
         return self.sendEncEntities(node, [EncProtocolEntity(EncProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncProtocolEntity.TYPE_PKMSG, 2, ciphertext.serialize(), mediaType)])
@@ -160,20 +146,16 @@ class AxolotlSendLayer(AxolotlBaseLayer):
     def sendToGroupWithSessions(self, node, jidsNeedSenderKey = None, retryCount=0):
         jidsNeedSenderKey = jidsNeedSenderKey or []
         groupJid = node["to"]
-        ownNumber = self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(False)
-        senderKeyName = SenderKeyName(groupJid, AxolotlAddress(ownNumber, 0))
-        cipher = self.getGroupCipher(groupJid, ownNumber)
         encEntities = []
         if len(jidsNeedSenderKey):
-            senderKeyDistributionMessage = self.groupSessionBuilder.create(senderKeyName)
+            senderKeyDistributionMessage = self.manager.group_create_skmsg(groupJid)
             for jid in jidsNeedSenderKey:
-                sessionCipher = self.getSessionCipher(jid.split('@')[0])
                 message =  self.serializeSenderKeyDistributionMessageToProtobuf(node["to"], senderKeyDistributionMessage)
 
                 if retryCount > 0:
                     message = self.serializeToProtobuf(node, message)
 
-                ciphertext = sessionCipher.encrypt(message.SerializeToString() + self.getPadding())
+                ciphertext = self.manager.encrypt(jid.split('@')[0], message.SerializeToString())
                 encEntities.append(
                     EncProtocolEntity(
                             EncProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncProtocolEntity.TYPE_PKMSG
@@ -183,7 +165,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
         if not retryCount:
             messageData = self.serializeToProtobuf(node).SerializeToString()
-            ciphertext = cipher.encrypt(messageData + self.getPadding())
+            ciphertext = self.manager.group_encrypt(groupJid, messageData)
             mediaType = node.getChild("media")["type"] if node.getChild("media") else None
 
             encEntities.append(EncProtocolEntity(EncProtocolEntity.TYPE_SKMSG, 2, ciphertext, mediaType))
@@ -193,7 +175,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
     def ensureSessionsAndSendToGroup(self, node, jids):
         jidsNoSession = []
         for jid in jids:
-            if not self.store.containsSession(jid.split('@')[0], 1):
+            if not self.manager.session_exists(jid.split('@')[0]):
                 jidsNoSession.append(jid)
 
         if len(jidsNoSession):
@@ -203,10 +185,9 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
     def sendToGroup(self, node, retryReceiptEntity = None):
         groupJid = node["to"]
-        ownNumber = self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(False)
         ownJid = self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(True)
-        senderKeyName = SenderKeyName(node["to"], AxolotlAddress(ownNumber, 0))
-        senderKeyRecord = self.store.loadSenderKey(senderKeyName)
+
+        senderKeyRecord = self.manager.load_senderkey(node["to"])
 
 
         def sendToGroup(resultNode, requestEntity):
@@ -304,21 +285,3 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         # m.conversation = text
         return m
     ###
-
-    def getSessionCipher(self, recipientId):
-        if recipientId in self.sessionCiphers:
-            sessionCipher = self.sessionCiphers[recipientId]
-        else:
-            sessionCipher = SessionCipher(self.store, self.store, self.store, self.store, recipientId, 1)
-            self.sessionCiphers[recipientId] = sessionCipher
-
-        return sessionCipher
-
-    def getGroupCipher(self, groupId, senderId):
-        senderKeyName = SenderKeyName(groupId, AxolotlAddress(senderId, 0))
-        if senderKeyName in self.groupCiphers:
-            groupCipher = self.groupCiphers[senderKeyName]
-        else:
-            groupCipher = GroupCipher(self.store, senderKeyName)
-            self.groupCiphers[senderKeyName] = groupCipher
-        return groupCipher

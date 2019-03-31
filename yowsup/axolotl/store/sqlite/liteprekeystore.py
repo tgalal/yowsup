@@ -22,6 +22,29 @@ class LitePreKeyStore(PreKeyStore):
 
         return PreKeyRecord(serialized = result[0])
 
+    def loadUnsentPendingPreKeys(self):
+        q = "SELECT record FROM prekeys WHERE sent_to_server is NULL or sent_to_server = ?"
+
+        cursor = self.dbConn.cursor()
+        cursor.execute(q, (0,))
+
+        result = cursor.fetchall()
+
+        return [PreKeyRecord(serialized=result[0]) for result in result]
+
+    def setAsSent(self, prekeyIds):
+        """
+        :param preKeyIds:
+        :type preKeyIds: list
+        :return:
+        :rtype:
+        """
+        for prekeyId in prekeyIds:
+            q = "UPDATE prekeys SET sent_to_server = ? WHERE prekey_id = ?"
+            cursor = self.dbConn.cursor()
+            cursor.execute(q, (1, prekeyId))
+        self.dbConn.commit()
+
     def loadPendingPreKeys(self):
         q = "SELECT record FROM prekeys"
         cursor = self.dbConn.cursor()
