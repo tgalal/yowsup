@@ -304,8 +304,15 @@ class DemosArgParser(YowArgParser):
         syncContacts = self.add_argument_group("Sync contacts")
         syncContacts.add_argument('-S','--sync', action = "store" , help = "Sync ( check valid ) whatsapp contacts",metavar =("contacts"))
 
+        logging = self.add_argument_group("Logging options")
+        logging.add_argument("--log-dissononce", action="store_true", help="Configure logging for dissononce/noise")
+
     def process(self):
         super(DemosArgParser, self).process()
+
+        if self.args["log_dissononce"]:
+            from dissononce import logger as dissnonce_logger
+            dissnonce_logger.setLevel(logger.level)
 
         if self.args["yowsup"]:
             self.startCmdline()
