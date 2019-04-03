@@ -3,22 +3,29 @@ from yowsup.config.base import config
 
 class Config(config.Config):
 
-    def __init__(self,
-                 phone=None,
-                 cc=None,
-                 password=None,
-                 id=None,
-                 mcc=None,
-                 mnc=None,
-                 sim_mcc=None,
-                 sim_mnc=None
-                 ):
+    def __init__(
+            self,
+            phone=None,
+            cc=None,
+            password=None,
+            id=None,
+            mcc=None,
+            mnc=None,
+            sim_mcc=None,
+            sim_mnc=None,
+            client_static_keypair=None,
+            server_static_public=None,
+            device_id=None
+    ):
         super(Config, self).__init__(1)
 
-        self._phone = str(phone) # type: str
+        self._phone = str(phone)  # type: str
         self._cc = cc  # type: int
         self._password = password  # type: str
         self._id = id
+        self._client_static_keypair = client_static_keypair
+        self._server_static_public = server_static_public
+        self._device_id = device_id
         self._mcc = mcc
         self._mnc = mnc
         self._sim_mcc = sim_mcc
@@ -88,3 +95,27 @@ class Config(config.Config):
     @property
     def id(self):
         return self._id
+
+    @property
+    def client_static_keypair(self):
+        return self._client_static_keypair
+
+    @client_static_keypair.setter
+    def client_static_keypair(self, value):
+        self._client_static_keypair = value
+
+    @property
+    def server_static_public(self):
+        return self._server_static_public
+
+    @server_static_public.setter
+    def server_static_public(self, value):
+        self._server_static_public = value
+
+    @property
+    def device_id(self):
+        return self._device_id
+
+    @device_id.setter
+    def device_id(self, value):
+        self._device_id = value
