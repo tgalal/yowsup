@@ -183,9 +183,33 @@ class YowArgParser(argparse.ArgumentParser):
             print(HELP_CONFIG)
             sys.exit(0)
 
-
     def printInfoText(self):
         print(CR_TEXT.format(cliVersion=__version__, yowsupVersion=yowsup.__version__))
+
+
+class ConfigArgParser(YowArgParser):
+    def __init__(self, *args, **kwargs):
+        super(ConfigArgParser, self).__init__(*args, **kwargs)
+        self.description = "Yowsup configuration actions"
+
+        gp = self.add_argument_group("Yowsup Config Actions")
+        exgp = gp.add_mutually_exclusive_group()
+
+        exgp.add_argument("-p", '--preview-config', help='Preview yowsup config', action="store", choices=("json", "keyval"), required=False)
+        exgp.add_argument("-w", '--write', help='Write configuration', action="store_true", required=False)
+
+    def process(self):
+        super(ConfigArgParser, self).process()
+        preview_format =  self.args["preview_config"]
+        if preview_format == "json":
+            print(self._config_manager.config_to_str(self._config, ConfigManager.TYPE_JSON))
+        elif preview_format == "keyval":
+            print(self._config_manager.config_to_str(self._config, ConfigManager.TYPE_KEYVAL))
+        elif preview_format == None:
+            pass
+
+        return True
+
 
 class RegistrationArgParser(YowArgParser):
     def __init__(self, *args, **kwargs):
@@ -356,6 +380,7 @@ if __name__ == "__main__":
     modeDict = {
         "demos":        DemosArgParser,
         "registration": RegistrationArgParser,
+        "config": ConfigArgParser,
         "version":      None
     }
 
