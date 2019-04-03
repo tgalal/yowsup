@@ -5,24 +5,29 @@ from yowsup.registration.existsrequest import WAExistsRequest
 from yowsup.env import YowsupEnv
 import random, hashlib, os
 
+
 class WACodeRequest(WARequest):
-
-    def __init__(self,cc, p_in, mcc= "000", mnc = "000", sim_mcc = "000", sim_mnc = "000", method="sms"):
+    def __init__(self, method, config):
+        """
+        :type method: str
+        :param config:
+        :type config: yowsup.config.vx.config.Config
+        """
         super(WACodeRequest,self).__init__()
-        idx = StorageTools.getIdentity(cc + p_in)
+        self._config = config
+        idx = StorageTools.getIdentity(config.phone)
 
-        self.p_in = p_in
+        self._p_in = str(config.phone)[len(str(config.cc)):]
         self.__id = idx
-        self.cc = cc
 
-        self.addParam("cc", cc)
-        self.addParam("in", p_in)
+        self.addParam("cc", config.cc)
+        self.addParam("in", self._p_in)
         self.addParam("lc", "GB")
         self.addParam("lg", "en")
-        self.addParam("sim_mcc", sim_mcc.zfill(3))
-        self.addParam("sim_mnc", sim_mnc.zfill(3))
-        self.addParam("mcc", sim_mcc.zfill(3))
-        self.addParam("mnc", sim_mnc.zfill(3))
+        self.addParam("sim_mcc", config.sim_mcc.zfill(3))
+        self.addParam("sim_mnc", config.sim_mnc.zfill(3))
+        self.addParam("mcc", config.mcc.zfill(3))
+        self.addParam("mnc", config.mnc.zfill(3))
         self.addParam("method", method)
 
         self.addParam("mistyped", "6")
@@ -38,7 +43,7 @@ class WACodeRequest(WARequest):
         self.addParam("extexist", "1")
         self.addParam("extstate", "1")
 
-        self.addParam("token", YowsupEnv.getCurrent().getToken(p_in))
+        self.addParam("token", YowsupEnv.getCurrent().getToken(self._p_in))
 
         self.url = "v.whatsapp.net/v2/code"
 
@@ -49,7 +54,7 @@ class WACodeRequest(WARequest):
 
     def send(self, parser = None):
         if self.__id is not None:
-            request = WAExistsRequest(self.cc, self.p_in, self.__id)
+            request = WAExistsRequest(self._config, self.__id)
             result = request.send()
             if result["status"] == "ok":
                 return result
@@ -61,5 +66,5 @@ class WACodeRequest(WARequest):
 
         res = super(WACodeRequest, self).send(parser)
         if res["status"] == "sent":
-            StorageTools.writeIdentity(self.cc + self.p_in, self.__id)
+            StorageTools.writeIdentity(self._config.cc + self._p_in, self.__id)
         return res

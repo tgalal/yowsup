@@ -4,6 +4,10 @@ __author__ = "Tarek Galal"
 
 import sys, argparse, yowsup, logging
 from yowsup.env import YowsupEnv
+from yowsup.config.manager import ConfigManager
+
+from yowsup.config.v1.config import Config
+
 
 HELP_CONFIG = """
 ############# Yowsup Configuration Sample ###########
@@ -58,9 +62,10 @@ logger.addHandler(ch)
 class YowArgParser(argparse.ArgumentParser):
     def __init__(self, *args, **kwargs):
         super(YowArgParser, self).__init__(*args, **kwargs)
+        self._config_manager = ConfigManager()
         self.add_argument("-v", "--version",
-            action = "store_true",
-            help = "Print version info and exit"
+            action="store_true",
+            help="Print version info and exit"
         )
 
         self.add_argument("-d", "--debug",
@@ -69,34 +74,109 @@ class YowArgParser(argparse.ArgumentParser):
         )
 
         self.add_argument("--help-config", help = "Prints a config file sample", action = "store_true")
+
+        config_group = self.add_argument_group(
+            "Configuration options",
+            description="Only some of the configuration parameters are required depending on the action being "
+                        "performed using yowsup"
+        )
+        config_group.add_argument(
+            "-c", '--config',
+            metavar="path",
+            action="store",
+            help="(optional) Path to config file. Other configuration arguments have higher priority if given, and "
+                 "will override those specified in the config file."
+        )
+        config_group.add_argument(
+            '--config-env',
+             action = "store",
+             help = "Set the environment yowsup simulates",
+             choices = YowsupEnv.getRegisteredEnvs()
+        )
+        config_group.add_argument(
+            '--config-mcc',
+             action = "store",
+             help = "Mobile Country Code. Check your mcc here: https://en.wikipedia.org/wiki/Mobile_country_code"
+        )
+        config_group.add_argument(
+            '--config-mnc',
+             action = "store",
+             help = "Mobile Network Code. Check your mnc from https://en.wikipedia.org/wiki/Mobile_country_code"
+        )
+        config_group.add_argument(
+            '--config-sim-mcc',
+            action = "store",
+            help = "Mobile Country Code. Check your mcc here: https://en.wikipedia.org/wiki/Mobile_country_code"
+        )
+        config_group.add_argument(
+            '--config-sim-mnc',
+            action = "store",
+            help = "Mobile Network Code. Check your mnc from https://en.wikipedia.org/wiki/Mobile_country_code"
+        )
+        config_group.add_argument(
+            '--config-phone',
+             action= "store",
+             help = " Your full phone number including the country code you defined in 'cc',"
+                    " without preceeding '+' or '00'"
+        )
+        config_group.add_argument(
+            '--config-cc',
+             action = "store",
+             help = "Country code. See http://www.ipipi.com/networkList.do. This is now required"
+        )
+        config_group.add_argument(
+            '--config-password',
+            action= "store",
+            help = "Base64 encoded password for the specified phone number"
+        )
         self.args = {}
+        self._config = None
+
     def getArgs(self):
         return self.parse_args()
 
-    def getConfig(self, config):
-        try:
-            f = open(config)
-            out = {}
-            for l in f:
-                line = l.strip()
-                if len(line) and line[0] not in ('#',';'):
-                    prep = line.split('#', 1)[0].split(';', 1)[0].split('=', 1)
-                    varname = prep[0].strip()
-                    val = prep[1].strip()
-                    out[varname.replace('-', '_')] = val
-            return out
-        except IOError:
-            print("Invalid config path: %s" % config)
-            sys.exit(1)
-
     def process(self):
         self.args = vars(self.parse_args())
+
         if self.args["debug"]:
             logger.setLevel(logging.DEBUG)
             yowlogger.setLevel(level = logging.DEBUG)
         else:
             logger.setLevel(logging.INFO)
             yowlogger.setLevel(level = logging.INFO)
+
+        config_phone = self.args["config_phone"]
+
+        if self.args["config"]:
+            self._config = self._config_manager.load_path(self.args["config"])
+        elif config_phone:
+            self._config = self._config_manager.load(config_phone)
+        else:
+            raise ValueError("Must specify either --config or --config-phone")
+
+        if self._config is None:
+            self._config = Config()
+
+        if config_phone is not None:
+            self._config.phone = config_phone
+
+        if self.args["config_cc"]:
+            self._config.cc = self.args["config_cc"]
+
+        if self.args["config_mcc"]:
+            self._config.mcc = self.args["config_mcc"]
+
+        if self.args["config_mnc"]:
+            self._config.mnc = self.args["config_mnc"]
+
+        if self.args["config_sim_mcc"]:
+            self._config.simc_mcc = self.args["config_sim_mcc"]
+
+        if self.args["config_sim_mnc"]:
+            self._config.sim_mnc = self.args["config_sim_mnc"]
+
+        if self.args["config_env"]:
+            YowsupEnv.setEnv(self.args["config_env"])
 
         if self.args["version"]:
             print("yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__))
@@ -115,46 +195,6 @@ class RegistrationArgParser(YowArgParser):
         super(RegistrationArgParser, self).__init__(*args, **kwargs)
         self.description = "WhatsApp Registration options"
 
-        configGroup = self.add_argument_group("Configuration options",
-                                              description = "Config file is optional. Other configuration arguments have higher priority if given, and will override those specified in the config file")
-
-        configGroup.add_argument("-c", '--config',
-                                 action = "store",
-                                 help = 'Path to config file. If this is not set then you must set at least --phone and --cc arguments')
-
-        configGroup.add_argument('-E', '--env',
-                                  action = "store",
-                                  help = "Set the environment yowsup simulates",
-                                  choices = YowsupEnv.getRegisteredEnvs())
-
-        configGroup.add_argument("-m", '--mcc',
-                                 action = "store",
-                                 help = "Mobile Country Code. Check your mcc here: https://en.wikipedia.org/wiki/Mobile_country_code")
-        configGroup.add_argument("-n", '--mnc',
-                                 action = "store",
-                                 help = "Mobile Network Code. Check your mnc from https://en.wikipedia.org/wiki/Mobile_country_code")
-
-        # configGroup.add_argument("-M", '--sim-mcc',
-        #                          action = "store",
-        #                          help = "Mobile Country Code. Check your mcc here: https://en.wikipedia.org/wiki/Mobile_country_code"
-        #                          )
-        # configGroup.add_argument("-N", '--sim-mnc',
-        #                          action= "store",
-        #                          help = "SIM MNC"
-        #                          )
-
-        configGroup.add_argument("-p", '--phone',
-                                 action= "store",
-                                 help = " Your full phone number including the country code you defined in 'cc', without preceeding '+' or '00'")
-        configGroup.add_argument("-C", '--cc',
-                                 action = "store",
-                                 help = "Country code. See http://www.ipipi.com/networkList.do. This is now required")
-
-        # configGroup.add_argument("-i", '--id',
-        #                          action="store",
-        #                          help = "Identity"
-        #                          )
-
         regSteps = self.add_argument_group("Modes")
         regSteps = regSteps.add_mutually_exclusive_group()
 
@@ -164,17 +204,7 @@ class RegistrationArgParser(YowArgParser):
     def process(self):
         super(RegistrationArgParser, self).process()
 
-        config = self.getConfig(self.args["config"]) if self.args["config"] else {}
-
-        if self.args["env"]:
-            YowsupEnv.setEnv(self.args["env"])
-
-        if self.args["mcc"]     : config["mcc"]     = self.args["mcc"]
-        if self.args["mnc"]     : config["mnc"]     = self.args["mnc"]
-        if self.args["phone"]   : config["phone"]   = self.args["phone"]
-        if self.args["cc" ]     : config["cc"]      = self.args["cc"]
-        #if self.args["sim_mnc"] : config["sim_mnc"] = self.args["sim_mnc"]
-        #if self.args["sim_mcc"] : config["sim_mcc"] = self.args["sim_mcc"]
+        config = self._config
 
         if not "mcc"     in config: config["mcc"] = "000"
         if not "mnc"     in config: config["mnc"] = "000"
@@ -190,11 +220,9 @@ class RegistrationArgParser(YowArgParser):
             print("\n")
             return False
 
-        if not config["phone"].startswith(config["cc"]):
+        if not str(config.phone).startswith(str(config.cc)):
             print("Error, phone number does not start with the specified country code\n")
             return False
-
-        config["phone"] = config["phone"][len(config["cc"]):]
 
         if self.args["requestcode"]:
             self.handleRequestCode(self.args["requestcode"], config)
@@ -208,14 +236,9 @@ class RegistrationArgParser(YowArgParser):
     def handleRequestCode(self, method, config):
         from yowsup.registration import WACodeRequest
         self.printInfoText()
-        codeReq = WACodeRequest(config["cc"],
-                                config["phone"],
-                                config["mcc"],
-                                config["mnc"],
-                                config["mcc"],
-                                config["mnc"],
-                                method
-        )
+        cc = str(config["cc"])
+        p_in= str(config["phone"])[len(cc):]
+        codeReq = WACodeRequest(method, config)
         result = codeReq.send()
         print(self.resultToString(result))
 
@@ -223,7 +246,7 @@ class RegistrationArgParser(YowArgParser):
         from yowsup.registration import WARegRequest
         self.printInfoText()
         code = code.replace('-', '')
-        req = WARegRequest(config["cc"], config["phone"], code)
+        req = WARegRequest(config, code)
         result = req.send()
         print(self.resultToString(result))
 
@@ -242,17 +265,6 @@ class DemosArgParser(YowArgParser):
         super(DemosArgParser, self).__init__(*args, **kwargs)
         self.description = "Run a yowsup demo"
 
-        configGroup = self.add_argument_group("Configuration options for demos")
-        credentialsOpts = configGroup.add_mutually_exclusive_group()
-        credentialsOpts.add_argument("-l", "--login", action="store", metavar="phone:b64password",
-                                     help = "WhatsApp login credentials, in the format phonenumber:password, where password is base64 encoded.")
-        credentialsOpts.add_argument("-c", "--config", action="store",
-                                     help = "Path to config file containing authentication info. For more info about config format use --help-config")
-
-        configGroup.add_argument('-E', '--env',
-                                  action = "store",
-                                  help = "Set the environment yowsup simulates",
-                                  choices = YowsupEnv.getRegisteredEnvs())
 
         cmdopts = self.add_argument_group("Command line interface demo")
         cmdopts.add_argument('-y', '--yowsup', action = "store_true", help = "Start the Yowsup command line client")
@@ -270,9 +282,6 @@ class DemosArgParser(YowArgParser):
     def process(self):
         super(DemosArgParser, self).process()
 
-        if self.args["env"]:
-            YowsupEnv.setEnv(self.args["env"])
-
         if self.args["yowsup"]:
             self.startCmdline()
         elif self.args["echo"]:
@@ -285,19 +294,10 @@ class DemosArgParser(YowArgParser):
             return False
         return True
 
-    def _getCredentials(self):
-        if self.args["login"]:
-            return tuple(self.args["login"].split(":"))
-        elif self.args["config"]:
-            config = self.getConfig(self.args["config"])
-            assert "password" in config and "phone" in config, "Must specify at least phone number and password in config file"
-            return config["phone"], config["password"]
-        else:
-            return None
-
     def startCmdline(self):
+        logger.debug("starting cmd")
         from yowsup.demos import cli
-        credentials = self._getCredentials()
+        credentials = self._config.phone, self._config.password
         if not credentials:
             print("Error: You must specify a configuration method")
             sys.exit(1)
@@ -307,7 +307,7 @@ class DemosArgParser(YowArgParser):
 
     def startEcho(self):
         from yowsup.demos import echoclient
-        credentials = self._getCredentials()
+        credentials = self._config.phone, self._config.password
         if not credentials:
             print("Error: You must specify a configuration method")
             sys.exit(1)
@@ -321,7 +321,7 @@ class DemosArgParser(YowArgParser):
 
     def startSendClient(self):
         from yowsup.demos import sendclient
-        credentials = self._getCredentials()
+        credentials = self._config.phone, self._config.password
         if not credentials:
             print("Error: You must specify a configuration method")
             sys.exit(1)
@@ -337,7 +337,7 @@ class DemosArgParser(YowArgParser):
 
     def startSyncContacts(self):
         from yowsup.demos import contacts
-        credentials = self._getCredentials()
+        credentials = self._config.phone, self._config.password
         if not credentials:
             print("Error: You must specify a configuration method")
             sys.exit(1)

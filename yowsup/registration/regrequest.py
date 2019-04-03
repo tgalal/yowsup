@@ -27,14 +27,21 @@ import os
 
 class WARegRequest(WARequest):
 
-    def __init__(self,cc, p_in, code):
+    def __init__(self, config, code):
+        """
+        :param config:
+        :type config: yowsup.config.vx.config.Config
+        :param code:
+        :type code: str
+        """
         super(WARegRequest,self).__init__()
-        idx = StorageTools.getIdentity(cc + p_in)
+        idx = StorageTools.getIdentity(config.phone)
 
         if idx is None:
             raise ValueError("You have to request code first")
 
-        self.addParam("cc", cc)
+        p_in = str(config.phone)[len(str(config.cc)):]
+        self.addParam("cc", config.cc)
         self.addParam("in", p_in)
 
         self.addParam("id", idx)

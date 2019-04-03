@@ -3,12 +3,19 @@ from yowsup.common.http.waresponseparser import JSONResponseParser
 from yowsup.env import YowsupEnv
 import os
 
+
 class WAExistsRequest(WARequest):
 
-    def __init__(self,cc, p_in, idx):
+    def __init__(self, config, idx):
+        """
+        :param config:
+        :type config: yowsup.config.vx.config.Config
+        :param idx:
+        :type idx: str
+        """
         super(WAExistsRequest,self).__init__()
-
-        self.addParam("cc", cc)
+        p_in = str(config.phone)[len(str(config.cc)):]
+        self.addParam("cc", config.cc)
         self.addParam("in", p_in)
         self.addParam("id", idx)
         self.addParam("lg", "en")
