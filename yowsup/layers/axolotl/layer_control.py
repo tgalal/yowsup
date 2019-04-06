@@ -36,6 +36,7 @@ class AxolotlControlLayer(AxolotlBaseLayer):
         ack = OutgoingAckProtocolEntity(protocolTreeNode["id"], "notification", protocolTreeNode["type"], protocolTreeNode["from"])
         self.toLower(ack.toProtocolTreeNode())
         self.flush_keys(
+            self.manager.generate_signed_prekey(),
             self.manager.level_prekeys(force=True)
         )
 
@@ -51,7 +52,10 @@ class AxolotlControlLayer(AxolotlBaseLayer):
     def onAuthed(self, yowLayerEvent):
         if yowLayerEvent.getArg("passive") and len(self._unsent_prekeys):
             logger.debug("SHOULD FLUSH KEYS %d NOW!!" % len(self._unsent_prekeys))
-            self.flush_keys(self._unsent_prekeys[:], reboot_connection=True)
+            self.flush_keys(
+                self.manager.load_latest_signed_prekey(generate=True),
+                self._unsent_prekeys[:], reboot_connection=True
+            )
             self._unsent_prekeys.clear()
 
     @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
@@ -65,21 +69,20 @@ class AxolotlControlLayer(AxolotlBaseLayer):
             self.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, False)
             self.getLayerInterface(YowNetworkLayer).connect()
 
-    def flush_keys(self, prekeys, reboot_connection=False):
+    def flush_keys(self, signed_prekey, prekeys, reboot_connection=False):
         """
         sends prekeys
         :return:
         :rtype:
         """
-        signedPrekey = self.manager.generate_signed_prekey()
         preKeysDict = {}
         for prekey in prekeys:
             keyPair = prekey.getKeyPair()
             preKeysDict[self.adjustId(prekey.getId())] = self.adjustArray(keyPair.getPublicKey().serialize()[1:])
 
-        signedKeyTuple = (self.adjustId(signedPrekey.getId()),
-                          self.adjustArray(signedPrekey.getKeyPair().getPublicKey().serialize()[1:]),
-                          self.adjustArray(signedPrekey.getSignature()))
+        signedKeyTuple = (self.adjustId(signed_prekey.getId()),
+                          self.adjustArray(signed_prekey.getKeyPair().getPublicKey().serialize()[1:]),
+                          self.adjustArray(signed_prekey.getSignature()))
 
         setKeysIq = SetKeysIqProtocolEntity(
             self.adjustArray(

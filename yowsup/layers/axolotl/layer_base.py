@@ -1,7 +1,7 @@
 from yowsup.layers import YowProtocolLayer
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from yowsup.layers.axolotl.protocolentities import *
-from yowsup.axolotl.factory import AxolotlManagerFactory
+from yowsup.axolotl.factory import AxolotlManagerFactory, AxolotlManager
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers import EventCallback
 
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class AxolotlBaseLayer(YowProtocolLayer):
     def __init__(self):
         super(AxolotlBaseLayer, self).__init__()
-        self._manager = None  # type: yowsup.axolotl.manager.AxolotlManager | None
+        self._manager = None  # type: AxolotlManager | None
         self.skipEncJids = []
 
     def send(self, node):

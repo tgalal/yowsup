@@ -98,6 +98,14 @@ class AxolotlManager(object):
         self._store.storeSignedPreKey(signed_prekey.getId(), signed_prekey)
         return signed_prekey
 
+    def load_latest_signed_prekey(self, generate=False):
+        logger.debug("load_latest_signed_prekey")
+        signed_prekeys = self._store.loadSignedPreKeys()
+        if len(signed_prekeys):
+            return signed_prekeys[-1]
+
+        return self.generate_signed_prekey() if generate else None
+
     def _get_session_cipher(self, recipientid):
         logger.debug("get_session_cipher(recipientid=%s)" % recipientid)
         if recipientid in self._session_ciphers:
