@@ -69,6 +69,3 @@ class WARegRequest(WARequest):
                       "reason","retry_after"]
 
         self.setParser(JSONResponseParser())
-
-    def register(self):
-        return self.send()
