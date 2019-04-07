@@ -62,12 +62,15 @@ class WARequest(object):
     def getUserAgent(self):
         return YowsupEnv.getCurrent().getUserAgent()
 
-    def send(self, parser = None):
-
+    def send(self, parser = None, preview=False):
+        logger.debug("send(parser=%s, preview=%s)" % (
+            None if parser is None else "[omitted]",
+            preview
+        ))
         if self.type == "POST":
             return self.sendPostRequest(parser)
 
-        return self.sendGetRequest(parser)
+        return self.sendGetRequest(parser, preview=preview)
 
     def setParser(self, parser):
         if isinstance(parser, ResponseParser):
@@ -93,7 +96,11 @@ class WARequest(object):
 
         return host, self.port, path
 
-    def sendGetRequest(self, parser = None):
+    def sendGetRequest(self, parser = None, preview=False):
+        logger.debug("sendGetRequest(parser=%s, preview=%s)" % (
+            None if parser is None else "[omitted]",
+            preview
+        ))
         self.response = None
         params =  self.params#[param.items()[0] for param in self.params];
 
@@ -103,9 +110,13 @@ class WARequest(object):
                 "Accept": parser.getMeta()
             }.items()) + list(self.headers.items()));
 
-        host,port,path = self.getConnectionParameters()
+        host, port, path = self.getConnectionParameters()
 
-        self.response = WARequest.sendRequest(host, port, path, headers, params, "GET")
+        self.response = WARequest.sendRequest(host, port, path, headers, params, "GET", preview=preview)
+
+        if preview:
+            logger.info("Preview request, skip response handling and return None")
+            return None
 
         if not self.response.status == WARequest.OK:
             logger.error("Request not success, status was %s"%self.response.status)
@@ -143,25 +154,28 @@ class WARequest(object):
         self.sent = True
         return parser.parse(data.decode(), self.pvars)
 
-
-    @staticmethod
-    def sendRequest(host, port, path, headers, params, reqType="GET"):
+    @classmethod
+    def sendRequest(cls, host, port, path, headers, params, reqType="GET", preview=False):
+        logger.debug("sendRequest(host=%s, port=%s, path=%s, headers=%s, params=%s, reqType=%s, preview=%s)" % (
+            host, port, path, headers, params, reqType, preview
+        ))
 
         params = urlencode(params)
-
-
         path = path + "?"+ params if reqType == "GET" and params else path
 
-        if len(headers):
-            logger.debug(headers)
-        if len(params):
-            logger.debug(params)
+        if not preview:
+            logger.debug("Opening connection to %s" % host)
+            conn = httplib.HTTPSConnection(host ,port) if port == 443 else httplib.HTTPConnection(host ,port)
+        else:
+            logger.debug("Should open connection to %s, but this is a preview" % host)
+            conn = None
 
-        logger.debug("Opening connection to %s" % host);
-        conn = httplib.HTTPSConnection(host ,port) if port == 443 else httplib.HTTPConnection(host ,port)
-
-        logger.debug("Sending %s request to %s" % (reqType, path))
-        conn.request(reqType, path, params, headers);
+        if not preview:
+            logger.debug("Sending %s request to %s" % (reqType, path))
+            conn.request(reqType, path, params, headers)
+        else:
+            logger.debug("Should send %s request to %s, but this is a preview" % (reqType, path))
+            return None
 
         response = conn.getresponse()
         return response

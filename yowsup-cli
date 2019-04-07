@@ -216,16 +216,20 @@ class RegistrationArgParser(YowArgParser):
         super(RegistrationArgParser, self).__init__(*args, **kwargs)
         self.description = "WhatsApp Registration options"
 
+        self.add_argument('-p', '--preview', action="store_true", help="Preview requests only, will not attempt to connect and send")
+
         regSteps = self.add_argument_group("Modes")
         regSteps = regSteps.add_mutually_exclusive_group()
 
         regSteps.add_argument("-r", '--requestcode', help='Request the digit registration code from Whatsapp.', action="store", required=False, metavar="(sms|voice)")
         regSteps.add_argument("-R", '--register', help='Register account on Whatsapp using the code you previously received', action="store", required=False, metavar="code")
+        self._preview = False
 
     def process(self):
         super(RegistrationArgParser, self).process()
 
         config = self._config
+        self._preview = self.args["preview"]
 
         if not "mcc"     in config: config["mcc"] = "000"
         if not "mnc"     in config: config["mnc"] = "000"
@@ -257,19 +261,19 @@ class RegistrationArgParser(YowArgParser):
     def handleRequestCode(self, method, config):
         from yowsup.registration import WACodeRequest
         self.printInfoText()
-        cc = str(config["cc"])
-        p_in= str(config["phone"])[len(cc):]
         codeReq = WACodeRequest(method, config)
-        result = codeReq.send()
-        print(self.resultToString(result))
+        result = codeReq.send(preview=self._preview)
+        if not self._preview:
+            print(self.resultToString(result))
 
     def handleRegister(self, code, config):
         from yowsup.registration import WARegRequest
         self.printInfoText()
         code = code.replace('-', '')
         req = WARegRequest(config, code)
-        result = req.send()
-        print(self.resultToString(result))
+        result = req.send(preview=self._preview)
+        if not self._preview:
+            print(self.resultToString(result))
 
     def resultToString(self, result):
         unistr = str if sys.version_info >= (3, 0) else unicode

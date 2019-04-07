@@ -52,19 +52,24 @@ class WACodeRequest(WARequest):
 
         self.setParser(JSONResponseParser())
 
-    def send(self, parser = None):
+    def send(self, parser = None, preview=False):
         if self.__id is not None:
             request = WAExistsRequest(self._config, self.__id)
-            result = request.send()
-            if result["status"] == "ok":
-                return result
-            elif result["status"] == "fail" and "reason" in result and result["reason"] == "blocked":
-                return result
+            result = request.send(preview=preview)
 
-        self.__id = WATools.generateIdentity()
+            if result:
+                if result["status"] == "ok":
+                    return result
+                elif result["status"] == "fail" and "reason" in result and result["reason"] == "blocked":
+                    return result
+        else:
+            self.__id = WATools.generateIdentity()
+
         self.addParam("id", self.__id)
 
-        res = super(WACodeRequest, self).send(parser)
-        if res["status"] == "sent":
+        res = super(WACodeRequest, self).send(parser,  preview=preview)
+
+        if not preview and res["status"] == "sent":
             StorageTools.writeIdentity(self._config.cc + self._p_in, self.__id)
+
         return res
