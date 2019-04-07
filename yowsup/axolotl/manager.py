@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class AxolotlManager(object):
 
     COUNT_GEN_PREKEYS = 812
-    THRESHOLD_REGEN = COUNT_GEN_PREKEYS / 2
+    THRESHOLD_REGEN = 10
     MAX_SIGNED_PREKEY_ID = 16777215
 
     def __init__(self, store, username):
