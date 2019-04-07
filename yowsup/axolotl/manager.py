@@ -29,6 +29,7 @@ class AxolotlManager(object):
 
     COUNT_GEN_PREKEYS = 812
     THRESHOLD_REGEN = COUNT_GEN_PREKEYS / 2
+    MAX_SIGNED_PREKEY_ID = 16777215
 
     def __init__(self, store, username):
         """
@@ -94,7 +95,15 @@ class AxolotlManager(object):
 
     def generate_signed_prekey(self):
         logger.debug("generate_signed_prekey")
-        signed_prekey = KeyHelper.generateSignedPreKey(self._identity, KeyHelper.getRandomSequence(65536))
+        latest_signed_prekey = self.load_latest_signed_prekey(generate=False)
+        if latest_signed_prekey is not None:
+            if latest_signed_prekey.getId() == self.MAX_SIGNED_PREKEY_ID:
+                new_signed_prekey_id = (self.MAX_SIGNED_PREKEY_ID / 2) + 1
+            else:
+                new_signed_prekey_id = latest_signed_prekey.getId() + 1
+        else:
+            new_signed_prekey_id = 0
+        signed_prekey = KeyHelper.generateSignedPreKey(self._identity, new_signed_prekey_id)
         self._store.storeSignedPreKey(signed_prekey.getId(), signed_prekey)
         return signed_prekey
 
