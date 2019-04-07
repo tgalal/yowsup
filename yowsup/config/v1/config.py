@@ -15,7 +15,8 @@ class Config(config.Config):
             sim_mnc=None,
             client_static_keypair=None,
             server_static_public=None,
-            device_id=None
+            expid=None,
+            fdid=None
     ):
         super(Config, self).__init__(1)
 
@@ -25,7 +26,8 @@ class Config(config.Config):
         self._id = id
         self._client_static_keypair = client_static_keypair
         self._server_static_public = server_static_public
-        self._device_id = device_id
+        self._expid = expid
+        self._fdid = fdid
         self._mcc = mcc
         self._mnc = mnc
         self._sim_mcc = sim_mcc
@@ -96,6 +98,10 @@ class Config(config.Config):
     def id(self):
         return self._id
 
+    @id.setter
+    def id(self, value):
+        self._id = value
+
     @property
     def client_static_keypair(self):
         return self._client_static_keypair
@@ -113,9 +119,17 @@ class Config(config.Config):
         self._server_static_public = value
 
     @property
-    def device_id(self):
-        return self._device_id
+    def expid(self):
+        return self._expid
 
-    @device_id.setter
-    def device_id(self, value):
-        self._device_id = value
+    @expid.setter
+    def expid(self, value):
+        self._expid = value
+
+    @property
+    def fdid(self):
+        return self._fdid
+
+    @fdid.setter
+    def fdid(self, value):
+        self._fdid = value
