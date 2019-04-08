@@ -101,7 +101,7 @@ class StorageTools:
     @staticmethod
     def writePhoneData(phone, name, val):
         path = StorageTools.getStorageForPhone(phone)
-        with open(os.path.join(path, name), 'wb') as attrFile:
+        with open(path, 'w' if type(val) is str else 'wb') as attrFile:
             attrFile.write(val)
 
     @staticmethod
