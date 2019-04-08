@@ -94,6 +94,8 @@ class StorageTools:
 
     @staticmethod
     def getStorageForPhone(phone):
+        if type(phone) is int:
+            phone = str(phone)
         return StorageTools.constructPath(phone + '/')
 
     @staticmethod
