@@ -266,6 +266,7 @@ class RegistrationArgParser(YowArgParser):
         self.printInfoText()
         codeReq = WACodeRequest(method, config)
         result = codeReq.send(encrypt=self._encrypt, preview=self._preview)
+        print(config)
         if not self._preview:
             print(self.resultToString(result))
 
@@ -275,6 +276,7 @@ class RegistrationArgParser(YowArgParser):
         code = code.replace('-', '')
         req = WARegRequest(config, code)
         result = req.send(preview=self._preview)
+        print(config)
         if not self._preview:
             print(self.resultToString(result))
 
