@@ -167,7 +167,7 @@ class YowArgParser(argparse.ArgumentParser):
             self._config.mnc = self.args["config_mnc"]
 
         if self.args["config_sim_mcc"]:
-            self._config.simc_mcc = self.args["config_sim_mcc"]
+            self._config.sim_mcc = self.args["config_sim_mcc"]
 
         if self.args["config_sim_mnc"]:
             self._config.sim_mnc = self.args["config_sim_mnc"]
