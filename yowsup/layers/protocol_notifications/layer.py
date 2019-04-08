@@ -43,6 +43,8 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
         elif node["type"] == "web":
             # Not implemented
             pass
+        elif node["type"] == "psa":
+            logging.warning("Ignoring psa notification for now")
         else:
             self.raiseErrorForNode(node)
 
