@@ -2,11 +2,13 @@
 __version__ = "2.0.15"
 __author__ = "Tarek Galal"
 
-import sys, argparse, yowsup, logging
 from yowsup.env import YowsupEnv
 from yowsup.config.manager import ConfigManager
 
 from yowsup.config.v1.config import Config
+from yowsup import logger as yowlogger, formatter
+
+import sys, argparse, yowsup, logging
 
 
 HELP_CONFIG = """
@@ -43,7 +45,6 @@ http://openwhatsapp.org/yowsup/donate
 
 """
 
-from yowsup import logger as yowlogger, formatter
 
 logger = logging.getLogger('yowsup-cli')
 ch = logging.StreamHandler()
