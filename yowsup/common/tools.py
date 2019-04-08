@@ -1,4 +1,4 @@
-import time,datetime,re, hashlib
+import time,datetime,re
 import calendar
 from dateutil import tz
 import os
@@ -48,6 +48,7 @@ class WATools:
         return b64Hash if type(b64Hash) is str else b64Hash.decode()
 
 class StorageTools:
+
     @staticmethod
     def constructPath(*path):
         path = os.path.join(*path)
@@ -61,20 +62,27 @@ class StorageTools:
         return StorageTools.constructPath(phone + '/')
 
     @staticmethod
-    def writeIdentity(phone, identity):
+    def writePhoneData(phone, name, val):
         path = StorageTools.getStorageForPhone(phone)
-        with open(os.path.join(path, "id"), 'wb') as idFile:
-            idFile.write(identity)
+        with open(os.path.join(path, name), 'wb') as attrFile:
+            attrFile.write(val)
 
     @staticmethod
-    def getIdentity(phone):
+    def readPhoneData(phone, name, default=None):
         path = StorageTools.getStorageForPhone(phone)
-        out = None
-        idPath = os.path.join(path, "id")
-        if os.path.isfile(idPath):
-            with open(idPath, 'rb') as idFile:
-                out = idFile.read()
-        return out
+        dataFilePath = os.path.join(path, name)
+        if os.path.isfile(dataFilePath):
+            with open(dataFilePath, 'rb') as attrFile:
+                return attrFile.read()
+        return default
+
+    @classmethod
+    def writeIdentity(cls, phone, identity):
+        cls.writePhoneData(phone, 'id', identity)
+
+    @classmethod
+    def getIdentity(cls, phone):
+        return cls.readPhoneData(phone, 'id')
 
 
 class TimeTools:
