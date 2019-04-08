@@ -128,7 +128,7 @@ class YowArgParser(argparse.ArgumentParser):
             help = "Base64 encoded password for the specified phone number"
         )
         self.args = {}
-        self._config = None
+        self._config = None  # type: Config
 
     def getArgs(self):
         return self.parse_args()
