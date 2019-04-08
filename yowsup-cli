@@ -122,11 +122,6 @@ class YowArgParser(argparse.ArgumentParser):
              action = "store",
              help = "Country code. See http://www.ipipi.com/networkList.do. This is now required"
         )
-        config_group.add_argument(
-            '--config-password',
-            action= "store",
-            help = "Base64 encoded password for the specified phone number"
-        )
         self.args = {}
         self._config = None  # type: Config
 
