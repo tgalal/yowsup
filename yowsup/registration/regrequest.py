@@ -25,6 +25,7 @@ from yowsup.common.tools import StorageTools
 import hashlib
 import os
 
+
 class WARegRequest(WARequest):
 
     def __init__(self, config, code):

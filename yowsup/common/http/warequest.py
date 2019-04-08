@@ -1,11 +1,16 @@
-import urllib,sys, os, logging
-import hashlib
 from .waresponseparser import ResponseParser
 from yowsup.env import YowsupEnv
 
+import sys
+import logging
+from yowsup.common.tools import WATools
+from yowsup.axolotl.factory import AxolotlManagerFactory
+import struct
+import random
+import base64
+
 if sys.version_info < (3, 0):
     import httplib
-    from urllib import urlencode
 
     if sys.version_info >= (2, 7, 9):
         #see https://github.com/tgalal/yowsup/issues/677
@@ -14,7 +19,7 @@ if sys.version_info < (3, 0):
 
 else:
     from http import client as httplib
-    from urllib.parse import urlencode
+    import urllib.parse
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +27,12 @@ logger = logging.getLogger(__name__)
 class WARequest(object):
 
     OK = 200
-
-    def __init__(self):
+    def __init__(self, config):
+        """
+       :type method: str
+       :param config:
+       :type config: yowsup.config.v1.config.Config
+       """
 
         self.pvars = []
         self.port = 443
@@ -34,6 +43,47 @@ class WARequest(object):
 
         self.sent = False
         self.response = None
+
+        self._config = config
+        self._p_in = str(config.phone)[len(str(config.cc)):]
+        self._axolotlmanager = AxolotlManagerFactory() \
+        .get_manager(self._config.phone)  # type: yowsup.axolotl.manager.Axolotlmanager
+
+        if config.expid is None:
+            config.expid = WATools.generateDeviceId()
+
+        if config.fdid is None:
+            config.fdid = WATools.generatePhoneId()
+
+        if config.client_static_keypair is None:
+            config.client_static_keypair = WATools.generateKeyPair()
+
+        self.addParam("cc", config.cc)
+        self.addParam("in", self._p_in)
+        self.addParam("lg", "en")
+        self.addParam("lc", "GB")
+        self.addParam("mistyped", "6")
+        self.addParam("authkey", self.b64encode(config.client_static_keypair.public.data))
+        self.addParam("e_regid", self.b64encode(struct.pack('>I', self._axolotlmanager.registration_id)))
+        self.addParam("e_keytype", self.b64encode(b"\x05"))
+        self.addParam("e_ident", self.b64encode(self._axolotlmanager.identity.publicKey.serialize()[1:]))
+
+        signedprekey = self._axolotlmanager.load_latest_signed_prekey(generate=True)
+        self.addParam("e_skey_id", self.b64encode(struct.pack('>I', signedprekey.getId())[1:]))
+        self.addParam("e_skey_val", self.b64encode(signedprekey.getKeyPair().publicKey.serialize()[1:]))
+        self.addParam("e_skey_sig", self.b64encode(signedprekey.getSignature()))
+
+        self.addParam("fdid", config.fdid)
+        self.addParam("expid", self.b64encode(config.expid))
+
+        self.addParam("network_radio_type", "1")
+        self.addParam("simnum", "1")
+        self.addParam("hasinrc", "1")
+        self.addParam("pid", int(random.uniform(100,9999)))
+        self.addParam("rc", 0)
+        if self._config.id:
+            self.addParam("id", self._config.id)
+
 
     def setParsableVariables(self, pvars):
         self.pvars = pvars
@@ -106,9 +156,13 @@ class WARequest(object):
 
         parser = parser or self.parser or ResponseParser()
 
-        headers = dict(list({"User-Agent":self.getUserAgent(),
-                "Accept": parser.getMeta()
-            }.items()) + list(self.headers.items()));
+        headers = dict(
+            list(
+                {
+                    "User-Agent":self.getUserAgent(),
+                    "Accept": parser.getMeta()
+            }.items()
+            ) + list(self.headers.items()))
 
         host, port, path = self.getConnectionParameters()
 
@@ -154,13 +208,43 @@ class WARequest(object):
         self.sent = True
         return parser.parse(data.decode(), self.pvars)
 
+    def b64encode(self, value):
+        return base64.urlsafe_b64encode(value).replace(b'=', b'')
+
+    @classmethod
+    def urlencode(cls, value):
+        if type(value) not in (str, bytes):
+            value = str(value)
+
+        out = ""
+        for char in value:
+            if type(char) is int:
+                char = bytearray([char])
+            quoted = urllib.parse.quote(char, safe='')
+            out += quoted if quoted[0] != '%' else quoted.lower()
+
+        return out\
+            .replace('-', '%2d')\
+            .replace('_', '%5f')\
+            .replace('~', '%7e')
+
+    @classmethod
+    def urlencodeParams(cls, params):
+        merged = []
+        for k, v in params:
+            merged.append(
+                "%s=%s" % (k, cls.urlencode(v))
+            )
+        return "&".join(merged)
+
     @classmethod
     def sendRequest(cls, host, port, path, headers, params, reqType="GET", preview=False):
         logger.debug("sendRequest(host=%s, port=%s, path=%s, headers=%s, params=%s, reqType=%s, preview=%s)" % (
             host, port, path, headers, params, reqType, preview
         ))
 
-        params = urlencode(params)
+        params = cls.urlencodeParams(params)
+
         path = path + "?"+ params if reqType == "GET" and params else path
 
         if not preview:
