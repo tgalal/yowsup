@@ -28,7 +28,9 @@ class YowIbProtocolLayer(YowProtocolLayer):
         elif node.getChild("account"):
             self.toUpper(AccountIbProtocolEntity.fromProtocolTreeNode(node))
         elif node.getChild("edge_routing"):
-            logger.debug("ignoring edge_routing ib node for now")
+            logger.warning("ignoring edge_routing ib node for now")
+        elif node.getChild("attestation"):
+            logger.warning("ignoring attestation ib node for now")
         else:
             raise ValueError("Unkown ib node %s" % node)
 
