@@ -21,9 +21,6 @@ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from yowsup.common.http.warequest import WARequest
 from yowsup.common.http.waresponseparser import JSONResponseParser
-from yowsup.common.tools import StorageTools
-import hashlib
-import os
 
 
 class WARegRequest(WARequest):
@@ -35,38 +32,16 @@ class WARegRequest(WARequest):
         :param code:
         :type code: str
         """
-        super(WARegRequest,self).__init__()
-        idx = StorageTools.getIdentity(config.phone)
+        super(WARegRequest,self).__init__(config)
 
-        if idx is None:
-            raise ValueError("You have to request code first")
+        if config.id is None:
+            raise ValueError("config.id is not set.")
 
-        p_in = str(config.phone)[len(str(config.cc)):]
-        self.addParam("cc", config.cc)
-        self.addParam("in", p_in)
-
-        self.addParam("id", idx)
         self.addParam("code", code)
-
-        self.addParam("lc", "GB")
-        self.addParam("lg", "en")
-
-        self.addParam("mistyped", '6')
-        # self.addParam('network_radio_type', '1')
-        self.addParam('simnum', '1')
-        self.addParam('s', '')
-        self.addParam('copiedrc', '1')
-        self.addParam('hasinrc', '1')
-        self.addParam('rcmatch', '1')
-        self.addParam('pid', os.getpid())
-        self.addParam('rchash', hashlib.sha256(os.urandom(20)).hexdigest())
-        self.addParam('anhash', hashlib.md5(os.urandom(20)).hexdigest())
-        self.addParam('extexist', '1')
-        self.addParam('extstate', '1')
 
         self.url = "v.whatsapp.net/v2/register"
 
-        self.pvars = ["status", "login", "pw", "type", "expiration", "kind", "price", "cost", "currency", "price_expiration",
+        self.pvars = ["status", "login", "type", "edge_routing_info", "chat_dns_domain"
                       "reason","retry_after"]
 
         self.setParser(JSONResponseParser())
