@@ -271,9 +271,12 @@ class RegistrationArgParser(YowArgParser):
         self.printInfoText()
         codeReq = WACodeRequest(method, config)
         result = codeReq.send(encrypt=self._encrypt, preview=self._preview)
-        print(config)
         if not self._preview:
+            if result["status"] == "sent":
+                self._config_manager.save(self._config)
             print(self.resultToString(result))
+        else:
+            print(config)
 
     def handleRegister(self, code, config):
         from yowsup.registration import WARegRequest
@@ -283,6 +286,13 @@ class RegistrationArgParser(YowArgParser):
         result = req.send(preview=self._preview)
         print(config)
         if not self._preview:
+            if result["status"] == "ok":
+                if "edge_routing_info" in result:
+                    self._config.edge_routing_info = result["edge_routing_info"]
+                if "chat_dns_domain" in result:
+                    self._config.chat_dns_domain = result["chat_dns_domain"]
+                self._config_manager.save(self._config)
+
             print(self.resultToString(result))
 
     def resultToString(self, result):
