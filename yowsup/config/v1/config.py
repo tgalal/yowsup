@@ -16,7 +16,9 @@ class Config(config.Config):
             client_static_keypair=None,
             server_static_public=None,
             expid=None,
-            fdid=None
+            fdid=None,
+            edge_routing_info=None,
+            chat_dns_domain=None
     ):
         super(Config, self).__init__(1)
 
@@ -32,6 +34,8 @@ class Config(config.Config):
         self._mnc = mnc
         self._sim_mcc = sim_mcc
         self._sim_mnc = sim_mnc
+        self._edge_routing_info = edge_routing_info
+        self._chat_dns_domain = chat_dns_domain
 
     def __str__(self):
         from yowsup.config.v1.serialize import ConfigSerialize
@@ -133,3 +137,19 @@ class Config(config.Config):
     @fdid.setter
     def fdid(self, value):
         self._fdid = value
+
+    @property
+    def edge_routing_info(self):
+        return self.edge_routing_info
+
+    @edge_routing_info.setter
+    def edge_routing_info(self, value):
+        self._edge_routing_info = value
+
+    @property
+    def chat_dns_domain(self):
+        return self._chat_dns_domain
+
+    @chat_dns_domain.setter
+    def chat_dns_domain(self, value):
+        self._chat_dns_domain = value
