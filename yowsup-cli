@@ -171,6 +171,15 @@ class YowArgParser(argparse.ArgumentParser):
         if self.args["config_env"]:
             YowsupEnv.setEnv(self.args["config_env"])
 
+        if self.args["config"]:
+            # config file was explicitly specified, load internal config and override values
+            internal_config = self._config_manager.load(self._config.phone)
+            if internal_config is not None:
+                for property in self._config.keys():
+                    if property != "version" and self._config[property] is not None:
+                        internal_config[property] = self._config[property]
+                self._config = internal_config
+
         if self.args["version"]:
             print("yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__))
             sys.exit(0)
