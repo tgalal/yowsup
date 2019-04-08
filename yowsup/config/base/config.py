@@ -11,6 +11,9 @@ class Config(object):
     def __setitem__(self, key, value):
         setattr(self, key, value)
 
+    def keys(self):
+        return [var[1:] for var in vars(self)]
+
     @property
     def version(self):
         return self._version
