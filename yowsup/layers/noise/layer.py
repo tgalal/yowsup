@@ -1,9 +1,4 @@
-from noisewa.protocol import WANoiseProtocol
-from noisewa.config.client import ClientConfig
-from noisewa.config.templates.useragent_vbox import VBoxUserAgentConfig
-from noisewa.streams.segmented.blockingqueue import BlockingQueueSegmentedStream
-from dissononce.dh.x25519.x25519 import PublicKey
-from dissononce.dh.x25519.keypair import KeyPair
+
 
 from yowsup.layers.noise.workers.handshake import WANoiseProtocolHandshakeWorker
 from yowsup.layers import YowLayer, EventCallback
@@ -11,7 +6,12 @@ from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLay
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers.noise.layer_noise_segments import YowNoiseSegmentsLayer
 
-
+from noisewa.protocol import WANoiseProtocol
+from noisewa.config.client import ClientConfig
+from noisewa.config.templates.useragent_vbox import VBoxUserAgentConfig
+from noisewa.streams.segmented.blockingqueue import BlockingQueueSegmentedStream
+from noisewa.structs.publickey import PublicKey
+from noisewa.structs.keypair import KeyPair
 import threading
 import base64
 import logging
