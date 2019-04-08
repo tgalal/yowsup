@@ -26,7 +26,7 @@ class WACodeRequest(WARequest):
         self.url = "v.whatsapp.net/v2/code"
 
         self.pvars = ["status","reason","length", "method", "retry_after", "code", "param"] +\
-                    ["login", "pw", "type", "expiration", "kind", "price", "cost", "currency", "price_expiration"]
+                    ["login", "type", "sms_wait", "voice_wait"]
         self.setParser(JSONResponseParser())
 
     def send(self, parser = None, encrypt=True, preview=False):
