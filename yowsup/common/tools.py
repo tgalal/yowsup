@@ -82,7 +82,9 @@ class WATools:
         b64Hash = base64.b64encode(sha1.digest())
         return b64Hash if type(b64Hash) is str else b64Hash.decode()
 
+
 class StorageTools:
+    NAME_CONFIG = "config.json"
 
     @staticmethod
     def constructPath(*path):
@@ -129,6 +131,13 @@ class StorageTools:
     def getIdentity(cls, phone):
         return cls.readPhoneData(phone, 'id')
 
+    @classmethod
+    def writePhoneConfig(cls, phone, config):
+        cls.writePhoneData(phone, cls.NAME_CONFIG, config)
+
+    @classmethod
+    def readPhoneConfig(cls, phone, config):
+        return cls.readPhoneData(phone, cls.NAME_CONFIG)
 
 class TimeTools:
     @staticmethod
