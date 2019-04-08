@@ -113,6 +113,10 @@ class ConfigManager(object):
 
         raise ValueError("unrecognized serialize_type=%d" % serialize_type)
 
-
-    def save(self, dest, config, serialize_type=TYPE_JSON):
-        pass
+    def save(self, config, serialize_type=TYPE_JSON, dest=None):
+        outputdata = self.config_to_str(config, serialize_type)
+        if dest is None:
+            StorageTools.writePhoneConfig(config.phone, outputdata)
+        else:
+            with open(dest, 'wb') as outputfile:
+                outputfile.write(outputdata)
