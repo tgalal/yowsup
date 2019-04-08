@@ -100,17 +100,25 @@ class StorageTools:
 
     @staticmethod
     def writePhoneData(phone, name, val):
-        path = StorageTools.getStorageForPhone(phone)
+        logger.debug("writePhoneData(phone=%s, name=%s, val=[omitted])" % (phone, name))
+        path = os.path.join(StorageTools.getStorageForPhone(phone), name)
+        logger.debug("Writing %s" % path)
+
         with open(path, 'w' if type(val) is str else 'wb') as attrFile:
             attrFile.write(val)
 
     @staticmethod
     def readPhoneData(phone, name, default=None):
+        logger.debug("readPhoneData(phone=%s, name=%s)" % (phone, name))
         path = StorageTools.getStorageForPhone(phone)
         dataFilePath = os.path.join(path, name)
         if os.path.isfile(dataFilePath):
+            logger.debug("Reading %s" % dataFilePath)
             with open(dataFilePath, 'rb') as attrFile:
                 return attrFile.read()
+        else:
+            logger.debug("%s does not exist" % dataFilePath)
+
         return default
 
     @classmethod
