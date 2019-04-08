@@ -3,7 +3,10 @@ from yowsup.env import YowsupEnv
 
 import sys
 import logging
+from axolotl.ecc.curve import Curve
+from axolotl.ecc.ec import ECPublicKey
 from yowsup.common.tools import WATools
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from yowsup.axolotl.factory import AxolotlManagerFactory
 import struct
 import random
@@ -27,6 +30,14 @@ logger = logging.getLogger(__name__)
 class WARequest(object):
 
     OK = 200
+    ENC_PUBKEY = Curve.decodePoint(
+        bytes([
+            5,  142, 140, 15, 116, 195, 235, 197, 215,  166, 134, 92, 108,
+            60, 132, 56, 86, 176, 97, 33, 204, 232, 234, 119, 77, 34, 251,
+            111, 18, 37, 18, 48, 45
+        ])
+    )
+
     def __init__(self, config):
         """
        :type method: str
@@ -112,15 +123,15 @@ class WARequest(object):
     def getUserAgent(self):
         return YowsupEnv.getCurrent().getUserAgent()
 
-    def send(self, parser = None, preview=False):
-        logger.debug("send(parser=%s, preview=%s)" % (
+    def send(self, parser = None, encrypt=True, preview=False):
+        logger.debug("send(parser=%s, encrypt=%s, preview=%s)" % (
             None if parser is None else "[omitted]",
-            preview
+            encrypt, preview
         ))
         if self.type == "POST":
             return self.sendPostRequest(parser)
 
-        return self.sendGetRequest(parser, preview=preview)
+        return self.sendGetRequest(parser, encrypt, preview=preview)
 
     def setParser(self, parser):
         if isinstance(parser, ResponseParser):
@@ -146,13 +157,39 @@ class WARequest(object):
 
         return host, self.port, path
 
-    def sendGetRequest(self, parser = None, preview=False):
-        logger.debug("sendGetRequest(parser=%s, preview=%s)" % (
+    def encryptParams(self, params, key):
+        """
+        :param params:
+        :type params: list
+        :param key:
+        :type key: ECPublicKey
+        :return:
+        :rtype: list
+        """
+        keypair = Curve.generateKeyPair()
+        encodedparams = self.urlencodeParams(params)
+
+        cipher = AESGCM(Curve.calculateAgreement(key, keypair.privateKey))
+        ciphertext = cipher.encrypt(b'\x00\x00\x00\x00' + struct.pack('>Q', 0), encodedparams.encode(), b'')
+
+        payload = base64.b64encode(keypair.publicKey.serialize()[1:] + ciphertext)
+        return [('ENC', payload)]
+
+    def sendGetRequest(self, parser = None, encrypt_params=True, preview=False):
+        logger.debug("sendGetRequest(parser=%s, encrypt_params=%s, preview=%s)" % (
             None if parser is None else "[omitted]",
-            preview
+            encrypt_params, preview
         ))
         self.response = None
-        params =  self.params#[param.items()[0] for param in self.params];
+
+        if encrypt_params:
+            logger.debug("Encrypting parameters")
+            if logger.level <= logging.DEBUG:
+                logger.debug("pre-encrypt (encoded) parameters = \n%s", (self.urlencodeParams(self.params)))
+            params = self.encryptParams(self.params, self.ENC_PUBKEY)
+        else:
+            ## params will be logged right before sending
+            params = self.params
 
         parser = parser or self.parser or ResponseParser()
 

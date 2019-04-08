@@ -29,10 +29,10 @@ class WACodeRequest(WARequest):
                     ["login", "pw", "type", "expiration", "kind", "price", "cost", "currency", "price_expiration"]
         self.setParser(JSONResponseParser())
 
-    def send(self, parser = None, preview=False):
+    def send(self, parser = None, encrypt=True, preview=False):
         if self. _config.id is not None:
             request = WAExistsRequest(self._config)
-            result = request.send(preview=preview)
+            result = request.send(encrypt=encrypt, preview=preview)
 
             if result:
                 if result["status"] == "ok":
@@ -43,6 +43,6 @@ class WACodeRequest(WARequest):
             self._config.id = WATools.generateIdentity()
             self.addParam("id", self._config.id)
 
-        res = super(WACodeRequest, self).send(parser, preview=preview)
+        res = super(WACodeRequest, self).send(parser, encrypt=encrypt, preview=preview)
 
         return res
