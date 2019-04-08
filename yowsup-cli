@@ -216,6 +216,7 @@ class RegistrationArgParser(YowArgParser):
         super(RegistrationArgParser, self).__init__(*args, **kwargs)
         self.description = "WhatsApp Registration options"
 
+        self.add_argument('--no-encrypt', action="store_true", help="Don't encrypt request parameters before sending")
         self.add_argument('-p', '--preview', action="store_true", help="Preview requests only, will not attempt to connect and send")
 
         regSteps = self.add_argument_group("Modes")
@@ -223,12 +224,14 @@ class RegistrationArgParser(YowArgParser):
 
         regSteps.add_argument("-r", '--requestcode', help='Request the digit registration code from Whatsapp.', action="store", required=False, metavar="(sms|voice)")
         regSteps.add_argument("-R", '--register', help='Register account on Whatsapp using the code you previously received', action="store", required=False, metavar="code")
+        self._encrypt = True
         self._preview = False
 
     def process(self):
         super(RegistrationArgParser, self).process()
 
         config = self._config
+        self._encrypt = not self.args["no_encrypt"]
         self._preview = self.args["preview"]
 
         if not "mcc"     in config: config["mcc"] = "000"
@@ -262,7 +265,7 @@ class RegistrationArgParser(YowArgParser):
         from yowsup.registration import WACodeRequest
         self.printInfoText()
         codeReq = WACodeRequest(method, config)
-        result = codeReq.send(preview=self._preview)
+        result = codeReq.send(encrypt=self._encrypt, preview=self._preview)
         if not self._preview:
             print(self.resultToString(result))
 
