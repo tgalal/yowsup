@@ -5,6 +5,7 @@ from yowsup.layers import YowLayer, EventCallback
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers.noise.layer_noise_segments import YowNoiseSegmentsLayer
+from yowsup.config.manager import ConfigManager
 
 from noisewa.protocol import WANoiseProtocol
 from noisewa.config.client import ClientConfig
@@ -38,6 +39,7 @@ class YowNoiseLayer(YowLayer):
         self._read_buffer = bytearray()
         self._flush_lock = threading.Lock()
         self._incoming_segments_queue = Queue.Queue()
+        self._config_manager = ConfigManager()
 
     def __str__(self):
         return "Noise Layer"
@@ -50,6 +52,8 @@ class YowNoiseLayer(YowLayer):
     def on_auth(self, event):
         logger.debug("Received auth event")
         username = int(event.getArg('username'))
+        config = self._config_manager.load(username)
+
         passive = event.getArg('passive')
 
         self.setProp(YowNoiseSegmentsLayer.PROP_ENABLED, False)
@@ -61,11 +65,8 @@ class YowNoiseLayer(YowLayer):
                 b"8npJs5ulcmDmDaHZYflOveqXO73Gg2CzJySKvDs6qh4="
             )
         )
-        local_static = KeyPair.from_bytes(
-            base64.b64decode(
-                b"MA9j0UP4lJwKWPtHcwSg+DTjM8HG0HI9k+vIMoxDiGHs59Xqht7dsss4K0PgyDKsxm6UwjwbG9Kgdit3iQiFRQ=="
-            )
-        )
+        local_static = config.client_static_keypair
+
         client_config = ClientConfig(
             username=username,
             passive=passive,
