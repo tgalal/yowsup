@@ -64,6 +64,7 @@ class YowNetworkLayer(YowLayer, ConnectionCallbacks):
     def createConnection(self):
         self.state = self.__class__.STATE_CONNECTING
         endpoint = self.getProp(self.__class__.PROP_ENDPOINT)
+        logger.info("Connecting to %s:%s" % endpoint)
         self.serverConnection.connect(endpoint)
 
     def destroyConnection(self, reason = None):
