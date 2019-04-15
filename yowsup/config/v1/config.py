@@ -140,7 +140,7 @@ class Config(config.Config):
 
     @property
     def edge_routing_info(self):
-        return self.edge_routing_info
+        return self._edge_routing_info
 
     @edge_routing_info.setter
     def edge_routing_info(self, value):
