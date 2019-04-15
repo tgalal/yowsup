@@ -40,6 +40,8 @@ class YowNoiseLayer(YowLayer):
         self._flush_lock = threading.Lock()
         self._incoming_segments_queue = Queue.Queue()
         self._config_manager = ConfigManager()
+        self._username = None
+        self._rs = None
 
     def __str__(self):
         return "Noise Layer"
@@ -51,8 +53,8 @@ class YowNoiseLayer(YowLayer):
     @EventCallback(YowAuthenticationProtocolLayer.EVENT_AUTH)
     def on_auth(self, event):
         logger.debug("Received auth event")
-        username = int(event.getArg('username'))
-        config = self._config_manager.load(username)
+        self._username = int(event.getArg('username'))
+        config = self._config_manager.load(self._username)
 
         passive = event.getArg('passive')
 
@@ -60,22 +62,20 @@ class YowNoiseLayer(YowLayer):
         self.toLower(self.HEADER)
         self.setProp(YowNoiseSegmentsLayer.PROP_ENABLED, True)
 
-        remote_static = PublicKey(
-            base64.b64decode(
-                b"8npJs5ulcmDmDaHZYflOveqXO73Gg2CzJySKvDs6qh4="
-            )
-        )
+        remote_static = config.server_static_public
         local_static = config.client_static_keypair
 
+        self._rs = remote_static
+
         client_config = ClientConfig(
-            username=username,
+            username=self._username,
             passive=passive,
             useragent=VBoxUserAgentConfig("2.19.51"),
             pushname="virus",
             short_connect=True
         )
         if not self._in_handshake():
-            logger.debug("Performing handshake [username= %d, passive=%s]" % (username, passive) )
+            logger.debug("Performing handshake [username= %d, passive=%s]" % (self._username, passive) )
             self._handshake_worker = WANoiseProtocolHandshakeWorker(
                 self._wa_noiseprotocol, self._stream, client_config, local_static, remote_static,
             )
@@ -92,6 +92,11 @@ class YowNoiseLayer(YowLayer):
 
     def _on_protocol_state_changed(self, state):
         if state == WANoiseProtocol.STATE_TRANSPORT:
+            if self._rs != self._wa_noiseprotocol.rs:
+                config = self._config_manager.load(self._username)
+                config.server_static_public = self._wa_noiseprotocol.rs
+                self._config_manager.save(config)
+                self._rs = self._wa_noiseprotocol.rs
             self._flush_incoming_buffer()
 
     def _handle_stream_event(self, event):

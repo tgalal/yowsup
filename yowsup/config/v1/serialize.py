@@ -6,6 +6,7 @@ from yowsup.config.transforms.config_dict import ConfigDictTransform
 from yowsup.config.transforms.props import PropsTransform
 
 from noisewa.structs.keypair import KeyPair
+from noisewa.structs.publickey import PublicKey
 import base64
 
 
@@ -21,11 +22,13 @@ class ConfigSerialize(serialize.ConfigSerialize):
                 MapTransform(transform_map=lambda key, val: (key[1:], val)),
                 PropsTransform(
                     transform_map={
+                        "server_static_public": lambda key, val: (key, base64.b64encode(val.data).decode()),
                         "client_static_keypair": lambda key, val: (key, base64.b64encode(val.private.data + val.public.data).decode()),
                         "id": lambda key, val: (key, base64.b64encode(val).decode()),
                         "expid": lambda key, val: (key, base64.b64encode(val).decode())
                     },
                     reverse_map={
+                        "server_static_public": lambda key, val: (key, PublicKey(base64.b64decode(val))),
                         "client_static_keypair": lambda key, val: (key, KeyPair.from_bytes(base64.b64decode(val))),
                         "id": lambda key, val: (key, base64.b64decode(val)),
                         "expid": lambda key, val: (key, base64.b64decode(val))
