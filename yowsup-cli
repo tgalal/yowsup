@@ -9,7 +9,7 @@ from yowsup.config.v1.config import Config
 from yowsup import logger as yowlogger, formatter
 
 import sys, argparse, yowsup, logging
-
+import base64
 
 HELP_CONFIG = """
 ############# Yowsup Configuration Sample ###########
@@ -272,7 +272,11 @@ class RegistrationArgParser(YowArgParser):
         codeReq = WACodeRequest(method, config)
         result = codeReq.send(encrypt=self._encrypt, preview=self._preview)
         if not self._preview:
-            if result["status"] == "sent":
+            if result["status"] in ("sent", "ok"):
+                if "edge_routing_info" in result:
+                    self._config.edge_routing_info = base64.b64decode(result["edge_routing_info"])
+                if "chat_dns_domain" in result:
+                    self._config.chat_dns_domain = result["chat_dns_domain"]
                 self._config_manager.save(self._config)
             print(self.resultToString(result))
         else:
@@ -288,7 +292,7 @@ class RegistrationArgParser(YowArgParser):
         if not self._preview:
             if result["status"] == "ok":
                 if "edge_routing_info" in result:
-                    self._config.edge_routing_info = result["edge_routing_info"]
+                    self._config.edge_routing_info = base64.b64decode(result["edge_routing_info"])
                 if "chat_dns_domain" in result:
                     self._config.chat_dns_domain = result["chat_dns_domain"]
                 self._config_manager.save(self._config)

@@ -25,6 +25,7 @@ except ImportError:
 
 class YowNoiseLayer(YowLayer):
     HEADER = b'WA\x02\x01'
+    EDGE_HEADER = b'ED\x00\x01'
 
     def __init__(self):
         super(YowNoiseLayer, self).__init__()
@@ -57,6 +58,13 @@ class YowNoiseLayer(YowLayer):
         passive = event.getArg('passive')
 
         self.setProp(YowNoiseSegmentsLayer.PROP_ENABLED, False)
+
+        if config.edge_routing_info:
+            self.toLower(self.EDGE_HEADER)
+            self.setProp(YowNoiseSegmentsLayer.PROP_ENABLED, True)
+            self.toLower(config.edge_routing_info)
+            self.setProp(YowNoiseSegmentsLayer.PROP_ENABLED, False)
+
         self.toLower(self.HEADER)
         self.setProp(YowNoiseSegmentsLayer.PROP_ENABLED, True)
 

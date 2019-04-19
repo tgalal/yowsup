@@ -25,13 +25,15 @@ class ConfigSerialize(serialize.ConfigSerialize):
                         "server_static_public": lambda key, val: (key, base64.b64encode(val.data).decode()),
                         "client_static_keypair": lambda key, val: (key, base64.b64encode(val.private.data + val.public.data).decode()),
                         "id": lambda key, val: (key, base64.b64encode(val).decode()),
-                        "expid": lambda key, val: (key, base64.b64encode(val).decode())
+                        "expid": lambda key, val: (key, base64.b64encode(val).decode()),
+                        "edge_routing_info": lambda key, val: (key, base64.b64encode(val).decode())
                     },
                     reverse_map={
                         "server_static_public": lambda key, val: (key, PublicKey(base64.b64decode(val))),
                         "client_static_keypair": lambda key, val: (key, KeyPair.from_bytes(base64.b64decode(val))),
                         "id": lambda key, val: (key, base64.b64decode(val)),
-                        "expid": lambda key, val: (key, base64.b64decode(val))
+                        "expid": lambda key, val: (key, base64.b64decode(val)),
+                        "edge_routing_info": lambda key, val: (key, base64.b64decode(val))
                     }
                 ),
                 MetaPropsTransform(meta_props=("version", )),
