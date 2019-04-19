@@ -28,7 +28,7 @@ class YowStanzaRegulator(YowLayer):
             self.buf.extend(data)
             self.processReceived()
         else:
-            self.toLower(data)
+            self.toUpper(data)
 
 
     def processReceived(self):
