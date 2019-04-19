@@ -14,9 +14,8 @@ class FailureProtocolEntity(ProtocolEntity):
         return self.reason
 
     def toProtocolTreeNode(self):
-        reasonNode = ProtocolTreeNode(self.reason, {})
-        return self._createProtocolTreeNode({}, children = [reasonNode])
+        return self._createProtocolTreeNode({"reason": self.reason})
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        return FailureProtocolEntity( node.getAllChildren()[0].tag )
+        return FailureProtocolEntity( node["reason"] )
