@@ -335,8 +335,9 @@ class DemosArgParser(YowArgParser):
         super(DemosArgParser, self).process()
 
         if self.args["log_dissononce"]:
-            from dissononce import logger as dissnonce_logger
-            dissnonce_logger.setLevel(logger.level)
+            from dissononce import logger as dissononce_logger, ch as dissononce_ch
+            dissononce_logger.setLevel(logger.level)
+            dissononce_ch.setFormatter(formatter)
 
         if self.args["yowsup"]:
             self.startCmdline()
