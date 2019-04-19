@@ -12,7 +12,6 @@ from consonance.config.client import ClientConfig
 from consonance.config.templates.useragent_vbox import VBoxUserAgentConfig
 from consonance.streams.segmented.blockingqueue import BlockingQueueSegmentedStream
 import threading
-import base64
 import logging
 
 
