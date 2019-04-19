@@ -7,12 +7,10 @@ from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers.noise.layer_noise_segments import YowNoiseSegmentsLayer
 from yowsup.config.manager import ConfigManager
 
-from noisewa.protocol import WANoiseProtocol
-from noisewa.config.client import ClientConfig
-from noisewa.config.templates.useragent_vbox import VBoxUserAgentConfig
-from noisewa.streams.segmented.blockingqueue import BlockingQueueSegmentedStream
-from noisewa.structs.publickey import PublicKey
-from noisewa.structs.keypair import KeyPair
+from consonance.protocol import WANoiseProtocol
+from consonance.config.client import ClientConfig
+from consonance.config.templates.useragent_vbox import VBoxUserAgentConfig
+from consonance.streams.segmented.blockingqueue import BlockingQueueSegmentedStream
 import threading
 import base64
 import logging
@@ -70,7 +68,12 @@ class YowNoiseLayer(YowLayer):
         client_config = ClientConfig(
             username=self._username,
             passive=passive,
-            useragent=VBoxUserAgentConfig("2.19.51"),
+            useragent=VBoxUserAgentConfig(
+                app_version="2.19.51",
+                phone_id=config.fdid,
+                mcc=config.mcc,
+                mnc=config.mnc,
+            ),
             pushname="virus",
             short_connect=True
         )

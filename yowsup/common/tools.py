@@ -10,7 +10,7 @@ import base64
 import hashlib
 import os.path, mimetypes
 import uuid
-from noisewa.structs.keypair import KeyPair
+from consonance.structs.keypair import KeyPair
 
 from .optionalmodules import PILOptionalModule, FFVideoOptionalModule
 

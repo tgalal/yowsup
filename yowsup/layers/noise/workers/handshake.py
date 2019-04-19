@@ -1,6 +1,6 @@
-from noisewa.protocol import WANoiseProtocol
-from noisewa.streams.segmented.segmented import SegmentedStream
-from noisewa.config.client import ClientConfig
+from consonance.protocol import WANoiseProtocol
+from consonance.streams.segmented.segmented import SegmentedStream
+from consonance.config.client import ClientConfig
 from dissononce.dh.keypair import KeyPair
 from dissononce.dh.x25519.x25519 import PublicKey
 
@@ -8,7 +8,6 @@ import threading
 
 
 class WANoiseProtocolHandshakeWorker(threading.Thread):
-
     def __init__(self, wanoiseprotocol, stream, client_config, s, rs=None, finish_callback=None):
         """
         :param wanoiseprotocol:

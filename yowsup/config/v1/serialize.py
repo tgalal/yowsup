@@ -5,8 +5,8 @@ from yowsup.config.transforms.map import MapTransform
 from yowsup.config.transforms.config_dict import ConfigDictTransform
 from yowsup.config.transforms.props import PropsTransform
 
-from noisewa.structs.keypair import KeyPair
-from noisewa.structs.publickey import PublicKey
+from consonance.structs.keypair import KeyPair
+from consonance.structs.publickey import PublicKey
 import base64
 
 
