@@ -1,5 +1,5 @@
 language: python
-python: '3.5'
+python: '3.6'
 # command to install dependencies
 
 env:
@@ -7,11 +7,12 @@ env:
     - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
     - SEGFAULT_SIGNALS=all
   matrix:
-    - TOXENV=py26
     - TOXENV=py27
     - TOXENV=py33
     - TOXENV=py34
     - TOXENV=py35
+    - TOXENV=py36
+    - TOXENV=py37
 before_install:
   - python --version
   - uname -a
