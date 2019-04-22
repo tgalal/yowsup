@@ -18,12 +18,16 @@ from yowsup.layers.protocol_chatstate          import YowChatstateProtocolLayer
 from yowsup.layers.protocol_privacy            import YowPrivacyProtocolLayer
 from yowsup.layers.protocol_profiles           import YowProfilesProtocolLayer
 from yowsup.layers.protocol_calls              import YowCallsProtocolLayer
+from yowsup.layers.noise.layer                 import YowNoiseLayer
+from yowsup.layers.noise.layer_noise_segments  import YowNoiseSegmentsLayer
 
 
 
 YOWSUP_CORE_LAYERS = (
     YowLoggerLayer,
     YowCoderLayer,
+    YowNoiseLayer,
+    YowNoiseSegmentsLayer,
     YowNetworkLayer
 )
 
