@@ -8,6 +8,8 @@ from yowsup.config.manager import ConfigManager
 from yowsup.config.v1.config import Config
 from yowsup import logger as yowlogger, formatter
 
+from consonance.structs.publickey import PublicKey
+from consonance.structs.keypair import KeyPair
 import sys, argparse, yowsup, logging
 import base64
 
@@ -92,35 +94,76 @@ class YowArgParser(argparse.ArgumentParser):
              choices = YowsupEnv.getRegisteredEnvs()
         )
         config_group.add_argument(
-            '--config-mcc',
-             action = "store",
-             help = "Mobile Country Code. Check your mcc here: https://en.wikipedia.org/wiki/Mobile_country_code"
-        )
-        config_group.add_argument(
-            '--config-mnc',
-             action = "store",
-             help = "Mobile Network Code. Check your mnc from https://en.wikipedia.org/wiki/Mobile_country_code"
-        )
-        config_group.add_argument(
-            '--config-sim-mcc',
-            action = "store",
-            help = "Mobile Country Code. Check your mcc here: https://en.wikipedia.org/wiki/Mobile_country_code"
-        )
-        config_group.add_argument(
-            '--config-sim-mnc',
-            action = "store",
-            help = "Mobile Network Code. Check your mnc from https://en.wikipedia.org/wiki/Mobile_country_code"
-        )
-        config_group.add_argument(
             '--config-phone',
-             action= "store",
-             help = " Your full phone number including the country code you defined in 'cc',"
+             action="store",
+             help=" Your full phone number including the country code you defined in 'cc',"
                     " without preceeding '+' or '00'"
         )
         config_group.add_argument(
             '--config-cc',
-             action = "store",
-             help = "Country code. See http://www.ipipi.com/networkList.do. This is now required"
+             action="store",
+             help="Country code. See http://www.ipipi.com/networkList.do."
+        )
+        config_group.add_argument(
+            '--config-pushname',
+             action="store",
+             help="Push/Display name to use "
+        )
+        config_group.add_argument(
+            '--config-id',
+             action="store",
+             help="Base64 encoded Identity/Recovery token, typically generated and used during registration or account "
+                  "recovery."
+        )
+        config_group.add_argument(
+            '--config-mcc',
+            action="store",
+            help="Mobile Country Code. Check your mcc here: https://en.wikipedia.org/wiki/Mobile_country_code"
+        )
+        config_group.add_argument(
+            '--config-mnc',
+            action="store",
+            help="Mobile Network Code. Check your mnc from https://en.wikipedia.org/wiki/Mobile_country_code"
+        )
+        config_group.add_argument(
+            '--config-sim_mcc',
+            action="store",
+            help="Mobile Country Code. Check your mcc here: https://en.wikipedia.org/wiki/Mobile_country_code"
+        )
+        config_group.add_argument(
+            '--config-sim_mnc',
+            action="store",
+            help="Mobile Network Code. Check your mnc from https://en.wikipedia.org/wiki/Mobile_country_code"
+        )
+        config_group.add_argument(
+            '--config-client_static_keypair',
+             action="store",
+             help="Base64 encoded concatenation of user keypair's private bytes and public bytes"
+        )
+        config_group.add_argument(
+            '--config-server_static_public',
+             action="store",
+             help="Base64 encoded server's public key bytes"
+        )
+        config_group.add_argument(
+            '--config-expid',
+             action="store",
+             help="Base64 encoded expid, typically generated and used during registration"
+        )
+        config_group.add_argument(
+            '--config-fdid',
+             action="store",
+             help="Device UUID, typically generated for registration and used at login"
+        )
+        config_group.add_argument(
+            '--config-edge_routing_info',
+             action="store",
+             help="Base64 encoded edge_routing_info, normally received and persisted right after a successful login"
+        )
+        config_group.add_argument(
+            '--config-chat_dns_domain',
+             action="store",
+             help="Chat DNS domain, normally received and persisted right after a successful login"
         )
         self.args = {}
         self._config = None  # type: Config
@@ -156,6 +199,12 @@ class YowArgParser(argparse.ArgumentParser):
         if self.args["config_cc"]:
             self._config.cc = self.args["config_cc"]
 
+        if self.args["config_pushname"]:
+            self._config.pushname = self.args["config_pushname"]
+
+        if self.args["config_id"]:
+            self._config.id = base64.b64decode(self.args["config_id"])
+
         if self.args["config_mcc"]:
             self._config.mcc = self.args["config_mcc"]
 
@@ -167,6 +216,28 @@ class YowArgParser(argparse.ArgumentParser):
 
         if self.args["config_sim_mnc"]:
             self._config.sim_mnc = self.args["config_sim_mnc"]
+
+        if self.args["config_client_static_keypair"]:
+            self._config.client_static_keypair = KeyPair.from_bytes(
+                base64.b64decode(self.args["config_client_static_keypair"])
+            )
+
+        if self.args["config_server_static_public"]:
+            self._config.server_static_public = PublicKey(
+                base64.b64decode(self.args["config_server_static_public"])
+            )
+
+        if self.args["config_expid"]:
+            self._config.expid = base64.b64decode(self.args["config_expid"])
+
+        if self.args["config_fdid"]:
+            self._config.fdid = self.args["config_fdid"]
+
+        if self.args["config_edge_routing_info"]:
+            self._config.edge_routing_info = base64.b64decode(self.args["config_edge_routing_info"])
+
+        if self.args["config_chat_dns_domain"]:
+            self._config.chat_dns_domain = self.args["config_chat_dns_domain"]
 
         if self.args["config_env"]:
             YowsupEnv.setEnv(self.args["config_env"])
