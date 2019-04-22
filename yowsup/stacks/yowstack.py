@@ -24,6 +24,7 @@ from yowsup.layers.protocol_profiles           import YowProfilesProtocolLayer
 from yowsup.layers.protocol_calls import YowCallsProtocolLayer
 from yowsup.env import YowsupEnv
 from yowsup.common.constants import YowConstants
+from yowsup.layers.axolotl import AxolotlSendLayer, AxolotlControlLayer, AxolotlReceivelayer
 import inspect
 try:
     import Queue
@@ -50,8 +51,8 @@ class YowStackBuilder(object):
         self._props[key] = value
         return self
 
-    def pushDefaultLayers(self, axolotl = False):
-        defaultLayers = YowStackBuilder.getDefaultLayers(axolotl)
+    def pushDefaultLayers(self):
+        defaultLayers = YowStackBuilder.getDefaultLayers()
         self.layers += defaultLayers
         return self
 
@@ -67,15 +68,13 @@ class YowStackBuilder(object):
         return YowStack(self.layers, reversed = False, props = self._props)
 
     @staticmethod
-    def getDefaultLayers(axolotl = False, groups = True, media = True, privacy = True, profiles = True):
+    def getDefaultLayers(groups = True, media = True, privacy = True, profiles = True):
         coreLayers = YowStackBuilder.getCoreLayers()
         protocolLayers = YowStackBuilder.getProtocolLayers(groups = groups, media=media, privacy=privacy, profiles=profiles)
 
         allLayers = coreLayers
-        if axolotl:
-            from yowsup.layers.axolotl import AxolotlSendLayer, AxolotlControlLayer, AxolotlReceivelayer
-            allLayers += (AxolotlControlLayer,)
-            allLayers += (YowParallelLayer((AxolotlSendLayer, AxolotlReceivelayer)),)
+        allLayers += (AxolotlControlLayer,)
+        allLayers += (YowParallelLayer((AxolotlSendLayer, AxolotlReceivelayer)),)
 
         allLayers += (YowParallelLayer(protocolLayers),)
 

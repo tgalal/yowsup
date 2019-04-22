@@ -450,7 +450,7 @@ class DemosArgParser(YowArgParser):
             sys.exit(1)
         try:
             self.printInfoText()
-            stack = echoclient.YowsupEchoStack(credentials, not self.args["unmoxie"])
+            stack = echoclient.YowsupEchoStack(credentials)
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
@@ -465,8 +465,7 @@ class DemosArgParser(YowArgParser):
 
         try:
             self.printInfoText()
-            stack = sendclient.YowsupSendStack(credentials, [([self.args["send"][0], self.args["send"][1]])],
-                                               not self.args["unmoxie"])
+            stack = sendclient.YowsupSendStack(credentials, [([self.args["send"][0], self.args["send"][1]])])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
@@ -474,13 +473,13 @@ class DemosArgParser(YowArgParser):
 
     def startSyncContacts(self):
         from yowsup.demos import contacts
-        credentials = self._config.phone, self._config.password
+        credentials = self._config.phone, self._config.client_static_keypair
         if not credentials:
             print("Error: You must specify a configuration method")
             sys.exit(1)
         try:
             self.printInfoText()
-            stack = contacts.YowsupSyncStack(credentials, self.args["sync"].split(','), not self.args["unmoxie"])
+            stack = contacts.YowsupSyncStack(credentials, self.args["sync"].split(','))
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")

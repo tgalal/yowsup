@@ -1,6 +1,6 @@
 from .yowstack import YowStack, YowStackBuilder
 
-from yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer, AuthError
+from yowsup.layers.auth                        import YowCryptLayer, YowAuthenticationProtocolLayer
 from yowsup.layers.coder                       import YowCoderLayer
 from yowsup.layers.logger                      import YowLoggerLayer
 from yowsup.layers.network                     import YowNetworkLayer

@@ -1,23 +1,22 @@
 from .layer import SyncLayer
 
 from yowsup.stacks import  YowStackBuilder
-from yowsup.layers.auth import AuthError
 from yowsup.layers import YowLayerEvent
 from yowsup.layers.auth import YowAuthenticationProtocolLayer
 from yowsup.layers.network import YowNetworkLayer
 
+
 class YowsupSyncStack(object):
-    def __init__(self, credentials, contacts, encryptionEnabled = False):
+    def __init__(self, credentials, contacts):
         """
         :param credentials:
         :param contacts: list of [jid ]
-        :param encryptionEnabled:
         :return:
         """
         stackBuilder = YowStackBuilder()
 
         self.stack = stackBuilder \
-            .pushDefaultLayers(encryptionEnabled) \
+            .pushDefaultLayers() \
             .push(SyncLayer) \
             .build()
 
@@ -27,7 +26,4 @@ class YowsupSyncStack(object):
 
     def start(self):
         self.stack.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))
-        try:
-            self.stack.loop()
-        except AuthError as e:
-            print("Authentication Error: %s" % e.message)
+        self.stack.loop()
