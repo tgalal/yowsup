@@ -26,11 +26,16 @@ cc=49
 # Your full phone number including the country code you defined in 'cc', without preceding '+' or '00'
 phone=491234567890
 #
-# You obtain this password when you register using Yowsup.
-password=NDkxNTIyNTI1NjAyMkBzLndoYXRzYXBwLm5ldA==
+# Your pushname, this name is displayed to users when they're notified with your messages.
+pushname=yowsup
+#
+# This keypair is generated during registration.
+client_static_keypair=YJa8Vd9pG0KV2tDYi5V+DMOtSvCEFzRGCzOlGZkvBHzJvBE5C3oC2Fruniw0GBGo7HHgR4TjvjI3C9AihStsVg=="
 #######################################################
-"""
 
+For the full list of configuration options run "yowsup-cli config -h"
+
+"""
 
 CR_TEXT = """yowsup-cli  v{cliVersion}
 yowsup      v{yowsupVersion}
