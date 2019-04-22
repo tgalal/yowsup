@@ -2,12 +2,12 @@ from yowsup.config.base import config
 
 
 class Config(config.Config):
-
     def __init__(
             self,
             phone=None,
             cc=None,
             password=None,
+            pushname=None,
             id=None,
             mcc=None,
             mnc=None,
@@ -25,6 +25,7 @@ class Config(config.Config):
         self._phone = str(phone)  # type: str
         self._cc = cc  # type: int
         self._password = password  # type: str
+        self._pushname = pushname  # type: str
         self._id = id
         self._client_static_keypair = client_static_keypair
         self._server_static_public = server_static_public
@@ -65,6 +66,14 @@ class Config(config.Config):
     @password.setter
     def password(self, value):
         self._password = value
+
+    @property
+    def pushname(self):
+        return self._pushname
+
+    @pushname.setter
+    def pushname(self, value):
+        self._pushname = value
 
     @property
     def mcc(self):
