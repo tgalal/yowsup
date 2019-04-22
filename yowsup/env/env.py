@@ -88,16 +88,13 @@ class YowsupEnv(with_metaclass(YowsupEnvType, object)):
         pass
 
     def getBuildVersion(self):
-        return ""
-
-    def getResource(self):
-        return self.getOSName() + "-" + self.getVersion()
+        pass
 
     def getUserAgent(self):
         return self.__class__._USERAGENT_STRING.format(
-            WHATSAPP_VERSION = self.getVersion(),
-            OS_NAME = self.getOSName(),
-            OS_VERSION = self.getOSVersion(),
-            MANUFACTURER = self.getManufacturer(),
-            DEVICE_NAME = self.getDeviceName()
+            WHATSAPP_VERSION=self.getVersion(),
+            OS_NAME=self.getOSName(),
+            OS_VERSION=self.getOSVersion(),
+            MANUFACTURER=self.getManufacturer(),
+            DEVICE_NAME=self.getDeviceName()
         )
