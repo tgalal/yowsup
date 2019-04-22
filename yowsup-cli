@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__ = "2.0.15"
+__version__ = "3.0.0"
 __author__ = "Tarek Galal"
 
 from yowsup.env import YowsupEnv
