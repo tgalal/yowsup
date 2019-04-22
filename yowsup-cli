@@ -73,6 +73,11 @@ class YowArgParser(argparse.ArgumentParser):
                           )
 
         self.add_argument("--help-config", help="Prints a config file sample", action="store_true")
+        self.add_argument("-E", "--env",
+                          action="store",
+                          help="Set the environment yowsup simulates",
+                          choices=YowsupEnv.getRegisteredEnvs()
+                          )
 
         config_group = self.add_argument_group(
             "Configuration options",
@@ -85,12 +90,6 @@ class YowArgParser(argparse.ArgumentParser):
             action="store",
             help="(optional) Path to config file. Other configuration arguments have higher priority if given, and "
                  "will override those specified in the config file."
-        )
-        config_group.add_argument(
-            '--config-env',
-            action="store",
-            help="Set the environment yowsup simulates",
-            choices=YowsupEnv.getRegisteredEnvs()
         )
         config_group.add_argument(
             '--config-phone',
@@ -180,6 +179,9 @@ class YowArgParser(argparse.ArgumentParser):
             logger.setLevel(logging.INFO)
             yowlogger.setLevel(level=logging.INFO)
 
+        if self.args["env"]:
+            YowsupEnv.setEnv(self.args["env"])
+
         config_phone = self.args["config_phone"]
 
         if self.args["config"]:
@@ -237,9 +239,6 @@ class YowArgParser(argparse.ArgumentParser):
 
         if self.args["config_chat_dns_domain"]:
             self._config.chat_dns_domain = self.args["config_chat_dns_domain"]
-
-        if self.args["config_env"]:
-            YowsupEnv.setEnv(self.args["config_env"])
 
         if self.args["config"]:
             # config file was explicitly specified, load internal config and override values
