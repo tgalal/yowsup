@@ -1,4 +1,7 @@
 from yowsup.config.base import config
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Config(config.Config):
@@ -38,6 +41,10 @@ class Config(config.Config):
         self._edge_routing_info = edge_routing_info
         self._chat_dns_domain = chat_dns_domain
 
+        if self._password is not None:
+            logger.warn("Setting a password in Config is deprecated and not used anymore. "
+                        "client_static_keypair is used instead")
+
     def __str__(self):
         from yowsup.config.v1.serialize import ConfigSerialize
         from yowsup.config.transforms.dict_json import DictJsonTransform
@@ -66,6 +73,9 @@ class Config(config.Config):
     @password.setter
     def password(self, value):
         self._password = value
+        if value is not None:
+            logger.warn("Setting a password in Config is deprecated and not used anymore. "
+                        "client_static_keypair is used instead")
 
     @property
     def pushname(self):
