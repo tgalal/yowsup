@@ -83,10 +83,6 @@ class YowsupEnv(with_metaclass(YowsupEnvType, object)):
     def getManufacturer(self):
         pass
 
-    @abc.abstractmethod
-    def isAxolotlEnabled(self):
-        pass
-
     def getBuildVersion(self):
         pass
 
