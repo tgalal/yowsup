@@ -97,13 +97,13 @@ class YowArgParser(argparse.ArgumentParser):
                  "will override those specified in the config file."
         )
         config_group.add_argument(
-            '--config-phone',
+            '--config-phone', '--phone',
             action="store",
-            help=" Your full phone number including the country code you defined in 'cc',"
+            help="Your full phone number including the country code you defined in 'cc',"
                  " without preceeding '+' or '00'"
         )
         config_group.add_argument(
-            '--config-cc',
+            '--config-cc', '--cc',
             action="store",
             help="Country code. See http://www.ipipi.com/networkList.do."
         )
@@ -119,12 +119,12 @@ class YowArgParser(argparse.ArgumentParser):
                  "recovery."
         )
         config_group.add_argument(
-            '--config-mcc',
+            '--config-mcc', '--mcc',
             action="store",
             help="Mobile Country Code. Check your mcc here: https://en.wikipedia.org/wiki/Mobile_country_code"
         )
         config_group.add_argument(
-            '--config-mnc',
+            '--config-mnc', '--mnc',
             action="store",
             help="Mobile Network Code. Check your mnc from https://en.wikipedia.org/wiki/Mobile_country_code"
         )
@@ -325,8 +325,8 @@ class RegistrationArgParser(YowArgParser):
 
         try:
             assert self.args["requestcode"] or self.args["register"], "Must specify one of the modes -r/-R"
-            assert "cc" in config, "Must specify cc (country code)"
-            assert "phone" in config, "Must specify phone number"
+            assert "cc" in config, "Must set --config-cc (country code)"
+            assert "phone" in config, "Must set --config-phone"
         except AssertionError as e:
             print(e)
             print("\n")
