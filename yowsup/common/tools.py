@@ -140,28 +140,6 @@ class StorageTools:
     def readPhoneConfig(cls, phone, config):
         return cls.readPhoneData(phone, cls.NAME_CONFIG)
 
-class TimeTools:
-    @staticmethod
-    def parseIso(iso):
-        d=datetime.datetime(*map(int, re.split('[^\d]', iso)[:-1]))
-        return d
-
-    @staticmethod
-    def utcToLocal(dt):
-        utc = tz.gettz('UTC')
-        local = tz.tzlocal()
-        dtUtc =  dt.replace(tzinfo=utc)
-
-        return dtUtc.astimezone(local)
-
-    @staticmethod
-    def utcTimestamp():
-        utcNow = datetime.datetime.utcnow()
-        return calendar.timegm(utcNow.timetuple())
-
-    @staticmethod
-    def datetimeToTimestamp(dt):
-        return time.mktime(dt.timetuple())
 
 class ImageTools:
     @staticmethod
