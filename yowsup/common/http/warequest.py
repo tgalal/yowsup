@@ -14,6 +14,7 @@ import base64
 
 if sys.version_info < (3, 0):
     import httplib
+    from urllib import quote as urllib_quote
 
     if sys.version_info >= (2, 7, 9):
         #see https://github.com/tgalal/yowsup/issues/677
@@ -22,7 +23,7 @@ if sys.version_info < (3, 0):
 
 else:
     from http import client as httplib
-    import urllib.parse
+    from urllib.parse import quote as urllib_quote
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ class WARequest(object):
 
     OK = 200
     ENC_PUBKEY = Curve.decodePoint(
-        bytes([
+        bytearray([
             5,  142, 140, 15, 116, 195, 235, 197, 215,  166, 134, 92, 108,
             60, 132, 56, 86, 176, 97, 33, 204, 232, 234, 119, 77, 34, 251,
             111, 18, 37, 18, 48, 45
@@ -257,7 +258,7 @@ class WARequest(object):
         for char in value:
             if type(char) is int:
                 char = bytearray([char])
-            quoted = urllib.parse.quote(char, safe='')
+            quoted = urllib_quote(char, safe='')
             out += quoted if quoted[0] != '%' else quoted.lower()
 
         return out\

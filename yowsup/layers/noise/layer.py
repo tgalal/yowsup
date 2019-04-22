@@ -132,7 +132,7 @@ class YowNoiseLayer(YowLayer):
         self._wa_noiseprotocol.send(data)
 
     def _flush_incoming_buffer(self):
-        self._flush_lock.acquire(blocking=True)
+        self._flush_lock.acquire()
         while self._incoming_segments_queue.qsize():
             self.toUpper(self._wa_noiseprotocol.receive())
         self._flush_lock.release()
