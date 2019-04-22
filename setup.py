@@ -20,7 +20,7 @@ else:
         deps.append('readline')
 
 setup(
-    name='yowsup2',
+    name='yowsup',
     version=yowsup.__version__,
     url='http://github.com/tgalal/yowsup/',
     license='GPL-3+',
@@ -30,7 +30,7 @@ setup(
     scripts = ['yowsup-cli'],
     #cmdclass={'test': PyTest},
     author_email='tare2.galal@gmail.com',
-    description='A WhatsApp python library',
+    description='The WhatsApp lib',
     #long_description=long_description,
     packages= find_packages(),
     include_package_data=True,
