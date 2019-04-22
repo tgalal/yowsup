@@ -22,7 +22,7 @@ class YowConstants:
     WHATSAPP_SERVER = "s.whatsapp.net"
     WHATSAPP_GROUP_SERVER = "g.us"
 
-    PATH_STORAGE = "~/.yowsup"
+    YOWSUP = "yowsup"
 
     PREVIEW_WIDTH = 64
     PREVIEW_HEIGHT = 64
