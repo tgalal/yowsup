@@ -48,7 +48,7 @@ python setup.py install
 ### FreeBSD (*BSD)
 You need to have installed: py27-pip-7.1.2(+), py27-sqlite3-2.7.11_7(+), then run
 ```
-pip install yowsup2
+pip install yowsup
 ```
 
 ### Mac OS
