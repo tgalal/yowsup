@@ -1,15 +1,14 @@
-
-
 from yowsup.layers.noise.workers.handshake import WANoiseProtocolHandshakeWorker
 from yowsup.layers import YowLayer, EventCallback
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers.noise.layer_noise_segments import YowNoiseSegmentsLayer
 from yowsup.config.manager import ConfigManager
+from yowsup.env.env import YowsupEnv
 
 from consonance.protocol import WANoiseProtocol
 from consonance.config.client import ClientConfig
-from consonance.config.templates.useragent_vbox import VBoxUserAgentConfig
+from consonance.config.useragent import UserAgentConfig
 from consonance.streams.segmented.blockingqueue import BlockingQueueSegmentedStream
 import threading
 import logging
@@ -23,6 +22,7 @@ except ImportError:
 
 
 class YowNoiseLayer(YowLayer):
+    DEFAULT_PUSHNAME = "yowsup"
     HEADER = b'WA\x02\x01'
     EDGE_HEADER = b'ED\x00\x01'
 
@@ -52,8 +52,7 @@ class YowNoiseLayer(YowLayer):
     def on_auth(self, event):
         logger.debug("Received auth event")
         self._username = int(event.getArg('username'))
-        config = self._config_manager.load(self._username)
-
+        config = self._config_manager.load(self._username)  # type: yowsup.config.v1.config.Config
         passive = event.getArg('passive')
 
         self.setProp(YowNoiseSegmentsLayer.PROP_ENABLED, False)
@@ -71,17 +70,24 @@ class YowNoiseLayer(YowLayer):
         local_static = config.client_static_keypair
 
         self._rs = remote_static
-
+        yowsupenv = YowsupEnv.getCurrent()
         client_config = ClientConfig(
             username=self._username,
             passive=passive,
-            useragent=VBoxUserAgentConfig(
+            useragent=UserAgentConfig(
+                platform=0,
                 app_version="2.19.51",
-                phone_id=config.fdid,
                 mcc=config.mcc,
                 mnc=config.mnc,
+                os_version=yowsupenv.getOSVersion(),
+                manufacturer=yowsupenv.getManufacturer(),
+                device=yowsupenv.getDeviceName(),
+                os_build_number=yowsupenv.getOSVersion(),
+                phone_id=config.fdid,
+                locale_lang="en",
+                locale_country="US"
             ),
-            pushname="virus",
+            pushname=config.pushname or self.DEFAULT_PUSHNAME,
             short_connect=True
         )
         if not self._in_handshake():
