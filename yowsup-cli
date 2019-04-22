@@ -434,7 +434,7 @@ class DemosArgParser(YowArgParser):
     def startCmdline(self):
         logger.debug("starting cmd")
         from yowsup.demos import cli
-        credentials = self._config.phone, self._config.password
+        credentials = self._config.phone, self._config.client_static_keypair
         if not credentials:
             print("Error: You must specify a configuration method")
             sys.exit(1)
@@ -444,7 +444,7 @@ class DemosArgParser(YowArgParser):
 
     def startEcho(self):
         from yowsup.demos import echoclient
-        credentials = self._config.phone, self._config.password
+        credentials = self._config.phone, self._config.client_static_keypair
         if not credentials:
             print("Error: You must specify a configuration method")
             sys.exit(1)
@@ -458,7 +458,7 @@ class DemosArgParser(YowArgParser):
 
     def startSendClient(self):
         from yowsup.demos import sendclient
-        credentials = self._config.phone, self._config.password
+        credentials = self._config.phone, self._config.client_static_keypair
         if not credentials:
             print("Error: You must specify a configuration method")
             sys.exit(1)

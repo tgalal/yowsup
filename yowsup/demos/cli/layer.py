@@ -72,8 +72,8 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
                 return alias
         return jid
 
-    def setCredentials(self, username, password):
-        self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(username, password)
+    def setCredentials(self, username, keypair):
+        self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(username, keypair)
 
         return "%s@s.whatsapp.net" % username
 
@@ -441,11 +441,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             return self.output("Already connected, disconnect first")
         self.getLayerInterface(YowNetworkLayer).connect()
         return True
-
-    @clicmd("Login to WhatsApp", 0)
-    def login(self, username, b64password):
-        self.setCredentials(username, b64password)
-        return self.L()
 
     ######## receive #########
 

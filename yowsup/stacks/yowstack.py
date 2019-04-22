@@ -8,7 +8,6 @@ from yowsup.layers.coder                       import YowCoderLayer
 from yowsup.layers.logger                      import YowLoggerLayer
 from yowsup.layers.network                     import YowNetworkLayer
 from yowsup.layers.protocol_messages           import YowMessagesProtocolLayer
-# from yowsup.layers.stanzaregulator             import YowStanzaRegulator
 from yowsup.layers.protocol_media              import YowMediaProtocolLayer
 from yowsup.layers.protocol_acks               import YowAckProtocolLayer
 from yowsup.layers.protocol_receipts           import YowReceiptProtocolLayer
@@ -32,7 +31,6 @@ except ImportError:
     import queue as Queue
 logger = logging.getLogger(__name__)
 
-
 YOWSUP_PROTOCOL_LAYERS_BASIC = (
     YowAuthenticationProtocolLayer, YowMessagesProtocolLayer,
     YowReceiptProtocolLayer, YowAckProtocolLayer, YowPresenceProtocolLayer,
@@ -41,8 +39,8 @@ YOWSUP_PROTOCOL_LAYERS_BASIC = (
 
 )
 
-class YowStackBuilder(object):
 
+class YowStackBuilder(object):
     def __init__(self):
         self.layers = ()
         self._props = {}

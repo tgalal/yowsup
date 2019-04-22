@@ -1,3 +1,1 @@
-from .layer_crypt import YowCryptLayer
 from .layer_authentication import YowAuthenticationProtocolLayer
-#import protocolentities
