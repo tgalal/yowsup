@@ -330,6 +330,7 @@ class DemosArgParser(YowArgParser):
 
         logging = self.add_argument_group("Logging options")
         logging.add_argument("--log-dissononce", action="store_true", help="Configure logging for dissononce/noise")
+        logging.add_argument("--log-consonance", action="store_true", help="Configure logging for consonance")
 
     def process(self):
         super(DemosArgParser, self).process()
@@ -338,6 +339,10 @@ class DemosArgParser(YowArgParser):
             from dissononce import logger as dissononce_logger, ch as dissononce_ch
             dissononce_logger.setLevel(logger.level)
             dissononce_ch.setFormatter(formatter)
+        if self.args["log_consonance"]:
+            from consonance import logger as consonance_logger, ch as consonance_ch
+            consonance_logger.setLevel(logger.level)
+            consonance_ch.setFormatter(formatter)
 
         if self.args["yowsup"]:
             self.startCmdline()
