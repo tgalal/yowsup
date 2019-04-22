@@ -13,6 +13,7 @@ class YowsupEnvType(abc.ABCMeta):
             YowsupEnv.registerEnv(cls)
         super(YowsupEnvType, cls).__init__(name, bases, dct)
 
+
 class YowsupEnv(with_metaclass(YowsupEnvType, object)):
     __metaclass__ = YowsupEnvType
     __ENVS = {}
@@ -46,6 +47,9 @@ class YowsupEnv(with_metaclass(YowsupEnvType, object)):
 
     @classmethod
     def getCurrent(cls):
+        """
+        :rtype: YowsupEnv
+        """
         if cls.__CURR is None:
             env = DEFAULT
             envs = cls.getRegisteredEnvs()
