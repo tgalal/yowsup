@@ -17,8 +17,9 @@ if sys.version_info < (3, 0):
     from urllib import quote as urllib_quote
 
     if sys.version_info >= (2, 7, 9):
-        #see https://github.com/tgalal/yowsup/issues/677
+        # see https://github.com/tgalal/yowsup/issues/677
         import ssl
+
         ssl._create_default_https_context = ssl._create_unverified_context
 
 else:
@@ -29,11 +30,10 @@ logger = logging.getLogger(__name__)
 
 
 class WARequest(object):
-
     OK = 200
     ENC_PUBKEY = Curve.decodePoint(
         bytearray([
-            5,  142, 140, 15, 116, 195, 235, 197, 215,  166, 134, 92, 108,
+            5, 142, 140, 15, 116, 195, 235, 197, 215, 166, 134, 92, 108,
             60, 132, 56, 86, 176, 97, 33, 204, 232, 234, 119, 77, 34, 251,
             111, 18, 37, 18, 48, 45
         ])
@@ -59,7 +59,7 @@ class WARequest(object):
         self._config = config
         self._p_in = str(config.phone)[len(str(config.cc)):]
         self._axolotlmanager = AxolotlManagerFactory() \
-        .get_manager(self._config.phone)  # type: yowsup.axolotl.manager.Axolotlmanager
+            .get_manager(self._config.phone)  # type: yowsup.axolotl.manager.Axolotlmanager
 
         if config.expid is None:
             config.expid = WATools.generateDeviceId()
@@ -91,11 +91,10 @@ class WARequest(object):
         self.addParam("network_radio_type", "1")
         self.addParam("simnum", "1")
         self.addParam("hasinrc", "1")
-        self.addParam("pid", int(random.uniform(100,9999)))
+        self.addParam("pid", int(random.uniform(100, 9999)))
         self.addParam("rc", 0)
         if self._config.id:
             self.addParam("id", self._config.id)
-
 
     def setParsableVariables(self, pvars):
         self.pvars = pvars
@@ -106,14 +105,13 @@ class WARequest(object):
         elif name == "result":
             self.result = value
 
-    def addParam(self,name,value):
-        self.params.append((name,value))
+    def addParam(self, name, value):
+        self.params.append((name, value))
 
     def removeParam(self, name):
         for i in range(0, len(self.params)):
             if self.params[i][0] == name:
                 del self.params[i]
-
 
     def addHeaderField(self, name, value):
         self.headers[name] = value
@@ -124,7 +122,7 @@ class WARequest(object):
     def getUserAgent(self):
         return YowsupEnv.getCurrent().getUserAgent()
 
-    def send(self, parser = None, encrypt=True, preview=False):
+    def send(self, parser=None, encrypt=True, preview=False):
         logger.debug("send(parser=%s, encrypt=%s, preview=%s)" % (
             None if parser is None else "[omitted]",
             encrypt, preview
@@ -176,7 +174,7 @@ class WARequest(object):
         payload = base64.b64encode(keypair.publicKey.serialize()[1:] + ciphertext)
         return [('ENC', payload)]
 
-    def sendGetRequest(self, parser = None, encrypt_params=True, preview=False):
+    def sendGetRequest(self, parser=None, encrypt_params=True, preview=False):
         logger.debug("sendGetRequest(parser=%s, encrypt_params=%s, preview=%s)" % (
             None if parser is None else "[omitted]",
             encrypt_params, preview
@@ -197,9 +195,9 @@ class WARequest(object):
         headers = dict(
             list(
                 {
-                    "User-Agent":self.getUserAgent(),
+                    "User-Agent": self.getUserAgent(),
                     "Accept": parser.getMeta()
-            }.items()
+                }.items()
             ) + list(self.headers.items()))
 
         host, port, path = self.getConnectionParameters()
@@ -211,7 +209,7 @@ class WARequest(object):
             return None
 
         if not self.response.status == WARequest.OK:
-            logger.error("Request not success, status was %s"%self.response.status)
+            logger.error("Request not success, status was %s" % self.response.status)
             return {}
 
         data = self.response.read()
@@ -220,20 +218,19 @@ class WARequest(object):
         self.sent = True
         return parser.parse(data.decode(), self.pvars)
 
-    def sendPostRequest(self, parser = None):
+    def sendPostRequest(self, parser=None):
         self.response = None
-        params =  self.params #[param.items()[0] for param in self.params];
+        params = self.params  # [param.items()[0] for param in self.params];
 
         parser = parser or self.parser or ResponseParser()
 
-        headers = dict(list({"User-Agent":self.getUserAgent(),
-                "Accept": parser.getMeta(),
-                "Content-Type":"application/x-www-form-urlencoded"
-            }.items()) + list(self.headers.items()))
+        headers = dict(list({"User-Agent": self.getUserAgent(),
+                             "Accept": parser.getMeta(),
+                             "Content-Type": "application/x-www-form-urlencoded"
+                             }.items()) + list(self.headers.items()))
 
-        host,port,path = self.getConnectionParameters()
+        host, port, path = self.getConnectionParameters()
         self.response = WARequest.sendRequest(host, port, path, headers, params, "POST")
-
 
         if not self.response.status == WARequest.OK:
             logger.error("Request not success, status was %s" % self.response.status)
@@ -261,9 +258,9 @@ class WARequest(object):
             quoted = urllib_quote(char, safe='')
             out += quoted if quoted[0] != '%' else quoted.lower()
 
-        return out\
-            .replace('-', '%2d')\
-            .replace('_', '%5f')\
+        return out \
+            .replace('-', '%2d') \
+            .replace('_', '%5f') \
             .replace('~', '%7e')
 
     @classmethod
@@ -283,11 +280,11 @@ class WARequest(object):
 
         params = cls.urlencodeParams(params)
 
-        path = path + "?"+ params if reqType == "GET" and params else path
+        path = path + "?" + params if reqType == "GET" and params else path
 
         if not preview:
             logger.debug("Opening connection to %s" % host)
-            conn = httplib.HTTPSConnection(host ,port) if port == 443 else httplib.HTTPConnection(host ,port)
+            conn = httplib.HTTPSConnection(host, port) if port == 443 else httplib.HTTPConnection(host, port)
         else:
             logger.debug("Should open connection to %s, but this is a preview" % host)
             conn = None

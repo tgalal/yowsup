@@ -47,7 +47,6 @@ http://openwhatsapp.org/yowsup/donate
 
 """
 
-
 logger = logging.getLogger('yowsup-cli')
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
@@ -64,16 +63,16 @@ class YowArgParser(argparse.ArgumentParser):
         super(YowArgParser, self).__init__(*args, **kwargs)
         self._config_manager = ConfigManager()
         self.add_argument("-v", "--version",
-            action="store_true",
-            help="Print version info and exit"
-        )
+                          action="store_true",
+                          help="Print version info and exit"
+                          )
 
         self.add_argument("-d", "--debug",
-            action = "store_true",
-            help = "Show debug messages"
-        )
+                          action="store_true",
+                          help="Show debug messages"
+                          )
 
-        self.add_argument("--help-config", help = "Prints a config file sample", action = "store_true")
+        self.add_argument("--help-config", help="Prints a config file sample", action="store_true")
 
         config_group = self.add_argument_group(
             "Configuration options",
@@ -89,31 +88,31 @@ class YowArgParser(argparse.ArgumentParser):
         )
         config_group.add_argument(
             '--config-env',
-             action = "store",
-             help = "Set the environment yowsup simulates",
-             choices = YowsupEnv.getRegisteredEnvs()
+            action="store",
+            help="Set the environment yowsup simulates",
+            choices=YowsupEnv.getRegisteredEnvs()
         )
         config_group.add_argument(
             '--config-phone',
-             action="store",
-             help=" Your full phone number including the country code you defined in 'cc',"
-                    " without preceeding '+' or '00'"
+            action="store",
+            help=" Your full phone number including the country code you defined in 'cc',"
+                 " without preceeding '+' or '00'"
         )
         config_group.add_argument(
             '--config-cc',
-             action="store",
-             help="Country code. See http://www.ipipi.com/networkList.do."
+            action="store",
+            help="Country code. See http://www.ipipi.com/networkList.do."
         )
         config_group.add_argument(
             '--config-pushname',
-             action="store",
-             help="Push/Display name to use "
+            action="store",
+            help="Push/Display name to use "
         )
         config_group.add_argument(
             '--config-id',
-             action="store",
-             help="Base64 encoded Identity/Recovery token, typically generated and used during registration or account "
-                  "recovery."
+            action="store",
+            help="Base64 encoded Identity/Recovery token, typically generated and used during registration or account "
+                 "recovery."
         )
         config_group.add_argument(
             '--config-mcc',
@@ -137,33 +136,33 @@ class YowArgParser(argparse.ArgumentParser):
         )
         config_group.add_argument(
             '--config-client_static_keypair',
-             action="store",
-             help="Base64 encoded concatenation of user keypair's private bytes and public bytes"
+            action="store",
+            help="Base64 encoded concatenation of user keypair's private bytes and public bytes"
         )
         config_group.add_argument(
             '--config-server_static_public',
-             action="store",
-             help="Base64 encoded server's public key bytes"
+            action="store",
+            help="Base64 encoded server's public key bytes"
         )
         config_group.add_argument(
             '--config-expid',
-             action="store",
-             help="Base64 encoded expid, typically generated and used during registration"
+            action="store",
+            help="Base64 encoded expid, typically generated and used during registration"
         )
         config_group.add_argument(
             '--config-fdid',
-             action="store",
-             help="Device UUID, typically generated for registration and used at login"
+            action="store",
+            help="Device UUID, typically generated for registration and used at login"
         )
         config_group.add_argument(
             '--config-edge_routing_info',
-             action="store",
-             help="Base64 encoded edge_routing_info, normally received and persisted right after a successful login"
+            action="store",
+            help="Base64 encoded edge_routing_info, normally received and persisted right after a successful login"
         )
         config_group.add_argument(
             '--config-chat_dns_domain',
-             action="store",
-             help="Chat DNS domain, normally received and persisted right after a successful login"
+            action="store",
+            help="Chat DNS domain, normally received and persisted right after a successful login"
         )
         self.args = {}
         self._config = None  # type: Config
@@ -176,10 +175,10 @@ class YowArgParser(argparse.ArgumentParser):
 
         if self.args["debug"]:
             logger.setLevel(logging.DEBUG)
-            yowlogger.setLevel(level = logging.DEBUG)
+            yowlogger.setLevel(level=logging.DEBUG)
         else:
             logger.setLevel(logging.INFO)
-            yowlogger.setLevel(level = logging.INFO)
+            yowlogger.setLevel(level=logging.INFO)
 
         config_phone = self.args["config_phone"]
 
@@ -271,12 +270,13 @@ class ConfigArgParser(YowArgParser):
         gp = self.add_argument_group("Yowsup Config Actions")
         exgp = gp.add_mutually_exclusive_group()
 
-        exgp.add_argument("-p", '--preview-config', help='Preview yowsup config', action="store", choices=("json", "keyval"), required=False)
+        exgp.add_argument("-p", '--preview-config', help='Preview yowsup config', action="store",
+                          choices=("json", "keyval"), required=False)
         exgp.add_argument("-w", '--write', help='Write configuration', action="store_true", required=False)
 
     def process(self):
         super(ConfigArgParser, self).process()
-        preview_format =  self.args["preview_config"]
+        preview_format = self.args["preview_config"]
         if preview_format == "json":
             print(self._config_manager.config_to_str(self._config, ConfigManager.TYPE_JSON))
         elif preview_format == "keyval":
@@ -293,13 +293,17 @@ class RegistrationArgParser(YowArgParser):
         self.description = "WhatsApp Registration options"
 
         self.add_argument('--no-encrypt', action="store_true", help="Don't encrypt request parameters before sending")
-        self.add_argument('-p', '--preview', action="store_true", help="Preview requests only, will not attempt to connect and send")
+        self.add_argument('-p', '--preview', action="store_true",
+                          help="Preview requests only, will not attempt to connect and send")
 
         regSteps = self.add_argument_group("Modes")
         regSteps = regSteps.add_mutually_exclusive_group()
 
-        regSteps.add_argument("-r", '--requestcode', help='Request the digit registration code from Whatsapp.', action="store", required=False, metavar="(sms|voice)")
-        regSteps.add_argument("-R", '--register', help='Register account on Whatsapp using the code you previously received', action="store", required=False, metavar="code")
+        regSteps.add_argument("-r", '--requestcode', help='Request the digit registration code from Whatsapp.',
+                              action="store", required=False, metavar="(sms|voice)")
+        regSteps.add_argument("-R", '--register',
+                              help='Register account on Whatsapp using the code you previously received',
+                              action="store", required=False, metavar="code")
         self._encrypt = True
         self._preview = False
 
@@ -310,15 +314,15 @@ class RegistrationArgParser(YowArgParser):
         self._encrypt = not self.args["no_encrypt"]
         self._preview = self.args["preview"]
 
-        if not "mcc"     in config: config["mcc"] = "000"
-        if not "mnc"     in config: config["mnc"] = "000"
+        if not "mcc" in config: config["mcc"] = "000"
+        if not "mnc" in config: config["mnc"] = "000"
         if not "sim_mcc" in config: config["sim_mcc"] = "000"
         if not "sim_mnc" in config: config["sim_mnc"] = "000"
 
         try:
             assert self.args["requestcode"] or self.args["register"], "Must specify one of the modes -r/-R"
-            assert "cc"      in config, "Must specify cc (country code)"
-            assert "phone"   in config, "Must specify phone number"
+            assert "cc" in config, "Must specify cc (country code)"
+            assert "phone" in config, "Must specify phone number"
         except AssertionError as e:
             print(e)
             print("\n")
@@ -376,28 +380,29 @@ class RegistrationArgParser(YowArgParser):
         for k, v in result.items():
             if v is None:
                 continue
-            out.append("%s: %s" %(k, v.encode("utf-8") if type(v) is unistr else v))
+            out.append("%s: %s" % (k, v.encode("utf-8") if type(v) is unistr else v))
 
         return "\n".join(out)
+
 
 class DemosArgParser(YowArgParser):
     def __init__(self, *args, **kwargs):
         super(DemosArgParser, self).__init__(*args, **kwargs)
         self.description = "Run a yowsup demo"
 
-
         cmdopts = self.add_argument_group("Command line interface demo")
-        cmdopts.add_argument('-y', '--yowsup', action = "store_true", help = "Start the Yowsup command line client")
+        cmdopts.add_argument('-y', '--yowsup', action="store_true", help="Start the Yowsup command line client")
 
         echoOpts = self.add_argument_group("Echo client demo")
-        echoOpts.add_argument('-e', '--echo', action = "store_true", help = "Start the Yowsup Echo client")
+        echoOpts.add_argument('-e', '--echo', action="store_true", help="Start the Yowsup Echo client")
 
         sendOpts = self.add_argument_group("Send client demo")
-        sendOpts.add_argument('-s', '--send', action="store", help = "Send a message to specified phone number, "
-                                                                     "wait for server receipt and exit",
-                              metavar=("phone", "message"), nargs = 2)
+        sendOpts.add_argument('-s', '--send', action="store", help="Send a message to specified phone number, "
+                                                                   "wait for server receipt and exit",
+                              metavar=("phone", "message"), nargs=2)
         syncContacts = self.add_argument_group("Sync contacts")
-        syncContacts.add_argument('-S','--sync', action = "store" , help = "Sync ( check valid ) whatsapp contacts",metavar =("contacts"))
+        syncContacts.add_argument('-S', '--sync', action="store", help="Sync ( check valid ) whatsapp contacts",
+                                  metavar=("contacts"))
 
         logging = self.add_argument_group("Logging options")
         logging.add_argument("--log-dissononce", action="store_true", help="Configure logging for dissononce/noise")
@@ -476,7 +481,7 @@ class DemosArgParser(YowArgParser):
             sys.exit(1)
         try:
             self.printInfoText()
-            stack = contacts.YowsupSyncStack(credentials,self.args["sync"].split(','), not self.args["unmoxie"])
+            stack = contacts.YowsupSyncStack(credentials, self.args["sync"].split(','), not self.args["unmoxie"])
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
@@ -485,18 +490,17 @@ class DemosArgParser(YowArgParser):
 
 if __name__ == "__main__":
     args = sys.argv
-    if(len(args) > 1):
+    if (len(args) > 1):
         del args[0]
 
-
     modeDict = {
-        "demos":        DemosArgParser,
+        "demos": DemosArgParser,
         "registration": RegistrationArgParser,
         "config": ConfigArgParser,
-        "version":      None
+        "version": None
     }
 
-    if(len(args) == 0 or args[0] not in modeDict):
+    if (len(args) == 0 or args[0] not in modeDict):
         print("Available commands:\n===================")
         print(", ".join(modeDict.keys()))
 
