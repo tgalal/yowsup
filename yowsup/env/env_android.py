@@ -22,10 +22,10 @@ class AndroidYowsupEnv(YowsupEnv):
 
     _VERSION = "2.19.51"
     _OS_NAME = "Android"
-    _OS_VERSION = "4.3"
-    _DEVICE_NAME = "endeavoru"
-    _MANUFACTURER = "HTC"
-    _BUILD_VERSION = "IMM76D"
+    _OS_VERSION = "8.0.0"
+    _DEVICE_NAME = "star2lte"
+    _MANUFACTURER = "samsung"
+    _BUILD_VERSION = "star2ltexx-user 8.0.0 R16NW G965FXXU1ARCC release-keys"
     _AXOLOTL = True
 
     def getVersion(self):
