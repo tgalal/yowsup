@@ -35,7 +35,7 @@ password=NDkxNTIyNTI1NjAyMkBzLndoYXRzYXBwLm5ldA==
 CR_TEXT = """yowsup-cli  v{cliVersion}
 yowsup      v{yowsupVersion}
 
-Copyright (c) 2012-2016 Tarek Galal
+Copyright (c) 2012-2019 Tarek Galal
 http://www.openwhatsapp.org
 
 This software is provided free of charge. Copying and redistribution is
