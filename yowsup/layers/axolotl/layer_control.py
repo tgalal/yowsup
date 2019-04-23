@@ -56,7 +56,7 @@ class AxolotlControlLayer(AxolotlBaseLayer):
                 self.manager.load_latest_signed_prekey(generate=True),
                 self._unsent_prekeys[:], reboot_connection=True
             )
-            self._unsent_prekeys.clear()
+            self._unsent_prekeys = []
 
     @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
     def on_disconnected(self, yowLayerEvent):
