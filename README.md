@@ -22,6 +22,17 @@ uses:
  - pillow [send images]
 ```
 
+## See also
+
+During maintenance of yowsup, several projects have been spawned out in order to support different features that get
+introduced by WhatsApp. Some of those features are not necessarily exclusive to WhatsApp and therefore it only made
+sense to maintain some parts as standalone projects:
+
+- [python-axolotl](https://github.com/tgalal/python-axolotl): Python port of
+[libsignal-protocol-java](https://github.com/signalapp/libsignal-protocol-java), providing E2E encryption
+- [consonance](https://github.com/tgalal/consonance/): WhatsApp's handshake implementation using Noise Protocol
+- [dissononce](https://github.com/tgalal/dissononce):  A python implementation for
+[Noise Protocol Framework](https://noiseprotocol.org/)
 
 
 ## Quickstart
