@@ -2,6 +2,9 @@ from yowsup.structs import ProtocolTreeNode
 import math
 import binascii
 import sys
+import zlib
+
+
 class ReadDecoder:
     def __init__(self, tokenDictionary):
         self.tokenDictionary = tokenDictionary
@@ -11,7 +14,7 @@ class ReadDecoder:
             data = bytearray(data)
 
         if data[0] & self.tokenDictionary.FLAG_DEFLATE != 0:
-            raise ValueError("deflate payloads are not supported")
+            data = bytearray(b'\x00' + zlib.decompress(bytes(data[1:])))
         if data[0] & self.tokenDictionary.FLAG_SEGMENTED != 0:
             raise ValueError("server to client stanza fragmentation not supported")
         return self.nextTreeInternal(data[1:])
