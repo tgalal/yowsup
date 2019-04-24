@@ -3,6 +3,31 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project (kinda) adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0]
+
+### Changed
+
+- Network layer prevents createConnection if already connected
+- Fixed crash when config path does not exist
+- yowsup-cli will interpret -c as phone if load_path fails
+- Allow keypair in credentials to be bytes
+- Noise layer now uses credential's client_static_keypair if set, instead of loading it from stored config
+- Improved config type detection logic, refs #2664
+- Fixed some python2-related problems (long-type phone numbers, missing list.clear() method), refs #2664
+- Updated consonance to fix dissononce's machine.next and enforce cryptography>=0.25
+
+### Added
+
+- Complete asyncore dispatcher implementation.
+- Support for decoding deflate compressed data, fixes #2671
+- Specifying a connection dispatcher (asyncore/socket) using YowNetworkLayer.PROP_DISPATCHER
+- --layer-network-dispatcher to cli demos
+
+### Removed
+
+- threading from socket dispatcher, connecting application should ensure the connection is not blocking, for
+example by triggering connect in a bg thread.
+
 ## [3.0.0]
 
 ### Changed
