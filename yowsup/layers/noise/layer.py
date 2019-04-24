@@ -10,6 +10,8 @@ from consonance.protocol import WANoiseProtocol
 from consonance.config.client import ClientConfig
 from consonance.config.useragent import UserAgentConfig
 from consonance.streams.segmented.blockingqueue import BlockingQueueSegmentedStream
+from consonance.structs.keypair import KeyPair
+
 import threading
 import logging
 
@@ -56,6 +58,9 @@ class YowNoiseLayer(YowLayer):
         config = self._config_manager.load(self._username)  # type: yowsup.config.v1.config.Config
         # event's keypair will override config's keypair
         local_static = local_static or config.client_static_keypair
+        if type(local_static) is bytes:
+            local_static = KeyPair.from_bytes(local_static)
+        assert type(local_static) is KeyPair
         passive = event.getArg('passive')
 
         self.setProp(YowNoiseSegmentsLayer.PROP_ENABLED, False)
