@@ -25,7 +25,7 @@ class Config(config.Config):
     ):
         super(Config, self).__init__(1)
 
-        self._phone = str(phone)  # type: str
+        self._phone = str(phone) if phone is not None else None  # type: str
         self._cc = cc  # type: int
         self._password = password  # type: str
         self._pushname = pushname  # type: str
@@ -56,7 +56,7 @@ class Config(config.Config):
 
     @phone.setter
     def phone(self, value):
-        self._phone = value
+        self._phone = str(value) if value is not None else None
 
     @property
     def cc(self):
