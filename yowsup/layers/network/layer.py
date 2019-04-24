@@ -9,11 +9,9 @@ logger = logging.getLogger(__name__)
 
 
 class YowNetworkLayer(YowLayer, ConnectionCallbacks):
-    '''
-        send:       bytearray -> None
-        receive:    bytearray -> bytearray
-    '''
-
+    """This layer wraps a connection dispatcher that provides connection and a communication channel
+    to remote endpoints. Unless explicitly configured, applications should not make assumption about
+    the dispatcher being used as the default dispatcher could be changed across versions"""
     EVENT_STATE_CONNECT         = "org.openwhatsapp.yowsup.event.network.connect"
     EVENT_STATE_DISCONNECT      = "org.openwhatsapp.yowsup.event.network.disconnect"
     EVENT_STATE_CONNECTED       = "org.openwhatsapp.yowsup.event.network.connected"
