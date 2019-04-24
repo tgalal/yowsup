@@ -73,17 +73,20 @@ class ConfigManager(object):
         :return:
         :rtype:
         """
-        logger.debug("load(path=%s)" % path)
-        configtype = self.guess_type(path)
-        logger.debug("Detected config type: %s" % self._type_to_str(configtype))
-        if configtype in self.TYPES:
-            logger.debug("Opening config for reading")
-            with open(path, 'r') as f:
-                data = f.read()
-            datadict = self.TYPES[configtype]().reverse(data)
-            return self.load_data(datadict)
+        logger.debug("load_path(path=%s)" % path)
+        if os.path.isfile(path):
+            configtype = self.guess_type(path)
+            logger.debug("Detected config type: %s" % self._type_to_str(configtype))
+            if configtype in self.TYPES:
+                logger.debug("Opening config for reading")
+                with open(path, 'r') as f:
+                    data = f.read()
+                datadict = self.TYPES[configtype]().reverse(data)
+                return self.load_data(datadict)
+            else:
+                raise ValueError("Unsupported config type")
         else:
-            raise ValueError("Unsupported config type")
+            logger.warn("load_path couldn't find the path: %s" % path)
 
     def load_data(self, datadict):
         logger.debug("Loading config")
