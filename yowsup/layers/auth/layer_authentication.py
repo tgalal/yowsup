@@ -5,7 +5,6 @@ from .protocolentities import *
 from .layer_interface_authentication import YowAuthenticationProtocolLayerInterface
 from .protocolentities import StreamErrorProtocolEntity
 
-import base64
 
 class YowAuthenticationProtocolLayer(YowProtocolLayer):
     EVENT_AUTHED  = "org.openwhatsapp.yowsup.event.auth.authed"

@@ -35,7 +35,7 @@ class YowNoiseLayer(YowLayer):
         )  # type: WANoiseProtocol
 
         self._handshake_worker = None
-        self._stream = BlockingQueueSegmentedStream() # type: BlockingQueueSegmentedStream
+        self._stream = BlockingQueueSegmentedStream()  # type: BlockingQueueSegmentedStream
         self._read_buffer = bytearray()
         self._flush_lock = threading.Lock()
         self._incoming_segments_queue = Queue.Queue()

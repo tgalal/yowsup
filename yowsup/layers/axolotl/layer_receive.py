@@ -7,17 +7,12 @@ from yowsup.structs import ProtocolTreeNode
 from yowsup.layers.axolotl.props import PROP_IDENTITY_AUTOTRUST
 from yowsup.axolotl import exceptions
 
-from axolotl.groups.groupcipher import GroupCipher
-
 from axolotl.untrustedidentityexception import UntrustedIdentityException
-from axolotl.axolotladdress import AxolotlAddress
-from axolotl.groups.senderkeyname import SenderKeyName
-from axolotl.groups.groupsessionbuilder import GroupSessionBuilder
-from axolotl.protocol.senderkeydistributionmessage import SenderKeyDistributionMessage
 
 import logging
 import copy
 logger = logging.getLogger(__name__)
+
 
 class AxolotlReceivelayer(AxolotlBaseLayer):
     def __init__(self):
@@ -51,7 +46,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
 
     def onEncrMediaResult(self, resultNode):
         pass
-
 
     def processPendingIncomingMessages(self, jid, participantJid = None):
         conversationIdentifier = (jid, participantJid)
