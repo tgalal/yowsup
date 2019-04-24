@@ -191,6 +191,8 @@ class YowArgParser(argparse.ArgumentParser):
 
         if self.args["config"]:
             self._config = self._config_manager.load_path(self.args["config"])
+            if self._config is None:
+                self._config = self._config_manager.load(self.args["config"])
         elif config_phone:
             self._config = self._config_manager.load(config_phone)
         else:
