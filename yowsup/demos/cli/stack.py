@@ -9,21 +9,23 @@ class YowsupCliStack(object):
     def __init__(self, credentials):
         stackBuilder = YowStackBuilder()
 
-        self.stack = stackBuilder\
+        self._stack = stackBuilder\
             .pushDefaultLayers()\
             .push(YowsupCliLayer)\
             .build()
 
-        # self.stack.setCredentials(credentials)
-        self.stack.setCredentials(credentials)
-        self.stack.setProp(PROP_IDENTITY_AUTOTRUST, True)
+        self._stack.setCredentials(credentials)
+        self._stack.setProp(PROP_IDENTITY_AUTOTRUST, True)
+
+    def set_prop(self, prop, val):
+        self._stack.setProp(prop, val)
 
     def start(self):
         print("Yowsup Cli client\n==================\nType /help for available commands\n")
-        self.stack.broadcastEvent(YowLayerEvent(YowsupCliLayer.EVENT_START))
+        self._stack.broadcastEvent(YowLayerEvent(YowsupCliLayer.EVENT_START))
 
         try:
-            self.stack.loop()
+            self._stack.loop()
         except KeyboardInterrupt:
             print("\nYowsdown")
             sys.exit(0)

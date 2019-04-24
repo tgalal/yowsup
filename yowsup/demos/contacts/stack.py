@@ -15,15 +15,18 @@ class YowsupSyncStack(object):
         """
         stackBuilder = YowStackBuilder()
 
-        self.stack = stackBuilder \
+        self._stack = stackBuilder \
             .pushDefaultLayers() \
             .push(SyncLayer) \
             .build()
 
-        self.stack.setProp(SyncLayer.PROP_CONTACTS, contacts)
-        self.stack.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
-        self.stack.setCredentials(credentials)
+        self._stack.setProp(SyncLayer.PROP_CONTACTS, contacts)
+        self._stack.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
+        self._stack.setCredentials(credentials)
+
+    def set_prop(self, key, val):
+        self._stack.setProp(key, val)
 
     def start(self):
-        self.stack.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))
-        self.stack.loop()
+        self._stack.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))
+        self._stack.loop()

@@ -8,13 +8,16 @@ class YowsupEchoStack(object):
     def __init__(self, credentials):
         stackBuilder = YowStackBuilder()
 
-        self.stack = stackBuilder\
+        self._stack = stackBuilder\
             .pushDefaultLayers()\
             .push(EchoLayer)\
             .build()
 
-        self.stack.setCredentials(credentials)
+        self._stack.setCredentials(credentials)
+
+    def set_prop(self, key, val):
+        self._stack.setProp(key, val)
 
     def start(self):
-        self.stack.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))
-        self.stack.loop()
+        self._stack.broadcastEvent(YowLayerEvent(YowNetworkLayer.EVENT_STATE_CONNECT))
+        self._stack.loop()
