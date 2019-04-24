@@ -7,6 +7,9 @@ class ReadDecoder:
         self.tokenDictionary = tokenDictionary
 
     def getProtocolTreeNode(self, data):
+        if type(data) is list:
+            data = bytearray(data)
+
         if data[0] & self.tokenDictionary.FLAG_DEFLATE != 0:
             raise ValueError("deflate payloads are not supported")
         if data[0] & self.tokenDictionary.FLAG_SEGMENTED != 0:
