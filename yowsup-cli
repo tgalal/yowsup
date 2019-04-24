@@ -7,6 +7,7 @@ from yowsup.config.manager import ConfigManager
 
 from yowsup.config.v1.config import Config
 from yowsup import logger as yowlogger, formatter
+from yowsup.layers.network.layer import YowNetworkLayer
 
 from consonance.structs.publickey import PublicKey
 from consonance.structs.keypair import KeyPair
@@ -392,9 +393,21 @@ class RegistrationArgParser(YowArgParser):
 
 
 class DemosArgParser(YowArgParser):
+
+    LAYER_NETWORK_DISPATCHERS_MAP = {
+        "socket": YowNetworkLayer.DISPATCHER_SOCKET,
+        "asyncore": YowNetworkLayer.DISPATCHER_ASYNCORE
+    }
+
     def __init__(self, *args, **kwargs):
         super(DemosArgParser, self).__init__(*args, **kwargs)
         self.description = "Run a yowsup demo"
+
+        net_layer_opts = self.add_argument_group("Network layer props")
+        net_layer_opts.add_argument(
+            '--layer-network-dispatcher', action="store", choices=("asyncore", "socket"),
+            help="Specify which connection dispatcher to use"
+        )
 
         cmdopts = self.add_argument_group("Command line interface demo")
         cmdopts.add_argument('-y', '--yowsup', action="store_true", help="Start the Yowsup command line client")
@@ -414,6 +427,8 @@ class DemosArgParser(YowArgParser):
         logging.add_argument("--log-dissononce", action="store_true", help="Configure logging for dissononce/noise")
         logging.add_argument("--log-consonance", action="store_true", help="Configure logging for consonance")
 
+        self._layer_network_dispatcher = None
+
     def process(self):
         super(DemosArgParser, self).process()
 
@@ -425,6 +440,11 @@ class DemosArgParser(YowArgParser):
             from consonance import logger as consonance_logger, ch as consonance_ch
             consonance_logger.setLevel(logger.level)
             consonance_ch.setFormatter(formatter)
+
+        if self.args["layer_network_dispatcher"] is not None:
+            self._layer_network_dispatcher = self.LAYER_NETWORK_DISPATCHERS_MAP[
+                self.args["layer_network_dispatcher"]
+            ]
 
         if self.args["yowsup"]:
             self.startCmdline()
@@ -447,6 +467,8 @@ class DemosArgParser(YowArgParser):
             sys.exit(1)
         self.printInfoText()
         stack = cli.YowsupCliStack(credentials)
+        if self._layer_network_dispatcher is not None:
+            stack.set_prop(YowNetworkLayer.PROP_DISPATCHER, self._layer_network_dispatcher)
         stack.start()
 
     def startEcho(self):
@@ -458,6 +480,8 @@ class DemosArgParser(YowArgParser):
         try:
             self.printInfoText()
             stack = echoclient.YowsupEchoStack(credentials)
+            if self._layer_network_dispatcher is not None:
+                stack.set_prop(YowNetworkLayer.PROP_DISPATCHER, self._layer_network_dispatcher)
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
@@ -469,10 +493,11 @@ class DemosArgParser(YowArgParser):
         if not credentials:
             print("Error: You must specify a configuration method")
             sys.exit(1)
-
         try:
             self.printInfoText()
             stack = sendclient.YowsupSendStack(credentials, [([self.args["send"][0], self.args["send"][1]])])
+            if self._layer_network_dispatcher is not None:
+                stack.set_prop(YowNetworkLayer.PROP_DISPATCHER, self._layer_network_dispatcher)
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
@@ -487,6 +512,8 @@ class DemosArgParser(YowArgParser):
         try:
             self.printInfoText()
             stack = contacts.YowsupSyncStack(credentials, self.args["sync"].split(','))
+            if self._layer_network_dispatcher is not None:
+                stack.set_prop(YowNetworkLayer.PROP_DISPATCHER, self._layer_network_dispatcher)
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
