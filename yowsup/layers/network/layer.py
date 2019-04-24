@@ -69,7 +69,10 @@ class YowNetworkLayer(YowLayer, ConnectionCallbacks):
 
     @EventCallback(EVENT_STATE_CONNECT)
     def onConnectLayerEvent(self, ev):
-        self.createConnection()
+        if not self.connected:
+            self.createConnection()
+        else:
+            logger.warn("Received connect event while already connected")
         return True
 
     @EventCallback(EVENT_STATE_DISCONNECT)
