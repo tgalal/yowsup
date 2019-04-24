@@ -51,8 +51,11 @@ class YowNoiseLayer(YowLayer):
     @EventCallback(YowAuthenticationProtocolLayer.EVENT_AUTH)
     def on_auth(self, event):
         logger.debug("Received auth event")
-        self._username = int(event.getArg('username'))
+        credentials = event.getArg("credentials")
+        self._username, local_static = int(credentials[0]), credentials[1]
         config = self._config_manager.load(self._username)  # type: yowsup.config.v1.config.Config
+        # event's keypair will override config's keypair
+        local_static = local_static or config.client_static_keypair
         passive = event.getArg('passive')
 
         self.setProp(YowNoiseSegmentsLayer.PROP_ENABLED, False)
@@ -67,7 +70,6 @@ class YowNoiseLayer(YowLayer):
         self.setProp(YowNoiseSegmentsLayer.PROP_ENABLED, True)
 
         remote_static = config.server_static_public
-        local_static = config.client_static_keypair
 
         self._rs = remote_static
         yowsupenv = YowsupEnv.getCurrent()

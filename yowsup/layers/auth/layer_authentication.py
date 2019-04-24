@@ -33,18 +33,14 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         self.broadcastEvent(
             YowLayerEvent(
                 self.EVENT_AUTH,
-                username=self.getUsername(False),
+                credentials=self.getProp(self.PROP_CREDENTIALS),
                 passive=self.getProp(self.PROP_PASSIVE, False)
             )
         )
 
-    def __getCredentials(self, credentials = None):
-        u, pb64 = credentials or self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)
-        return u, None
-
     def setCredentials(self, credentials):
-        self.setProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS, credentials) #keep for now
-        self._credentials = self.__getCredentials(credentials)
+        self.setProp(self.PROP_CREDENTIALS, credentials) #keep for now
+        self._credentials = credentials
 
 #
     def getUsername(self, full = False):
