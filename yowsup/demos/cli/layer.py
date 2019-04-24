@@ -8,6 +8,7 @@ from yowsup.common import YowConstants
 import datetime
 import os
 import logging
+import threading
 from yowsup.layers.protocol_groups.protocolentities      import *
 from yowsup.layers.protocol_presence.protocolentities    import *
 from yowsup.layers.protocol_messages.protocolentities    import *
@@ -439,7 +440,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     def L(self):
         if self.connected:
             return self.output("Already connected, disconnect first")
-        self.getLayerInterface(YowNetworkLayer).connect()
+        threading.Thread(target=lambda: self.getLayerInterface(YowNetworkLayer).connect()).start()
         return True
 
     ######## receive #########

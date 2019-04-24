@@ -1,10 +1,9 @@
 from yowsup.layers.network.dispatcher.dispatcher import YowConnectionDispatcher
 import socket
-import threading
 import logging
-import traceback
 
 logger = logging.getLogger(__name__)
+
 
 class SocketConnectionDispatcher(YowConnectionDispatcher):
     def __init__(self, connectionCallbacks):
@@ -14,7 +13,7 @@ class SocketConnectionDispatcher(YowConnectionDispatcher):
     def connect(self, host):
         if not self.socket:
             self.socket = socket.socket()
-            threading.Thread(target=self.connectAndLoop, args=(host,)).start()
+            self.connectAndLoop(host)
         else:
             logger.error("Already connected?")
 
@@ -44,9 +43,6 @@ class SocketConnectionDispatcher(YowConnectionDispatcher):
                     break
             self.connectionCallbacks.onDisconnected()
         except Exception as e:
-            # import traceback
-            #
-            traceback.print_exc()
             logger.error(e)
             self.connectionCallbacks.onConnectionError(e)
         finally:
