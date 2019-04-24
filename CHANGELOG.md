@@ -15,6 +15,7 @@ and this project (kinda) adheres to [Semantic Versioning](https://semver.org/spe
 - Improved config type detection logic, refs #2664
 - Fixed some python2-related problems (long-type phone numbers, missing list.clear() method), refs #2664
 - Updated consonance to fix dissononce's machine.next and enforce cryptography>=0.25
+- Fixed some demos not shutting down properly
 
 ### Added
 
