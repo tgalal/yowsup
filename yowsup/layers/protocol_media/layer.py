@@ -36,20 +36,20 @@ class YowMediaProtocolLayer(YowProtocolLayer):
 
     def recvMessageStanza(self, node):
         if node.getAttributeValue("type") == "media":
-            mediaNode = node.getChild("media")
-            if mediaNode.getAttributeValue("type") == "image":
+            mediaNode = node.getChild("proto")
+            if mediaNode.getAttributeValue("mediatype") == "image":
                 entity = ImageDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
-            elif mediaNode.getAttributeValue("type") == "audio":
+            elif mediaNode.getAttributeValue("mediatype") == "audio":
                 entity = AudioDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
-            elif mediaNode.getAttributeValue("type") == "video":
+            elif mediaNode.getAttributeValue("mediatype") in ("video", "gif"):
                 entity = VideoDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
-            elif mediaNode.getAttributeValue("type") == "location":
+            elif mediaNode.getAttributeValue("mediatype") == "location":
                 entity = LocationMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
-            elif mediaNode.getAttributeValue("type") == "vcard":
+            elif mediaNode.getAttributeValue("mediatype") == "vcard":
                 entity = VCardMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
 

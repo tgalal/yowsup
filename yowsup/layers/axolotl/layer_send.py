@@ -1,10 +1,12 @@
-from yowsup.layers.protocol_messages.proto.wa_pb2 import *
-from yowsup.layers.protocol_messages.proto.wa_pb2 import SenderKeyDistributionMessage as ProtoSenderKeyDistributionMessage
+from yowsup.layers.protocol_messages.proto.e2e_pb2 import Message
 from yowsup.layers.axolotl.protocolentities import *
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from yowsup.layers.protocol_groups.protocolentities import InfoGroupsIqProtocolEntity, InfoGroupsResultIqProtocolEntity
 from axolotl.protocol.whispermessage import WhisperMessage
+from axolotl.groups.senderkeyname import SenderKeyName
+from axolotl.groups.groupsessionbuilder import GroupSessionBuilder
 from yowsup.common.tools import Jid
+from yowsup.layers.protocol_messages.protocolentities.message import MessageAttributes
 import binascii
 
 import logging
@@ -69,13 +71,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
                                 2 if v2 else 1,
                                 ciphertext.serialize(), mediaType)],
                         "text" if not mediaType else "media",
-                        _id=node["id"],
-                        to=node["to"],
-                        notify=node["notify"],
-                        timestamp=node["timestamp"],
-                        participant=node["participant"],
-                        offline=node["offline"],
-                        retry=node["retry"]
+                        MessageAttributes.from_message_protocoltreenode(node)
                     )
                     self.toLower(encEntity.toProtocolTreeNode())
                 else:  # case of unserializable messages (audio, video) ?
@@ -85,7 +81,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
     def send(self, node):
         # if node.tag == "message" and node["to"] not in self.skipEncJids and not node.getChild("enc") or (node.getChild("media") and node.getChild("media")["mediakey"]):
-        if node.tag == "message" and not node.getChild("enc") and (node["to"] not in self.skipEncJids or node.getChild("dec") is not None):
+        if node.tag == "message" and not node.getChild("enc") and (node["to"] not in self.skipEncJids or node.getChild("proto") is not None):
             self.processPlaintextNodeAndSend(node)
         # elif node.tag == "iq" and node["xmlns"] == "w:m":
         #     mediaNode = node.getChild("media")
@@ -169,35 +165,31 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
     def sendEncEntities(self, node, encEntities):
         mediaType = None
-        messageEntity = EncryptedMessageProtocolEntity(encEntities,
-                                           "text" if not mediaType else "media",
-                                           _id=node["id"],
-                                           to=node["to"],
-                                           notify=node["notify"],
-                                           timestamp=node["timestamp"],
-                                           participant=node["participant"],
-                                           offline=node["offline"],
-                                           retry=node["retry"]
-                                           )
+        messageEntity = EncryptedMessageProtocolEntity(
+            encEntities,
+           "text" if not mediaType else "media",
+            MessageAttributes.from_message_protocoltreenode(node)
+        )
         self.enqueueSent(node)
         self.toLower(messageEntity.toProtocolTreeNode())
 
     def sendToContact(self, node):
         recipient_id = node["to"].split('@')[0]
-        decNode = node.getChild("dec")
-        messageData = decNode.getData()
+
+        protoNode = node.getChild("proto")
+        messageData = protoNode.getData()
 
         ciphertext = self.manager.encrypt(
             recipient_id,
             messageData
         )
-        mediaType = decNode["mediatype"]
+        mediaType = protoNode["mediatype"]
         return self.sendEncEntities(node, [EncProtocolEntity(EncProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncProtocolEntity.TYPE_PKMSG, 2, ciphertext.serialize(), mediaType)])
 
     def sendToGroupWithSessions(self, node, jidsNeedSenderKey = None, retryCount=0):
         jidsNeedSenderKey = jidsNeedSenderKey or []
         groupJid = node["to"]
-        decNode = node.getChild("dec")
+        protoNode = node.getChild("proto")
         encEntities = []
         if len(jidsNeedSenderKey):
             senderKeyDistributionMessage = self.manager.group_create_skmsg(groupJid)
@@ -205,23 +197,20 @@ class AxolotlSendLayer(AxolotlBaseLayer):
                 message =  self.serializeSenderKeyDistributionMessageToProtobuf(node["to"], senderKeyDistributionMessage)
 
                 if retryCount > 0:
-                    decMessage = Message.ParseFromString(decNode.getData())
-                    message = self.serializeSenderKeyDistributionMessageToProtobuf(node["to"], senderKeyDistributionMessage, decMessage)
-                else:
-                    message = self.serializeSenderKeyDistributionMessageToProtobuf(node["to"], senderKeyDistributionMessage)
+                    message.MergeFromString(protoNode.getData())
 
                 ciphertext = self.manager.encrypt(jid.split('@')[0], message.SerializeToString())
                 encEntities.append(
                     EncProtocolEntity(
                             EncProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncProtocolEntity.TYPE_PKMSG
-                        , 2, ciphertext.serialize(), decNode["mediatype"],  jid=jid
+                        , 2, ciphertext.serialize(), protoNode["mediatype"],  jid=jid
                     )
                 )
 
         if not retryCount:
-            messageData = decNode.getData()
+            messageData = protoNode.getData()
             ciphertext = self.manager.group_encrypt(groupJid, messageData)
-            mediaType = decNode["mediatype"]
+            mediaType = protoNode["mediatype"]
 
             encEntities.append(EncProtocolEntity(EncProtocolEntity.TYPE_SKMSG, 2, ciphertext, mediaType))
 
@@ -337,10 +326,9 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
     def serializeSenderKeyDistributionMessageToProtobuf(self, groupId, senderKeyDistributionMessage, message = None):
         m = message or Message()
-        sender_key_distribution_message = ProtoSenderKeyDistributionMessage()
-        sender_key_distribution_message.groupId = groupId
-        sender_key_distribution_message.axolotl_sender_key_distribution_message = senderKeyDistributionMessage.serialize()
-        m.sender_key_distribution_message.MergeFrom(sender_key_distribution_message)
+        m.sender_key_distribution_message.groupId = groupId
+        m.sender_key_distribution_message.axolotl_sender_key_distribution_message = senderKeyDistributionMessage.serialize()
+        m.sender_key_distribution_message.axolotl_sender_key_distribution_message = senderKeyDistributionMessage.serialize()
         # m.conversation = text
         return m
     ###

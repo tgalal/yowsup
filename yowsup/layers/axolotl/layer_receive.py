@@ -1,9 +1,10 @@
 from .layer_base import AxolotlBaseLayer
 
 from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
-from yowsup.layers.protocol_messages.proto.wa_pb2 import *
+from yowsup.layers.protocol_messages.proto.e2e_pb2 import *
 from yowsup.layers.axolotl.protocolentities import *
 from yowsup.structs import ProtocolTreeNode
+from yowsup.layers.protocol_messages.protocolentities.proto import ProtoProtocolEntity
 from yowsup.layers.axolotl.props import PROP_IDENTITY_AUTOTRUST
 from yowsup.axolotl import exceptions
 
@@ -114,7 +115,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.parseAndHandleMessageProto(pkMessageProtocolEntity, plaintext)
 
         node = pkMessageProtocolEntity.toProtocolTreeNode()
-        node.addChild((DecProtocolEntity(plaintext, enc.getMediaType())).toProtocolTreeNode())
+        node.addChild((ProtoProtocolEntity(plaintext, enc.getMediaType())).toProtocolTreeNode())
 
         self.toUpper(node)
 
@@ -129,7 +130,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
 
         node = encMessageProtocolEntity.toProtocolTreeNode()
-        node.addChild((DecProtocolEntity(plaintext, enc.getMediaType())).toProtocolTreeNode())
+        node.addChild((ProtoProtocolEntity(plaintext, enc.getMediaType())).toProtocolTreeNode())
 
         self.toUpper(node)
 
@@ -147,7 +148,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
 
             node = encMessageProtocolEntity.toProtocolTreeNode()
-            node.addChild((DecProtocolEntity(plaintext, enc.getMediaType())).toProtocolTreeNode())
+            node.addChild((ProtoProtocolEntity(plaintext, enc.getMediaType())).toProtocolTreeNode())
 
             self.toUpper(node)
 

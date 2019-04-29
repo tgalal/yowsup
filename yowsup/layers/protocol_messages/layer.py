@@ -16,13 +16,9 @@ class YowMessagesProtocolLayer(YowProtocolLayer):
 
     ###recieved node handlers handlers
     def recvMessageStanza(self, node):
-        decNode = node.getChild("dec")
+        protoNode = node.getChild("proto")
 
-        if decNode:
-           if decNode and decNode["mediatype"] is None:
-               self.toUpper(TextMessageProtocolEntity.fromDecryptedMessageProtocolTreeNode(node))
-
-        elif node.getAttributeValue("type") == "text" and node.getChild("body"):
-            entity = TextMessageProtocolEntity.fromProtocolTreeNode(node)
-            self.toUpper(entity) 
+        if protoNode:
+           if protoNode and protoNode["mediatype"] is None:
+               self.toUpper(TextMessageProtocolEntity.fromProtocolTreeNode(node))
 

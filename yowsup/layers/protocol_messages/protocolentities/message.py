@@ -1,29 +1,31 @@
-from yowsup.structs import ProtocolEntity, ProtocolTreeNode
+from yowsup.structs import ProtocolEntity
 from yowsup.layers.protocol_receipts.protocolentities  import OutgoingReceiptProtocolEntity
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
 from copy import deepcopy
+
 
 class MessageProtocolEntity(ProtocolEntity):
 
     MESSAGE_TYPE_TEXT = "text"
     MESSAGE_TYPE_MEDIA = "media"
 
-    def __init__(self, _type, _id = None,  _from = None, to = None, notify = None, timestamp = None,
-        participant = None, offline = None, retry = None):
-
-        assert (to or _from), "Must specify either to or _from jids to create the message"
-        assert not(to and _from), "Can't set both attributes to message at same time (to, _from)"
-
-
+    def __init__(self, messageType, messageAttributes):
+        """
+        :type messageType: str
+        :type messageAttributes: MessageAttributes
+        """
         super(MessageProtocolEntity, self).__init__("message")
-        self._type          = _type
-        self._id            = self._generateId() if _id is None else _id
-        self._from          =_from
-        self.to             = to
-        self.timestamp      = int(timestamp) if timestamp else self._getCurrentTimestamp()
-        self.notify         = notify
-        self.offline        = offline == "1" if offline is not None else offline
-        self.retry          = int(retry) if retry else None
-        self.participant    = participant
+        assert type(messageAttributes) is MessageAttributes
+
+        self._type = messageType
+        self._id = messageAttributes.id or self._generateId()
+        self._from = messageAttributes.sender
+        self.to = messageAttributes.recipient
+        self.timestamp = messageAttributes.timestamp or self._getCurrentTimestamp()
+        self.notify = messageAttributes.notify
+        self.offline = messageAttributes.offline
+        self.retry = messageAttributes.retry
+        self.participant= messageAttributes.participant
 
     def getType(self):
         return self._type
@@ -113,15 +115,7 @@ class MessageProtocolEntity(ProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-
         return MessageProtocolEntity(
-            node.getAttributeValue("type"),
-            node.getAttributeValue("id"),
-            node.getAttributeValue("from"),
-            node.getAttributeValue("to"),
-            node.getAttributeValue("notify"),
-            node.getAttributeValue("t"),
-            node.getAttributeValue("participant"),
-            node.getAttributeValue("offline"),
-            node.getAttributeValue("retry")
-            )
+            node["type"],
+            MessageAttributes.from_message_protocoltreenode(node)
+        )

@@ -25,11 +25,11 @@ class EchoLayer(YowInterfaceLayer):
 
     def onMediaMessage(self, messageProtocolEntity):
         # just print info
-        if messageProtocolEntity.getMediaType() == "image":
+        if messageProtocolEntity.media_type == "image":
             print("Echoing image %s to %s" % (messageProtocolEntity.url, messageProtocolEntity.getFrom(False)))
 
-        elif messageProtocolEntity.getMediaType() == "location":
+        elif messageProtocolEntity.media_type == "location":
             print("Echoing location (%s, %s) to %s" % (messageProtocolEntity.getLatitude(), messageProtocolEntity.getLongitude(), messageProtocolEntity.getFrom(False)))
 
-        elif messageProtocolEntity.getMediaType() == "vcard":
+        elif messageProtocolEntity.media_type == "vcard":
             print("Echoing vcard (%s, %s) to %s" % (messageProtocolEntity.getName(), messageProtocolEntity.getCardData(), messageProtocolEntity.getFrom(False)))

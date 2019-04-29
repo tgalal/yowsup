@@ -496,7 +496,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             messageOut = "Unknown message type %s " % message.getType()
             print(messageOut.toProtocolTreeNode())
 
-
         formattedDate = datetime.datetime.fromtimestamp(message.getTimestamp()).strftime('%d-%m-%Y %H:%M')
         sender = message.getFrom() if not message.isGroupMessage() else "%s/%s" % (message.getParticipant(False), message.getFrom())
         output = self.__class__.MESSAGE_FORMAT.format(
@@ -516,17 +515,17 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         return message.getBody()
 
     def getMediaMessageBody(self, message):
-        if message.getMediaType() in ("image", "audio", "video"):
+        if message.media_type in ("image", "audio", "video", "gif"):
             return self.getDownloadableMediaMessageBody(message)
         else:
-            return "[Media Type: %s]" % message.getMediaType()
+            return "[Media Type: %s]" % message.media_type
 
 
     def getDownloadableMediaMessageBody(self, message):
          return "[Media Type:{media_type}, Size:{media_size}, URL:{media_url}]".format(
-            media_type = message.getMediaType(),
-            media_size = message.getMediaSize(),
-            media_url = message.getMediaUrl()
+            media_type=message.media_type,
+            media_size=message.file_length,
+            media_url=message.url
             )
 
     def doSendMedia(self, mediaType, filePath, url, to, ip = None, caption = None):

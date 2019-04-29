@@ -1,56 +1,26 @@
-from .message import MessageProtocolEntity
-from yowsup.layers.protocol_messages.proto.wa_pb2 import *
-class TextMessageProtocolEntity(MessageProtocolEntity):
-    '''
-    <message t="{{TIME_STAMP}}" from="{{CONTACT_JID}}" 
-        offline="{{OFFLINE}}" type="text" id="{{MESSAGE_ID}}" notify="{{NOTIFY_NAME}}">
-            <body>
-                {{MESSAGE_DATA}}
-            </body>
-    </message>
-    '''
-    def __init__(self, body, _id = None,  _from = None, to = None, notify = None, 
-        timestamp = None, participant = None, offline = None, retry = None):
-        super(TextMessageProtocolEntity, self).__init__("text",_id, _from, to, notify, timestamp, participant, offline, retry)
+from .protomessage import ProtomessageProtocolEntity
+from .message import MessageAttributes
+class TextMessageProtocolEntity(ProtomessageProtocolEntity):
+    def __init__(self, body, messageAttributes=None, to=None):
+        #flexible attributes for temp backwards compat
+        assert(bool(messageAttributes) ^ bool(to)), "Either set messageAttributes, or to, and not both"
+        if to:
+            messageAttributes = MessageAttributes(recipient=to)
+        super(TextMessageProtocolEntity, self).__init__("text", messageAttributes)
         self.setBody(body)
 
-    def __str__(self):
-        out  = super(TextMessageProtocolEntity, self).__str__()
-        out += "Body: %s\n" % self.body
-        return out
+    @property
+    def conversation(self):
+        return self.proto.conversation
 
-    def setBody(self, body):
-        self.body = body
+    @conversation.setter
+    def conversation(self, value):
+        self.proto.conversation = value
 
     def getBody(self):
-        return self.body
+        #obsolete
+        return self.conversation
 
-
-    def toProtocolTreeNode(self):
-        from yowsup.layers.axolotl.protocolentities.dec import DecProtocolEntity
-
-        node = super(TextMessageProtocolEntity, self).toProtocolTreeNode()
-        m = Message()
-        m.conversation = self.getBody()
-        node.addChild(DecProtocolEntity(m.SerializeToString()).toProtocolTreeNode())
-
-        return node
-
-    @staticmethod
-    def fromProtocolTreeNode(node):
-        entity = MessageProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = TextMessageProtocolEntity
-        entity.setBody(node.getChild("body").getData())
-        return entity
-
-    @staticmethod
-    def fromDecryptedMessageProtocolTreeNode(node):
-        decNode = node.getChild("dec")
-        assert decNode is not None
-        entity = MessageProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = TextMessageProtocolEntity
-        m = Message()
-        m.ParseFromString(decNode.getData())
-
-        entity.setBody(m.conversation)
-        return entity
+    def setBody(self, body):
+        #obsolete
+        self.conversation = body
