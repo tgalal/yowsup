@@ -1,0 +1,6 @@
+protobuf==3.0.0b3
+pycrypto==2.6.1
+python-axolotl==0.1.35
+python-axolotl-curve25519==0.1
+python-dateutil==2.5.3
+six==1.10.0
