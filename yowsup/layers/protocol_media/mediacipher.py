@@ -17,6 +17,15 @@ class MediaCipher(object):
     def encrypt_image(self, plaintext, ref_key):
         return self.encrypt(plaintext, ref_key, self.INFO_IMAGE)
 
+    def encrypt_audio(self, ciphertext, ref_key):
+        return self.encrypt(ciphertext, ref_key, self.INFO_AUDIO)
+
+    def encrypt_video(self, ciphertext, ref_key):
+        return self.encrypt(ciphertext, ref_key, self.INFO_VIDEO)
+
+    def encrypt_document(self, ciphertext, ref_key):
+        return self.encrypt(ciphertext, ref_key, self.INFO_DOCUM)
+
     def decrypt_image(self, ciphertext, ref_key):
         return self.decrypt(ciphertext, ref_key, self.INFO_IMAGE)
 
