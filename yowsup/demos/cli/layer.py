@@ -9,6 +9,7 @@ import datetime
 import os
 import logging
 import threading
+import base64
 from yowsup.layers.protocol_groups.protocolentities      import *
 from yowsup.layers.protocol_presence.protocolentities    import *
 from yowsup.layers.protocol_messages.protocolentities    import *
@@ -521,11 +522,12 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             return "[Media Type: %s]" % message.media_type
 
     def getDownloadableMediaMessageBody(self, message):
-         return "[Media Type:{media_type}, Size:{media_size}, URL:{media_url}]".format(
+        return "[media_type={media_type}, length={media_size}, url={media_url}, key={media_key}]".format(
             media_type=message.media_type,
             media_size=message.file_length,
-            media_url=message.url
-            )
+            media_url=message.url,
+            media_key=base64.b64encode(message.media_key)
+        )
 
     def doSendMedia(self, mediaType, filePath, url, to, ip = None, caption = None):
         if mediaType == RequestUploadIqProtocolEntity.MEDIA_TYPE_IMAGE:
