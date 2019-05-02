@@ -2,6 +2,7 @@ from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
 from .protocolentities import ImageDownloadableMediaMessageProtocolEntity
 from .protocolentities import AudioDownloadableMediaMessageProtocolEntity
 from .protocolentities import VideoDownloadableMediaMessageProtocolEntity
+from .protocolentities import DocumentDownloadableMediaMessageProtocolEntity
 from .protocolentities import LocationMediaMessageProtocolEntity
 from .protocolentities import VCardMediaMessageProtocolEntity
 from .protocolentities import RequestUploadIqProtocolEntity, ResultRequestUploadIqProtocolEntity
@@ -40,7 +41,7 @@ class YowMediaProtocolLayer(YowProtocolLayer):
             if mediaNode.getAttributeValue("mediatype") == "image":
                 entity = ImageDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
-            elif mediaNode.getAttributeValue("mediatype") == "audio":
+            elif mediaNode.getAttributeValue("mediatype") in ("audio", "ptt"):
                 entity = AudioDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
             elif mediaNode.getAttributeValue("mediatype") in ("video", "gif"):
@@ -51,6 +52,9 @@ class YowMediaProtocolLayer(YowProtocolLayer):
                 self.toUpper(entity)
             elif mediaNode.getAttributeValue("mediatype") == "vcard":
                 entity = VCardMediaMessageProtocolEntity.fromProtocolTreeNode(node)
+                self.toUpper(entity)
+            elif mediaNode.getAttributeValue("mediatype") == "document":
+                entity = DocumentDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
 
     def sendIq(self, entity):

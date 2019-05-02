@@ -515,11 +515,10 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         return message.getBody()
 
     def getMediaMessageBody(self, message):
-        if message.media_type in ("image", "audio", "video", "gif"):
+        if message.media_type in ("image", "audio", "video", "document"):
             return self.getDownloadableMediaMessageBody(message)
         else:
             return "[Media Type: %s]" % message.media_type
-
 
     def getDownloadableMediaMessageBody(self, message):
          return "[Media Type:{media_type}, Size:{media_size}, URL:{media_url}]".format(
