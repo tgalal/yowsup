@@ -423,6 +423,13 @@ class DemosArgParser(YowArgParser):
         syncContacts.add_argument('-S', '--sync', action="store", help="Sync ( check valid ) whatsapp contacts",
                                   metavar=("contacts"))
 
+        mediasinkOpts = self.add_argument_group("Media sink demo")
+        mediasinkOpts.add_argument('-m', '--mediasink', action="store_true",
+                                   help="Start the Media Sink client")
+        mediasinkOpts.add_argument('--media-store-dir', action="store", required=False,
+                                   help="Specify where to download incoming media files, if not set "
+                                        "will download to a temporary directory.")
+
         logging = self.add_argument_group("Logging options")
         logging.add_argument("--log-dissononce", action="store_true", help="Configure logging for dissononce/noise")
         logging.add_argument("--log-consonance", action="store_true", help="Configure logging for consonance")
@@ -454,6 +461,8 @@ class DemosArgParser(YowArgParser):
             self.startSendClient()
         elif self.args["sync"]:
             self.startSyncContacts()
+        elif self.args["mediasink"]:
+            self.startMediaSink(self.args["media_store_dir"])
         else:
             return False
         return True
@@ -514,6 +523,22 @@ class DemosArgParser(YowArgParser):
             stack = contacts.YowsupSyncStack(credentials, self.args["sync"].split(','))
             if self._layer_network_dispatcher is not None:
                 stack.set_prop(YowNetworkLayer.PROP_DISPATCHER, self._layer_network_dispatcher)
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+    def startMediaSink(self, storage_dir):
+        from yowsup.demos import mediasink
+        credentials = self._config.phone, self._config.client_static_keypair
+        if not credentials:
+            print("Error: You must specify a configuration method")
+            sys.exit(1)
+        self.printInfoText()
+        stack = mediasink.MediaSinkStack(credentials, storage_dir)
+        if self._layer_network_dispatcher is not None:
+            stack.set_prop(YowNetworkLayer.PROP_DISPATCHER, self._layer_network_dispatcher)
+        try:
             stack.start()
         except KeyboardInterrupt:
             print("\nYowsdown")
