@@ -2,6 +2,9 @@ from yowsup.layers.protocol_messages.protocolentities.protomessage import Protom
 from yowsup.layers.protocol_media.protocolentities.attributes.attributes_media import MediaAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class MediaMessageProtocolEntity(ProtomessageProtocolEntity):
     TYPE_MEDIA_IMAGE = "image"
@@ -104,7 +107,8 @@ class MediaMessageProtocolEntity(ProtomessageProtocolEntity):
 
     @media_type.setter
     def media_type(self, value):
-        assert value in MediaMessageProtocolEntity.TYPES_MEDIA
+        if value not in MediaMessageProtocolEntity.TYPES_MEDIA:
+            logger.warn("media type: '%s' is not supported" % value)
         self._media_type = value
 
     def toProtocolTreeNode(self):

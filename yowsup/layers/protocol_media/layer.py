@@ -6,12 +6,14 @@ from .protocolentities import DocumentDownloadableMediaMessageProtocolEntity
 from .protocolentities import LocationMediaMessageProtocolEntity
 from .protocolentities import ContactMediaMessageProtocolEntity
 from .protocolentities import RequestUploadIqProtocolEntity, ResultRequestUploadIqProtocolEntity
+from .protocolentities import MediaMessageProtocolEntity
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity, ErrorIqProtocolEntity
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class YowMediaProtocolLayer(YowProtocolLayer):
-
-    # EVENT_REQUEST_UPLOAD = "org.openwhatsapp.org.yowsup.event.protocol_media.request_upload"
-
     def __init__(self):
         handleMap = {
             "message": (self.recvMessageStanza, self.sendMessageEntity),
@@ -56,6 +58,9 @@ class YowMediaProtocolLayer(YowProtocolLayer):
             elif mediaNode.getAttributeValue("mediatype") == "document":
                 entity = DocumentDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
+            else:
+                logger.warn("Unsupported mediatype: %s, will send receipts" % mediaNode.getAttributeValue("mediatype"))
+                self.toLower(MediaMessageProtocolEntity.fromProtocolTreeNode(node).ack(True).toProtocolTreeNode())
 
     def sendIq(self, entity):
         """
