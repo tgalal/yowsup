@@ -1,11 +1,11 @@
-from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
+from yowsup.layers import YowProtocolLayer
 from .protocolentities import ImageDownloadableMediaMessageProtocolEntity
 from .protocolentities import AudioDownloadableMediaMessageProtocolEntity
 from .protocolentities import VideoDownloadableMediaMessageProtocolEntity
 from .protocolentities import DocumentDownloadableMediaMessageProtocolEntity
 from .protocolentities import LocationMediaMessageProtocolEntity
 from .protocolentities import ContactMediaMessageProtocolEntity
-from .protocolentities import RequestUploadIqProtocolEntity, ResultRequestUploadIqProtocolEntity
+from .protocolentities import ResultRequestUploadIqProtocolEntity
 from .protocolentities import MediaMessageProtocolEntity
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity, ErrorIqProtocolEntity
 import logging
@@ -23,15 +23,6 @@ class YowMediaProtocolLayer(YowProtocolLayer):
 
     def __str__(self):
         return "Media Layer"
-
-    # def onEvent(self, yowLayerEvent):
-    #     if yowLayerEvent.getArg(self.__class__.EVENT_REQUEST_UPLOAD):
-    #         fpath = yowLayerEvent.getArg("file")
-    #         _type = yowLayerEvent.getArg("type")
-    #         assert fpath and _type, "Must specify 'file' and 'type' in EVENT_REQUEST_UPLOAD args"
-    #         entity = RequestUploadIqProtocolEntity(_type, filePath=fpath)
-    #         self._sendIq(entity, self.onRequestUploadSuccess, self.onRequestUploadError)
-
 
     def sendMessageEntity(self, entity):
         if entity.getType() == "media":
