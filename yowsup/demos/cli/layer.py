@@ -22,7 +22,8 @@ from yowsup.layers.protocol_media.protocolentities       import *
 from yowsup.layers.protocol_media.mediauploader import MediaUploader
 from yowsup.layers.protocol_profiles.protocolentities    import *
 from yowsup.common.tools import Jid
-from yowsup.common.optionalmodules import PILOptionalModule, AxolotlOptionalModule
+from yowsup.common.optionalmodules import PILOptionalModule
+from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
 
 logger = logging.getLogger(__name__)
 class YowsupCliLayer(Cli, YowInterfaceLayer):
@@ -335,13 +336,10 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @clicmd("Get shared keys")
     def keys_get(self, jids):
-        with AxolotlOptionalModule(failMessage = self.__class__.FAIL_OPT_AXOLOTL) as importFn:
-            importFn()
-            from yowsup.layers.axolotl.protocolentities.iq_key_get import GetKeysIqProtocolEntity
-            if self.assertConnected():
-                jids = [self.aliasToJid(jid) for jid in jids.split(',')]
-                entity = GetKeysIqProtocolEntity(jids)
-                self.toLower(entity)
+        if self.assertConnected():
+            jids = [self.aliasToJid(jid) for jid in jids.split(',')]
+            entity = GetKeysIqProtocolEntity(jids)
+            self.toLower(entity)
 
     @clicmd("Send init seq")
     def seq(self):

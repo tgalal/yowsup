@@ -1,7 +1,8 @@
 import importlib
 import logging
+
 logger = logging.getLogger(__name__)
-from contextlib import contextmanager
+
 
 class OptionalModule(object):
     def __init__(self, modulename, failMessage = None, require = False):
@@ -36,15 +37,3 @@ class FFVideoOptionalModule(OptionalModule):
         super(FFVideoOptionalModule, self).__init__("ffvideo",
                 failMessage=failMessage,
                 require=require)
-
-class AxolotlOptionalModule(OptionalModule):
-    def __init__(self, failMessage = None, require = False):
-        super(AxolotlOptionalModule, self).__init__("axolotl",
-                failMessage=failMessage,
-                require=require)
-
-if __name__ == "__main__":
-    with PILOptionalModule() as imp:
-        imp()
-        print("OK")
-    print("DONE")
