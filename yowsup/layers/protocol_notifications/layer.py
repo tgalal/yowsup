@@ -32,21 +32,12 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
                 self.raiseErrorForNode(node)
         elif node["type"] == "status":
             self.toUpper(StatusNotificationProtocolEntity.fromProtocolTreeNode(node))
-        elif node["type"] == "features":
-            # Not implemented
-            pass
-        elif node["type"] in [ "contacts", "subject", "w:gp2" ]:
+        elif node["type"] in ["contacts", "subject", "w:gp2"]:
             # Implemented in respectively the protocol_contacts and protocol_groups layer
             pass
-        elif node["type"] == "contacts":
-            pass
-        elif node["type"] == "web":
-            # Not implemented
-            pass
-        elif node["type"] == "psa":
-            logging.warning("Ignoring psa notification for now")
         else:
-            self.raiseErrorForNode(node)
+            logger.warn("Unsupported notification type: %s " % node["type"])
+            logger.debug("Unsupported notification node: %s" % node)
 
         ack = OutgoingAckProtocolEntity(node["id"], "notification", node["type"], node["from"], participant=node["participant"])
         self.toLower(ack.toProtocolTreeNode())
