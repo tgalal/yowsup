@@ -3,16 +3,15 @@ from axolotl.util.byteutil import ByteUtil
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
-import binascii
 import hmac
 import hashlib
 
 
 class MediaCipher(object):
-    INFO_IMAGE = binascii.unhexlify(b'576861747341707020496d616765204b657973')
-    INFO_AUDIO = binascii.unhexlify("576861747341707020417564696f204b657973")
-    INFO_VIDEO = binascii.unhexlify("576861747341707020566964656f204b657973")
-    INFO_DOCUM = binascii.unhexlify("576861747341707020446f63756d656e74204b657973")
+    INFO_IMAGE = b"WhatsApp Image Keys"
+    INFO_AUDIO = b"WhatsApp Audio Keys"
+    INFO_VIDEO = b"WhatsApp Video Keys"
+    INFO_DOCUM = b"WhatsApp Document Keys"
 
     def encrypt_image(self, plaintext, ref_key):
         return self.encrypt(plaintext, ref_key, self.INFO_IMAGE)
