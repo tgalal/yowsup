@@ -1,20 +1,24 @@
-from yowsup.layers.protocol_media.protocolentities.message_media_downloadable_video import VideoDownloadableMediaMessageProtocolEntity
-from yowsup.layers.protocol_media.protocolentities.test_message_media_downloadable import DownloadableMediaMessageProtocolEntityTest
+from yowsup.layers.protocol_media.protocolentities.message_media_downloadable_video \
+    import VideoDownloadableMediaMessageProtocolEntity
+from yowsup.layers.protocol_messages.proto.e2e_pb2 import Message
+from .test_message_media import MediaMessageProtocolEntityTest
 
-class VideoDownloadableMediaMessageProtocolEntityTest(DownloadableMediaMessageProtocolEntityTest):
+
+class VideoDownloadableMediaMessageProtocolEntityTest(MediaMessageProtocolEntityTest):
     def setUp(self):
         super(VideoDownloadableMediaMessageProtocolEntityTest, self).setUp()
         self.ProtocolEntity = VideoDownloadableMediaMessageProtocolEntity
-        mediaNode = self.node.getChild("media")
-        mediaNode.setAttribute("abitrate",  "165")
-        mediaNode.setAttribute("acodec",    "aac")
-        mediaNode.setAttribute("asampfmt",  "flt")
-        mediaNode.setAttribute("asampfreq", "48000")
-        mediaNode.setAttribute("duration",  "61")
-        mediaNode.setAttribute("encoding",  "raw")
-        mediaNode.setAttribute("fps",       "24")
-        mediaNode.setAttribute("height",    "452")
-        mediaNode.setAttribute("seconds",   "61")
-        mediaNode.setAttribute("vbitrate",  "1862")
-        mediaNode.setAttribute("vcodec",    "h264")
-        mediaNode.setAttribute("width",     "800")
+        proto_node = self.node.getChild("proto")
+        m = Message()
+        media_message = Message.VideoMessage()
+        media_message.url = "url"
+        media_message.mimetype = "video/mp4"
+        media_message.caption = "caption"
+        media_message.file_sha256 = b"SHA256"
+        media_message.file_length = 123
+        media_message.height = 20
+        media_message.width = 20
+        media_message.media_key = b"MEDIA_KEY"
+        media_message.jpeg_thumbnail = b"THUMBNAIL"
+        m.video_message.MergeFrom(media_message)
+        proto_node.setData(m.SerializeToString())

@@ -1,6 +1,8 @@
 from yowsup.layers.protocol_messages.protocolentities.test_message_text import TextMessageProtocolEntityTest
 from yowsup.layers.protocol_messages.protocolentities.message_text_broadcast import BroadcastTextMessage
 from yowsup.structs import ProtocolTreeNode
+
+
 class BroadcastTextMessageTest(TextMessageProtocolEntityTest):
     def setUp(self):
         super(BroadcastTextMessageTest, self).setUp()
