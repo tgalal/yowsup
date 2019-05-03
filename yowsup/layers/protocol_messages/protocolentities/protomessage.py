@@ -34,7 +34,7 @@ class ProtomessageProtocolEntity(MessageProtocolEntity):
 
     def toProtocolTreeNode(self):
         node = super(ProtomessageProtocolEntity, self).toProtocolTreeNode()
-        node.addChild(ProtoProtocolEntity(self.proto.SerializeToString()).toProtocolTreeNode())
+        node.addChild(ProtoProtocolEntity(self._proto.SerializeToString()).toProtocolTreeNode())
 
         return node
 
