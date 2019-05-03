@@ -7,6 +7,7 @@ from .protocolentities import LocationMediaMessageProtocolEntity
 from .protocolentities import ContactMediaMessageProtocolEntity
 from .protocolentities import ResultRequestUploadIqProtocolEntity
 from .protocolentities import MediaMessageProtocolEntity
+from .protocolentities import ExtendedTextMediaMessageProtocolEntity
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity, ErrorIqProtocolEntity
 import logging
 
@@ -48,6 +49,9 @@ class YowMediaProtocolLayer(YowProtocolLayer):
                 self.toUpper(entity)
             elif mediaNode.getAttributeValue("mediatype") == "document":
                 entity = DocumentDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
+                self.toUpper(entity)
+            elif mediaNode.getAttributeValue("mediatype") == "url":
+                entity = ExtendedTextMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
             else:
                 logger.warn("Unsupported mediatype: %s, will send receipts" % mediaNode.getAttributeValue("mediatype"))

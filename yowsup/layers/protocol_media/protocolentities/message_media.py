@@ -15,11 +15,12 @@ class MediaMessageProtocolEntity(ProtomessageProtocolEntity):
     TYPE_MEDIA_DOCUMENT = "document"
     TYPE_MEDIA_GIF = "gif"
     TYPE_MEDIA_PTT = "ptt"
+    TYPE_MEDIA_URL = "url"
 
     TYPES_MEDIA = (
         TYPE_MEDIA_IMAGE, TYPE_MEDIA_AUDIO, TYPE_MEDIA_VIDEO,
         TYPE_MEDIA_CONTACT, TYPE_MEDIA_LOCATION, TYPE_MEDIA_DOCUMENT,
-        TYPE_MEDIA_GIF, TYPE_MEDIA_PTT
+        TYPE_MEDIA_GIF, TYPE_MEDIA_PTT, TYPE_MEDIA_URL
     )
 
     def __init__(self, media_type, media_message_attrs, message_attrs):
