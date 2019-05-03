@@ -47,8 +47,7 @@ class MediaSinkLayer(YowInterfaceLayer):
     def on_message(self, message_protocolentity):
         self.toLower(message_protocolentity.ack())
         self.toLower(message_protocolentity.ack(True))
-
-        if isinstance(message_protocolentity, DownloadableMediaMessageProtocolEntity):
+        if isinstance(message_protocolentity, MediaMessageProtocolEntity):
             self.on_media_message(message_protocolentity)
 
     @ProtocolEntityCallback("receipt")

@@ -1,7 +1,8 @@
 from yowsup.layers.protocol_media.mediacipher import MediaCipher
 from yowsup.layers.protocol_media.protocolentities \
     import ImageDownloadableMediaMessageProtocolEntity, AudioDownloadableMediaMessageProtocolEntity,\
-    VideoDownloadableMediaMessageProtocolEntity, DocumentDownloadableMediaMessageProtocolEntity
+    VideoDownloadableMediaMessageProtocolEntity, DocumentDownloadableMediaMessageProtocolEntity, \
+    ContactMediaMessageProtocolEntity, DownloadableMediaMessageProtocolEntity
 
 import threading
 from tqdm import tqdm
@@ -99,10 +100,16 @@ class SinkWorker(threading.Thread):
             media_message_protocolentity = self._jobs.get()
             if media_message_protocolentity is None:
                 sys.exit(0)
-            logger.info(
-                "Processing [url=%s, media_key=%s]" %
-                (media_message_protocolentity.url, base64.b64encode(media_message_protocolentity.media_key))
-            )
+            if isinstance(media_message_protocolentity, DownloadableMediaMessageProtocolEntity):
+                logger.info(
+                    "Processing [url=%s, media_key=%s]" %
+                    (media_message_protocolentity.url, base64.b64encode(media_message_protocolentity.media_key))
+                )
+            else:
+                logger.info("Processing %s" % media_message_protocolentity.media_type)
+
+            filedata = None
+            fileext = None
             if isinstance(media_message_protocolentity, ImageDownloadableMediaMessageProtocolEntity):
                 media_info = MediaCipher.INFO_IMAGE
                 filename = "image"
@@ -115,27 +122,33 @@ class SinkWorker(threading.Thread):
             elif isinstance(media_message_protocolentity, DocumentDownloadableMediaMessageProtocolEntity):
                 media_info = MediaCipher.INFO_DOCUM
                 filename = media_message_protocolentity.file_name
+            elif isinstance(media_message_protocolentity, ContactMediaMessageProtocolEntity):
+                filename = media_message_protocolentity.display_name
+                filedata = media_message_protocolentity.vcard
+                fileext = "vcard"
             else:
                 logger.error("Unsupported Media type: %s" % media_message_protocolentity.__class__)
                 sys.exit(1)
 
-            enc_data = self._download(media_message_protocolentity.url)
-            if enc_data is None:
-                logger.error("Download failed")
-                sys.exit(1)
+            if filedata is None:
+                enc_data = self._download(media_message_protocolentity.url)
+                if enc_data is None:
+                    logger.error("Download failed")
+                    sys.exit(1)
 
-            plaintext = self._decrypt(enc_data, media_message_protocolentity.media_key, media_info)
-            if plaintext is None:
-                logger.error("Decrypt failed")
-                sys.exit(1)
+                filedata = self._decrypt(enc_data, media_message_protocolentity.media_key, media_info)
+                if filedata is None:
+                    logger.error("Decrypt failed")
+                    sys.exit(1)
 
             if not isinstance(media_message_protocolentity, DocumentDownloadableMediaMessageProtocolEntity):
-                ext = media_message_protocolentity.mimetype.split('/')[1].split(';')[0]
-                filename_full = "%s.%s" % (filename, ext)
+                if fileext is None:
+                    fileext = media_message_protocolentity.mimetype.split('/')[1].split(';')[0]
+                filename_full = "%s.%s" % (filename, fileext)
             else:
                 filename_full = filename
             filepath = self._create_unique_filepath(os.path.join(self._storage_dir, filename_full))
-            if self._write(plaintext, filepath):
+            if self._write(filedata, filepath):
                 logger.info("Wrote %s" % filepath)
             else:
                 sys.exit(1)
