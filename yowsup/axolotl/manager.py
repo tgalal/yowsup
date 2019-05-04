@@ -80,7 +80,8 @@ class AxolotlManager(object):
     def load_unsent_prekeys(self):
         logger.debug("load_unsent_prekeys")
         unsent = self._store.preKeyStore.loadUnsentPendingPreKeys()
-        logger.info("Loaded %d unsent prekeys" % len(unsent))
+        if len(unsent) > 0:
+            logger.info("Loaded %d unsent prekeys" % len(unsent))
         return unsent
 
     def set_prekeys_as_sent(self, prekeyIds):
