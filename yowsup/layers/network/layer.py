@@ -28,7 +28,7 @@ class YowNetworkLayer(YowLayer, ConnectionCallbacks):
 
     DISPATCHER_SOCKET = 0
     DISPATCHER_ASYNCORE = 1
-    DISPATCHER_DEFAULT = DISPATCHER_SOCKET
+    DISPATCHER_DEFAULT = DISPATCHER_ASYNCORE
 
     def __init__(self):
         self.state = self.__class__.STATE_DISCONNECTED
