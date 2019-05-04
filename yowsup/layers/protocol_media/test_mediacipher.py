@@ -16,8 +16,8 @@ class MediaCipherTest(unittest.TestCase):
         b'5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcF'
         b'BAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5'
         b'OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0'
-        b'tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9U6AP/9kL'
-        b'CwsLCwsLCwsLCw==',
+        b'tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9U6AP/9k'
+        b'==',
 
         b'dT9YPFSz4dprkH6uiXPEVERGZVIZbGYHzwue21WoLP1RCE2wmu11M8n6ysfROPtI39DCRFQhBBEVGFCT/nfV'
         b'pt+fouIENBSXY44mR2en4HGvRR//dlM5OBLz2WuEOf01iKPazGtfacy6lnV0X5JagL4r1mKeyuSXJEV81kxj'

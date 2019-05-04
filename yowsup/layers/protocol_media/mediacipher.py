@@ -3,6 +3,7 @@ from axolotl.util.byteutil import ByteUtil
 
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import padding
 import hmac
 import hashlib
 
@@ -47,7 +48,12 @@ class MediaCipher(object):
         cipher_encryptor = Cipher(
             algorithms.AES(key), modes.CBC(iv), backend=default_backend()
         ).encryptor()
-        ciphertext = cipher_encryptor.update(plaintext) + cipher_encryptor.finalize()
+        if len(plaintext) % 16 != 0:
+            padder = padding.PKCS7(128).padder()
+            padded_plaintext = padder.update(plaintext) + padder.finalize()
+        else:
+            padded_plaintext = plaintext
+        ciphertext = cipher_encryptor.update(padded_plaintext) + cipher_encryptor.finalize()
 
         mac = hmac.new(mac_key, digestmod=hashlib.sha256)
         mac.update(iv)
@@ -75,4 +81,6 @@ class MediaCipher(object):
             algorithms.AES(key), modes.CBC(iv), backend=default_backend()
         ).decryptor()
 
-        return cipher_decryptor.update(media_ciphertext) + cipher_decryptor.finalize()
+        decrypted = cipher_decryptor.update(media_ciphertext) + cipher_decryptor.finalize()
+        unpadder = padding.PKCS7(128).unpadder()
+        return unpadder.update(decrypted) + unpadder.finalize()
