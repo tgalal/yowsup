@@ -8,6 +8,7 @@ from yowsup.config.manager import ConfigManager
 from yowsup.config.v1.config import Config
 from yowsup import logger as yowlogger, formatter
 from yowsup.layers.network.layer import YowNetworkLayer
+from yowsup.layers.protocol_media.mediacipher import MediaCipher
 
 from consonance.structs.publickey import PublicKey
 from consonance.structs.keypair import KeyPair
@@ -399,6 +400,105 @@ class RegistrationArgParser(YowArgParser):
         return "\n".join(out)
 
 
+class MediaToolsArgParser(YowArgParser):
+    MEDIA_INFO = {
+        "image": MediaCipher.INFO_IMAGE,
+        "video": MediaCipher.INFO_VIDEO,
+        "gif": MediaCipher.INFO_VIDEO,
+        "document": MediaCipher.INFO_DOCUM,
+        "doc": MediaCipher.INFO_DOCUM
+    }
+
+    def __init__(self, *args, **kwargs):
+        kwargs["no_config"] = True
+        super(MediaToolsArgParser, self).__init__(*args, **kwargs)
+        self.description = "Yowsup tools"
+
+        gp = self.add_argument_group("Media Tools")
+        gp.add_argument(
+            '--media-type',
+            choices=('image', 'video', 'gif', 'document', 'doc'),
+            required=True
+        )
+        exgp = gp.add_mutually_exclusive_group()
+
+        exgp.add_argument(
+            '--encrypt',
+            nargs=3,
+            metavar=('path', 'b64key', 'output'),
+            help='Encrypt a media file. Example: yowsup-cli media --media-type image --encrypt /path/to/media.enc '
+                 'AAAA /path/to/out',
+            action="store",
+            required=False
+        )
+        exgp.add_argument(
+            '--encrypt2',
+            metavar='b64key',
+            help='Encrypt a media file using stdin and stdout for input and output. Example:\nyowsup-cli media '
+                 '--media-type image --encrypt2 AAAA < /path/to/media.enc > /path/to/out',
+            action="store",
+            required=False
+        )
+        exgp.add_argument(
+            '--decrypt',
+            nargs=3,
+            metavar=('path', 'b64key', 'output'),
+            help='Decrypt a media file. Example: yowsup-cli media --media-type image --decrypt /path/to/media.enc '
+                 'AAAA /path/to/out',
+            action="store",
+            required=False
+        )
+        exgp.add_argument(
+            '--decrypt2',
+            metavar='b64key',
+            help='Decrypt a media file using stdin and stdout for input and output. Example:\nyowsup-cli media '
+                 '--media-type image --decrypt2 AAAA < /path/to/media.enc > /path/to/out',
+            action="store",
+            required=False
+        )
+
+    def _decrypt_media(self, media_type, b64key, fin, fout):
+        decrypted = MediaCipher().decrypt(
+                fin.read(),
+                base64.b64decode(b64key),
+                self.MEDIA_INFO[media_type]
+            )
+        fout.write(decrypted)
+
+    def _encrypt_media(self, media_type, b64key, fin, fout):
+        encrypted = MediaCipher().encrypt(
+                fin.read(),
+                base64.b64decode(b64key),
+                self.MEDIA_INFO[media_type]
+            )
+        fout.write(encrypted)
+
+    def process(self):
+        super(MediaToolsArgParser, self).process()
+
+        if self.args["decrypt"]:
+            path, key, output = self.args["decrypt"]
+            with open(path, 'rb') as input_media:
+                with open(output, 'wb') as output_media:
+                    self._decrypt_media(self.args["media_type"], key, input_media, output_media)
+        elif self.args["decrypt2"]:
+            fin, fout = sys.stdin, sys.stdout
+            if sys.version_info >= (3, 0):
+                fin, fout = fin.buffer, fout.buffer
+            self._decrypt_media(self.args["media_type"], self.args["decrypt2"], fin, fout)
+        elif self.args["encrypt"]:
+            path, key, output = self.args["encrypt"]
+            with open(path, 'rb') as input_media:
+                with open(output, 'wb') as output_media:
+                    self._encrypt_media(self.args["media_type"], key, input_media, output_media)
+        elif self.args["encrypt2"]:
+            fin, fout = sys.stdin, sys.stdout
+            if sys.version_info >= (3, 0):
+                fin, fout = fin.buffer, fout.buffer
+            self._encrypt_media(self.args["media_type"], self.args["encrypt2"], fin, fout)
+        return True
+
+
 class DemosArgParser(YowArgParser):
 
     LAYER_NETWORK_DISPATCHERS_MAP = {
@@ -561,6 +661,7 @@ if __name__ == "__main__":
         "demos": DemosArgParser,
         "registration": RegistrationArgParser,
         "config": ConfigArgParser,
+        "media": MediaToolsArgParser,
         "version": None
     }
 
