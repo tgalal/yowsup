@@ -5,11 +5,10 @@ import yowsup
 import platform
 import sys
 
-deps = ['consonance==0.1.1', 'argparse', 'python-axolotl>=0.1.39', 'six==1.10', 'appdirs']
+deps = ['consonance==0.1.2', 'argparse', 'python-axolotl>=0.1.39', 'six==1.10', 'appdirs', 'protobuf>=3.6.0']
 
 if sys.version_info < (2, 7):
     deps.append('importlib')
-    deps.append('protobuf==3.4.0')
 
 if platform.system().lower() == "windows":
     deps.append('pyreadline')
