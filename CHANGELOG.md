@@ -3,7 +3,31 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project (kinda) adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.1.0]
+## [3.2.0] 2019-05-04
+
+### Changed
+
+- Set min protobuf version to fix an error
+- Use WhatsApp version set by env in noise layer
+- Fixed error when mcc,mnc and fdid were missing from config
+- Don't crash when received an unrecognized ib node
+- Don't crash when received an unrecognized media type and send receipt
+- Don't crash when received an unrecognized notification type and send receipt
+- Asyncore is now used as default ConnectionDispatcher
+- Received protobuf messages are now handled in upper layers rather than Axolotl
+
+### Added
+
+- MediaCipher for encrypting and decrypting media files
+- "media" yowsup-cli action with encrypt and decrypt media commands
+- Receive Audio, Video, Image, Document, Contact, Location, GIF, URL message support
+- MediaSink demo, access by yowsup-cli demos --mediasink
+
+### Removed
+
+- unused -w flag from yowsup-cli config
+
+## [3.1.0] 2019-04-25
 
 ### Changed
 
@@ -29,7 +53,7 @@ and this project (kinda) adheres to [Semantic Versioning](https://semver.org/spe
 - threading from socket dispatcher, connecting application should ensure the connection is not blocking, for
 example by triggering connect in a bg thread.
 
-## [3.0.0]
+## [3.0.0] 2019-04-23
 
 ### Changed
 
