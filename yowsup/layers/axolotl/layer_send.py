@@ -326,7 +326,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
     def serializeSenderKeyDistributionMessageToProtobuf(self, groupId, senderKeyDistributionMessage, message = None):
         m = message or Message()
-        m.sender_key_distribution_message.groupId = groupId
+        m.sender_key_distribution_message.group_id = groupId
         m.sender_key_distribution_message.axolotl_sender_key_distribution_message = senderKeyDistributionMessage.serialize()
         m.sender_key_distribution_message.axolotl_sender_key_distribution_message = senderKeyDistributionMessage.serialize()
         # m.conversation = text
