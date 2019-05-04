@@ -8,7 +8,7 @@ try:
     from tqdm import tqdm
     import requests
 except ImportError:
-    print("This demos requires the python packages 'tqdm' and 'requests' to be installed, exiting.")
+    print("This demo requires the python packages 'tqdm' and 'requests' to be installed, exiting.")
     sys.exit(1)
 
 from ..common.sink_worker import SinkWorker
