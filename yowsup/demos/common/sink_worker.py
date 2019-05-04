@@ -12,7 +12,11 @@ import math
 import sys
 import os
 import base64
-import Queue
+
+if sys.version_info >= (3, 0):
+    from queue import Queue
+else:
+    from Queue import Queue
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +26,7 @@ class SinkWorker(threading.Thread):
         super(SinkWorker, self).__init__()
         self.daemon = True
         self._storage_dir = storage_dir
-        self._jobs = Queue.Queue()
+        self._jobs = Queue()
         self._media_cipher = MediaCipher()
 
     def enqueue(self, media_message_protocolentity):
