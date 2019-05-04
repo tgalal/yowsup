@@ -84,13 +84,13 @@ class YowNoiseLayer(YowLayer):
             useragent=UserAgentConfig(
                 platform=0,
                 app_version="2.19.51",
-                mcc=config.mcc,
-                mnc=config.mnc,
+                mcc=config.mcc or "000",
+                mnc=config.mnc or "000",
                 os_version=yowsupenv.getOSVersion(),
                 manufacturer=yowsupenv.getManufacturer(),
                 device=yowsupenv.getDeviceName(),
                 os_build_number=yowsupenv.getOSVersion(),
-                phone_id=config.fdid,
+                phone_id=config.fdid or "",
                 locale_lang="en",
                 locale_country="US"
             ),
