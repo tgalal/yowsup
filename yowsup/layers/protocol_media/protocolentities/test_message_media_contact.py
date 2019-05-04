@@ -10,7 +10,7 @@ class ContactMediaMessageProtocolEntityTest(MediaMessageProtocolEntityTest):
         m = Message()
         contact_message = Message.ContactMessage()
         contact_message.display_name = "abc"
-        contact_message.vcard = "VCARD_DATA"
+        contact_message.vcard = b"VCARD_DATA"
         m.contact_message.MergeFrom(contact_message)
         proto_node = self.node.getChild("proto")
         proto_node["mediatype"] = "contact"
