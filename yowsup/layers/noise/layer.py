@@ -83,7 +83,7 @@ class YowNoiseLayer(YowLayer):
             passive=passive,
             useragent=UserAgentConfig(
                 platform=0,
-                app_version="2.19.51",
+                app_version=yowsupenv.getVersion(),
                 mcc=config.mcc or "000",
                 mnc=config.mnc or "000",
                 os_version=yowsupenv.getOSVersion(),
