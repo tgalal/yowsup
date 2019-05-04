@@ -287,7 +287,6 @@ class ConfigArgParser(YowArgParser):
 
         exgp.add_argument("-p", '--preview-config', help='Preview yowsup config', action="store",
                           choices=("json", "keyval"), required=False)
-        exgp.add_argument("-w", '--write', help='Write configuration', action="store_true", required=False)
 
     def process(self):
         super(ConfigArgParser, self).process()
