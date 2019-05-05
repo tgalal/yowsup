@@ -163,15 +163,19 @@ class AxolotlSendLayer(AxolotlBaseLayer):
                     return self.sentQueue[i]
                 return self.sentQueue.pop(i)
 
-
-    def sendEncEntities(self, node, encEntities):
-        mediaType = None
+    def sendEncEntities(self, node, encEntities, participant=None):
+        logger.debug("sendEncEntities(node=[omitted], encEntities=[omitted], participant=%s)" % participant)
+        message_attrs = MessageAttributes.from_message_protocoltreenode(node)
+        message_attrs.participant = participant
         messageEntity = EncryptedMessageProtocolEntity(
             encEntities,
-           "text" if not mediaType else "media",
-            MessageAttributes.from_message_protocoltreenode(node)
+            node["type"],
+            message_attrs
         )
-        self.enqueueSent(node)
+        # if participant is set, this message is directed to that specific participant as a result of a retry, therefore
+        # we already have the original group message and there is no need to store it again.
+        if participant is None:
+            self.enqueueSent(node)
         self.toLower(messageEntity.toProtocolTreeNode())
 
     def sendToContact(self, node):
@@ -188,23 +192,31 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         return self.sendEncEntities(node, [EncProtocolEntity(EncProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncProtocolEntity.TYPE_PKMSG, 2, ciphertext.serialize(), mediaType)])
 
     def sendToGroupWithSessions(self, node, jidsNeedSenderKey = None, retryCount=0):
+        """
+        For each jid in jidsNeedSenderKey will create a pkmsg enc node with the associated jid.
+        If retryCount > 0 and we have only one jidsNeedSenderKey, this is a retry requested by a specific participant
+        and this message is to be directed at specific at that participant indicated by jidsNeedSenderKey[0]. In this
+        case the participant's jid would go in the parent's EncryptedMessage and not into the enc node.
+        """
+        logger.debug(
+            "sendToGroupWithSessions(node=[omitted], jidsNeedSenderKey=%s, retryCount=%d)" % (jidsNeedSenderKey, retryCount)
+        )
         jidsNeedSenderKey = jidsNeedSenderKey or []
         groupJid = node["to"]
         protoNode = node.getChild("proto")
         encEntities = []
+        participant = jidsNeedSenderKey[0] if len(jidsNeedSenderKey) == 1 and retryCount > 0 else None
         if len(jidsNeedSenderKey):
             senderKeyDistributionMessage = self.manager.group_create_skmsg(groupJid)
             for jid in jidsNeedSenderKey:
                 message =  self.serializeSenderKeyDistributionMessageToProtobuf(node["to"], senderKeyDistributionMessage)
-
                 if retryCount > 0:
                     message.MergeFromString(protoNode.getData())
-
                 ciphertext = self.manager.encrypt(jid.split('@')[0], message.SerializeToString())
                 encEntities.append(
                     EncProtocolEntity(
                             EncProtocolEntity.TYPE_MSG if ciphertext.__class__ == WhisperMessage else EncProtocolEntity.TYPE_PKMSG
-                        , 2, ciphertext.serialize(), protoNode["mediatype"],  jid=jid
+                        , 2, ciphertext.serialize(), protoNode["mediatype"],  jid=None if participant else jid
                     )
                 )
 
@@ -215,7 +227,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
             encEntities.append(EncProtocolEntity(EncProtocolEntity.TYPE_SKMSG, 2, ciphertext, mediaType))
 
-        self.sendEncEntities(node, encEntities)
+        self.sendEncEntities(node, encEntities, participant)
 
     def ensureSessionsAndSendToGroup(self, node, jids):
         logger.debug("ensureSessionsAndSendToGroup(node=[omitted], jids=%s)" % jids)
