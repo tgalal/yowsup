@@ -27,12 +27,23 @@ class AxolotlControlLayer(AxolotlBaseLayer):
         """
         if not self.processIqRegistry(protocolTreeNode):
             if protocolTreeNode.tag == "notification" and protocolTreeNode["type"] == "encrypt":
-                self.onEncryptNotification(protocolTreeNode)
-                return
+                if protocolTreeNode.getChild("count") is not None:
+                    return self.onRequestKeysEncryptNotification(protocolTreeNode)
+                elif protocolTreeNode.getChild("identity") is not None:
+                    return self.onIdentityChangeEncryptNotification(protocolTreeNode)
+
             self.toUpper(protocolTreeNode)
 
-    def onEncryptNotification(self, protocolTreeNode):
-        entity = EncryptNotification.fromProtocolTreeNode(protocolTreeNode)
+    def onIdentityChangeEncryptNotification(self, protocoltreenode):
+        entity = IdentityChangeEncryptNotification.fromProtocolTreeNode(protocoltreenode)
+        ack = OutgoingAckProtocolEntity(
+            protocoltreenode["id"], "notification", protocoltreenode["type"], protocoltreenode["from"]
+        )
+        self.toLower(ack.toProtocolTreeNode())
+        self.getKeysFor([entity.getFrom(True)], resultClbk=lambda _,__: None, reason="identity")
+
+    def onRequestKeysEncryptNotification(self, protocolTreeNode):
+        entity = RequestKeysEncryptNotification.fromProtocolTreeNode(protocolTreeNode)
         ack = OutgoingAckProtocolEntity(protocolTreeNode["id"], "notification", protocolTreeNode["type"], protocolTreeNode["from"])
         self.toLower(ack.toProtocolTreeNode())
         self.flush_keys(

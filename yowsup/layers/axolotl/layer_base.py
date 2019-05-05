@@ -42,14 +42,16 @@ class AxolotlBaseLayer(YowProtocolLayer):
     def on_disconnected(self, yowLayerEvent):
         self._manager = None
 
-    def getKeysFor(self, jids, resultClbk, errorClbk = None):
+    def getKeysFor(self, jids, resultClbk, errorClbk = None, reason=None):
+        logger.debug("getKeysFor(jids=%s, resultClbk=[omitted], errorClbk=[omitted], reason=%s)" % (jids, reason))
+
         def onSuccess(resultNode, getKeysEntity):
             entity = ResultGetKeysIqProtocolEntity.fromProtocolTreeNode(resultNode)
             resultJids = entity.getJids()
             successJids = []
             errorJids = {} #jid -> exception
 
-            for jid in getKeysEntity.getJids():
+            for jid in getKeysEntity.jids:
                 if jid not in resultJids:
                     self.skipEncJids.append(jid)
                     continue
@@ -71,5 +73,5 @@ class AxolotlBaseLayer(YowProtocolLayer):
             if errorClbk:
                 errorClbk(errorNode, getKeysEntity)
 
-        entity = GetKeysIqProtocolEntity(jids)
+        entity = GetKeysIqProtocolEntity(jids, reason=reason)
         self._sendIq(entity, onSuccess, onError=onError)
