@@ -60,6 +60,9 @@ class MessageProtocolEntity(ProtocolEntity):
             "id"        : self._id,
         }
 
+        if self.participant:
+            attribs["participant"] = self.participant
+
         if self.isOutgoing():
             attribs["to"] = self.to
         else:
@@ -73,8 +76,6 @@ class MessageProtocolEntity(ProtocolEntity):
                 attribs["notify"] = self.notify
             if self.retry:
                 attribs["retry"] = str(self.retry)
-            if self.participant:
-                attribs["participant"] = self.participant
 
 
         xNode = None
