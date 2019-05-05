@@ -150,6 +150,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         """
 
     def enqueueSent(self, node):
+        logger.debug("enqueueSent(node=[omitted])")
         if len(self.sentQueue) >= self.__class__.MAX_SENT_QUEUE:
             logger.warn("Discarding queued node without receipt")
             self.sentQueue.pop(0)
@@ -217,6 +218,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         self.sendEncEntities(node, encEntities)
 
     def ensureSessionsAndSendToGroup(self, node, jids):
+        logger.debug("ensureSessionsAndSendToGroup(node=[omitted], jids=%s)" % jids)
         jidsNoSession = []
         for jid in jids:
             if not self.manager.session_exists(jid.split('@')[0]):
@@ -228,11 +230,15 @@ class AxolotlSendLayer(AxolotlBaseLayer):
             self.sendToGroupWithSessions(node, jids)
 
     def sendToGroup(self, node, retryReceiptEntity = None):
+        logger.debug("sendToGroup(node=[omitted], retryReceiptEntity=[%s])" %
+                     ("[retry_count=%s, retry_jid=%s]" % (
+                         retryReceiptEntity.getRetryCount(), retryReceiptEntity.getRetryJid())
+                      ) if retryReceiptEntity is not None else None)
+
         groupJid = node["to"]
         ownJid = self.getLayerInterface(YowAuthenticationProtocolLayer).getUsername(True)
 
         senderKeyRecord = self.manager.load_senderkey(node["to"])
-
 
         def sendToGroup(resultNode, requestEntity):
             groupInfo = InfoGroupsResultIqProtocolEntity.fromProtocolTreeNode(resultNode)
@@ -242,9 +248,11 @@ class AxolotlSendLayer(AxolotlBaseLayer):
             return self.ensureSessionsAndSendToGroup(node, jids)
 
         if senderKeyRecord.isEmpty():
+            logger.debug("senderKeyRecord is empty, requesting group info")
             groupInfoIq = InfoGroupsIqProtocolEntity(groupJid)
             self._sendIq(groupInfoIq, sendToGroup)
         else:
+            logger.debug("We have a senderKeyRecord")
             retryCount = 0
             jidsNeedSenderKey = []
             if retryReceiptEntity is not None:
