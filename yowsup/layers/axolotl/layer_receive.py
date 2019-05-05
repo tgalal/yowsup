@@ -186,7 +186,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             )
 
     def handleSenderKeyDistributionMessage(self, senderKeyDistributionMessage, participantId):
-        groupId = senderKeyDistributionMessage.groupId
+        groupId = senderKeyDistributionMessage.group_id
         self.manager.group_create_session(
             groupid=groupId,
             participantid=participantId,
