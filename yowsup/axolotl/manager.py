@@ -244,7 +244,7 @@ class AxolotlManager(object):
         :return:
         :rtype:
         """
-        logger.debug("create_session(username=%s, prekeybunder=[omitted], autotrust=%s)" % (username, autotrust))
+        logger.debug("create_session(username=%s, prekeybundle=[omitted], autotrust=%s)" % (username, autotrust))
         session_builder = SessionBuilder(self._store, self._store, self._store, self._store, username, 1)
         try:
             session_builder.processPreKeyBundle(prekeybundle)
