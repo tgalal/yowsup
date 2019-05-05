@@ -156,6 +156,15 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             logger.warning("No session for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
             retry = RetryOutgoingReceiptProtocolEntity.fromMessageNode(node, self.manager.registration_id)
             self.toLower(retry.toProtocolTreeNode())
+        except exceptions.DuplicateMessageException:
+            logger.warning(
+                "Received a message that we've previously decrypted, goint to send the delivery receipt myself"
+            )
+            self.toLower(
+                OutgoingReceiptProtocolEntity(
+                    node["id"], node["from"], participant=node["participant"]
+                ).toProtocolTreeNode()
+            )
 
     def parseAndHandleMessageProto(self, encMessageProtocolEntity, serializedData):
         m = Message()
