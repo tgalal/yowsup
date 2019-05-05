@@ -67,7 +67,7 @@ class AxolotlBaseLayer(YowProtocolLayer):
                         logger.error(e)
                         logger.warning("Ignoring message with untrusted identity")
 
-                resultClbk(successJids, errorJids)
+            resultClbk(successJids, errorJids)
 
         def onError(errorNode, getKeysEntity):
             if errorClbk:
