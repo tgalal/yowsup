@@ -136,7 +136,7 @@ class AxolotlManager(object):
         return group_cipher
 
     def _generate_random_padding(self):
-        logger.debug("generate_random_adding")
+        logger.debug("generate_random_padding")
         num = random.randint(1,255)
         return bytearray([num] * num)
 
