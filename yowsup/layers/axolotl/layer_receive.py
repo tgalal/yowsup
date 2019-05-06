@@ -144,7 +144,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
                 participantid=encMessageProtocolEntity.getParticipant(False),
                 data=enc.getData()
             )
-            plaintext = plaintext.encode() if sys.version_info >= (3, 0) else plaintext
             self.parseAndHandleMessageProto(encMessageProtocolEntity, plaintext)
 
             node = encMessageProtocolEntity.toProtocolTreeNode()

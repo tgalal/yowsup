@@ -34,7 +34,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     EVENT_START             = "org.openwhatsapp.yowsup.event.cli.start"
     EVENT_SENDANDEXIT       = "org.openwhatsapp.yowsup.event.cli.sendandexit"
 
-    MESSAGE_FORMAT          = "[{FROM}({TIME})]:[{MESSAGE_ID}]\t {MESSAGE}"
+    MESSAGE_FORMAT          = "[%s(%s)]:[%s]\t %s"
 
     FAIL_OPT_PILLOW         = "No PIL library installed, try install pillow"
     FAIL_OPT_AXOLOTL        = "axolotl is not installed, try install python-axolotl"
@@ -366,7 +366,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
     @clicmd("Send message to a friend")
     def message_send(self, number, content):
         if self.assertConnected():
-            outgoingMessage = TextMessageProtocolEntity(content.encode("utf-8") if sys.version_info >= (3,0) else content, to = self.aliasToJid(number))
+            outgoingMessage = TextMessageProtocolEntity(content, to=self.aliasToJid(number))
             self.toLower(outgoingMessage)
 
     @clicmd("Broadcast message. numbers should comma separated phone numbers")
@@ -496,18 +496,13 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
         formattedDate = datetime.datetime.fromtimestamp(message.getTimestamp()).strftime('%d-%m-%Y %H:%M')
         sender = message.getFrom() if not message.isGroupMessage() else "%s/%s" % (message.getParticipant(False), message.getFrom())
-        output = self.__class__.MESSAGE_FORMAT.format(
-            FROM = sender,
-            TIME = formattedDate,
-            MESSAGE = messageOut.encode('latin-1').decode() if sys.version_info >= (3, 0) else messageOut,
-            MESSAGE_ID = message.getId()
-            )
+
+        output = self.__class__.MESSAGE_FORMAT % (sender, formattedDate, messageOut, message.getId())
 
         self.output(output, tag = None, prompt = not self.sendReceipts)
         if self.sendReceipts:
             self.toLower(message.ack(self.sendRead))
             self.output("Sent delivered receipt"+" and Read" if self.sendRead else "", tag = "Message %s" % message.getId())
-
 
     def getTextMessageBody(self, message):
         return message.getBody()
