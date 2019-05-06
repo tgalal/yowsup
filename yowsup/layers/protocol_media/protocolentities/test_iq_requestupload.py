@@ -4,7 +4,7 @@ from yowsup.structs import ProtocolTreeNode
 class RequestUploadIqProtocolEntityTest(IqProtocolEntityTest):
     def setUp(self):
         super(RequestUploadIqProtocolEntityTest, self).setUp()
-        mediaNode = ProtocolTreeNode("media", {"hash": "hash", "size": "1234", "orighash": "orighash", "type": "image"})
+        mediaNode = ProtocolTreeNode("encr_media", {"hash": "hash", "size": "1234", "orighash": "orighash", "type": "image"})
         self.ProtocolEntity = RequestUploadIqProtocolEntity
         self.node.setAttribute("type", "set")
         self.node.addChild(mediaNode)
