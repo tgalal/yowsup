@@ -6,14 +6,15 @@ from yowsup.layers.protocol_media.protocolentities.attributes.attributes_downloa
 
 class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
     def __init__(self, media_type, downloadable_media_message_attrs, message_attrs):
-        """
-        :type media_type: str
-        :type downloadable_media_message_attrs: DownloadableMediaMessageAttributes
-        :type message_attrs: MessageAttributes
-        """
+        # type: (str, DownloadableMediaMessageAttributes, MessageAttributes)
         super(DownloadableMediaMessageProtocolEntity, self).__init__(
             media_type, downloadable_media_message_attrs, message_attrs
         )
+        self.url = downloadable_media_message_attrs.url
+        self.mimetype = downloadable_media_message_attrs.mimetype
+        self.file_sha256 = downloadable_media_message_attrs.file_sha256
+        self.file_length = downloadable_media_message_attrs.file_length
+        self.media_key = downloadable_media_message_attrs.media_key
 
     @property
     def url(self):
