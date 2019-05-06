@@ -138,7 +138,7 @@ class AxolotlManager(object):
     def _generate_random_padding(self):
         logger.debug("generate_random_padding")
         num = random.randint(1,255)
-        return bytearray([num] * num)
+        return bytes(bytearray([num] * num))
 
     def _unpad(self, data):
         padding_byte = data[-1] if type(data[-1]) is int else ord(data[-1]) # bec inconsistent API?
