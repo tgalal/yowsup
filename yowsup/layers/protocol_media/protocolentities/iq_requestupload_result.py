@@ -35,7 +35,7 @@ class ResultRequestUploadIqProtocolEntity(ResultIqProtocolEntity):
         node = super(ResultRequestUploadIqProtocolEntity, self).toProtocolTreeNode()
 
         if not self.isDuplicate():
-            mediaNode = ProtocolTreeNode("media", {"url": self.url})
+            mediaNode = ProtocolTreeNode("encr_media", {"url": self.url})
             if self.ip:
                 mediaNode["ip"] = self.ip
 
@@ -51,7 +51,7 @@ class ResultRequestUploadIqProtocolEntity(ResultIqProtocolEntity):
     def fromProtocolTreeNode(node):
         entity= ResultIqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = ResultRequestUploadIqProtocolEntity
-        mediaNode = node.getChild("media")
+        mediaNode = node.getChild("encr_media")
         if mediaNode:
             entity.setUploadProps(mediaNode["url"], mediaNode["ip"], mediaNode["resume"])
         else:
