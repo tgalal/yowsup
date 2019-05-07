@@ -497,7 +497,7 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         formattedDate = datetime.datetime.fromtimestamp(message.getTimestamp()).strftime('%d-%m-%Y %H:%M')
         sender = message.getFrom() if not message.isGroupMessage() else "%s/%s" % (message.getParticipant(False), message.getFrom())
 
-        output = self.__class__.MESSAGE_FORMAT % (sender, formattedDate, messageOut, message.getId())
+        output = self.__class__.MESSAGE_FORMAT % (sender, formattedDate, message.getId(), messageOut)
 
         self.output(output, tag = None, prompt = not self.sendReceipts)
         if self.sendReceipts:
