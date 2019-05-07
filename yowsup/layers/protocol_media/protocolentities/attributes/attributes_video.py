@@ -4,7 +4,7 @@ class VideoAttributes(object):
         self._width = width
         self._height = height
         self._seconds = seconds
-        self._gif_playback = gif_playback,
+        self._gif_playback = gif_playback
         self._jpeg_thumbnail = jpeg_thumbnail
         self._gif_attribution = gif_attribution
         self._caption = caption
