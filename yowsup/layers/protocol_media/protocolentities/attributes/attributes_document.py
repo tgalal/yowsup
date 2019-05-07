@@ -1,3 +1,6 @@
+import os
+
+
 class DocumentAttributes(object):
     def __init__(self, file_name, file_length, title=None, page_count=None, jpeg_thumbnail=None):
         self._file_name = file_name
@@ -25,3 +28,10 @@ class DocumentAttributes(object):
     @property
     def jpeg_thumbnail(self):
         return self._jpeg_thumbnail
+
+    @staticmethod
+    def from_filepath(filepath):
+        return DocumentAttributes(
+            os.path.basename(filepath),
+            os.path.getsize(filepath)
+        )
