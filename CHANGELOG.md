@@ -3,6 +3,20 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project (kinda) adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.1] 2019-05-07
+
+### Changed
+
+- Updated python-axolotl to 0.2.1
+- Fixed encoding errors when communicating in group
+- Fixed messages not delivered to groups, showing a "Waiting for this message, this may take a while"
+- Fixed bug where getKeys for multiple jids would invoke the callback multiple times
+- Fixes in RequestUpload and media classes in preparation for media sending
+
+### Added
+
+- More log output in AxolotlSendLayer
+
 ## [3.2.0] 2019-05-04
 
 ### Changed

@@ -8,13 +8,13 @@ The project started as the protocol engine behind [Wazapp for Meego](https://wik
 library it can be used to power any custom WhatsApp client.
 
 ```
-updated: 2019-05-04
-yowsup version: 3.2.0
+updated: 2019-05-07
+yowsup version: 3.2.1
 yowsup-cli version: 3.2.0
 requires:
 - python>=2.7,<=3.7
 - consonance==0.1.2
-- python-axolotl>=0.1.39
+- python-axolotl==0.2.1
 - protobuf>=3.6.0
 - six==1.10
 uses:
