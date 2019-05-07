@@ -66,7 +66,8 @@ class AxolotlManager(object):
         if force or len(pending_prekeys) < self.THRESHOLD_REGEN:
             count_gen = self.COUNT_GEN_PREKEYS - len(pending_prekeys)
             logger.info("Generating %d prekeys" % count_gen)
-            prekeys = KeyHelper.generatePreKeys(KeyHelper.getRandomSequence(), count_gen)
+            ## arbitrary, should keep track of generated prekey ids and create from there
+            prekeys = KeyHelper.generatePreKeys(KeyHelper.getRandomSequence(2**32 // 2), count_gen)
             logger.info("Storing %d prekeys" % len(prekeys))
             for i in range(0, len(prekeys)):
                 key = prekeys[i]

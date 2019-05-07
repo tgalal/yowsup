@@ -19,7 +19,7 @@ class LiteIdentityKeyStore(IdentityKeyStore):
 
         if self.getLocalRegistrationId() is None or self.getIdentityKeyPair() is None:
             identity = KeyHelper.generateIdentityKeyPair()
-            registration_id = KeyHelper.generateRegistrationId()
+            registration_id = KeyHelper.generateRegistrationId(True)
             self._storeLocalData(registration_id, identity)
 
     def getIdentityKeyPair(self):
