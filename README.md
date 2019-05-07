@@ -9,7 +9,7 @@ library it can be used to power any custom WhatsApp client.
 
 ```
 updated: 2019-05-07
-yowsup version: 3.2.1
+yowsup version: 3.2.2
 yowsup-cli version: 3.2.0
 requires:
 - python>=2.7,<=3.7
