@@ -18,11 +18,15 @@ class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         self.width = video_attrs.width
         self.height = video_attrs.height
         self.seconds = video_attrs.seconds
-        self.caption = video_attrs.caption
-        self.gif_playback = video_attrs.gif_playback
-        self.jpeg_thumbnail = video_attrs.jpeg_thumbnail
-        self.gif_attribution = video_attrs.gif_attribution
-        self.streaming_sidecar = video_attrs.streaming_sidecar
+        if video_attrs.caption is not None:
+            self.caption = video_attrs.caption
+        self.gif_playback = video_attrs.gif_playback if video_attrs.gif_playback else False
+        if video_attrs.jpeg_thumbnail is not None:
+            self.jpeg_thumbnail = video_attrs.jpeg_thumbnail
+        if video_attrs.gif_attribution is not None:
+            self.gif_attribution = video_attrs.gif_attribution
+        if video_attrs.streaming_sidecar is not None:
+            self.streaming_sidecar = video_attrs.streaming_sidecar
 
     @property
     def proto(self):

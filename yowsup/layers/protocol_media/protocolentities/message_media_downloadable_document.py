@@ -18,9 +18,12 @@ class DocumentDownloadableMediaMessageProtocolEntity(DownloadableMediaMessagePro
         )
         self.file_name = document_attrs.file_name
         self.file_length = document_attrs.file_length
-        self.title = document_attrs.title
-        self.page_count = document_attrs.page_count
-        self.jpeg_thumbnail = document_attrs.jpeg_thumbnail
+        if document_attrs.title is not None:
+            self.title = document_attrs.title
+        if document_attrs.page_count is not None:
+            self.page_count = document_attrs.page_count
+        if document_attrs.jpeg_thumbnail is not None:
+            self.jpeg_thumbnail = document_attrs.jpeg_thumbnail
 
     @property
     def proto(self):
