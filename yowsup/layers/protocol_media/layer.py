@@ -3,6 +3,7 @@ from .protocolentities import ImageDownloadableMediaMessageProtocolEntity
 from .protocolentities import AudioDownloadableMediaMessageProtocolEntity
 from .protocolentities import VideoDownloadableMediaMessageProtocolEntity
 from .protocolentities import DocumentDownloadableMediaMessageProtocolEntity
+from .protocolentities import StickerDownloadableMediaMessageProtocolEntity
 from .protocolentities import LocationMediaMessageProtocolEntity
 from .protocolentities import ContactMediaMessageProtocolEntity
 from .protocolentities import ResultRequestUploadIqProtocolEntity
@@ -34,6 +35,9 @@ class YowMediaProtocolLayer(YowProtocolLayer):
             mediaNode = node.getChild("proto")
             if mediaNode.getAttributeValue("mediatype") == "image":
                 entity = ImageDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
+                self.toUpper(entity)
+            elif mediaNode.getAttributeValue("mediatype") == "sticker":
+                entity = StickerDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)
                 self.toUpper(entity)
             elif mediaNode.getAttributeValue("mediatype") in ("audio", "ptt"):
                 entity = AudioDownloadableMediaMessageProtocolEntity.fromProtocolTreeNode(node)

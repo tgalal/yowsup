@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=_b('\n\te2e.proto\x1a\x0eprotocol.proto\"\xb0\x01\n\x0b\x43ontextInfo\x12\x11\n\tstanza_id\x18\x01 \x01(\t\x12\x13\n\x0bparticipant\x18\x02 \x01(\t\x12 \n\x0equoted_message\x18\x03 \x01(\x0b\x32\x08.Message\x12\x12\n\nremote_jid\x18\x04 \x01(\t\x12\x15\n\rmentioned_jid\x18\x0f \x03(\t\x12\x14\n\x0c\x65\x64it_version\x18\x10 \x01(\r\x12\x16\n\x0erevoke_message\x18\x11 \x01(\x08\"\xce\x16\n\x07Message\x12\x14\n\x0c\x63onversation\x18\x01 \x01(\t\x12N\n\x1fsender_key_distribution_message\x18\x02 \x01(\x0b\x32%.Message.SenderKeyDistributionMessage\x12,\n\rimage_message\x18\x03 \x01(\x0b\x32\x15.Message.ImageMessage\x12\x30\n\x0f\x63ontact_message\x18\x04 \x01(\x0b\x32\x17.Message.ContactMessage\x12\x32\n\x10location_message\x18\x05 \x01(\x0b\x32\x18.Message.LocationMessage\x12;\n\x15\x65xtended_text_message\x18\x06 \x01(\x0b\x32\x1c.Message.ExtendedTextMessage\x12\x32\n\x10\x64ocument_message\x18\x07 \x01(\x0b\x32\x18.Message.DocumentMessage\x12,\n\raudio_message\x18\x08 \x01(\x0b\x32\x15.Message.AudioMessage\x12,\n\rvideo_message\x18\t \x01(\x0b\x32\x15.Message.VideoMessage\x12\x1b\n\x04\x63\x61ll\x18\n \x01(\x0b\x32\r.Message.Call\x12\x1b\n\x04\x63hat\x18\x0b \x01(\x0b\x32\r.Message.Chat\x12\x32\n\x10protocol_message\x18\x0c \x01(\x0b\x32\x18.Message.ProtocolMessage\x12=\n\x16\x63ontacts_array_message\x18\r \x01(\x0b\x32\x1d.Message.ContactsArrayMessage\x12\x43\n\x19highly_structured_message\x18\x0e \x01(\x0b\x32 .Message.HighlyStructuredMessage\x1a\x61\n\x1cSenderKeyDistributionMessage\x12\x10\n\x08group_id\x18\x01 \x01(\t\x12/\n\'axolotl_sender_key_distribution_message\x18\x02 \x01(\x0c\x1a\xd6\x01\n\x0cImageMessage\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x0f\n\x07\x63\x61ption\x18\x03 \x01(\t\x12\x13\n\x0b\x66ile_sha256\x18\x04 \x01(\x0c\x12\x13\n\x0b\x66ile_length\x18\x05 \x01(\x04\x12\x0e\n\x06height\x18\x06 \x01(\r\x12\r\n\x05width\x18\x07 \x01(\r\x12\x11\n\tmedia_key\x18\x08 \x01(\x0c\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x1aY\n\x0e\x43ontactMessage\x12\x14\n\x0c\x64isplay_name\x18\x01 \x01(\t\x12\r\n\x05vcard\x18\x10 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x1a\xd2\x02\n\x0fLocationMessage\x12\x18\n\x10\x64\x65grees_latitude\x18\x01 \x01(\x01\x12\x19\n\x11\x64\x65grees_longitude\x18\x02 \x01(\x01\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x04 \x01(\t\x12\x0b\n\x03url\x18\x05 \x01(\t\x12\x10\n\x08\x64uration\x18\x06 \x01(\x02\x12\x1a\n\x12\x61\x63\x63uracy_in_meters\x18\x07 \x01(\r\x12\x14\n\x0cspeed_in_mps\x18\x08 \x01(\x02\x12-\n%degrees_clockwise_from_magnetic_north\x18\t \x01(\r\x12/\n\'axolotl_sender_key_distribution_message\x18\n \x01(\x0c\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x1a\xb0\x01\n\x13\x45xtendedTextMessage\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x14\n\x0cmatched_text\x18\x02 \x01(\t\x12\x15\n\rcanonical_url\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\x12\r\n\x05title\x18\x06 \x01(\t\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x1a\xdf\x01\n\x0f\x44ocumentMessage\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\r\n\x05title\x18\x03 \x01(\t\x12\x13\n\x0b\x66ile_sha256\x18\x04 \x01(\x0c\x12\x13\n\x0b\x66ile_length\x18\x05 \x01(\x04\x12\x12\n\npage_count\x18\x06 \x01(\r\x12\x11\n\tmedia_key\x18\x07 \x01(\x0c\x12\x11\n\tfile_name\x18\x08 \x01(\t\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x1a\xc7\x01\n\x0c\x41udioMessage\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x13\n\x0b\x66ile_sha256\x18\x03 \x01(\x0c\x12\x13\n\x0b\x66ile_length\x18\x04 \x01(\x04\x12\x0f\n\x07seconds\x18\x05 \x01(\r\x12\x0b\n\x03ptt\x18\x06 \x01(\x08\x12\x11\n\tmedia_key\x18\x07 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x12\x19\n\x11streaming_sidecar\x18\x12 \x01(\x0c\x1a\x89\x03\n\x0cVideoMessage\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x13\n\x0b\x66ile_sha256\x18\x03 \x01(\x0c\x12\x13\n\x0b\x66ile_length\x18\x04 \x01(\x04\x12\x0f\n\x07seconds\x18\x05 \x01(\r\x12\x11\n\tmedia_key\x18\x06 \x01(\x0c\x12\x0f\n\x07\x63\x61ption\x18\x07 \x01(\t\x12\x14\n\x0cgif_playback\x18\x08 \x01(\x08\x12\x0e\n\x06height\x18\t \x01(\r\x12\r\n\x05width\x18\n \x01(\r\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x12\x19\n\x11streaming_sidecar\x18\x12 \x01(\x0c\x12@\n\x0fgif_attribution\x18\x13 \x01(\x0e\x32!.Message.VideoMessage.Attribution:\x04NONE\"-\n\x0b\x41ttribution\x12\x08\n\x04NONE\x10\x00\x12\t\n\x05GIPHY\x10\x01\x12\t\n\x05TENOR\x10\x02\x1a\x18\n\x04\x43\x61ll\x12\x10\n\x08\x63\x61ll_key\x18\x01 \x01(\x0c\x1a(\n\x04\x43hat\x12\x14\n\x0c\x64isplay_name\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x01(\t\x1at\n\x0fProtocolMessage\x12\x18\n\x03key\x18\x01 \x01(\x0b\x32\x0b.MessageKey\x12\x33\n\x04type\x18\x02 \x01(\x0e\x32\x1d.Message.ProtocolMessage.Type:\x06REVOKE\"\x12\n\x04Type\x12\n\n\x06REVOKE\x10\x00\x1a{\n\x14\x43ontactsArrayMessage\x12\x14\n\x0c\x64isplay_name\x18\x01 \x01(\t\x12)\n\x08\x63ontacts\x18\x02 \x03(\x0b\x32\x17.Message.ContactMessage\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x1a|\n\x17HighlyStructuredMessage\x12\x11\n\tnamespace\x18\x01 \x01(\t\x12\x14\n\x0c\x65lement_name\x18\x02 \x01(\t\x12\x0e\n\x06params\x18\x03 \x03(\t\x12\x13\n\x0b\x66\x61llback_lg\x18\x04 \x01(\t\x12\x13\n\x0b\x66\x61llback_lc\x18\x05 \x01(\t')
+  serialized_pb=_b('\n\te2e.proto\x1a\x0eprotocol.proto\"\xb0\x01\n\x0b\x43ontextInfo\x12\x11\n\tstanza_id\x18\x01 \x01(\t\x12\x13\n\x0bparticipant\x18\x02 \x01(\t\x12 \n\x0equoted_message\x18\x03 \x01(\x0b\x32\x08.Message\x12\x12\n\nremote_jid\x18\x04 \x01(\t\x12\x15\n\rmentioned_jid\x18\x0f \x03(\t\x12\x14\n\x0c\x65\x64it_version\x18\x10 \x01(\r\x12\x16\n\x0erevoke_message\x18\x11 \x01(\x08\"G\n\x05Point\x12\x13\n\x0bxDeprecated\x18\x01 \x01(\x02\x12\x13\n\x0byDeprecated\x18\x02 \x01(\x02\x12\t\n\x01x\x18\x03 \x01(\x02\x12\t\n\x01y\x18\x04 \x01(\x02\"N\n\x15InteractiveAnnotation\x12 \n\x10polygon_vertices\x18\x01 \x03(\x0b\x32\x06.Point\x12\x13\n\x0b\x61\x63tion_case\x18\x02 \x01(\r\"\xcf\x1a\n\x07Message\x12\x14\n\x0c\x63onversation\x18\x01 \x01(\t\x12N\n\x1fsender_key_distribution_message\x18\x02 \x01(\x0b\x32%.Message.SenderKeyDistributionMessage\x12,\n\rimage_message\x18\x03 \x01(\x0b\x32\x15.Message.ImageMessage\x12\x30\n\x0f\x63ontact_message\x18\x04 \x01(\x0b\x32\x17.Message.ContactMessage\x12\x32\n\x10location_message\x18\x05 \x01(\x0b\x32\x18.Message.LocationMessage\x12;\n\x15\x65xtended_text_message\x18\x06 \x01(\x0b\x32\x1c.Message.ExtendedTextMessage\x12\x32\n\x10\x64ocument_message\x18\x07 \x01(\x0b\x32\x18.Message.DocumentMessage\x12,\n\raudio_message\x18\x08 \x01(\x0b\x32\x15.Message.AudioMessage\x12,\n\rvideo_message\x18\t \x01(\x0b\x32\x15.Message.VideoMessage\x12\x1b\n\x04\x63\x61ll\x18\n \x01(\x0b\x32\r.Message.Call\x12\x1b\n\x04\x63hat\x18\x0b \x01(\x0b\x32\r.Message.Chat\x12\x32\n\x10protocol_message\x18\x0c \x01(\x0b\x32\x18.Message.ProtocolMessage\x12=\n\x16\x63ontacts_array_message\x18\r \x01(\x0b\x32\x1d.Message.ContactsArrayMessage\x12\x43\n\x19highly_structured_message\x18\x0e \x01(\x0b\x32 .Message.HighlyStructuredMessage\x12\x30\n\x0fsticker_message\x18\x1a \x01(\x0b\x32\x17.Message.StickerMessage\x1a\x61\n\x1cSenderKeyDistributionMessage\x12\x10\n\x08group_id\x18\x01 \x01(\t\x12/\n\'axolotl_sender_key_distribution_message\x18\x02 \x01(\x0c\x1a\x91\x03\n\x0cImageMessage\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x0f\n\x07\x63\x61ption\x18\x03 \x01(\t\x12\x13\n\x0b\x66ile_sha256\x18\x04 \x01(\x0c\x12\x13\n\x0b\x66ile_length\x18\x05 \x01(\x04\x12\x0e\n\x06height\x18\x06 \x01(\r\x12\r\n\x05width\x18\x07 \x01(\r\x12\x11\n\tmedia_key\x18\x08 \x01(\x0c\x12\x17\n\x0f\x66ile_enc_sha256\x18\t \x01(\x0c\x12\x37\n\x17interactive_annotations\x18\n \x03(\x0b\x32\x16.InteractiveAnnotation\x12\x13\n\x0b\x64irect_path\x18\x0b \x01(\t\x12\x1b\n\x13media_key_timestamp\x18\x0c \x01(\x04\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x12\x1a\n\x12\x66irst_scan_sidecar\x18\x12 \x01(\x0c\x12\x19\n\x11\x66irst_scan_length\x18\x13 \x01(\r\x1aY\n\x0e\x43ontactMessage\x12\x14\n\x0c\x64isplay_name\x18\x01 \x01(\t\x12\r\n\x05vcard\x18\x10 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x1a\xd2\x02\n\x0fLocationMessage\x12\x18\n\x10\x64\x65grees_latitude\x18\x01 \x01(\x01\x12\x19\n\x11\x64\x65grees_longitude\x18\x02 \x01(\x01\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x0f\n\x07\x61\x64\x64ress\x18\x04 \x01(\t\x12\x0b\n\x03url\x18\x05 \x01(\t\x12\x10\n\x08\x64uration\x18\x06 \x01(\x02\x12\x1a\n\x12\x61\x63\x63uracy_in_meters\x18\x07 \x01(\r\x12\x14\n\x0cspeed_in_mps\x18\x08 \x01(\x02\x12-\n%degrees_clockwise_from_magnetic_north\x18\t \x01(\r\x12/\n\'axolotl_sender_key_distribution_message\x18\n \x01(\x0c\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x1a\xb0\x01\n\x13\x45xtendedTextMessage\x12\x0c\n\x04text\x18\x01 \x01(\t\x12\x14\n\x0cmatched_text\x18\x02 \x01(\t\x12\x15\n\rcanonical_url\x18\x04 \x01(\t\x12\x13\n\x0b\x64\x65scription\x18\x05 \x01(\t\x12\r\n\x05title\x18\x06 \x01(\t\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x1a\xdf\x01\n\x0f\x44ocumentMessage\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\r\n\x05title\x18\x03 \x01(\t\x12\x13\n\x0b\x66ile_sha256\x18\x04 \x01(\x0c\x12\x13\n\x0b\x66ile_length\x18\x05 \x01(\x04\x12\x12\n\npage_count\x18\x06 \x01(\r\x12\x11\n\tmedia_key\x18\x07 \x01(\x0c\x12\x11\n\tfile_name\x18\x08 \x01(\t\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x1a\xc7\x01\n\x0c\x41udioMessage\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x13\n\x0b\x66ile_sha256\x18\x03 \x01(\x0c\x12\x13\n\x0b\x66ile_length\x18\x04 \x01(\x04\x12\x0f\n\x07seconds\x18\x05 \x01(\r\x12\x0b\n\x03ptt\x18\x06 \x01(\x08\x12\x11\n\tmedia_key\x18\x07 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x12\x19\n\x11streaming_sidecar\x18\x12 \x01(\x0c\x1a\x89\x03\n\x0cVideoMessage\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x10\n\x08mimetype\x18\x02 \x01(\t\x12\x13\n\x0b\x66ile_sha256\x18\x03 \x01(\x0c\x12\x13\n\x0b\x66ile_length\x18\x04 \x01(\x04\x12\x0f\n\x07seconds\x18\x05 \x01(\r\x12\x11\n\tmedia_key\x18\x06 \x01(\x0c\x12\x0f\n\x07\x63\x61ption\x18\x07 \x01(\t\x12\x14\n\x0cgif_playback\x18\x08 \x01(\x08\x12\x0e\n\x06height\x18\t \x01(\r\x12\r\n\x05width\x18\n \x01(\r\x12\x16\n\x0ejpeg_thumbnail\x18\x10 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x12\x19\n\x11streaming_sidecar\x18\x12 \x01(\x0c\x12@\n\x0fgif_attribution\x18\x13 \x01(\x0e\x32!.Message.VideoMessage.Attribution:\x04NONE\"-\n\x0b\x41ttribution\x12\x08\n\x04NONE\x10\x00\x12\t\n\x05GIPHY\x10\x01\x12\t\n\x05TENOR\x10\x02\x1a\x18\n\x04\x43\x61ll\x12\x10\n\x08\x63\x61ll_key\x18\x01 \x01(\x0c\x1a(\n\x04\x43hat\x12\x14\n\x0c\x64isplay_name\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x01(\t\x1at\n\x0fProtocolMessage\x12\x18\n\x03key\x18\x01 \x01(\x0b\x32\x0b.MessageKey\x12\x33\n\x04type\x18\x02 \x01(\x0e\x32\x1d.Message.ProtocolMessage.Type:\x06REVOKE\"\x12\n\x04Type\x12\n\n\x06REVOKE\x10\x00\x1a{\n\x14\x43ontactsArrayMessage\x12\x14\n\x0c\x64isplay_name\x18\x01 \x01(\t\x12)\n\x08\x63ontacts\x18\x02 \x03(\x0b\x32\x17.Message.ContactMessage\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo\x1a|\n\x17HighlyStructuredMessage\x12\x11\n\tnamespace\x18\x01 \x01(\t\x12\x14\n\x0c\x65lement_name\x18\x02 \x01(\t\x12\x0e\n\x06params\x18\x03 \x03(\t\x12\x13\n\x0b\x66\x61llback_lg\x18\x04 \x01(\t\x12\x13\n\x0b\x66\x61llback_lc\x18\x05 \x01(\t\x1a\x91\x02\n\x0eStickerMessage\x12\x0b\n\x03url\x18\x01 \x01(\t\x12\x13\n\x0b\x66ile_sha256\x18\x02 \x01(\x0c\x12\x17\n\x0f\x66ile_enc_sha256\x18\x03 \x01(\x0c\x12\x11\n\tmedia_key\x18\x04 \x01(\x0c\x12\x10\n\x08mimetype\x18\x05 \x01(\t\x12\x0e\n\x06height\x18\x06 \x01(\r\x12\r\n\x05width\x18\x07 \x01(\r\x12\x13\n\x0b\x64irect_path\x18\x08 \x01(\t\x12\x13\n\x0b\x66ile_length\x18\t \x01(\x04\x12\x1b\n\x13media_key_timestamp\x18\n \x01(\x04\x12\x15\n\rpng_thumbnail\x18\x10 \x01(\x0c\x12\"\n\x0c\x63ontext_info\x18\x11 \x01(\x0b\x32\x0c.ContextInfo')
   ,
   dependencies=[protocol__pb2.DESCRIPTOR,])
 
@@ -47,8 +47,8 @@ _MESSAGE_VIDEOMESSAGE_ATTRIBUTION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2621,
-  serialized_end=2666,
+  serialized_start=3011,
+  serialized_end=3056,
 )
 _sym_db.RegisterEnumDescriptor(_MESSAGE_VIDEOMESSAGE_ATTRIBUTION)
 
@@ -65,8 +65,8 @@ _MESSAGE_PROTOCOLMESSAGE_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2834,
-  serialized_end=2852,
+  serialized_start=3224,
+  serialized_end=3242,
 )
 _sym_db.RegisterEnumDescriptor(_MESSAGE_PROTOCOLMESSAGE_TYPE)
 
@@ -144,6 +144,96 @@ _CONTEXTINFO = _descriptor.Descriptor(
 )
 
 
+_POINT = _descriptor.Descriptor(
+  name='Point',
+  full_name='Point',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='xDeprecated', full_name='Point.xDeprecated', index=0,
+      number=1, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='yDeprecated', full_name='Point.yDeprecated', index=1,
+      number=2, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='x', full_name='Point.x', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='y', full_name='Point.y', index=3,
+      number=4, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=208,
+  serialized_end=279,
+)
+
+
+_INTERACTIVEANNOTATION = _descriptor.Descriptor(
+  name='InteractiveAnnotation',
+  full_name='InteractiveAnnotation',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='polygon_vertices', full_name='InteractiveAnnotation.polygon_vertices', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='action_case', full_name='InteractiveAnnotation.action_case', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=281,
+  serialized_end=359,
+)
+
+
 _MESSAGE_SENDERKEYDISTRIBUTIONMESSAGE = _descriptor.Descriptor(
   name='SenderKeyDistributionMessage',
   full_name='Message.SenderKeyDistributionMessage',
@@ -177,8 +267,8 @@ _MESSAGE_SENDERKEYDISTRIBUTIONMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=917,
-  serialized_end=1014,
+  serialized_start=1120,
+  serialized_end=1217,
 )
 
 _MESSAGE_IMAGEMESSAGE = _descriptor.Descriptor(
@@ -245,16 +335,58 @@ _MESSAGE_IMAGEMESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='jpeg_thumbnail', full_name='Message.ImageMessage.jpeg_thumbnail', index=8,
+      name='file_enc_sha256', full_name='Message.ImageMessage.file_enc_sha256', index=8,
+      number=9, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='interactive_annotations', full_name='Message.ImageMessage.interactive_annotations', index=9,
+      number=10, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='direct_path', full_name='Message.ImageMessage.direct_path', index=10,
+      number=11, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='media_key_timestamp', full_name='Message.ImageMessage.media_key_timestamp', index=11,
+      number=12, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='jpeg_thumbnail', full_name='Message.ImageMessage.jpeg_thumbnail', index=12,
       number=16, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='context_info', full_name='Message.ImageMessage.context_info', index=9,
+      name='context_info', full_name='Message.ImageMessage.context_info', index=13,
       number=17, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='first_scan_sidecar', full_name='Message.ImageMessage.first_scan_sidecar', index=14,
+      number=18, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='first_scan_length', full_name='Message.ImageMessage.first_scan_length', index=15,
+      number=19, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -270,8 +402,8 @@ _MESSAGE_IMAGEMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1017,
-  serialized_end=1231,
+  serialized_start=1220,
+  serialized_end=1621,
 )
 
 _MESSAGE_CONTACTMESSAGE = _descriptor.Descriptor(
@@ -314,8 +446,8 @@ _MESSAGE_CONTACTMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1233,
-  serialized_end=1322,
+  serialized_start=1623,
+  serialized_end=1712,
 )
 
 _MESSAGE_LOCATIONMESSAGE = _descriptor.Descriptor(
@@ -421,8 +553,8 @@ _MESSAGE_LOCATIONMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1325,
-  serialized_end=1663,
+  serialized_start=1715,
+  serialized_end=2053,
 )
 
 _MESSAGE_EXTENDEDTEXTMESSAGE = _descriptor.Descriptor(
@@ -493,8 +625,8 @@ _MESSAGE_EXTENDEDTEXTMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1666,
-  serialized_end=1842,
+  serialized_start=2056,
+  serialized_end=2232,
 )
 
 _MESSAGE_DOCUMENTMESSAGE = _descriptor.Descriptor(
@@ -586,8 +718,8 @@ _MESSAGE_DOCUMENTMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1845,
-  serialized_end=2068,
+  serialized_start=2235,
+  serialized_end=2458,
 )
 
 _MESSAGE_AUDIOMESSAGE = _descriptor.Descriptor(
@@ -672,8 +804,8 @@ _MESSAGE_AUDIOMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2071,
-  serialized_end=2270,
+  serialized_start=2461,
+  serialized_end=2660,
 )
 
 _MESSAGE_VIDEOMESSAGE = _descriptor.Descriptor(
@@ -794,8 +926,8 @@ _MESSAGE_VIDEOMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2273,
-  serialized_end=2666,
+  serialized_start=2663,
+  serialized_end=3056,
 )
 
 _MESSAGE_CALL = _descriptor.Descriptor(
@@ -824,8 +956,8 @@ _MESSAGE_CALL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2668,
-  serialized_end=2692,
+  serialized_start=3058,
+  serialized_end=3082,
 )
 
 _MESSAGE_CHAT = _descriptor.Descriptor(
@@ -861,8 +993,8 @@ _MESSAGE_CHAT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2694,
-  serialized_end=2734,
+  serialized_start=3084,
+  serialized_end=3124,
 )
 
 _MESSAGE_PROTOCOLMESSAGE = _descriptor.Descriptor(
@@ -899,8 +1031,8 @@ _MESSAGE_PROTOCOLMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2736,
-  serialized_end=2852,
+  serialized_start=3126,
+  serialized_end=3242,
 )
 
 _MESSAGE_CONTACTSARRAYMESSAGE = _descriptor.Descriptor(
@@ -943,8 +1075,8 @@ _MESSAGE_CONTACTSARRAYMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2854,
-  serialized_end=2977,
+  serialized_start=3244,
+  serialized_end=3367,
 )
 
 _MESSAGE_HIGHLYSTRUCTUREDMESSAGE = _descriptor.Descriptor(
@@ -1001,8 +1133,115 @@ _MESSAGE_HIGHLYSTRUCTUREDMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2979,
-  serialized_end=3103,
+  serialized_start=3369,
+  serialized_end=3493,
+)
+
+_MESSAGE_STICKERMESSAGE = _descriptor.Descriptor(
+  name='StickerMessage',
+  full_name='Message.StickerMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='url', full_name='Message.StickerMessage.url', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='file_sha256', full_name='Message.StickerMessage.file_sha256', index=1,
+      number=2, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='file_enc_sha256', full_name='Message.StickerMessage.file_enc_sha256', index=2,
+      number=3, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='media_key', full_name='Message.StickerMessage.media_key', index=3,
+      number=4, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='mimetype', full_name='Message.StickerMessage.mimetype', index=4,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='height', full_name='Message.StickerMessage.height', index=5,
+      number=6, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='width', full_name='Message.StickerMessage.width', index=6,
+      number=7, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='direct_path', full_name='Message.StickerMessage.direct_path', index=7,
+      number=8, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='file_length', full_name='Message.StickerMessage.file_length', index=8,
+      number=9, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='media_key_timestamp', full_name='Message.StickerMessage.media_key_timestamp', index=9,
+      number=10, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='png_thumbnail', full_name='Message.StickerMessage.png_thumbnail', index=10,
+      number=16, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b(""),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='context_info', full_name='Message.StickerMessage.context_info', index=11,
+      number=17, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=3496,
+  serialized_end=3769,
 )
 
 _MESSAGE = _descriptor.Descriptor(
@@ -1110,10 +1349,17 @@ _MESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='sticker_message', full_name='Message.sticker_message', index=14,
+      number=26, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
-  nested_types=[_MESSAGE_SENDERKEYDISTRIBUTIONMESSAGE, _MESSAGE_IMAGEMESSAGE, _MESSAGE_CONTACTMESSAGE, _MESSAGE_LOCATIONMESSAGE, _MESSAGE_EXTENDEDTEXTMESSAGE, _MESSAGE_DOCUMENTMESSAGE, _MESSAGE_AUDIOMESSAGE, _MESSAGE_VIDEOMESSAGE, _MESSAGE_CALL, _MESSAGE_CHAT, _MESSAGE_PROTOCOLMESSAGE, _MESSAGE_CONTACTSARRAYMESSAGE, _MESSAGE_HIGHLYSTRUCTUREDMESSAGE, ],
+  nested_types=[_MESSAGE_SENDERKEYDISTRIBUTIONMESSAGE, _MESSAGE_IMAGEMESSAGE, _MESSAGE_CONTACTMESSAGE, _MESSAGE_LOCATIONMESSAGE, _MESSAGE_EXTENDEDTEXTMESSAGE, _MESSAGE_DOCUMENTMESSAGE, _MESSAGE_AUDIOMESSAGE, _MESSAGE_VIDEOMESSAGE, _MESSAGE_CALL, _MESSAGE_CHAT, _MESSAGE_PROTOCOLMESSAGE, _MESSAGE_CONTACTSARRAYMESSAGE, _MESSAGE_HIGHLYSTRUCTUREDMESSAGE, _MESSAGE_STICKERMESSAGE, ],
   enum_types=[
   ],
   serialized_options=None,
@@ -1122,12 +1368,14 @@ _MESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=209,
-  serialized_end=3103,
+  serialized_start=362,
+  serialized_end=3769,
 )
 
 _CONTEXTINFO.fields_by_name['quoted_message'].message_type = _MESSAGE
+_INTERACTIVEANNOTATION.fields_by_name['polygon_vertices'].message_type = _POINT
 _MESSAGE_SENDERKEYDISTRIBUTIONMESSAGE.containing_type = _MESSAGE
+_MESSAGE_IMAGEMESSAGE.fields_by_name['interactive_annotations'].message_type = _INTERACTIVEANNOTATION
 _MESSAGE_IMAGEMESSAGE.fields_by_name['context_info'].message_type = _CONTEXTINFO
 _MESSAGE_IMAGEMESSAGE.containing_type = _MESSAGE
 _MESSAGE_CONTACTMESSAGE.fields_by_name['context_info'].message_type = _CONTEXTINFO
@@ -1154,6 +1402,8 @@ _MESSAGE_CONTACTSARRAYMESSAGE.fields_by_name['contacts'].message_type = _MESSAGE
 _MESSAGE_CONTACTSARRAYMESSAGE.fields_by_name['context_info'].message_type = _CONTEXTINFO
 _MESSAGE_CONTACTSARRAYMESSAGE.containing_type = _MESSAGE
 _MESSAGE_HIGHLYSTRUCTUREDMESSAGE.containing_type = _MESSAGE
+_MESSAGE_STICKERMESSAGE.fields_by_name['context_info'].message_type = _CONTEXTINFO
+_MESSAGE_STICKERMESSAGE.containing_type = _MESSAGE
 _MESSAGE.fields_by_name['sender_key_distribution_message'].message_type = _MESSAGE_SENDERKEYDISTRIBUTIONMESSAGE
 _MESSAGE.fields_by_name['image_message'].message_type = _MESSAGE_IMAGEMESSAGE
 _MESSAGE.fields_by_name['contact_message'].message_type = _MESSAGE_CONTACTMESSAGE
@@ -1167,7 +1417,10 @@ _MESSAGE.fields_by_name['chat'].message_type = _MESSAGE_CHAT
 _MESSAGE.fields_by_name['protocol_message'].message_type = _MESSAGE_PROTOCOLMESSAGE
 _MESSAGE.fields_by_name['contacts_array_message'].message_type = _MESSAGE_CONTACTSARRAYMESSAGE
 _MESSAGE.fields_by_name['highly_structured_message'].message_type = _MESSAGE_HIGHLYSTRUCTUREDMESSAGE
+_MESSAGE.fields_by_name['sticker_message'].message_type = _MESSAGE_STICKERMESSAGE
 DESCRIPTOR.message_types_by_name['ContextInfo'] = _CONTEXTINFO
+DESCRIPTOR.message_types_by_name['Point'] = _POINT
+DESCRIPTOR.message_types_by_name['InteractiveAnnotation'] = _INTERACTIVEANNOTATION
 DESCRIPTOR.message_types_by_name['Message'] = _MESSAGE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -1177,6 +1430,20 @@ ContextInfo = _reflection.GeneratedProtocolMessageType('ContextInfo', (_message.
   # @@protoc_insertion_point(class_scope:ContextInfo)
   ))
 _sym_db.RegisterMessage(ContextInfo)
+
+Point = _reflection.GeneratedProtocolMessageType('Point', (_message.Message,), dict(
+  DESCRIPTOR = _POINT,
+  __module__ = 'e2e_pb2'
+  # @@protoc_insertion_point(class_scope:Point)
+  ))
+_sym_db.RegisterMessage(Point)
+
+InteractiveAnnotation = _reflection.GeneratedProtocolMessageType('InteractiveAnnotation', (_message.Message,), dict(
+  DESCRIPTOR = _INTERACTIVEANNOTATION,
+  __module__ = 'e2e_pb2'
+  # @@protoc_insertion_point(class_scope:InteractiveAnnotation)
+  ))
+_sym_db.RegisterMessage(InteractiveAnnotation)
 
 Message = _reflection.GeneratedProtocolMessageType('Message', (_message.Message,), dict(
 
@@ -1270,6 +1537,13 @@ Message = _reflection.GeneratedProtocolMessageType('Message', (_message.Message,
     # @@protoc_insertion_point(class_scope:Message.HighlyStructuredMessage)
     ))
   ,
+
+  StickerMessage = _reflection.GeneratedProtocolMessageType('StickerMessage', (_message.Message,), dict(
+    DESCRIPTOR = _MESSAGE_STICKERMESSAGE,
+    __module__ = 'e2e_pb2'
+    # @@protoc_insertion_point(class_scope:Message.StickerMessage)
+    ))
+  ,
   DESCRIPTOR = _MESSAGE,
   __module__ = 'e2e_pb2'
   # @@protoc_insertion_point(class_scope:Message)
@@ -1288,6 +1562,7 @@ _sym_db.RegisterMessage(Message.Chat)
 _sym_db.RegisterMessage(Message.ProtocolMessage)
 _sym_db.RegisterMessage(Message.ContactsArrayMessage)
 _sym_db.RegisterMessage(Message.HighlyStructuredMessage)
+_sym_db.RegisterMessage(Message.StickerMessage)
 
 
 # @@protoc_insertion_point(module_scope)

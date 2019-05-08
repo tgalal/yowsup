@@ -405,7 +405,8 @@ class MediaToolsArgParser(YowArgParser):
         "video": MediaCipher.INFO_VIDEO,
         "gif": MediaCipher.INFO_VIDEO,
         "document": MediaCipher.INFO_DOCUM,
-        "doc": MediaCipher.INFO_DOCUM
+        "doc": MediaCipher.INFO_DOCUM,
+        "sticker": MediaCipher.INFO_IMAGE
     }
 
     def __init__(self, *args, **kwargs):
@@ -416,7 +417,7 @@ class MediaToolsArgParser(YowArgParser):
         gp = self.add_argument_group("Media Tools")
         gp.add_argument(
             '--media-type',
-            choices=('image', 'video', 'gif', 'document', 'doc'),
+            choices=('image', 'video', 'gif', 'document', 'doc', "sticker"),
             required=True
         )
         exgp = gp.add_mutually_exclusive_group()

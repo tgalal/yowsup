@@ -2,7 +2,8 @@ from yowsup.layers.protocol_media.mediacipher import MediaCipher
 from yowsup.layers.protocol_media.protocolentities \
     import ImageDownloadableMediaMessageProtocolEntity, AudioDownloadableMediaMessageProtocolEntity,\
     VideoDownloadableMediaMessageProtocolEntity, DocumentDownloadableMediaMessageProtocolEntity, \
-    ContactMediaMessageProtocolEntity, DownloadableMediaMessageProtocolEntity
+    ContactMediaMessageProtocolEntity, DownloadableMediaMessageProtocolEntity, \
+    StickerDownloadableMediaMessageProtocolEntity
 
 import threading
 from tqdm import tqdm
@@ -130,6 +131,9 @@ class SinkWorker(threading.Thread):
                 filename = media_message_protocolentity.display_name
                 filedata = media_message_protocolentity.vcard
                 fileext = "vcard"
+            elif isinstance(media_message_protocolentity, StickerDownloadableMediaMessageProtocolEntity):
+                media_info = MediaCipher.INFO_IMAGE
+                filename = "sticker"
             else:
                 logger.error("Unsupported Media type: %s" % media_message_protocolentity.__class__)
                 sys.exit(1)
