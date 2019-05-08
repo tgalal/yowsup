@@ -147,7 +147,10 @@ class AxolotlManager(object):
         return data[:-padding]
 
     def encrypt(self, recipient_id, message):
-        logger.debug("encrypt(recipientid=%s, message=%s)" % (recipient_id, message))
+        # to avoid the hassle of encoding issues and associated unnecessary crashes,
+        # don't log the message content.
+        # see https://github.com/tgalal/yowsup/issues/2732
+        logger.debug("encrypt(recipientid=%s, message=[omitted])" % recipient_id)
         """
         :param recipient_id:
         :type recipient_id: str
@@ -200,7 +203,10 @@ class AxolotlManager(object):
         :return:
         :rtype:
         """
-        logger.debug("group_encrypt(groupid=%s, message=%s)" % (groupid, message))
+        # to avoid the hassle of encoding issues and associated unnecessary crashes,
+        # don't log the message content.
+        # see https://github.com/tgalal/yowsup/issues/2732
+        logger.debug("group_encrypt(groupid=%s, message=[omitted])" % groupid)
         group_cipher = self._get_group_cipher(groupid, self._username)
         return group_cipher.encrypt(message + self._generate_random_padding())
 
