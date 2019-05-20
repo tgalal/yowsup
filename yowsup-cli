@@ -362,6 +362,8 @@ class RegistrationArgParser(YowArgParser):
         result = codeReq.send(encrypt=self._encrypt, preview=self._preview)
         if not self._preview:
             if result["status"] in ("sent", "ok"):
+                if "login" in result:
+                    self._config.login = result["login"]
                 if "edge_routing_info" in result:
                     self._config.edge_routing_info = base64.b64decode(result["edge_routing_info"])
                 if "chat_dns_domain" in result:
@@ -380,6 +382,7 @@ class RegistrationArgParser(YowArgParser):
         print(config)
         if not self._preview:
             if result["status"] == "ok":
+                self._config.login = result["login"]
                 if "edge_routing_info" in result:
                     self._config.edge_routing_info = base64.b64decode(result["edge_routing_info"])
                 if "chat_dns_domain" in result:

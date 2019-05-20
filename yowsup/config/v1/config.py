@@ -9,6 +9,7 @@ class Config(config.Config):
             self,
             phone=None,
             cc=None,
+            login=None,
             password=None,
             pushname=None,
             id=None,
@@ -27,6 +28,7 @@ class Config(config.Config):
 
         self._phone = str(phone) if phone is not None else None  # type: str
         self._cc = cc  # type: int
+        self._login = str(login) if login is not None else None # type: str
         self._password = password  # type: str
         self._pushname = pushname  # type: str
         self._id = id
@@ -65,6 +67,14 @@ class Config(config.Config):
     @cc.setter
     def cc(self, value):
         self._cc = value
+
+    @property
+    def login(self):
+        return self._login
+
+    @login.setter
+    def login(self, value):
+        self._login= value
 
     @property
     def password(self):
