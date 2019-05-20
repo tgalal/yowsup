@@ -302,7 +302,7 @@ class ConfigArgParser(YowArgParser):
             print(self._config_manager.config_to_str(self._config, ConfigManager.TYPE_JSON))
         elif preview_format == "keyval":
             print(self._config_manager.config_to_str(self._config, ConfigManager.TYPE_KEYVAL))
-        elif preview_format == None:
+        elif preview_format is None:
             pass
 
         return True
