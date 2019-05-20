@@ -5,7 +5,7 @@ from yowsup.layers.network import YowNetworkLayer
 
 
 class MediaSinkStack(object):
-    def __init__(self, credentials, storage_dir=None):
+    def __init__(self, profile, storage_dir=None):
         stackBuilder = YowStackBuilder()
 
         self._stack = stackBuilder\
@@ -13,7 +13,7 @@ class MediaSinkStack(object):
             .push(MediaSinkLayer)\
             .build()
         self._stack.setProp(MediaSinkLayer.PROP_STORAGE_DIR, storage_dir)
-        self._stack.setCredentials(credentials)
+        self._stack.setProfile(profile)
 
     def set_prop(self, key, val):
         self._stack.setProp(key, val)

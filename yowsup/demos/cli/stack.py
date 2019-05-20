@@ -6,7 +6,7 @@ import sys
 
 
 class YowsupCliStack(object):
-    def __init__(self, credentials):
+    def __init__(self, profile):
         stackBuilder = YowStackBuilder()
 
         self._stack = stackBuilder\
@@ -14,7 +14,7 @@ class YowsupCliStack(object):
             .push(YowsupCliLayer)\
             .build()
 
-        self._stack.setCredentials(credentials)
+        self._stack.setProfile(profile)
         self._stack.setProp(PROP_IDENTITY_AUTOTRUST, True)
 
     def set_prop(self, prop, val):

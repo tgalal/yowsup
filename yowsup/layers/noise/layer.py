@@ -39,8 +39,7 @@ class YowNoiseLayer(YowLayer):
         self._read_buffer = bytearray()
         self._flush_lock = threading.Lock()
         self._incoming_segments_queue = Queue.Queue()
-        self._config_manager = ConfigManager()
-        self._username = None
+        self._profile = None
         self._rs = None
 
     def __str__(self):
@@ -53,11 +52,12 @@ class YowNoiseLayer(YowLayer):
     @EventCallback(YowAuthenticationProtocolLayer.EVENT_AUTH)
     def on_auth(self, event):
         logger.debug("Received auth event")
-        credentials = event.getArg("credentials")
-        self._username, local_static = int(credentials[0]), credentials[1]
-        config = self._config_manager.load(self._username)  # type: yowsup.config.v1.config.Config
+        self._profile = self.getProp("profile")
+        config = self._profile.config  # type: yowsup.config.v1.config.Config
         # event's keypair will override config's keypair
-        local_static = local_static or config.client_static_keypair
+        local_static = config.client_static_keypair
+        username = int(self._profile.username)
+
         if type(local_static) is bytes:
             local_static = KeyPair.from_bytes(local_static)
         assert type(local_static) is KeyPair
@@ -79,7 +79,7 @@ class YowNoiseLayer(YowLayer):
         self._rs = remote_static
         yowsupenv = YowsupEnv.getCurrent()
         client_config = ClientConfig(
-            username=self._username,
+            username=username,
             passive=passive,
             useragent=UserAgentConfig(
                 platform=0,
@@ -98,7 +98,7 @@ class YowNoiseLayer(YowLayer):
             short_connect=True
         )
         if not self._in_handshake():
-            logger.debug("Performing handshake [username= %d, passive=%s]" % (self._username, passive) )
+            logger.debug("Performing handshake [username= %d, passive=%s]" % (username, passive) )
             self._handshake_worker = WANoiseProtocolHandshakeWorker(
                 self._wa_noiseprotocol, self._stream, client_config, local_static, remote_static,
             )
@@ -116,9 +116,9 @@ class YowNoiseLayer(YowLayer):
     def _on_protocol_state_changed(self, state):
         if state == WANoiseProtocol.STATE_TRANSPORT:
             if self._rs != self._wa_noiseprotocol.rs:
-                config = self._config_manager.load(self._username)
+                config = self._profile.config
                 config.server_static_public = self._wa_noiseprotocol.rs
-                self._config_manager.save(config)
+                self._profile.write_config(config)
                 self._rs = self._wa_noiseprotocol.rs
             self._flush_incoming_buffer()
 

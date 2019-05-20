@@ -1,9 +1,9 @@
 from yowsup.layers import YowProtocolLayer
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from yowsup.layers.axolotl.protocolentities import *
-from yowsup.axolotl.factory import AxolotlManagerFactory, AxolotlManager
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers import EventCallback
+from yowsup.profile.profile import YowProfile
 
 from yowsup.axolotl import exceptions
 from yowsup.layers.axolotl.props import PROP_IDENTITY_AUTOTRUST
@@ -34,9 +34,8 @@ class AxolotlBaseLayer(YowProtocolLayer):
 
     @EventCallback(YowNetworkLayer.EVENT_STATE_CONNECTED)
     def on_connected(self, yowLayerEvent):
-        self._manager = AxolotlManagerFactory().get_manager(
-                self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)[0]
-        )
+        profile = self.getProp("profile")  # type: YowProfile
+        self._manager = profile.axolotl_manager
 
     @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
     def on_disconnected(self, yowLayerEvent):

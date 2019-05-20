@@ -30,15 +30,11 @@ class ConfigManager(object):
         TYPE_JSON: DictJsonTransform
     }
 
-    def load(self, username):
-        """
-        :param username:
-        :type username:
-        :return:
-        :rtype:
-        """
-        config_dir = StorageTools.getStorageForPhone(username)
-        logger.debug("Detecting config for username=%s, dir=%s" % (username, config_dir))
+    def load(self, profile_name):
+        # type: (str) -> Config
+
+        config_dir = StorageTools.getStorageForProfile(profile_name)
+        logger.debug("Detecting config for profile=%s, dir=%s" % (profile_name, config_dir))
         exhausted = []
         for ftype in self.MAP_EXT:
             if len(ftype):
@@ -53,7 +49,7 @@ class ConfigManager(object):
 
             exhausted.append(fpath)
 
-        logger.error("Could not find a config for username=%s, paths checked: %s" % (username, ":".join(exhausted)))
+        logger.error("Could not find a config for profile=%s, paths checked: %s" % (profile_name, ":".join(exhausted)))
 
     def _type_to_str(self, type):
         """
@@ -127,10 +123,10 @@ class ConfigManager(object):
 
         raise ValueError("unrecognized serialize_type=%d" % serialize_type)
 
-    def save(self, config, serialize_type=TYPE_JSON, dest=None):
+    def save(self, profile_name, config, serialize_type=TYPE_JSON, dest=None):
         outputdata = self.config_to_str(config, serialize_type)
         if dest is None:
-            StorageTools.writePhoneConfig(config.phone, outputdata)
+            StorageTools.writeProfileConfig(profile_name, outputdata)
         else:
             with open(dest, 'wb') as outputfile:
                 outputfile.write(outputdata)

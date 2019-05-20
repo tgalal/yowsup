@@ -6,9 +6,9 @@ from yowsup.layers.network import YowNetworkLayer
 
 
 class YowsupSendStack(object):
-    def __init__(self, credentials, messages):
+    def __init__(self, profile, messages):
         """
-        :param credentials:
+        :param profile:
         :param messages: list of (jid, message) tuples
         :return:
         """
@@ -21,7 +21,7 @@ class YowsupSendStack(object):
 
         self._stack.setProp(SendLayer.PROP_MESSAGES, messages)
         self._stack.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
-        self._stack.setCredentials(credentials)
+        self._stack.setProfile(profile)
 
     def set_prop(self, key, val):
         self._stack.setProp(key, val)

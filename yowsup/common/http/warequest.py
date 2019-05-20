@@ -7,7 +7,8 @@ from axolotl.ecc.curve import Curve
 from axolotl.ecc.ec import ECPublicKey
 from yowsup.common.tools import WATools
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from yowsup.axolotl.factory import AxolotlManagerFactory
+from yowsup.config.v1.config import Config
+from yowsup.profile.profile import YowProfile
 import struct
 import random
 import base64
@@ -39,11 +40,11 @@ class WARequest(object):
         ])
     )
 
-    def __init__(self, config):
+    def __init__(self, config_or_profile):
         """
        :type method: str
-       :param config:
-       :type config: yowsup.config.v1.config.Config
+       :param config_or_profile:
+       :type config: yowsup.config.v1.config.Config | YowProfile
        """
 
         self.pvars = []
@@ -56,10 +57,17 @@ class WARequest(object):
         self.sent = False
         self.response = None
 
-        self._config = config
+        if isinstance(config_or_profile, Config):
+            logger.warning("Passing Config to WARequest is deprecated, pass a YowProfile instead")
+            profile = YowProfile(config_or_profile.phone, config_or_profile)
+        else:
+            assert isinstance(config_or_profile, YowProfile)
+            profile = config_or_profile
+
+        self._config = profile.config
+        config = self._config
         self._p_in = str(config.phone)[len(str(config.cc)):]
-        self._axolotlmanager = AxolotlManagerFactory() \
-            .get_manager(self._config.phone)  # type: yowsup.axolotl.manager.Axolotlmanager
+        self._axolotlmanager = profile.axolotl_manager
 
         if config.expid is None:
             config.expid = WATools.generateDeviceId()

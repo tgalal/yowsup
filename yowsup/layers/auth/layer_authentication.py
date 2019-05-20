@@ -4,6 +4,9 @@ from yowsup.layers.network import YowNetworkLayer
 from .protocolentities import *
 from .layer_interface_authentication import YowAuthenticationProtocolLayerInterface
 from .protocolentities import StreamErrorProtocolEntity
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class YowAuthenticationProtocolLayer(YowProtocolLayer):
@@ -21,8 +24,6 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         }
         super(YowAuthenticationProtocolLayer, self).__init__(handleMap)
         self.interface = YowAuthenticationProtocolLayerInterface(self)
-        self.credentials = None #left for backwards-compat
-        self._credentials = None #new style set
 
     def __str__(self):
         return "Authentication Layer"
@@ -32,22 +33,16 @@ class YowAuthenticationProtocolLayer(YowProtocolLayer):
         self.broadcastEvent(
             YowLayerEvent(
                 self.EVENT_AUTH,
-                credentials=self.getProp(self.PROP_CREDENTIALS),
                 passive=self.getProp(self.PROP_PASSIVE, False)
             )
         )
 
     def setCredentials(self, credentials):
-        self.setProp(self.PROP_CREDENTIALS, credentials) #keep for now
-        self._credentials = credentials
+        logger.warning("setCredentials is deprecated and has no effect, user stack.setProfile instead")
 
-#
     def getUsername(self, full = False):
-        if self._credentials:
-            return self._credentials[0] if not full else ("%s@%s" % (self._credentials[0], YowConstants.WHATSAPP_SERVER))
-        else:
-            prop = self.getProp(YowAuthenticationProtocolLayer.PROP_CREDENTIALS)
-            return prop[0] if prop else None
+        username = self.getProp("profile").username
+        return username if not full else ("%s@%s" % (username, YowConstants.WHATSAPP_SERVER))
 
     def handleStreamFeatures(self, node):
         nodeEntity = StreamFeaturesProtocolEntity.fromProtocolTreeNode(node)

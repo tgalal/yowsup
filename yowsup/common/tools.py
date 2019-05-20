@@ -93,24 +93,24 @@ class StorageTools:
         return fullPath
 
     @staticmethod
-    def getStorageForPhone(phone):
-        if type(phone) is not str:
-            phone = str(phone)
-        return StorageTools.constructPath(phone + '/')
+    def getStorageForProfile(profile_name):
+        if type(profile_name) is not str:
+            profile_name = str(profile_name)
+        return StorageTools.constructPath(profile_name + '/')
 
     @staticmethod
-    def writePhoneData(phone, name, val):
-        logger.debug("writePhoneData(phone=%s, name=%s, val=[omitted])" % (phone, name))
-        path = os.path.join(StorageTools.getStorageForPhone(phone), name)
+    def writeProfileData(profile_name, name, val):
+        logger.debug("writeProfileData(profile_name=%s, name=%s, val=[omitted])" % (profile_name, name))
+        path = os.path.join(StorageTools.getStorageForProfile(profile_name), name)
         logger.debug("Writing %s" % path)
 
         with open(path, 'w' if type(val) is str else 'wb') as attrFile:
             attrFile.write(val)
 
     @staticmethod
-    def readPhoneData(phone, name, default=None):
-        logger.debug("readPhoneData(phone=%s, name=%s)" % (phone, name))
-        path = StorageTools.getStorageForPhone(phone)
+    def readProfileData(profile_name, name, default=None):
+        logger.debug("readProfileData(profile_name=%s, name=%s)" % (profile_name, name))
+        path = StorageTools.getStorageForProfile(profile_name)
         dataFilePath = os.path.join(path, name)
         if os.path.isfile(dataFilePath):
             logger.debug("Reading %s" % dataFilePath)
@@ -122,20 +122,12 @@ class StorageTools:
         return default
 
     @classmethod
-    def writeIdentity(cls, phone, identity):
-        cls.writePhoneData(phone, 'id', identity)
+    def writeProfileConfig(cls, profile_name, config):
+        cls.writeProfileData(profile_name, cls.NAME_CONFIG, config)
 
     @classmethod
-    def getIdentity(cls, phone):
-        return cls.readPhoneData(phone, 'id')
-
-    @classmethod
-    def writePhoneConfig(cls, phone, config):
-        cls.writePhoneData(phone, cls.NAME_CONFIG, config)
-
-    @classmethod
-    def readPhoneConfig(cls, phone, config):
-        return cls.readPhoneData(phone, cls.NAME_CONFIG)
+    def readProfileConfig(cls, profile_name, config):
+        return cls.readProfileData(profile_name, cls.NAME_CONFIG)
 
 
 class ImageTools:

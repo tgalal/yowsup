@@ -7,9 +7,9 @@ from yowsup.layers.network import YowNetworkLayer
 
 
 class YowsupSyncStack(object):
-    def __init__(self, credentials, contacts):
+    def __init__(self, profile, contacts):
         """
-        :param credentials:
+        :param profile:
         :param contacts: list of [jid ]
         :return:
         """
@@ -22,7 +22,7 @@ class YowsupSyncStack(object):
 
         self._stack.setProp(SyncLayer.PROP_CONTACTS, contacts)
         self._stack.setProp(YowAuthenticationProtocolLayer.PROP_PASSIVE, True)
-        self._stack.setCredentials(credentials)
+        self._stack.setProfile(profile)
 
     def set_prop(self, key, val):
         self._stack.setProp(key, val)

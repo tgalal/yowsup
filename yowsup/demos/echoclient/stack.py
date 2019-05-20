@@ -5,7 +5,7 @@ from yowsup.layers.network import YowNetworkLayer
 
 
 class YowsupEchoStack(object):
-    def __init__(self, credentials):
+    def __init__(self, profile):
         stackBuilder = YowStackBuilder()
 
         self._stack = stackBuilder\
@@ -13,7 +13,7 @@ class YowsupEchoStack(object):
             .push(EchoLayer)\
             .build()
 
-        self._stack.setCredentials(credentials)
+        self._stack.setProfile(profile)
 
     def set_prop(self, key, val):
         self._stack.setProp(key, val)

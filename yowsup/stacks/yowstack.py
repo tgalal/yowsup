@@ -21,9 +21,9 @@ from yowsup.layers.protocol_chatstate          import YowChatstateProtocolLayer
 from yowsup.layers.protocol_privacy            import YowPrivacyProtocolLayer
 from yowsup.layers.protocol_profiles           import YowProfilesProtocolLayer
 from yowsup.layers.protocol_calls import YowCallsProtocolLayer
-from yowsup.env import YowsupEnv
 from yowsup.common.constants import YowConstants
 from yowsup.layers.axolotl import AxolotlSendLayer, AxolotlControlLayer, AxolotlReceivelayer
+from yowsup.profile.profile import YowProfile
 import inspect
 try:
     import Queue
@@ -151,7 +151,19 @@ class YowStack(object):
         self.__stackInstances[0].receive(data)
 
     def setCredentials(self, credentials):
-        self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(*credentials)
+        logger.warning("setCredentials is deprecated and any passed-in keypair is ignored, "
+                       "use setProfile(YowProfile) instead")
+        profile_name, keypair = credentials
+        self.setProfile(YowProfile(profile_name))
+
+    def setProfile(self, profile):
+        # type: (str | YowProfile) -> None
+        """
+        :param profile: profile to use.
+        :return:
+        """
+        logger.debug("setProfile(%s)" % profile)
+        self.setProp("profile", profile if isinstance(profile, YowProfile) else YowProfile(profile))
 
     def addLayer(self, layerClass):
         self.__stack.push(layerClass)
