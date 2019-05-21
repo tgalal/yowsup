@@ -1,14 +1,14 @@
 from .message_media import MediaMessageProtocolEntity
-from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 from yowsup.layers.protocol_media.protocolentities.attributes.attributes_downloadablemedia \
     import DownloadableMediaMessageAttributes
 
 
 class DownloadableMediaMessageProtocolEntity(MediaMessageProtocolEntity):
-    def __init__(self, media_type, downloadable_media_message_attrs, message_attrs):
-        # type: (str, DownloadableMediaMessageAttributes, MessageAttributes)
+    def __init__(self, media_type, downloadable_media_message_attrs, message_meta_attrs):
+        # type: (str, DownloadableMediaMessageAttributes, MessageMetaAttributes) -> None
         super(DownloadableMediaMessageProtocolEntity, self).__init__(
-            media_type, downloadable_media_message_attrs, message_attrs
+            media_type, downloadable_media_message_attrs, message_meta_attrs
         )
         self.url = downloadable_media_message_attrs.url
         self.mimetype = downloadable_media_message_attrs.mimetype

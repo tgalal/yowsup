@@ -3,18 +3,18 @@ from yowsup.layers.protocol_media.protocolentities.attributes.attributes_downloa
     import DownloadableMediaMessageAttributes
 from yowsup.layers.protocol_media.protocolentities.attributes.attributes_document \
     import DocumentAttributes
-from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 
 
 class DocumentDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
-    def __init__(self, document_attrs, downloadablemedia_attrs, message_attrs):
+    def __init__(self, document_attrs, downloadablemedia_attrs, message_meta_attrs):
         """
         :type document_attrs: DocumentAttributes
         :type downloadablemedia_attrs: DownloadableMediaMessageAttributes
-        :type message_attrs: MessageAttributes
+        :type message_meta_attrs: MessageMetaAttributes
         """
         super(DocumentDownloadableMediaMessageProtocolEntity, self).__init__(
-            "document", downloadablemedia_attrs, message_attrs
+            "document", downloadablemedia_attrs, message_meta_attrs
         )
         self.file_name = document_attrs.file_name
         self.file_length = document_attrs.file_length

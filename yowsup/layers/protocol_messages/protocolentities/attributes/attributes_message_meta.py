@@ -1,4 +1,4 @@
-class MessageAttributes(object):
+class MessageMetaAttributes(object):
     def __init__(
             self, id=None, sender=None, recipient=None, notify=None, timestamp=None, participant=None, offline=None,
             retry=None
@@ -18,7 +18,7 @@ class MessageAttributes(object):
 
     @staticmethod
     def from_message_protocoltreenode(node):
-        return MessageAttributes(
+        return MessageMetaAttributes(
             node["id"], node["from"], node["to"], node["notify"], node["t"], node["participant"], node["offline"],
             node["retry"]
         )

@@ -1,12 +1,14 @@
 from .protomessage import ProtomessageProtocolEntity
-from .message import MessageAttributes
+from .message import MessageMetaAttributes
+
+
 class TextMessageProtocolEntity(ProtomessageProtocolEntity):
-    def __init__(self, body, messageAttributes=None, to=None):
-        #flexible attributes for temp backwards compat
-        assert(bool(messageAttributes) ^ bool(to)), "Either set messageAttributes, or to, and not both"
+    def __init__(self, body, message_meta_attributes=None, to=None):
+        # flexible attributes for temp backwards compat
+        assert(bool(message_meta_attributes) ^ bool(to)), "Either set message_meta_attributes, or to, and not both"
         if to:
-            messageAttributes = MessageAttributes(recipient=to)
-        super(TextMessageProtocolEntity, self).__init__("text", messageAttributes)
+            message_meta_attributes = MessageMetaAttributes(recipient=to)
+        super(TextMessageProtocolEntity, self).__init__("text", message_meta_attributes)
         self.setBody(body)
 
     @property

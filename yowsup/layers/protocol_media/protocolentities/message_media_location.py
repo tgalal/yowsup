@@ -1,13 +1,13 @@
-from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 from .message_media import MediaMessageProtocolEntity
 from .attributes.attributes_location import LocationAttributes
 from .attributes.attributes_media import MediaAttributes
 
 
 class LocationMediaMessageProtocolEntity(MediaMessageProtocolEntity):
-    def __init__(self, location_attrs, media_message_attrs, message_attrs):
-        # type: (LocationAttributes, MediaAttributes, MessageAttributes) -> None
-        super(LocationMediaMessageProtocolEntity, self).__init__("location", media_message_attrs, message_attrs)
+    def __init__(self, location_attrs, media_message_attrs, message_meta_attrs):
+        # type: (LocationAttributes, MediaAttributes, MessageMetaAttributes) -> None
+        super(LocationMediaMessageProtocolEntity, self).__init__("location", media_message_attrs, message_meta_attrs)
         self.degrees_latitude = location_attrs.degrees_latitude
         self.degrees_longitude = location_attrs.degrees_longitude
         self.name = location_attrs.name

@@ -1,13 +1,13 @@
-from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 from .message_media import MediaMessageProtocolEntity
 from .attributes.attributes_contact import ContactAttributes
 from .attributes.attributes_media import MediaAttributes
 
 
 class ContactMediaMessageProtocolEntity(MediaMessageProtocolEntity):
-    def __init__(self, contact_attrs, media_attrs, message_attrs):
-        # type: (ContactAttributes, MediaAttributes, MessageAttributes) -> None
-        super(ContactMediaMessageProtocolEntity, self).__init__("contact", media_attrs, message_attrs)
+    def __init__(self, contact_attrs, media_attrs, message_meta_attrs):
+        # type: (ContactAttributes, MediaAttributes, MessageMetaAttributes) -> None
+        super(ContactMediaMessageProtocolEntity, self).__init__("contact", media_attrs, message_meta_attrs)
         self.display_name = contact_attrs.display_name
         self.vcard = contact_attrs.vcard
 

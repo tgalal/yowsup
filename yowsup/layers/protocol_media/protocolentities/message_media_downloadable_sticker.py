@@ -2,14 +2,14 @@ from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
 from yowsup.layers.protocol_media.protocolentities.attributes.attributes_downloadablemedia \
     import DownloadableMediaMessageAttributes
 from yowsup.layers.protocol_media.protocolentities.attributes.attributes_sticker import StickerAttributes
-from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 
 
 class StickerDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
-    def __init__(self, sticker_attrs, downloadablemedia_attrs, message_attrs):
-        # type: (StickerAttributes, DownloadableMediaMessageAttributes, MessageAttributes) -> None
+    def __init__(self, sticker_attrs, downloadablemedia_attrs, message_meta_attrs):
+        # type: (StickerAttributes, DownloadableMediaMessageAttributes, MessageMetaAttributes) -> None
         super(StickerDownloadableMediaMessageProtocolEntity, self).__init__(
-            "sticker", downloadablemedia_attrs, message_attrs
+            "sticker", downloadablemedia_attrs, message_meta_attrs
         )
         self.width = sticker_attrs.width
         self.height = sticker_attrs.height

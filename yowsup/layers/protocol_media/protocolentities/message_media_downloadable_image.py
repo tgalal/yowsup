@@ -2,14 +2,14 @@ from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
 from yowsup.layers.protocol_media.protocolentities.attributes.attributes_downloadablemedia \
     import DownloadableMediaMessageAttributes
 from yowsup.layers.protocol_media.protocolentities.attributes.attributes_image import ImageAttributes
-from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 
 
 class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
-    def __init__(self, image_attrs, downloadablemedia_attrs, message_attrs):
-        # type: (ImageAttributes, DownloadableMediaMessageAttributes, MessageAttributes) -> None
+    def __init__(self, image_attrs, downloadablemedia_attrs, message_meta_attrs):
+        # type: (ImageAttributes, DownloadableMediaMessageAttributes, MessageMetaAttributes) -> None
         super(ImageDownloadableMediaMessageProtocolEntity, self).__init__(
-            "image", downloadablemedia_attrs, message_attrs
+            "image", downloadablemedia_attrs, message_meta_attrs
         )
         self.width = image_attrs.width
         self.height = image_attrs.height

@@ -3,7 +3,7 @@ from yowsup.layers.axolotl.protocolentities import *
 from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from yowsup.layers.protocol_groups.protocolentities import InfoGroupsIqProtocolEntity, InfoGroupsResultIqProtocolEntity
 from axolotl.protocol.whispermessage import WhisperMessage
-from yowsup.layers.protocol_messages.protocolentities.message import MessageAttributes
+from yowsup.layers.protocol_messages.protocolentities.message import MessageMetaAttributes
 from .layer_base import AxolotlBaseLayer
 
 import logging
@@ -88,7 +88,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
     def sendEncEntities(self, node, encEntities, participant=None):
         logger.debug("sendEncEntities(node=[omitted], encEntities=[omitted], participant=%s)" % participant)
-        message_attrs = MessageAttributes.from_message_protocoltreenode(node)
+        message_attrs = MessageMetaAttributes.from_message_protocoltreenode(node)
         message_attrs.participant = participant
         messageEntity = EncryptedMessageProtocolEntity(
             encEntities,

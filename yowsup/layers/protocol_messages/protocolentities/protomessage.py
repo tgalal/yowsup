@@ -15,8 +15,8 @@ class ProtomessageProtocolEntity(MessageProtocolEntity):
             </proto>
     </message>
     '''
-    def __init__(self, messageType, messageAttributes):
-        super(ProtomessageProtocolEntity, self).__init__(messageType, messageAttributes)
+    def __init__(self, messageType, messageMetaAttributes):
+        super(ProtomessageProtocolEntity, self).__init__(messageType, messageMetaAttributes)
         self._proto = Message()
 
     def __str__(self):

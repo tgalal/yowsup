@@ -1,6 +1,6 @@
 from yowsup.layers.protocol_messages.protocolentities.protomessage import ProtomessageProtocolEntity
 from yowsup.layers.protocol_media.protocolentities.attributes.attributes_media import MediaAttributes
-from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 
 import logging
 logger = logging.getLogger(__name__)
@@ -24,13 +24,13 @@ class MediaMessageProtocolEntity(ProtomessageProtocolEntity):
         TYPE_MEDIA_GIF, TYPE_MEDIA_PTT, TYPE_MEDIA_URL, TYPE_MEDIA_STICKER
     )
 
-    def __init__(self, media_type, media_message_attrs, message_attrs):
+    def __init__(self, media_type, media_message_attrs, message_meta_attrs):
         """
         :type media_type: str
         :type media_message_attrs: MediaAttributes
-        :type message_attrs: MessageAttributes
+        :type message_meta_attrs: MessageMetaAttributes
         """
-        super(MediaMessageProtocolEntity, self).__init__("media", message_attrs)
+        super(MediaMessageProtocolEntity, self).__init__("media", message_meta_attrs)
         self.media_type = media_type  # type: str
 
         if media_message_attrs.context_info:

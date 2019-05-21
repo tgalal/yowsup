@@ -2,18 +2,18 @@ from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
 from yowsup.layers.protocol_media.protocolentities.attributes.attributes_downloadablemedia \
     import DownloadableMediaMessageAttributes
 from yowsup.layers.protocol_media.protocolentities.attributes.attributes_video import VideoAttributes
-from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 
 
 class VideoDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
-    def __init__(self, video_attrs, downloadablemedia_attrs, message_attrs):
+    def __init__(self, video_attrs, downloadablemedia_attrs, message_meta_attrs):
         """
         :type video_attrs: VideoAttributes
         :type downloadablemedia_attrs: DownloadableMediaMessageAttributes
-        :type message_attrs: MessageAttributes
+        :type message_meta_attrs: MessageMetaAttributes
         """
         super(VideoDownloadableMediaMessageProtocolEntity, self).__init__(
-            "video", downloadablemedia_attrs, message_attrs
+            "video", downloadablemedia_attrs, message_meta_attrs
         )
         self.width = video_attrs.width
         self.height = video_attrs.height

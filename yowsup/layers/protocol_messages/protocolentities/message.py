@@ -1,6 +1,6 @@
 from yowsup.structs import ProtocolEntity
 from yowsup.layers.protocol_receipts.protocolentities  import OutgoingReceiptProtocolEntity
-from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 from copy import deepcopy
 
 
@@ -9,23 +9,23 @@ class MessageProtocolEntity(ProtocolEntity):
     MESSAGE_TYPE_TEXT = "text"
     MESSAGE_TYPE_MEDIA = "media"
 
-    def __init__(self, messageType, messageAttributes):
+    def __init__(self, messageType, messageMetaAttributes):
         """
         :type messageType: str
-        :type messageAttributes: MessageAttributes
+        :type messageMetaAttributes: MessageMetaAttributes
         """
         super(MessageProtocolEntity, self).__init__("message")
-        assert type(messageAttributes) is MessageAttributes
+        assert type(messageMetaAttributes) is MessageMetaAttributes
 
         self._type = messageType
-        self._id = messageAttributes.id or self._generateId()
-        self._from = messageAttributes.sender
-        self.to = messageAttributes.recipient
-        self.timestamp = messageAttributes.timestamp or self._getCurrentTimestamp()
-        self.notify = messageAttributes.notify
-        self.offline = messageAttributes.offline
-        self.retry = messageAttributes.retry
-        self.participant= messageAttributes.participant
+        self._id = messageMetaAttributes.id or self._generateId()
+        self._from = messageMetaAttributes.sender
+        self.to = messageMetaAttributes.recipient
+        self.timestamp = messageMetaAttributes.timestamp or self._getCurrentTimestamp()
+        self.notify = messageMetaAttributes.notify
+        self.offline = messageMetaAttributes.offline
+        self.retry = messageMetaAttributes.retry
+        self.participant= messageMetaAttributes.participant
 
     def getType(self):
         return self._type
@@ -118,5 +118,5 @@ class MessageProtocolEntity(ProtocolEntity):
     def fromProtocolTreeNode(node):
         return MessageProtocolEntity(
             node["type"],
-            MessageAttributes.from_message_protocoltreenode(node)
+            MessageMetaAttributes.from_message_protocoltreenode(node)
         )

@@ -1,13 +1,13 @@
-from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 from .message_media import MediaMessageProtocolEntity
 from .attributes.attributes_extendedtext import ExtendedTextAttributes
 from .attributes.attributes_media import MediaAttributes
 
 
 class ExtendedTextMediaMessageProtocolEntity(MediaMessageProtocolEntity):
-    def __init__(self, extended_text_attrs, media_attrs, message_attrs):
-        # type: (ExtendedTextAttributes, MediaAttributes, MessageAttributes) -> None
-        super(ExtendedTextMediaMessageProtocolEntity, self).__init__("url", media_attrs, message_attrs)
+    def __init__(self, extended_text_attrs, media_attrs, message_meta_attrs):
+        # type: (ExtendedTextAttributes, MediaAttributes, MessageMetaAttributes) -> None
+        super(ExtendedTextMediaMessageProtocolEntity, self).__init__("url", media_attrs, message_meta_attrs)
         self.text = extended_text_attrs.text
         self.matched_text = extended_text_attrs.matched_text
         self.canonical_url = extended_text_attrs.canonical_url
