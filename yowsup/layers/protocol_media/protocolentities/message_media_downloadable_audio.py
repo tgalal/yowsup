@@ -1,46 +1,42 @@
 from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
-from yowsup.layers.protocol_media.protocolentities.attributes.attributes_downloadablemedia \
-    import DownloadableMediaMessageAttributes
-from yowsup.layers.protocol_media.protocolentities.attributes.attributes_audio \
-    import AudioAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_audio import AudioAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
 
 
 class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
-    def __init__(self, audio_attrs, downloadablemedia_attrs, message_meta_attrs):
-        """
-        :type audio_attrs: AudioAttributes
-        :type downloadablemedia_attrs: DownloadableMediaMessageAttributes
-        :type message_meta_attrs: MessageMetaAttributes
-        """
+    def __init__(self, audio_attrs, message_meta_attrs):
+        # type: (AudioAttributes, MessageMetaAttributes) -> None
         super(AudioDownloadableMediaMessageProtocolEntity, self).__init__(
-            "audio", downloadablemedia_attrs, message_meta_attrs
+            "audio", MessageAttributes(audio=audio_attrs), message_meta_attrs
         )
-        self.seconds = audio_attrs.seconds
-        self.ptt = audio_attrs.ptt
 
     @property
-    def proto(self):
-        return self._proto.audio_message
+    def media_specific_attributes(self):
+        return self.message_attributes.audio
+
+    @property
+    def downloadablemedia_specific_attributes(self):
+        return self.message_attributes.audio.downloadablemedia_attributes
 
     @property
     def seconds(self):
-        return self.proto.seconds
+        return self.media_specific_attributes.seconds
 
     @seconds.setter
     def seconds(self, value):
         """
         :type value: int
         """
-        self.proto.seconds = value
+        self.media_specific_attributes.seconds = value
 
     @property
     def ptt(self):
-        return self.proto.ptt
+        return self.media_specific_attributes.ptt
 
     @ptt.setter
     def ptt(self, value):
         """
         :type value: bool
         """
-        self.proto.ptt = value
+        self.media_specific_attributes.ptt = value

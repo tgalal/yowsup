@@ -1,5 +1,6 @@
 from .protomessage import ProtomessageProtocolEntity
 from .message import MessageMetaAttributes
+from .attributes.attributes_message import MessageAttributes
 
 
 class TextMessageProtocolEntity(ProtomessageProtocolEntity):
@@ -8,16 +9,16 @@ class TextMessageProtocolEntity(ProtomessageProtocolEntity):
         assert(bool(message_meta_attributes) ^ bool(to)), "Either set message_meta_attributes, or to, and not both"
         if to:
             message_meta_attributes = MessageMetaAttributes(recipient=to)
-        super(TextMessageProtocolEntity, self).__init__("text", message_meta_attributes)
+        super(TextMessageProtocolEntity, self).__init__("text", MessageAttributes(body), message_meta_attributes)
         self.setBody(body)
 
     @property
     def conversation(self):
-        return self.proto.conversation
+        return self.message_attributes.conversation
 
     @conversation.setter
     def conversation(self, value):
-        self.proto.conversation = value
+        self.message_attributes.conversation = value
 
     def getBody(self):
         #obsolete

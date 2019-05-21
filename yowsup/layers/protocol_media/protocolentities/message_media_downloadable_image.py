@@ -1,53 +1,52 @@
 from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
-from yowsup.layers.protocol_media.protocolentities.attributes.attributes_downloadablemedia \
-    import DownloadableMediaMessageAttributes
-from yowsup.layers.protocol_media.protocolentities.attributes.attributes_image import ImageAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_image import ImageAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
 
 
 class ImageDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
-    def __init__(self, image_attrs, downloadablemedia_attrs, message_meta_attrs):
-        # type: (ImageAttributes, DownloadableMediaMessageAttributes, MessageMetaAttributes) -> None
+    def __init__(self, image_attrs, message_meta_attrs):
+        # type: (ImageAttributes, MessageMetaAttributes) -> None
         super(ImageDownloadableMediaMessageProtocolEntity, self).__init__(
-            "image", downloadablemedia_attrs, message_meta_attrs
+            "image", MessageAttributes(image=image_attrs), message_meta_attrs
         )
-        self.width = image_attrs.width
-        self.height = image_attrs.height
-        self.caption = image_attrs.caption
-        self.jpeg_thumbnail = image_attrs.jpeg_thumbnail
 
     @property
-    def proto(self):
-        return self._proto.image_message
+    def media_specific_attributes(self):
+        return self.message_attributes.image
+
+    @property
+    def downloadablemedia_specific_attributes(self):
+        return self.message_attributes.image.downloadablemedia_attributes
 
     @property
     def width(self):
-        return self.proto.width
+        return self.media_specific_attributes.width
 
     @width.setter
     def width(self, value):
-        self.proto.width = value
+        self.media_specific_attributes.width = value
 
     @property
     def height(self):
-        return self.proto.height
+        return self.media_specific_attributes.height
 
     @height.setter
     def height(self, value):
-        self.proto.height = value
+        self.media_specific_attributes.height = value
 
     @property
     def jpeg_thumbnail(self):
-        return self.proto.jpeg_thumbnail
+        return self.media_specific_attributes.jpeg_thumbnail
 
     @jpeg_thumbnail.setter
     def jpeg_thumbnail(self, value):
-        self.proto.jpeg_thumbnail = value if value is not None else b""
+        self.media_specific_attributes.jpeg_thumbnail = value if value is not None else b""
 
     @property
     def caption(self):
-        return self.proto.caption
+        return self.media_specific_attributes.caption
 
     @caption.setter
     def caption(self, value):
-        self.proto.caption = value if value is not None else ""
+        self.media_specific_attributes.caption = value if value is not None else ""

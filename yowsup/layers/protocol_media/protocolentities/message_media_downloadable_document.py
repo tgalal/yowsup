@@ -1,8 +1,6 @@
 from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
-from yowsup.layers.protocol_media.protocolentities.attributes.attributes_downloadablemedia \
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_downloadablemedia \
     import DownloadableMediaMessageAttributes
-from yowsup.layers.protocol_media.protocolentities.attributes.attributes_document \
-    import DocumentAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 
 
@@ -26,45 +24,49 @@ class DocumentDownloadableMediaMessageProtocolEntity(DownloadableMediaMessagePro
             self.jpeg_thumbnail = document_attrs.jpeg_thumbnail
 
     @property
-    def proto(self):
-        return self._proto.document_message
+    def media_specific_attributes(self):
+        return self.message_attributes.document
+
+    @property
+    def downloadablemedia_specific_attributes(self):
+        return self.message_attributes.document.downloadablemedia_attributes
 
     @property
     def file_name(self):
-        return self.proto.file_name
+        return self.media_specific_attributes.file_name
 
     @file_name.setter
     def file_name(self, value):
-        self.proto.file_name = value
+        self.media_specific_attributes.file_name = value
 
     @property
     def file_length(self):
-        return self.proto.file_length
+        return self.media_specific_attributes.file_length
 
     @file_length.setter
     def file_length(self, value):
-        self.proto.file_length = value
+        self.media_specific_attributes.file_length = value
 
     @property
     def title(self):
-        return self.proto.title
+        return self.media_specific_attributes.title
 
     @title.setter
     def title(self, value):
-        self.proto.title = value
+        self.media_specific_attributes.title = value
 
     @property
     def page_count(self):
-        return self.proto.page_count
+        return self.media_specific_attributes.page_count
 
     @page_count.setter
     def page_count(self, value):
-        self.proto.page_count = value
+        self.media_specific_attributes.page_count = value
 
     @property
     def jpeg_thumbnail(self):
-        return self.proto.image_message.jpeg_thumbnail
+        return self.media_specific_attributes.image_message.jpeg_thumbnail
 
     @jpeg_thumbnail.setter
     def jpeg_thumbnail(self, value):
-        self.proto.image_message.jpeg_thumbnail = value
+        self.media_specific_attributes.image_message.jpeg_thumbnail = value

@@ -1,7 +1,7 @@
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 from .message_media import MediaMessageProtocolEntity
-from .attributes.attributes_contact import ContactAttributes
-from .attributes.attributes_media import MediaAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_contact import ContactAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_media import MediaAttributes
 
 
 class ContactMediaMessageProtocolEntity(MediaMessageProtocolEntity):

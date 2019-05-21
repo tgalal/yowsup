@@ -1,5 +1,5 @@
 from yowsup.layers.protocol_messages.protocolentities.protomessage import ProtomessageProtocolEntity
-from yowsup.layers.protocol_media.protocolentities.attributes.attributes_media import MediaAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 
 import logging
@@ -24,84 +24,19 @@ class MediaMessageProtocolEntity(ProtomessageProtocolEntity):
         TYPE_MEDIA_GIF, TYPE_MEDIA_PTT, TYPE_MEDIA_URL, TYPE_MEDIA_STICKER
     )
 
-    def __init__(self, media_type, media_message_attrs, message_meta_attrs):
+    def __init__(self, media_type, message_attrs, message_meta_attrs):
         """
         :type media_type: str
-        :type media_message_attrs: MediaAttributes
+        :type message_attrs: MessageAttributes
         :type message_meta_attrs: MessageMetaAttributes
         """
-        super(MediaMessageProtocolEntity, self).__init__("media", message_meta_attrs)
+        super(MediaMessageProtocolEntity, self).__init__("media", message_attrs, message_meta_attrs)
         self.media_type = media_type  # type: str
-
-        if media_message_attrs.context_info:
-            self.context_stanza_id = media_message_attrs.context_info.stanza_id
-            self.context_participant = media_message_attrs.context_info.participant
-            self.context_quoted_message = media_message_attrs.context_info.quoted_message
-            self.context_edit_version = media_message_attrs.context_info.edit_version
-            self.context_remote_jid = media_message_attrs.context_info.remote_jid
-            self.context_mentioned_jid = media_message_attrs.context_info.mentioned_jid
-            self.context_revoke_message = media_message_attrs.context_info.revoke_message
 
     def __str__(self):
         out = super(MediaMessageProtocolEntity, self).__str__()
         out += "\nmediatype=%s" % self.media_type
         return out
-
-    @property
-    def context_stanza_id(self):
-        return self.proto.stanza_id
-
-    @context_stanza_id.setter
-    def context_stanza_id(self, value):
-        self.proto.context_info.stanza_id = value
-
-    @property
-    def context_participant(self):
-        return self.proto.context_info.participant
-
-    @context_participant.setter
-    def context_participant(self, value):
-        self.proto.context_info = value
-
-    @property
-    def context_quoted_message(self):
-        return self.proto.context_info.quoted_message
-
-    @context_quoted_message.setter
-    def context_quoted_message(self, value):
-        self.proto.context_info.quoted_message = value
-
-    @property
-    def context_edit_version(self):
-        return self.proto.context_info.edit_version
-
-    @context_edit_version.setter
-    def context_edit_version(self, value):
-        self.proto.context_info.edit_version = value
-
-    @property
-    def context_remote_jid(self):
-        return self.proto.context_info.remote_jid
-
-    @context_remote_jid.setter
-    def context_remote_jid(self, value):
-        self.proto.context_info.remote_jid = value
-
-    @property
-    def context_mentioned_jid(self):
-        return self.proto.context_info.mentioned_jid
-
-    @context_mentioned_jid.setter
-    def context_mentioned_jid(self, value):
-        self.proto.context_info.mentioned_jid = value
-
-    @property
-    def context_revoke_message(self):
-        return self.proto.context_info.revoke_message
-
-    @context_revoke_message.setter
-    def context_revoke_message(self, value):
-        self.proto.context_info.revoke_message = value
 
     @property
     def media_type(self):

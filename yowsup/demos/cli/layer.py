@@ -482,13 +482,16 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
             self.output("Sent delivered receipt"+" and Read" if self.sendRead else "", tag = "Message %s" % message.getId())
 
     def getTextMessageBody(self, message):
-        return message.getBody()
+        if isinstance(message, TextMessageProtocolEntity):
+            return message.conversation
+        elif isinstance(message, ExtendedTextMessageProtocolEntity):
+            return str(message.message_attributes.extended_text)
+        else:
+            raise NotImplementedError()
 
     def getMediaMessageBody(self, message):
-        if message.media_type in ("image", "audio", "video", "document"):
-            return self.getDownloadableMediaMessageBody(message)
-        else:
-            return "[Media Type: %s]" % message.media_type
+        # type: (DownloadableMediaMessageProtocolEntity) -> str
+        return str(message.message_attributes)
 
     def getDownloadableMediaMessageBody(self, message):
         return "[media_type={media_type}, length={media_size}, url={media_url}, key={media_key}]".format(

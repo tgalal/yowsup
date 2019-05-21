@@ -1,5 +1,10 @@
 from yowsup.layers import YowProtocolLayer
 from .protocolentities import TextMessageProtocolEntity
+from .protocolentities import ExtendedTextMessageProtocolEntity
+from yowsup.layers.protocol_messages.protocolentities.attributes.converter import AttributesConverter
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
+
+
 class YowMessagesProtocolLayer(YowProtocolLayer):
     def __init__(self):
         handleMap = {
@@ -19,6 +24,21 @@ class YowMessagesProtocolLayer(YowProtocolLayer):
         protoNode = node.getChild("proto")
 
         if protoNode:
-           if protoNode and protoNode["mediatype"] is None:
-               self.toUpper(TextMessageProtocolEntity.fromProtocolTreeNode(node))
+            if protoNode and protoNode["mediatype"] is None:
+                message = AttributesConverter.get().protobytes_to_message(protoNode.getData())
 
+                if message.conversation:
+                    self.toUpper(
+                        TextMessageProtocolEntity(
+                            message.conversation, MessageMetaAttributes.from_message_protocoltreenode(node)
+                        )
+                    )
+                elif message.extended_text:
+                    self.toUpper(
+                        ExtendedTextMessageProtocolEntity(
+                            message.extended_text,
+                            MessageMetaAttributes.from_message_protocoltreenode(node)
+                        )
+                    )
+                else:
+                    raise NotImplementedError()

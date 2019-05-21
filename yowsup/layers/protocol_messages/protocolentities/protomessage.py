@@ -1,6 +1,8 @@
 from .message import MessageProtocolEntity
 from .proto import ProtoProtocolEntity
+from yowsup.layers.protocol_messages.protocolentities.attributes.converter import AttributesConverter
 from yowsup.layers.protocol_messages.proto.e2e_pb2 import Message
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,35 +17,36 @@ class ProtomessageProtocolEntity(MessageProtocolEntity):
             </proto>
     </message>
     '''
-    def __init__(self, messageType, messageMetaAttributes):
+    def __init__(self, messageType, message_attributes, messageMetaAttributes):
         super(ProtomessageProtocolEntity, self).__init__(messageType, messageMetaAttributes)
-        self._proto = Message()
+        self._message_attributes = message_attributes  # type: MessageAttributes
 
     def __str__(self):
         out = super(ProtomessageProtocolEntity, self).__str__()
-        return "%s\nproto=%s" % (out, self._proto)
-
-    @property
-    def proto(self):
-        return self._proto
-
-    def deserializeProtoData(self, protoData):
-        m = Message()
-        m.ParseFromString(protoData)
-        return m
+        return "%s\nmessage_attributes=%s" % (out, self._message_attributes)
 
     def toProtocolTreeNode(self):
         node = super(ProtomessageProtocolEntity, self).toProtocolTreeNode()
-        node.addChild(ProtoProtocolEntity(self._proto.SerializeToString()).toProtocolTreeNode())
-
+        node.addChild(
+            ProtoProtocolEntity(
+                AttributesConverter.get().message_to_protobytes(self._message_attributes)
+            ).toProtocolTreeNode()
+        )
         return node
 
-    def setProtoFromData(self, protoData):
-        self._proto = self.deserializeProtoData(protoData)
+    @property
+    def message_attributes(self):
+        return self._message_attributes
+
+    @message_attributes.setter
+    def message_attributes(self, value):
+        self._message_attributes = value
 
     @classmethod
     def fromProtocolTreeNode(cls, node):
         entity = MessageProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__= cls
-        entity.setProtoFromData(node.getChild("proto").getData())
+        entity.__class__ = cls
+        m = Message()
+        m.ParseFromString(node.getChild("proto").getData())
+        entity.message_attributes = AttributesConverter.get().proto_to_message(m)
         return entity
