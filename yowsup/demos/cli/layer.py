@@ -53,7 +53,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         self.sendReceipts = True
         self.sendRead = True
         self.disconnectAction = self.__class__.DISCONNECT_ACTION_PROMPT
-        self.credentials = None
 
         #add aliases to make it user to use commands. for example you can then do:
         # /message send foobar "HI"
@@ -75,22 +74,9 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
                 return alias
         return jid
 
-    def setCredentials(self, username, keypair):
-        self.getLayerInterface(YowAuthenticationProtocolLayer).setCredentials(username, keypair)
-
-        return "%s@s.whatsapp.net" % username
-
     @EventCallback(EVENT_START)
     def onStart(self, layerEvent):
         self.startInput()
-        return True
-
-    @EventCallback(EVENT_SENDANDEXIT)
-    def onSendAndExit(self, layerEvent):
-        credentials = layerEvent.getArg("credentials")
-        target = layerEvent.getArg("target")
-        message = layerEvent.getArg("message")
-        self.sendMessageAndDisconnect(credentials, target, message)
         return True
 
     @EventCallback(YowNetworkLayer.EVENT_STATE_DISCONNECTED)
@@ -108,15 +94,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         else:
             self.output("Not connected", tag = "Error", prompt = False)
             return False
-
-    #### batch cmds #####
-    def sendMessageAndDisconnect(self, credentials, jid, message):
-        self.disconnectAction = self.__class__.DISCONNECT_ACTION_EXIT
-        self.queueCmd("/login %s %s" % credentials)
-        self.queueCmd("/message send %s \"%s\" wait" % (jid, message))
-        self.queueCmd("/disconnect")
-        self.startInput()
-
 
     ########## PRESENCE ###############
     @clicmd("Set presence name")
