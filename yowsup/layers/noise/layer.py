@@ -5,6 +5,10 @@ from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers.noise.layer_noise_segments import YowNoiseSegmentsLayer
 from yowsup.config.manager import ConfigManager
 from yowsup.env.env import YowsupEnv
+from yowsup.layers import YowLayerEvent
+from yowsup.structs.protocoltreenode import ProtocolTreeNode
+from yowsup.layers.coder.encoder import WriteEncoder
+from yowsup.layers.coder.tokendictionary import TokenDictionary
 
 from consonance.protocol import WANoiseProtocol
 from consonance.config.client import ClientConfig
@@ -27,6 +31,7 @@ class YowNoiseLayer(YowLayer):
     DEFAULT_PUSHNAME = "yowsup"
     HEADER = b'WA\x02\x01'
     EDGE_HEADER = b'ED\x00\x01'
+    EVENT_HANDSHAKE_FAILED = "org.whatsapp.yowsup.layer.noise.event.handshake_failed"
 
     def __init__(self):
         super(YowNoiseLayer, self).__init__()
@@ -101,10 +106,21 @@ class YowNoiseLayer(YowLayer):
             logger.debug("Performing handshake [username= %d, passive=%s]" % (username, passive) )
             self._handshake_worker = WANoiseProtocolHandshakeWorker(
                 self._wa_noiseprotocol, self._stream, client_config, local_static, remote_static,
+                self.on_handshake_finished
             )
             logger.debug("Starting handshake worker")
             self._stream.set_events_callback(self._handle_stream_event)
             self._handshake_worker.start()
+
+    def on_handshake_finished(self, e=None):
+        # type: (Exception) -> None
+        if e is not None:
+            self.emitEvent(YowLayerEvent(self.EVENT_HANDSHAKE_FAILED, reason=e))
+            data=WriteEncoder(TokenDictionary()).protocolTreeNodeToBytes(
+                ProtocolTreeNode("failure", {"reason": str(e)})
+            )
+            self.toUpper(data)
+            logger.error("An error occurred during handshake, try login again.")
 
     def _in_handshake(self):
         """

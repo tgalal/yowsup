@@ -1,10 +1,14 @@
 from consonance.protocol import WANoiseProtocol
 from consonance.streams.segmented.segmented import SegmentedStream
+from consonance.exceptions.handshake_failed_exception import HandshakeFailedException
 from consonance.config.client import ClientConfig
-from dissononce.dh.keypair import KeyPair
-from dissononce.dh.x25519.x25519 import PublicKey
+from consonance.structs.keypair import KeyPair
+from consonance.structs.publickey import PublicKey
 
 import threading
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class WANoiseProtocolHandshakeWorker(threading.Thread):
@@ -33,6 +37,11 @@ class WANoiseProtocolHandshakeWorker(threading.Thread):
 
     def run(self):
         self._protocol.reset()
-        self._protocol.start(self._stream, self._client_config, self._s, self._rs)
+        error = None
+        try:
+            self._protocol.start(self._stream, self._client_config, self._s, self._rs)
+        except HandshakeFailedException as e:
+            error = e
+
         if self._finish_callback is not None:
-            self._finish_callback()
+            self._finish_callback(error)
