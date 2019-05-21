@@ -30,7 +30,7 @@ class WACodeRequest(WARequest):
         self.setParser(JSONResponseParser())
 
     def send(self, parser = None, encrypt=True, preview=False):
-        if self. _config.id is not None:
+        if self._config.id is not None:
             request = WAExistsRequest(self._config)
             result = request.send(encrypt=encrypt, preview=preview)
 
