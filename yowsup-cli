@@ -177,7 +177,6 @@ class YowArgParser(argparse.ArgumentParser):
                 help="Chat DNS domain, normally received and persisted right after a successful login"
             )
         self.args = {}
-        self._config = None  # type: Config
 
     def getArgs(self):
         return self.parse_args()
@@ -299,9 +298,9 @@ class ConfigArgParser(YowArgParser):
         super(ConfigArgParser, self).process()
         preview_format = self.args["preview_config"]
         if preview_format == "json":
-            print(self._config_manager.config_to_str(self._config, ConfigManager.TYPE_JSON))
+            print(self._config_manager.config_to_str(self._profile.config, ConfigManager.TYPE_JSON))
         elif preview_format == "keyval":
-            print(self._config_manager.config_to_str(self._config, ConfigManager.TYPE_KEYVAL))
+            print(self._config_manager.config_to_str(self._profile.config, ConfigManager.TYPE_KEYVAL))
         elif preview_format is None:
             pass
 
@@ -396,7 +395,7 @@ class RegistrationArgParser(YowArgParser):
                     config.edge_routing_info = base64.b64decode(result["edge_routing_info"])
                 if "chat_dns_domain" in result:
                     config.chat_dns_domain = result["chat_dns_domain"]
-                self._profile.write_config(self._config)
+                self._profile.write_config(self._profile.config)
 
             print(self.resultToString(result))
 
