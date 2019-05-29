@@ -1,6 +1,7 @@
-from yowsup.layers import YowLayer, YowLayerEvent, YowProtocolLayer
-from yowsup.common import YowConstants
+from yowsup.layers import YowProtocolLayer
 from .protocolentities import *
+
+
 class YowContactsIqProtocolLayer(YowProtocolLayer):
     def __init__(self):
         handleMap = {
@@ -10,7 +11,7 @@ class YowContactsIqProtocolLayer(YowProtocolLayer):
         super(YowContactsIqProtocolLayer, self).__init__(handleMap)
 
     def __str__(self):
-        return "Iq Layer"
+        return "Contact Iq Layer"
 
     def recvNotification(self, node):
         if node["type"] == "contacts":
