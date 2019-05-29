@@ -65,12 +65,22 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         recipient_id = node["to"].split('@')[0]
         isGroup = "-" in recipient_id
 
+        def on_get_keys_error(error_node, getkeys_entity, plaintext_node):
+            logger.error("Failed to fetch keys for %s, is that a valid user? "
+                         "Server response: [code=%s, text=%s], aborting send." % (
+                plaintext_node["to"], error_node.children[0]["code"], error_node.children[0]["text"]
+            ))
+
         if isGroup:
             self.sendToGroup(node, retryReceiptEntity)
         elif self.manager.session_exists(recipient_id):
             self.sendToContact(node)
         else:
-            self.getKeysFor([node["to"]], lambda successJids, b: self.sendToContact(node) if len(successJids) == 1 else self.toLower(node), lambda: self.toLower(node))
+            self.getKeysFor(
+                [node["to"]],
+                lambda successJids, b: self.sendToContact(node) if len(successJids) == 1 else self.toLower(node),
+                lambda error_node, entity: on_get_keys_error(error_node, entity, node)
+            )
 
     def enqueueSent(self, node):
         logger.debug("enqueueSent(node=[omitted])")
