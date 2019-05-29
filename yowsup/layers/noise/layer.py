@@ -65,7 +65,7 @@ class YowNoiseLayer(YowLayer):
 
         if type(local_static) is bytes:
             local_static = KeyPair.from_bytes(local_static)
-        assert type(local_static) is KeyPair
+        assert type(local_static) is KeyPair, type(local_static)
         passive = event.getArg('passive')
 
         self.setProp(YowNoiseSegmentsLayer.PROP_ENABLED, False)
