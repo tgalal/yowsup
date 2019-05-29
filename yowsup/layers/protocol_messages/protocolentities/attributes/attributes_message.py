@@ -3,6 +3,9 @@ from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_exte
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_document import DocumentAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_contact import ContactAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_location import LocationAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_video import VideoAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_audio import AudioAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_sticker import StickerAttributes
 
 
 class MessageAttributes(object):
@@ -16,8 +19,8 @@ class MessageAttributes(object):
             document=None,
             audio=None,
             video=None,
-            protocol=None,
-            sticker=None
+            sticker=None,
+            protocol=None
     ):
         self._conversation = conversation  # type: str
         self._image = image  # type: ImageAttributes
@@ -25,6 +28,9 @@ class MessageAttributes(object):
         self._location = location  # type: LocationAttributes
         self._extended_text = extended_text  # type: ExtendedTextAttributes
         self._document = document  # type: DocumentAttributes
+        self._audio = audio  # type: AudioAttributes
+        self._video = video  # type: VideoAttributes
+        self._sticker = sticker  # type: StickerAttributes
 
     def __str__(self):
         attrs = []
@@ -38,6 +44,14 @@ class MessageAttributes(object):
             attrs.append(("location", self.location))
         if self.extended_text is not None:
             attrs.append(("extended_text", self.extended_text))
+        if self.document is not None:
+            attrs.append(("document", self.document))
+        if self.audio is not None:
+            attrs.append(("audio", self.audio))
+        if self.video is not None:
+            attrs.append(("video", self.video))
+        if self.sticker is not None:
+            attrs.append(("sticker", self.sticker))
 
         return "[%s]" % " ".join((map(lambda item: "%s=%s" % item, attrs)))
 
@@ -88,3 +102,27 @@ class MessageAttributes(object):
     @document.setter
     def document(self, value):
         self._document = value
+
+    @property
+    def audio(self):
+        return self._audio
+
+    @audio.setter
+    def audio(self, value):
+        self._audio = value
+
+    @property
+    def video(self):
+        return self._video
+
+    @video.setter
+    def video(self, value):
+        self._video = value
+
+    @property
+    def sticker(self):
+        return self._sticker
+
+    @sticker.setter
+    def sticker(self, value):
+        self._sticker = value

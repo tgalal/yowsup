@@ -7,7 +7,10 @@ class MediaAttributes(object):
         :type context_info: ContextInfo | None
         """
         if context_info:
-            self.context_info = context_info  # type: ContextInfoAttributes | None
+            assert type(context_info) is ContextInfoAttributes, type(context_info)
+            self._context_info = context_info  # type: ContextInfoAttributes | None
+        else:
+            self._context_info = None
 
     @property
     def context_info(self):

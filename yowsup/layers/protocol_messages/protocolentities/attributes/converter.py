@@ -10,6 +10,9 @@ from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_exte
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_document import DocumentAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_contact import ContactAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_location import LocationAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_video import VideoAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_audio import AudioAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_sticker import StickerAttributes
 
 
 class AttributesConverter(object):
@@ -27,7 +30,8 @@ class AttributesConverter(object):
         contact_message = Message.ContactMessage()
         contact_message.display_name = contact_attributes.display_name
         contact_message.vcard = contact_attributes.vcard
-        contact_message.context_info = self.contextinfo_to_proto(contact_attributes.context_info)
+        if contact_attributes.context_info is not None:
+            contact_message.context_info.MergeFrom(self.contextinfo_to_proto(contact_attributes.context_info))
         return contact_message
 
     def proto_to_contact(self, proto):
@@ -41,19 +45,30 @@ class AttributesConverter(object):
     def location_to_proto(self, location_attributes):
         # type: (LocationAttributes) -> Message.LocationMessage
         location_message = Message.LocationMessage()
-        location_message._degrees_latitude = location_attributes.degrees_latitude
-        location_message._degrees_longitude = location_attributes.degrees_longitude
-        location_message._name = location_attributes.name
-        location_message._address = location_attributes.address
-        location_message._url = location_attributes.url
-        location_message._duration = location_attributes.duration
-        location_message._accuracy_in_meters = location_attributes.accuracy_in_meters
-        location_message._speed_in_mps = location_attributes.speed_in_mps
-        location_message._degrees_clockwise_from_magnetic_north = \
-            location_attributes.degrees_clockwise_from_magnetic_north
-        location_message._axolotl_sender_key_distribution_message = \
-            location_attributes.axolotl_sender_key_distribution_message
-        location_message._jpeg_thumbnail = location_attributes.jpeg_thumbnail
+        if location_attributes.degrees_latitude is not None:
+            location_message.degrees_latitude = location_attributes.degrees_latitude
+        if location_attributes.degrees_longitude is not None:
+            location_message.degrees_longitude = location_attributes.degrees_longitude
+        if location_attributes.name is not None:
+            location_message.name = location_attributes.name
+        if location_attributes.address is not None:
+            location_message.address = location_attributes.address
+        if location_attributes.url is not None:
+            location_message.url = location_attributes.url
+        if location_attributes.duration is not None:
+            location_message.duration = location_attributes.duration
+        if location_attributes.accuracy_in_meters is not None:
+            location_message.accuracy_in_meters = location_attributes.accuracy_in_meters
+        if location_attributes.speed_in_mps is not None:
+            location_message.speed_in_mps = location_attributes.speed_in_mps
+        if location_attributes.degrees_clockwise_from_magnetic_north is not None:
+            location_message.degrees_clockwise_from_magnetic_north = \
+                location_attributes.degrees_clockwise_from_magnetic_north
+        if location_attributes.axolotl_sender_key_distribution_message is not None:
+            location_message._axolotl_sender_key_distribution_message = \
+                location_attributes.axolotl_sender_key_distribution_message
+        if location_attributes.jpeg_thumbnail is not None:
+            location_message.jpeg_thumbnail = location_attributes.jpeg_thumbnail
         return location_message
 
     def proto_to_location(self, proto):
@@ -147,7 +162,7 @@ class AttributesConverter(object):
 
     def proto_to_document(self, proto):
         return DocumentAttributes(
-            self.downloadablemedia_to_proto(proto),
+            self.proto_to_downloadablemedia(proto),
             proto.file_name if proto.HasField("file_name") else None,
             proto.file_length if proto.HasField("file_length") else None,
             proto.title if proto.HasField("title") else None,
@@ -155,13 +170,79 @@ class AttributesConverter(object):
             proto.jpeg_thumbnail if proto.HasField("jpeg_thumbnail") else None
         )
 
+    def audio_to_proto(self, audio_attributes):
+        # type: (AudioAttributes) -> Message.AudioMessage
+        m = Message.AudioMessage()
+        if audio_attributes.seconds is not None:
+            m.seconds = audio_attributes.seconds
+        if audio_attributes.ptt is not None:
+            m.ptt = audio_attributes.ptt
+
+        return self.downloadablemedia_to_proto(audio_attributes.downloadablemedia_attributes, m)
+
+    def proto_to_audio(self, proto):
+        return AudioAttributes(
+            self.proto_to_downloadablemedia(proto),
+            proto.seconds,
+            proto.ptt
+        )
+
+    def video_to_proto(self, video_attributes):
+        # type: (VideoAttributes) -> Message.VideoMessage
+        m = Message.VideoMessage()
+        if video_attributes.width is not None:
+            m.width = video_attributes.width
+        if video_attributes.height is not None:
+            m.height = video_attributes.height
+        if video_attributes.seconds is not None:
+            m.seconds = video_attributes.seconds
+        if video_attributes.gif_playback is not None:
+            m.gif_playback = video_attributes.gif_playback
+        if video_attributes.jpeg_thumbnail is not None:
+            m.jpeg_thumbnail = video_attributes.jpeg_thumbnail
+        if video_attributes.gif_attribution is not None:
+            m.gif_attribution = video_attributes.gif_attribution
+        if video_attributes.caption is not None:
+            m.caption = video_attributes.caption
+        if video_attributes.streaming_sidecar is not None:
+            m.streaming_sidecar = video_attributes.streaming_sidecar
+
+        return self.downloadablemedia_to_proto(video_attributes.downloadablemedia_attributes, m)
+
+    def proto_to_video(self, proto):
+        return VideoAttributes(
+            self.proto_to_downloadablemedia(proto),
+            proto.width, proto.height, proto.seconds, proto.gif_playback,
+            proto.jpeg_thumbnail, proto.gif_attribution, proto.caption, proto.streaming_sidecar
+        )
+
+    def sticker_to_proto(self, sticker_attributes):
+        # type: (StickerAttributes) -> Message.StickerMessage
+        m = Message.StickerMessage()
+        if sticker_attributes.width is not None:
+            m.width = sticker_attributes.width
+        if sticker_attributes.height is not None:
+            m.height = sticker_attributes.height
+        if sticker_attributes.png_thumbnail is not None:
+            m.png_thumbnail = sticker_attributes.png_thumbnail
+
+        return self.downloadablemedia_to_proto(sticker_attributes.downloadablemedia_attributes, m)
+
+    def proto_to_sticker(self, proto):
+        return StickerAttributes(
+            self.proto_to_downloadablemedia(proto),
+            proto.width, proto.height, proto.png_thumbnail
+        )
+
     def downloadablemedia_to_proto(self, downloadablemedia_attributes, proto):
         # type: (DownloadableMediaMessageAttributes, object) -> object
         proto.mimetype = downloadablemedia_attributes.mimetype
         proto.file_length = downloadablemedia_attributes.file_length
         proto.file_sha256 = downloadablemedia_attributes.file_sha256
-        proto.url = downloadablemedia_attributes.url
-        proto.media_key = downloadablemedia_attributes.media_key
+        if downloadablemedia_attributes.url is not None:
+            proto.url = downloadablemedia_attributes.url
+        if downloadablemedia_attributes.media_key is not None:
+            proto.media_key = downloadablemedia_attributes.media_key
 
         return self.media_to_proto(downloadablemedia_attributes, proto)
 
@@ -236,6 +317,12 @@ class AttributesConverter(object):
             message.extended_text_message.MergeFrom(self.extendedtext_to_proto(message_attributes.extended_text))
         if message_attributes.document:
             message.document_message.MergeFrom(self.document_to_proto(message_attributes.document))
+        if message_attributes.audio:
+            message.audio_message.MergeFrom(self.audio_to_proto(message_attributes.audio))
+        if message_attributes.video:
+            message.video_message.MergeFrom(self.video_to_proto(message_attributes.video))
+        if message_attributes.sticker:
+            message.sticker_message.MergeFrom(self.sticker_to_proto(message_attributes.sticker))
 
         return message
 
@@ -249,8 +336,9 @@ class AttributesConverter(object):
             if proto.HasField("extended_text_message") else None
         document = self.proto_to_document(proto.document_message) \
             if proto.HasField("document_message") else None
-        audio = None
-        video = None
+        audio = self.proto_to_audio(proto.audio_message) if proto.HasField("audio_message") else None
+        video = self.proto_to_video(proto.video_message) if proto.HasField("video_message") else None
+        sticker = self.proto_to_sticker(proto.sticker_message) if proto.HasField("sticker_message") else None
         protocol = None
 
         return MessageAttributes(
@@ -262,6 +350,7 @@ class AttributesConverter(object):
             document,
             audio,
             video,
+            sticker,
             protocol
         )
 

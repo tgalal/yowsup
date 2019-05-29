@@ -1,68 +1,64 @@
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_extendedtext import ExtendedTextAttributes
 from .message_media import MediaMessageProtocolEntity
-from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_media import MediaAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
 
 
 class ExtendedTextMediaMessageProtocolEntity(MediaMessageProtocolEntity):
-    def __init__(self, extended_text_attrs, media_attrs, message_meta_attrs):
-        # type: (ExtendedTextAttributes, MediaAttributes, MessageMetaAttributes) -> None
-        super(ExtendedTextMediaMessageProtocolEntity, self).__init__("url", media_attrs, message_meta_attrs)
-        self.text = extended_text_attrs.text
-        self.matched_text = extended_text_attrs.matched_text
-        self.canonical_url = extended_text_attrs.canonical_url
-        self.description = extended_text_attrs.description
-        self.title = extended_text_attrs.title
-        self.jpeg_thumbnail = extended_text_attrs.jpeg_thumbnail
+    def __init__(self, extended_text_attrs,  message_meta_attrs):
+        # type: (ExtendedTextAttributes, MessageMetaAttributes) -> None
+        super(ExtendedTextMediaMessageProtocolEntity, self).__init__(
+            "url", MessageAttributes(extended_text=extended_text_attrs),  message_meta_attrs
+        )
 
     @property
-    def proto(self):
-        return self._proto.extended_text_message
+    def media_specific_attributes(self):
+        return self.message_attributes.extended_text
 
     @property
     def text(self):
-        return self.proto.text
+        return self.media_specific_attributes.text
 
     @text.setter
     def text(self, value):
-        self.proto.text = value
+        self.media_specific_attributes.text = value
 
     @property
     def matched_text(self):
-        return self.proto.matched_text
+        return self.media_specific_attributes.matched_text
 
     @matched_text.setter
     def matched_text(self, value):
-        self.proto.matched_text = value
+        self.media_specific_attributes.matched_text = value
 
     @property
     def canonical_url(self):
-        return self.proto.canonical_url
+        return self.media_specific_attributes.canonical_url
 
     @canonical_url.setter
     def canonical_url(self, value):
-        self.proto.canonical_url = value
+        self.media_specific_attributes.canonical_url = value
 
     @property
     def description(self):
-        return self.proto.description
+        return self.media_specific_attributes.description
 
     @description.setter
     def description(self, value):
-        self.proto.description = value
+        self.media_specific_attributes.description = value
 
     @property
     def title(self):
-        return self.proto.title
+        return self.media_specific_attributes.title
 
     @title.setter
     def title(self, value):
-        self.proto.title = value
+        self.media_specific_attributes.title = value
 
     @property
     def jpeg_thumbnail(self):
-        return self.proto.jpeg_thumbnail
+        return self.media_specific_attributes.jpeg_thumbnail
 
     @jpeg_thumbnail.setter
     def jpeg_thumbnail(self, value):
-        self.proto.jpeg_thumbnail = value
+        self.media_specific_attributes.jpeg_thumbnail = value
