@@ -6,6 +6,8 @@ from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_loca
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_video import VideoAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_audio import AudioAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_sticker import StickerAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_sender_key_distribution_message import \
+    SenderKeyDistributionMessageAttributes
 
 
 class MessageAttributes(object):
@@ -20,7 +22,7 @@ class MessageAttributes(object):
             audio=None,
             video=None,
             sticker=None,
-            protocol=None
+            sender_key_distribution_message=None
     ):
         self._conversation = conversation  # type: str
         self._image = image  # type: ImageAttributes
@@ -31,6 +33,8 @@ class MessageAttributes(object):
         self._audio = audio  # type: AudioAttributes
         self._video = video  # type: VideoAttributes
         self._sticker = sticker  # type: StickerAttributes
+        self._sender_key_distribution_message = \
+            sender_key_distribution_message  # type: SenderKeyDistributionMessageAttributes
 
     def __str__(self):
         attrs = []
@@ -52,6 +56,8 @@ class MessageAttributes(object):
             attrs.append(("video", self.video))
         if self.sticker is not None:
             attrs.append(("sticker", self.sticker))
+        if self._sender_key_distribution_message is not None:
+            attrs.append(("sender_key_distribution_message", self.sender_key_distribution_message))
 
         return "[%s]" % " ".join((map(lambda item: "%s=%s" % item, attrs)))
 
@@ -126,3 +132,11 @@ class MessageAttributes(object):
     @sticker.setter
     def sticker(self, value):
         self._sticker = value
+
+    @property
+    def sender_key_distribution_message(self):
+        return self._sender_key_distribution_message
+
+    @sender_key_distribution_message.setter
+    def sender_key_distribution_message(self, value):
+        self._sender_key_distribution_message = value

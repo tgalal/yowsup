@@ -4,6 +4,9 @@ from .protocolentities import ExtendedTextMessageProtocolEntity
 from yowsup.layers.protocol_messages.protocolentities.attributes.converter import AttributesConverter
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 class YowMessagesProtocolLayer(YowProtocolLayer):
     def __init__(self):
@@ -26,7 +29,6 @@ class YowMessagesProtocolLayer(YowProtocolLayer):
         if protoNode:
             if protoNode and protoNode["mediatype"] is None:
                 message = AttributesConverter.get().protobytes_to_message(protoNode.getData())
-
                 if message.conversation:
                     self.toUpper(
                         TextMessageProtocolEntity(
@@ -40,5 +42,5 @@ class YowMessagesProtocolLayer(YowProtocolLayer):
                             MessageMetaAttributes.from_message_protocoltreenode(node)
                         )
                     )
-                else:
-                    raise NotImplementedError()
+                elif not message.sender_key_distribution_message:
+                    logger.warning("Unsupported message type: %s" % message)

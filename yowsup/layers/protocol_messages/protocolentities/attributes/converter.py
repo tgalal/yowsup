@@ -13,6 +13,8 @@ from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_loca
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_video import VideoAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_audio import AudioAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_sticker import StickerAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_sender_key_distribution_message import \
+    SenderKeyDistributionMessageAttributes
 
 
 class AttributesConverter(object):
@@ -24,6 +26,19 @@ class AttributesConverter(object):
         if cls.__instance is None:
             cls.__instance = AttributesConverter()
         return cls.__instance
+
+    def sender_key_distribution_message_to_proto(self, sender_key_distribution_message_attributes):
+        # type: (SenderKeyDistributionMessageAttributes) -> Message.SenderKeyDistributionMessage
+        message = Message.SenderKeyDistributionMessage()
+        message.group_id = sender_key_distribution_message_attributes.group_id
+        message.axolotl_sender_key_distribution_message = \
+            sender_key_distribution_message_attributes.axolotl_sender_key_distribution_message
+        return message
+
+    def proto_to_sender_key_distribution_message(self, proto):
+        return SenderKeyDistributionMessageAttributes(
+            proto.group_id, proto.axolotl_sender_key_distribution_message
+        )
 
     def contact_to_proto(self, contact_attributes):
         # type: (ContactAttributes) -> Message.ContactMessage
@@ -323,6 +338,10 @@ class AttributesConverter(object):
             message.video_message.MergeFrom(self.video_to_proto(message_attributes.video))
         if message_attributes.sticker:
             message.sticker_message.MergeFrom(self.sticker_to_proto(message_attributes.sticker))
+        if message_attributes.sender_key_distribution_message:
+            message.sender_key_distribution_message.MergeFrom(
+                self.sender_key_distribution_message_to_proto(message_attributes.sender_key_distribution_message)
+            )
 
         return message
 
@@ -339,7 +358,9 @@ class AttributesConverter(object):
         audio = self.proto_to_audio(proto.audio_message) if proto.HasField("audio_message") else None
         video = self.proto_to_video(proto.video_message) if proto.HasField("video_message") else None
         sticker = self.proto_to_sticker(proto.sticker_message) if proto.HasField("sticker_message") else None
-        protocol = None
+        sender_key_distribution_message = self.proto_to_sender_key_distribution_message(
+            proto.sender_key_distribution_message
+        ) if proto.HasField("sender_key_distribution_message") else None
 
         return MessageAttributes(
             conversation,
@@ -351,7 +372,7 @@ class AttributesConverter(object):
             audio,
             video,
             sticker,
-            protocol
+            sender_key_distribution_message
         )
 
     def protobytes_to_message(self, protobytes):
