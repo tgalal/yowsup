@@ -1,5 +1,8 @@
 from yowsup.layers import YowProtocolLayer
 from .protocolentities import *
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class YowContactsIqProtocolLayer(YowProtocolLayer):
@@ -24,7 +27,8 @@ class YowContactsIqProtocolLayer(YowProtocolLayer):
             elif node.getChild("sync"):
                 self.toUpper(ContactsSyncNotificationProtocolEntity.fromProtocolTreeNode(node))
             else:
-                self.raiseErrorForNode(node)
+                logger.warning("Unsupported notification type: %s " % node["type"])
+                logger.debug("Unsupported notification node: %s" % node)
 
     def recvIq(self, node):
         if node["type"] == "result" and node.getChild("sync"):
