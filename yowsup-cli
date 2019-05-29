@@ -10,6 +10,7 @@ from yowsup.config.v1.config import Config
 from yowsup import logger as yowlogger, formatter
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers.protocol_media.mediacipher import MediaCipher
+from yowsup.common.tools import StorageTools
 
 from consonance.structs.publickey import PublicKey
 from consonance.structs.keypair import KeyPair
@@ -198,11 +199,14 @@ class YowArgParser(argparse.ArgumentParser):
             config_phone = self.args["config_phone"]
             config_manager = ConfigManager()
             profile_name = None
+            config_loaded_from_profile = True
             if self.args["config"]:
                 config = config_manager.load_path(self.args["config"])
                 if config is None:
                     config = config_manager.load(self.args["config"])
                     profile_name = self.args["config"]
+                elif not self.args["config"].startswith(StorageTools.getStorageForProfile(config.phone)):
+                    config_loaded_from_profile = False
             elif config_phone:
                 config = config_manager.load(config_phone)
             else:
@@ -256,6 +260,16 @@ class YowArgParser(argparse.ArgumentParser):
 
             if self.args["config_chat_dns_domain"]:
                 config.chat_dns_domain = self.args["config_chat_dns_domain"]
+
+            if not config_loaded_from_profile:
+                # config file was explicitly specified and is not that of profile,
+                # load profile config and override values
+                internal_config = config_manager.load(config.phone)
+                if internal_config is not None:
+                    for property in config.keys():
+                        if property != "version" and config[property] is not None:
+                            internal_config[property] = config[property]
+                    config = internal_config
 
             if self._profile is None or self._profile.config is None:
                 self._profile = YowProfile(profile_name or config.phone, config)
