@@ -36,7 +36,7 @@ class YowNotificationsProtocolLayer(YowProtocolLayer):
             # Implemented in respectively the protocol_contacts and protocol_groups layer
             pass
         else:
-            logger.warn("Unsupported notification type: %s " % node["type"])
+            logger.warning("Unsupported notification type: %s " % node["type"])
             logger.debug("Unsupported notification node: %s" % node)
 
         ack = OutgoingAckProtocolEntity(node["id"], "notification", node["type"], node["from"], participant=node["participant"])
