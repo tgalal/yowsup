@@ -8,6 +8,7 @@ from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_audi
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_sticker import StickerAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_sender_key_distribution_message import \
     SenderKeyDistributionMessageAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_protocol import ProtocolAttributes
 
 
 class MessageAttributes(object):
@@ -22,7 +23,8 @@ class MessageAttributes(object):
             audio=None,
             video=None,
             sticker=None,
-            sender_key_distribution_message=None
+            sender_key_distribution_message=None,
+            protocol=None
     ):
         self._conversation = conversation  # type: str
         self._image = image  # type: ImageAttributes
@@ -35,6 +37,7 @@ class MessageAttributes(object):
         self._sticker = sticker  # type: StickerAttributes
         self._sender_key_distribution_message = \
             sender_key_distribution_message  # type: SenderKeyDistributionMessageAttributes
+        self._protocol = protocol  # type: ProtocolAttributes
 
     def __str__(self):
         attrs = []
@@ -58,6 +61,8 @@ class MessageAttributes(object):
             attrs.append(("sticker", self.sticker))
         if self._sender_key_distribution_message is not None:
             attrs.append(("sender_key_distribution_message", self.sender_key_distribution_message))
+        if self._protocol is not None:
+            attrs.append(("protocol", self.protocol))
 
         return "[%s]" % " ".join((map(lambda item: "%s=%s" % item, attrs)))
 
@@ -140,3 +145,11 @@ class MessageAttributes(object):
     @sender_key_distribution_message.setter
     def sender_key_distribution_message(self, value):
         self._sender_key_distribution_message = value
+
+    @property
+    def protocol(self):
+        return self._protocol
+
+    @protocol.setter
+    def protocol(self, value):
+        self._protocol = value

@@ -1,4 +1,5 @@
 from yowsup.layers.protocol_messages.proto.e2e_pb2 import Message
+from yowsup.layers.protocol_messages.proto.protocol_pb2 import MessageKey
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_image import ImageAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_downloadablemedia \
     import DownloadableMediaMessageAttributes
@@ -15,6 +16,8 @@ from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_audi
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_sticker import StickerAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_sender_key_distribution_message import \
     SenderKeyDistributionMessageAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_protocol import ProtocolAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_protocol import MessageKeyAttributes
 
 
 class AttributesConverter(object):
@@ -38,6 +41,33 @@ class AttributesConverter(object):
     def proto_to_sender_key_distribution_message(self, proto):
         return SenderKeyDistributionMessageAttributes(
             proto.group_id, proto.axolotl_sender_key_distribution_message
+        )
+
+    def message_key_to_proto(self, message_key):
+        # type: (MessageKeyAttributes) -> MessageKey
+        out = MessageKey()
+        out.remote_jid = message_key.remote_jid
+        out.from_me = message_key.from_me
+        out.id = message_key.id
+        out.participant = message_key.participant
+        return out
+
+    def proto_to_message_key(self, proto):
+        return MessageKeyAttributes(
+            proto.remote_jid, proto.from_me, proto.id, proto.participant
+        )
+
+    def protocol_to_proto(self, protocol):
+        # type: (ProtocolAttributes) -> Message.ProtocolMessage
+        message = Message.ProtocolMessage()
+        message.key.MergeFrom(self.message_key_to_proto(protocol.key))
+        message.type = protocol.type
+        return message
+
+    def proto_to_protocol(self, proto):
+        return ProtocolAttributes(
+            self.proto_to_message_key(proto.key),
+            proto.type
         )
 
     def contact_to_proto(self, contact_attributes):
@@ -342,6 +372,8 @@ class AttributesConverter(object):
             message.sender_key_distribution_message.MergeFrom(
                 self.sender_key_distribution_message_to_proto(message_attributes.sender_key_distribution_message)
             )
+        if message_attributes.protocol:
+            message.protocol_message.MergeFrom(self.protocol_to_proto(message_attributes.protocol))
 
         return message
 
@@ -361,6 +393,7 @@ class AttributesConverter(object):
         sender_key_distribution_message = self.proto_to_sender_key_distribution_message(
             proto.sender_key_distribution_message
         ) if proto.HasField("sender_key_distribution_message") else None
+        protocol = self.proto_to_protocol(proto.protocol_message) if proto.HasField("protocol_message") else None
 
         return MessageAttributes(
             conversation,
@@ -372,7 +405,8 @@ class AttributesConverter(object):
             audio,
             video,
             sticker,
-            sender_key_distribution_message
+            sender_key_distribution_message,
+            protocol
         )
 
     def protobytes_to_message(self, protobytes):
