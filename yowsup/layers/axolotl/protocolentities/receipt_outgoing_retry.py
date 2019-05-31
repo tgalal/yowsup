@@ -1,6 +1,8 @@
 from yowsup.structs import ProtocolTreeNode
 from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
 from yowsup.layers.axolotl.protocolentities.iq_keys_get_result import ResultGetKeysIqProtocolEntity
+
+
 class RetryOutgoingReceiptProtocolEntity(OutgoingReceiptProtocolEntity):
 
     '''
@@ -13,33 +15,65 @@ class RetryOutgoingReceiptProtocolEntity(OutgoingReceiptProtocolEntity):
     </receipt>
     '''
 
-    def __init__(self, _id, jid, localRegistrationId, retryTimestamp, v = 1, count = 1, participant = None):
+    def __init__(self, _id, jid, local_registration_id, retry_timestamp, v=1, count=1, participant=None):
         super(RetryOutgoingReceiptProtocolEntity, self).__init__(_id, jid, participant=participant)
         '''
             Note to self: Android clients won't retry sending if the retry node didn't contain the message timestamp
         '''
-        self.setRetryData(localRegistrationId, v,count, retryTimestamp)
-
-    def setRetryData(self, localRegistrationId, v, count, retryTimestamp):
-        self.localRegistrationId =  localRegistrationId
+        self.local_registration_id = local_registration_id
         self.v = v
+        self.retry_timestamp = retry_timestamp
         self.count = count
-        self.retryTimestamp = int(retryTimestamp)
+
+    @property
+    def local_registration_id(self):
+        return self._local_registration_id
+
+    @local_registration_id.setter
+    def local_registration_id(self, value):
+        self._local_registration_id = value
+
+    @property
+    def v(self):
+        return self._v
+
+    @v.setter
+    def v(self, value):
+        self._v = value
+
+    @property
+    def retry_timestamp(self):
+        return self._retry_timestamp
+
+    @retry_timestamp.setter
+    def retry_timestamp(self, value):
+        self._retry_timestamp = value
+
+    @property
+    def count(self):
+        return self._count
+
+    @count.setter
+    def count(self, value):
+        self._count = value
 
     def toProtocolTreeNode(self):
         node = super(RetryOutgoingReceiptProtocolEntity, self).toProtocolTreeNode()
         node.setAttribute("type", "retry")
 
-        retryAttribs = {
+        retry_attrs = {
             "count": str(self.count),
             "id":self.getId(),
             "v":str(self.v),
-            "t":  str(self.retryTimestamp)
+            "t":  str(self.retry_timestamp)
         }
 
-        retry = ProtocolTreeNode("retry", retryAttribs)
+        retry = ProtocolTreeNode("retry", retry_attrs)
         node.addChild(retry)
-        registration = ProtocolTreeNode("registration", data=ResultGetKeysIqProtocolEntity._intToBytes(self.localRegistrationId))
+        registration = ProtocolTreeNode(
+            "registration",
+            data=ResultGetKeysIqProtocolEntity._intToBytes(self.local_registration_id)
+        )
         node.addChild(registration)
         return node
 
@@ -51,17 +85,22 @@ class RetryOutgoingReceiptProtocolEntity(OutgoingReceiptProtocolEntity):
     def fromProtocolTreeNode(node):
         entity = OutgoingReceiptProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = RetryOutgoingReceiptProtocolEntity
-        retryNode = node.getChild("retry")
-        entity.setRetryData(ResultGetKeysIqProtocolEntity._bytesToInt(node.getChild("registration").data), retryNode["v"], retryNode["count"], retryNode["t"])
+        retry_node = node.getChild("retry")
+        entity.setRetryData(
+            ResultGetKeysIqProtocolEntity._bytesToInt(
+                node.getChild("registration").data
+            ),
+            retry_node["v"], retry_node["count"], retry_node["t"]
+        )
 
         return entity
 
     @staticmethod
-    def fromMessageNode(messageNodeToBeRetried, localRegistrationId):
+    def fromMessageNode(message_node, local_registration_id):
         return RetryOutgoingReceiptProtocolEntity(
-            messageNodeToBeRetried.getAttributeValue("id"),
-            messageNodeToBeRetried.getAttributeValue("from"),
-            localRegistrationId,
-            messageNodeToBeRetried.getAttributeValue("t"),
-            participant=messageNodeToBeRetried.getAttributeValue("participant")
+            message_node.getAttributeValue("id"),
+            message_node.getAttributeValue("from"),
+            local_registration_id,
+            message_node.getAttributeValue("t"),
+            participant=message_node.getAttributeValue("participant")
         )
