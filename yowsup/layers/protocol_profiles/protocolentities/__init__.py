@@ -1,5 +1,7 @@
 from .iq_unregister import UnregisterIqProtocolEntity
 from .iq_status_set import SetStatusIqProtocolEntity
+from .iq_statuses_get import GetStatusesIqProtocolEntity
+from .iq_statuses_result import ResultStatusesIqProtocolEntity
 from .iq_picture_get import GetPictureIqProtocolEntity
 from .iq_picture_get_result import ResultGetPictureIqProtocolEntity
 from .iq_pictures_list import ListPicturesIqProtocolEntity
