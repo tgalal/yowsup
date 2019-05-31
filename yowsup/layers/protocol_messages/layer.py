@@ -3,6 +3,7 @@ from .protocolentities import TextMessageProtocolEntity
 from .protocolentities import ExtendedTextMessageProtocolEntity
 from yowsup.layers.protocol_messages.protocolentities.attributes.converter import AttributesConverter
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
+from yowsup.layers.protocol_receipts.protocolentities import OutgoingReceiptProtocolEntity
 
 import logging
 logger = logging.getLogger(__name__)
@@ -43,4 +44,13 @@ class YowMessagesProtocolLayer(YowProtocolLayer):
                         )
                     )
                 elif not message.sender_key_distribution_message:
-                    logger.warning("Unsupported message type: %s" % message)
+                    # Will send receipts for unsupported message types to prevent stream errors
+                    logger.warning("Unsupported message type: %s, will send receipts to "
+                                   "prevent stream errors" % message)
+                    self.toLower(
+                        OutgoingReceiptProtocolEntity(
+                            messageIds=[node["id"]],
+                            to=node["from"],
+                            participant=node["participant"]
+                        ).toProtocolTreeNode()
+                    )
