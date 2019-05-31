@@ -221,6 +221,8 @@ class AxolotlManager(object):
             raise exceptions.NoSessionException()
         except DuplicateMessageException:
             raise exceptions.DuplicateMessageException()
+        except InvalidMessageException:
+            raise exceptions.InvalidMessageException()
 
     def group_create_skmsg(self, groupid):
         logger.debug("group_create_skmsg(groupid=%s)" % groupid)
