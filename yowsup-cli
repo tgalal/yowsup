@@ -16,6 +16,8 @@ from consonance.structs.publickey import PublicKey
 from consonance.structs.keypair import KeyPair
 import sys, argparse, yowsup, logging
 import base64
+from google import protobuf
+import consonance, dissononce, cryptography, axolotl
 
 HELP_CONFIG = """
 ############# Yowsup Configuration Sample ###########
@@ -41,8 +43,18 @@ For the full list of configuration options run "yowsup-cli config -h"
 
 """
 
-CR_TEXT = """yowsup-cli  v{cliVersion}
+VERSIONS = """yowsup-cli  v{cliVersion}
 yowsup      v{yowsupVersion}
+"""
+VERSIONS_VERBOSE = """yowsup-cli     v{cliVersion}
+yowsup         v{yowsupVersion}
+consonance     v{consonanceVersion}
+dissononce     v{dissononceVersion}
+python-axolotl v{axolotlVersion}
+cryptography   v{cryptographyVersion}
+protobuf       v{protobufVersion}
+"""
+CR_TEXT = """{versions}
 
 Copyright (c) 2012-2019 Tarek Galal
 http://www.openwhatsapp.org
@@ -283,7 +295,19 @@ class YowArgParser(argparse.ArgumentParser):
             sys.exit(0)
 
     def printInfoText(self):
-        print(CR_TEXT.format(cliVersion=__version__, yowsupVersion=yowsup.__version__))
+        verbose = self.args["debug"]
+        if verbose:
+            versions = VERSIONS_VERBOSE.format(
+                cliVersion=__version__, yowsupVersion=yowsup.__version__,
+                consonanceVersion=consonance.__version__,
+                dissononceVersion=dissononce.__version__,
+                axolotlVersion=axolotl.__version__,
+                cryptographyVersion=cryptography.__version__,
+                protobufVersion=protobuf.__version__
+            )
+        else:
+            versions = VERSIONS.format(cliVersion=__version__, yowsupVersion=yowsup.__version__)
+        print(CR_TEXT.format(versions=versions))
 
 
 class ConfigArgParser(YowArgParser):
@@ -668,7 +692,17 @@ if __name__ == "__main__":
 
     mode = args[0]
     if mode == "version":
-        print("yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__))
+        using = {
+            "yowsup": yowsup.__version__,
+            "consonance": consonance.__version__,
+            "dissononce": dissononce.__version__,
+            "python-axolotl": axolotl.__version__,
+            "cryptography": cryptography.__version__,
+            "protobuf": protobuf.__version__
+        }
+        print("yowsup-cli v%s" % __version__)
+        print("using:")
+        print("  " + ("\n  ".join(["%s v%s" % (pkg, version) for pkg,version in using.items()])))
         sys.exit(0)
     else:
         parser = modeDict[mode]()
