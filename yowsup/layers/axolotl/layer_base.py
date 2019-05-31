@@ -47,7 +47,7 @@ class AxolotlBaseLayer(YowProtocolLayer):
             entity = ResultGetKeysIqProtocolEntity.fromProtocolTreeNode(resultNode)
             resultJids = entity.getJids()
             successJids = []
-            errorJids = {} #jid -> exception
+            errorJids = entity.getErrors() #jid -> exception
 
             for jid in getKeysEntity.jids:
                 if jid not in resultJids:

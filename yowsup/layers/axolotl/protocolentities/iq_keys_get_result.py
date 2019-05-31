@@ -43,9 +43,16 @@ class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
     def __init__(self, _id, preKeyBundleMap = None):
         super(ResultGetKeysIqProtocolEntity, self).__init__(_from = YowConstants.WHATSAPP_SERVER, _id=_id)
         self.setPreKeyBundleMap(preKeyBundleMap)
+        self._errors = {}
 
     def getJids(self):
         return self.preKeyBundleMap.keys()
+
+    def getErrors(self):
+        return self._errors.copy()
+
+    def setErrorFor(self, jid, exception):
+        self._errors[jid] = exception
 
     def setPreKeyBundleMap(self, preKeyBundleMap = None):
         self.preKeyBundleMap = preKeyBundleMap or {}
@@ -77,30 +84,43 @@ class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        entity = ResultIqProtocolEntity.fromProtocolTreeNode(node)
-        entity.__class__ = ResultGetKeysIqProtocolEntity
-        entity.setPreKeyBundleMap()
+        entity = ResultGetKeysIqProtocolEntity(node["id"])
         userNodes = node.getChild("list").getAllChildren()
         for userNode in userNodes:
+            missing_params = []
             preKeyNode = userNode.getChild("key")
             signedPreKeyNode = userNode.getChild("skey")
-            registrationId = ResultGetKeysIqProtocolEntity._bytesToInt(userNode.getChild("registration").getData())
-            identityKey = IdentityKey(DjbECPublicKey(ResultGetKeysIqProtocolEntity.encStr(userNode.getChild("identity").getData())))
+            registrationNode = userNode.getChild("registration")
+            identityNode = userNode.getChild("identity")
 
-            preKeyId = ResultGetKeysIqProtocolEntity._bytesToInt(preKeyNode.getChild("id").getData())
-            preKeyPublic = DjbECPublicKey(ResultGetKeysIqProtocolEntity.encStr(preKeyNode.getChild("value").getData()))
+            if preKeyNode is None:
+                missing_params.append(MissingParametersException.PARAM_KEY)
+            if signedPreKeyNode is None:
+                missing_params.append(MissingParametersException.PARAM_SKEY)
+            if registrationNode is None:
+                missing_params.append(MissingParametersException.PARAM_REGISTRATION)
+            if identityNode is None:
+                missing_params.append(MissingParametersException.PARAM_IDENTITY)
 
-            signedPreKeyId = ResultGetKeysIqProtocolEntity._bytesToInt(signedPreKeyNode.getChild("id").getData())
-            signedPreKeySig = ResultGetKeysIqProtocolEntity.encStr(signedPreKeyNode.getChild("signature").getData())
-            signedPreKeyPub = DjbECPublicKey(ResultGetKeysIqProtocolEntity.encStr(signedPreKeyNode.getChild("value").getData()))
+            if len(missing_params):
+                entity.setErrorFor(userNode["jid"], MissingParametersException(userNode["jid"], missing_params))
+            else:
+                registrationId = ResultGetKeysIqProtocolEntity._bytesToInt(registrationNode.getData())
+                identityKey = IdentityKey(DjbECPublicKey(ResultGetKeysIqProtocolEntity.encStr(identityNode.getData())))
 
-            preKeyBundle = PreKeyBundle(registrationId, 1, preKeyId, preKeyPublic,
-                                        signedPreKeyId, signedPreKeyPub, signedPreKeySig, identityKey)
+                preKeyId = ResultGetKeysIqProtocolEntity._bytesToInt(preKeyNode.getChild("id").getData())
+                preKeyPublic = DjbECPublicKey(ResultGetKeysIqProtocolEntity.encStr(preKeyNode.getChild("value").getData()))
 
-            entity.setPreKeyBundleFor(userNode["jid"], preKeyBundle)
+                signedPreKeyId = ResultGetKeysIqProtocolEntity._bytesToInt(signedPreKeyNode.getChild("id").getData())
+                signedPreKeySig = ResultGetKeysIqProtocolEntity.encStr(signedPreKeyNode.getChild("signature").getData())
+                signedPreKeyPub = DjbECPublicKey(ResultGetKeysIqProtocolEntity.encStr(signedPreKeyNode.getChild("value").getData()))
+
+                preKeyBundle = PreKeyBundle(registrationId, 1, preKeyId, preKeyPublic,
+                                            signedPreKeyId, signedPreKeyPub, signedPreKeySig, identityKey)
+
+                entity.setPreKeyBundleFor(userNode["jid"], preKeyBundle)
 
         return entity
-
 
     def toProtocolTreeNode(self):
         node = super(ResultGetKeysIqProtocolEntity, self).toProtocolTreeNode()
@@ -136,18 +156,29 @@ class ResultGetKeysIqProtocolEntity(ResultIqProtocolEntity):
         return node
 
 
+class MissingParametersException(Exception):
+    PARAM_KEY = "key"
+    PARAM_IDENTITY = "identity"
+    PARAM_SKEY = "skey"
+    PARAM_REGISTRATION = "registration"
+    __PARAMS = (PARAM_KEY, PARAM_IDENTITY, PARAM_SKEY, PARAM_REGISTRATION)
 
+    def __init__(self, jid, parameters):
+        # type: (str, list | str) -> None
+        self._jid = jid
+        assert type(parameters) in (list, str)
+        if type(parameters) is str:
+            parameters = list(parameters)
+        assert len(parameters) > 0
+        for p in parameters:
+            assert p in self.__PARAMS, "%s is unrecognized param" % p
 
+        self._parameters = parameters
 
+    @property
+    def jid(self):
+        return self._jid
 
-
-
-
-
-
-
-
-
-
-
-
+    @property
+    def parameters(self):
+        return self._parameters

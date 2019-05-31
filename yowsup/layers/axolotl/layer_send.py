@@ -4,6 +4,8 @@ from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLay
 from yowsup.layers.protocol_groups.protocolentities import InfoGroupsIqProtocolEntity, InfoGroupsResultIqProtocolEntity
 from axolotl.protocol.whispermessage import WhisperMessage
 from yowsup.layers.protocol_messages.protocolentities.message import MessageMetaAttributes
+from yowsup.layers.axolotl.protocolentities.iq_keys_get_result import MissingParametersException
+from yowsup.axolotl import exceptions
 from .layer_base import AxolotlBaseLayer
 
 import logging
@@ -39,6 +41,15 @@ class AxolotlSendLayer(AxolotlBaseLayer):
             self.toLower(node)
 
     def receive(self, protocolTreeNode):
+
+        def on_get_keys_success(node, retry_entity, success_jids, errors):
+            if len(errors):
+                self.on_get_keys_process_errors(errors)
+            elif len(success_jids) == 1:
+                self.processPlaintextNodeAndSend(node, retry_entity)
+            else:
+                raise NotImplementedError()
+
         if not self.processIqRegistry(protocolTreeNode):
             if protocolTreeNode.tag == "receipt":
                 '''
@@ -55,11 +66,22 @@ class AxolotlSendLayer(AxolotlBaseLayer):
                     self.toLower(retryReceiptEntity.ack().toProtocolTreeNode())
                     self.getKeysFor(
                         [protocolTreeNode["participant"] or protocolTreeNode["from"]],
-                        lambda successJids, b: self.processPlaintextNodeAndSend(messageNode, retryReceiptEntity) if len(successJids) == 1 else None
+                        lambda successJids, errors: on_get_keys_success(messageNode, retryReceiptEntity, successJids, errors)
                     )
                 else:
                     #not interested in any non retry receipts, bubble upwards
                     self.toUpper(protocolTreeNode)
+
+    def on_get_keys_process_errors(self, errors):
+        # type: (dict) -> None
+        for jid, error in errors.items():
+            if isinstance(error, MissingParametersException):
+                logger.error("Failed to create prekeybundle for %s, user had missing parameters: %s, "
+                             "is that a valid user?" % (jid, error.parameters))
+            elif isinstance(error, exceptions.UntrustedIdentityException):
+                logger.error("Failed to create session for %s as user's identity is not trusted. " % jid)
+            else:
+                logger.error("Failed to process keys for %s, is that a valid user? Exception: %s" % error)
 
     def processPlaintextNodeAndSend(self, node, retryReceiptEntity = None):
         recipient_id = node["to"].split('@')[0]
@@ -71,6 +93,14 @@ class AxolotlSendLayer(AxolotlBaseLayer):
                 plaintext_node["to"], error_node.children[0]["code"], error_node.children[0]["text"]
             ))
 
+        def on_get_keys_success(node, success_jids, errors):
+            if len(errors):
+                self.on_get_keys_process_errors(errors)
+            elif len(success_jids) == 1:
+                self.sendToContact(node)
+            else:
+                raise NotImplementedError()
+
         if isGroup:
             self.sendToGroup(node, retryReceiptEntity)
         elif self.manager.session_exists(recipient_id):
@@ -78,7 +108,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
         else:
             self.getKeysFor(
                 [node["to"]],
-                lambda successJids, b: self.sendToContact(node) if len(successJids) == 1 else self.toLower(node),
+                lambda successJids, errors: on_get_keys_success(node, successJids, errors),
                 lambda error_node, entity: on_get_keys_error(error_node, entity, node)
             )
 
@@ -169,8 +199,14 @@ class AxolotlSendLayer(AxolotlBaseLayer):
             if not self.manager.session_exists(jid.split('@')[0]):
                 jidsNoSession.append(jid)
 
+        def on_get_keys_success(node, success_jids, errors):
+            if len(errors):
+                self.on_get_keys_process_errors(errors)
+
+            self.sendToGroupWithSessions(node, success_jids)
+
         if len(jidsNoSession):
-            self.getKeysFor(jidsNoSession, lambda successJids, b: self.sendToGroupWithSessions(node, successJids))
+            self.getKeysFor(jidsNoSession, lambda successJids, errors: on_get_keys_success(node, successJids, errors))
         else:
             self.sendToGroupWithSessions(node, jids)
 
