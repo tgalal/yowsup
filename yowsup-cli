@@ -286,6 +286,10 @@ class YowArgParser(argparse.ArgumentParser):
             if self._profile is None or self._profile.config is None:
                 self._profile = YowProfile(profile_name or config.phone, config)
 
+            if self._profile.config.phone is None:
+                print("Invalid config")
+                sys.exit(1)
+
         if self.args["version"]:
             print("yowsup-cli v%s\nUsing yowsup v%s" % (__version__, yowsup.__version__))
             sys.exit(0)
