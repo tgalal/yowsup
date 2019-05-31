@@ -388,9 +388,21 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @clicmd("Request contacts statuses")
     def statuses_get(self, contacts):
+
+        def on_success(entity, original_iq_entity):
+            # type: (ResultStatusesIqProtocolEntity, GetStatusesIqProtocolEntity) -> None
+            status_outs = []
+            for jid, status_info in entity.statuses.items():
+                status_outs.append("[user=%s status=%s last_updated=%s]" % (jid, status_info[0], status_info[1]))
+            self.output("\n".join(status_outs), tag="statuses_get result")
+
+        def on_error(entity, original_iq):
+            # type: (ResultStatusesIqProtocolEntity, GetStatusesIqProtocolEntity) -> None
+            logger.error("Failed to get statuses")
+
         if self.assertConnected():
             entity = GetStatusesIqProtocolEntity([self.aliasToJid(c) for c in contacts.split(',')])
-            self.toLower(entity)
+            self._sendIq(entity, on_success, on_error)
 
     @clicmd("Send paused state")
     def state_paused(self, jid):
@@ -425,7 +437,8 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
 
     @ProtocolEntityCallback("iq")
     def onIq(self, entity):
-        print(entity)
+        if not isinstance(entity, ResultStatusesIqProtocolEntity):  # already printed somewhere else
+            print(entity)
 
     @ProtocolEntityCallback("receipt")
     def onReceipt(self, entity):
