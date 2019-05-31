@@ -160,7 +160,7 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             print([s for s in serializedData])
             raise
         if not m or not serializedData:
-            raise ValueError("Empty message")
+            raise exceptions.InvalidMessageException()
 
         if m.HasField("sender_key_distribution_message"):
             self.handleSenderKeyDistributionMessage(
