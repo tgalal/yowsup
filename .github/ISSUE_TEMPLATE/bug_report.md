@@ -9,15 +9,19 @@ assignees: tgalal
 
 **Describe the bug**
 
-What happened? Please make sure to first search existing issues and read [FAQ](https://github.com/tgalal/yowsup/wiki/FAQ) in case this is already addressed.
+What happened? Please make sure to first search existing issues and read the [FAQ](https://github.com/tgalal/yowsup/wiki/FAQ) in case this is already addressed.
 
 **Debug output**
 
 Switch on debug logging and include output along with the error or problem you see. If you are using yowsup-cli, this can be enabled by passing ```---debug```.
+Please include any output as code blocks for proper formatting. For example:
+```
+debug output here
+```
 
 **Versions**
 
-Please include yowsup version, yowsup-cli version, as well as versions for consonance, dissononce, python-axolotl, and cryptography packages. Some of thoseinformation can be obtained if you run yowsup-cli with ```--debug``` flag, or through ```yowsup-cli version```
+Please include yowsup version, yowsup-cli version, as well as versions for consonance, dissononce, python-axolotl, and cryptography packages. Some of this information can be obtained if you run yowsup-cli with ```--debug``` flag, or through ```yowsup-cli version```
 
 **To Reproduce**
 
