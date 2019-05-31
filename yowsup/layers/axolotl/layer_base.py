@@ -1,5 +1,4 @@
 from yowsup.layers import YowProtocolLayer
-from yowsup.layers.auth.layer_authentication import YowAuthenticationProtocolLayer
 from yowsup.layers.axolotl.protocolentities import *
 from yowsup.layers.network.layer import YowNetworkLayer
 from yowsup.layers import EventCallback

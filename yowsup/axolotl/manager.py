@@ -273,7 +273,6 @@ class AxolotlManager(object):
         logger.debug("session_exists(%s)?" % username)
         return self._store.containsSession(username, 1)
 
-
     def load_senderkey(self, groupid):
         logger.debug("load_senderkey(groupid=%s)" % groupid)
         senderkeyname = SenderKeyName(groupid, AxolotlAddress(self._username, 0))

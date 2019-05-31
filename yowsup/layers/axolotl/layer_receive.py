@@ -33,20 +33,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
                 #receipts will be handled by send layer
                 self.toUpper(protocolTreeNode)
 
-            # elif protocolTreeNode.tag == "iq":
-            #     if protocolTreeNode.getChild("encr_media"):
-            #         protocolTreeNode.addChild("media", {
-            #             "url": protocolTreeNode["url"],
-            #             "ip": protocolTreeNode["ip"],
-            #         })
-            #         self.toUpper(protocolTreeNode)
-            #         return
-
-    ######
-
-    def onEncrMediaResult(self, resultNode):
-        pass
-
     def processPendingIncomingMessages(self, jid, participantJid = None):
         conversationIdentifier = (jid, participantJid)
         if conversationIdentifier in self.pendingIncomingMessages:
@@ -54,8 +40,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
                 self.onMessage(messageNode)
 
             del self.pendingIncomingMessages[conversationIdentifier]
-
-    ##### handling received data #####
 
     def onMessage(self, protocolTreeNode):
         encNode = protocolTreeNode.getChild("enc")
@@ -174,7 +158,6 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
             print("DUMP:")
             print(serializedData)
             print([s for s in serializedData])
-            # print([ord(s) for s in serializedData])
             raise
         if not m or not serializedData:
             raise ValueError("Empty message")
