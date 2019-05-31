@@ -65,8 +65,11 @@ class AxolotlReceivelayer(AxolotlBaseLayer):
 
             self.reset_retries(node["id"])
 
-        except (exceptions.InvalidMessageException, exceptions.InvalidKeyIdException) as e:
-            logger.warning("InvalidMessage or KeyId for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
+        except exceptions.InvalidKeyIdException:
+            logger.warning("Invalid KeyId for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
+            self.send_retry(node, self.manager.registration_id)
+        except exceptions.InvalidMessageException:
+            logger.warning("InvalidMessage for %s, going to send a retry", encMessageProtocolEntity.getAuthor(False))
             self.send_retry(node, self.manager.registration_id)
         except exceptions.NoSessionException:
             logger.warning("No session for %s, getting their keys now", encMessageProtocolEntity.getAuthor(False))
