@@ -523,6 +523,9 @@ class DemosArgParser(YowArgParser):
         echoOpts = self.add_argument_group("Echo client demo")
         echoOpts.add_argument('-e', '--echo', action="store_true", help="Start the Yowsup Echo client")
 
+        recieverOpts = self.add_argument_group("Reciever client demo")
+        recieverOpts.add_argument('-r', '--recieve', action="store_true", help="Start the Yowsup Reciever client")
+
         sendOpts = self.add_argument_group("Send client demo")
         sendOpts.add_argument('-s', '--send', action="store", help="Send a message to specified phone number, "
                                                                    "wait for server receipt and exit",
@@ -567,6 +570,8 @@ class DemosArgParser(YowArgParser):
             self.startEcho()
         elif self.args["send"]:
             self.startSendClient()
+        elif self.args["recieve"]:
+            self.startRecieverClient()
         elif self.args["sync"]:
             self.startSyncContacts()
         elif self.args["mediasink"]:
@@ -601,6 +606,18 @@ class DemosArgParser(YowArgParser):
         try:
             self.printInfoText()
             stack = sendclient.YowsupSendStack(self._profile, [([self.args["send"][0], self.args["send"][1]])])
+            if self._layer_network_dispatcher is not None:
+                stack.set_prop(YowNetworkLayer.PROP_DISPATCHER, self._layer_network_dispatcher)
+            stack.start()
+        except KeyboardInterrupt:
+            print("\nYowsdown")
+            sys.exit(0)
+
+    def startRecieverClient(self):
+        from yowsup.demos import reciever
+        try:
+            self.printInfoText()
+            stack = reciever.YowsupRecieverStack(self._profile)
             if self._layer_network_dispatcher is not None:
                 stack.set_prop(YowNetworkLayer.PROP_DISPATCHER, self._layer_network_dispatcher)
             stack.start()
