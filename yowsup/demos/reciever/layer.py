@@ -21,8 +21,6 @@ class RecieverLayer(YowInterfaceLayer):
         elif messageProtocolEntity.getType() == 'media':
             self.onMediaMessage(messageProtocolEntity)
 
-        # We dont need to
-        # self.toLower(messageProtocolEntity.forward(messageProtocolEntity.getFrom()))
         self.toLower(messageProtocolEntity.ack())
         self.toLower(messageProtocolEntity.ack(True))
 
@@ -32,12 +30,12 @@ class RecieverLayer(YowInterfaceLayer):
         self.toLower(entity.ack())
 
     def onTextMessage(self,messageProtocolEntity):
-        print("Message{from:%s;text:%s}" % (messageProtocolEntity.getFrom(False), messageProtocolEntity.getBody()))
+        print("Message:{from:%s,text:\"%s\"}" % (messageProtocolEntity.getFrom(False), messageProtocolEntity.getBody()))
 
     def onMediaMessage(self, messageProtocolEntity):
         # just print info
         if messageProtocolEntity.media_type == "image":
-            print("Image{from:%s;src:%s}" % (messageProtocolEntity.getFrom(False), messageProtocolEntity.url))
+            print("Image:{from:%s,url:\"%s\"}" % (messageProtocolEntity.getFrom(False), messageProtocolEntity.url))
 
         # Issue: AttributeError: 'LocationMediaMessageProtocolEntity' object has no attribute 'getLatitude'
         # elif messageProtocolEntity.media_type == "location":
