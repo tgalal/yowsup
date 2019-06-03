@@ -616,7 +616,13 @@ class DemosArgParser(YowArgParser):
             return False
         return True
 
+    def _ensure_config_props(self):
+        if self._profile.config.client_static_keypair is None:
+            print("Specified config does not have client_static_keypair, aborting")
+            sys.exit(1)
+
     def startCmdline(self):
+        self._ensure_config_props()
         logger.debug("starting cmd")
         from yowsup.demos import cli
         self.printInfoText()
@@ -626,6 +632,7 @@ class DemosArgParser(YowArgParser):
         stack.start()
 
     def startEcho(self):
+        self._ensure_config_props()
         from yowsup.demos import echoclient
         try:
             self.printInfoText()
@@ -638,6 +645,7 @@ class DemosArgParser(YowArgParser):
             sys.exit(0)
 
     def startSendClient(self):
+        self._ensure_config_props()
         from yowsup.demos import sendclient
         try:
             self.printInfoText()
@@ -650,6 +658,7 @@ class DemosArgParser(YowArgParser):
             sys.exit(0)
 
     def startSyncContacts(self):
+        self._ensure_config_props()
         from yowsup.demos import contacts
         try:
             self.printInfoText()
@@ -662,6 +671,7 @@ class DemosArgParser(YowArgParser):
             sys.exit(0)
 
     def startMediaSink(self, storage_dir):
+        self._ensure_config_props()
         from yowsup.demos import mediasink
         self.printInfoText()
         stack = mediasink.MediaSinkStack(self._profile, storage_dir)
