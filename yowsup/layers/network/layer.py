@@ -37,6 +37,7 @@ class YowNetworkLayer(YowLayer, ConnectionCallbacks):
         self.interface = YowNetworkLayerInterface(self)
         self.connected = False
         self._dispatcher = None  # type: YowConnectionDispatcher
+        self._disconnect_reason = None
 
     def __create_dispatcher(self, dispatcher_type):
         if dispatcher_type == self.DISPATCHER_ASYNCORE:
@@ -57,7 +58,11 @@ class YowNetworkLayer(YowLayer, ConnectionCallbacks):
             self.state = self.__class__.STATE_DISCONNECTED
             self.connected = False
             logger.debug("Disconnected")
-            self.emitEvent(YowLayerEvent(self.__class__.EVENT_STATE_DISCONNECTED, reason="", detached=True))
+            self.emitEvent(
+                YowLayerEvent(
+                    self.__class__.EVENT_STATE_DISCONNECTED, reason=self._disconnect_reason or "", detached=True
+                )
+            )
 
     def onConnecting(self):
         pass
@@ -79,13 +84,15 @@ class YowNetworkLayer(YowLayer, ConnectionCallbacks):
         return True
 
     def createConnection(self):
+        self._disconnect_reason = None
         self._dispatcher = self.__create_dispatcher(self.getProp(self.PROP_DISPATCHER, self.DISPATCHER_DEFAULT))
         self.state = self.__class__.STATE_CONNECTING
         endpoint = self.getProp(self.__class__.PROP_ENDPOINT)
         logger.info("Connecting to %s:%s" % endpoint)
         self._dispatcher.connect(endpoint)
 
-    def destroyConnection(self, reason = None):
+    def destroyConnection(self, reason=None):
+        self._disconnect_reason = reason
         self.state = self.__class__.STATE_DISCONNECTING
         self._dispatcher.disconnect()
 
