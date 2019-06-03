@@ -14,7 +14,7 @@ from yowsup.common.tools import StorageTools
 
 from consonance.structs.publickey import PublicKey
 from consonance.structs.keypair import KeyPair
-import sys, argparse, yowsup, logging
+import sys, argparse, yowsup, logging, os
 import base64
 from google import protobuf
 import consonance, dissononce, cryptography, axolotl
@@ -213,9 +213,8 @@ class YowArgParser(argparse.ArgumentParser):
             profile_name = None
             config_loaded_from_profile = True
             if self.args["config"]:
-                config = config_manager.load_path(self.args["config"])
-                if config is None:
-                    config = config_manager.load(self.args["config"])
+                config = config_manager.load(self.args["config"])
+                if not os.path.isfile(self.args["config"]):
                     profile_name = self.args["config"]
                 elif not self.args["config"].startswith(StorageTools.getStorageForProfile(config.phone)):
                     config_loaded_from_profile = False
@@ -276,7 +275,7 @@ class YowArgParser(argparse.ArgumentParser):
             if not config_loaded_from_profile:
                 # config file was explicitly specified and is not that of profile,
                 # load profile config and override values
-                internal_config = config_manager.load(config.phone)
+                internal_config = config_manager.load(config.phone, profile_only=True)
                 if internal_config is not None:
                     for property in config.keys():
                         if property != "version" and config[property] is not None:
