@@ -19,7 +19,7 @@ class LiteSenderKeyStore(SenderKeyStore):
         :type senderKeyName: SenderKeName
         :type senderKeyRecord: SenderKeyRecord
         """
-        q = "INSERT INTO sender_keys (group_id, sender_id, record) VALUES(?,?, ?)"
+        q = "INSERT OR REPLACE INTO sender_keys (group_id, sender_id, record) VALUES(?,?, ?)"
         cursor = self.dbConn.cursor()
         serialized = senderKeyRecord.serialize()
         if sys.version_info < (2,7):
