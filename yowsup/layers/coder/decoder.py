@@ -223,10 +223,8 @@ class ReadDecoder:
         raise Exception("readString couldn't match token "+str(token))
 
     def readArray(self, length, data):
-        out = []
-        for i in range(0, length):
-            out.append(data.pop(0))
-
+        out = data[:length]
+        del data[:length]
         return out
 
     def nextTreeInternal(self, data):
@@ -267,10 +265,6 @@ class ReadDecoder:
             nodeData = self.readPacked8(read2, data)
         else:
             nodeData = self.readString(read2, data)
-
-        if nodeData and type(nodeData) is not str:
-            nodeData = "".join(map(chr, nodeData))
-
         return ProtocolTreeNode(tag, attribs, nodeChildren, nodeData)
 
     def readList(self,token, data):
