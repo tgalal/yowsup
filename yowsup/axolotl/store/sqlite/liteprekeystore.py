@@ -75,3 +75,10 @@ class LitePreKeyStore(PreKeyStore):
         cursor = self.dbConn.cursor()
         cursor.execute(q, (preKeyId,))
         self.dbConn.commit()
+
+    def loadMaxPreKeyId(self):
+        q = "SELECT max(prekey_id) FROM prekeys"
+        cursor = self.dbConn.cursor()
+        cursor.execute(q)
+        result = cursor.fetchone()
+        return 0 if result[0] is None else result[0]
