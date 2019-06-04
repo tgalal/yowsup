@@ -1,6 +1,6 @@
 ---
-name: Bug report
-about: Submitting bug reports
+name: New issue
+about: Use this for creating issues. Please fill all required information that is relevant to your issue. Issues missing necessary information that was requested in this template will be closed without consideration.
 title: ''
 labels: ''
 assignees: tgalal
