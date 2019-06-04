@@ -29,7 +29,7 @@ Also please always post contents of your profile's config.json, and not just a d
 
 **Versions**
 
-Please include yowsup version, yowsup-cli version, as well as versions for consonance, dissononce, python-axolotl, and cryptography packages. Some of this information can be obtained if you run yowsup-cli with ```--debug``` flag, or through ```yowsup-cli version```.
+Please include python version, yowsup version, yowsup-cli version, as well as versions for consonance, dissononce, python-axolotl, and cryptography packages. Some of this information can be obtained if you run yowsup-cli with ```--debug``` flag, or through ```yowsup-cli version```.
 
 If you are not using a released version but code directly from the repository, please indicate the commit hash.
 
