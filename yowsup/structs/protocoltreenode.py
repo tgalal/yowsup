@@ -1,12 +1,17 @@
 import binascii
-import sys
+
+
 class ProtocolTreeNode(object):
+    _STR_MAX_LEN_DATA = 500
+    _STR_INDENT = '  '
+
     def __init__(self, tag, attributes = None, children = None, data = None):
 
         self.tag = tag
         self.attributes = attributes or {}
         self.children = children or []
         self.data = data
+        self._truncate_str_data = True
 
         assert type(self.children) is list, "Children must be a list, got %s" % type(self.children)
 
@@ -46,46 +51,34 @@ class ProtocolTreeNode(object):
     def __hash__(self):
         return hash(self.tag) ^ hash(tuple(self.attributes.items())) ^ hash(self.data)
 
-    def toString(self):
-        out = "<"+self.tag
-        if self.attributes is not None:
-            for key,val in self.attributes.items():
-                if val is None:
-                    raise ValueError("value is none for attr %s" % key)
-                out+= " "+key+'="'+val+'"'
-        out+= ">\n"
-
-        if self.data is not None:
-            if type(self.data) is bytearray:
-                try:
-                    out += "%s" % self.data.decode()
-                except UnicodeDecodeError:
-                    out += binascii.hexlify(self.data)
-            else:
-                try:
-                    out += "%s" % self.data
-                except UnicodeDecodeError:
-                    try:
-                        out += "%s" % self.data.decode()
-                    except UnicodeDecodeError:
-                        out += binascii.hexlify(self.data)
-
-            if type(self.data) is str and sys.version_info >= (3,0):
-                out += "\nHEX3:%s\n" % binascii.hexlify(self.data.encode('latin-1'))
-            else:
-                out += "\nHEX:%s\n" % binascii.hexlify(self.data)
-
-        for c in self.children:
-            try:
-                out += c.toString()
-            except UnicodeDecodeError:
-                out += "[ENCODED DATA]\n"
-        out+= "</"+self.tag+">\n"
-        return out
-
-
     def __str__(self):
-        return self.toString()
+        out = "<%s" % self.tag
+        attrs = " ".join((map(lambda item: "%s=\"%s\"" % item, self.attributes.items())))
+        children = "\n".join(map(str, self.children))
+        data = self.data or b""
+        len_data = len(data)
+
+        if attrs:
+            out = "%s %s" % (out, attrs)
+
+        if children or data:
+            out = "%s>" % out
+            if children:
+                out = "%s\n%s%s" % (out, self._STR_INDENT, children.replace('\n', '\n' + self._STR_INDENT))
+            if len_data:
+                if self._truncate_str_data and len_data > self._STR_MAX_LEN_DATA:
+                    data = data[:self._STR_MAX_LEN_DATA]
+                    postfix = "...[truncated %s bytes]" % (len_data - self._STR_MAX_LEN_DATA)
+                else:
+                    postfix = ""
+                data = "0x%s" % binascii.hexlify(data).decode()
+                out = "%s\n%s%s%s" % (out, self._STR_INDENT, data, postfix)
+
+            out = "%s\n</%s>" % (out, self.tag)
+        else:
+            out = "%s />" % out
+
+        return out
 
     def getData(self):
         return self.data
