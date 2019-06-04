@@ -75,4 +75,6 @@ class ImageAttributes(object):
         width, height = dimensions if dimensions else (None, None)
         assert width and height, "Could not determine image dimensions, install pillow or pass dimensions"
 
-        return ImageAttributes(width, height, caption, jpeg_thumbnail)
+        return ImageAttributes(
+            DownloadableMediaMessageAttributes.from_file(filepath), width, height, caption, jpeg_thumbnail
+        )
