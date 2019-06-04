@@ -1,27 +1,18 @@
 from .message_media_downloadable import DownloadableMediaMessageProtocolEntity
-from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_downloadablemedia \
-    import DownloadableMediaMessageAttributes
 from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message_meta import MessageMetaAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_document import DocumentAttributes
+from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_message import MessageAttributes
 
 
 class DocumentDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtocolEntity):
-    def __init__(self, document_attrs, downloadablemedia_attrs, message_meta_attrs):
+    def __init__(self, document_attrs, message_meta_attrs):
         """
         :type document_attrs: DocumentAttributes
-        :type downloadablemedia_attrs: DownloadableMediaMessageAttributes
         :type message_meta_attrs: MessageMetaAttributes
         """
         super(DocumentDownloadableMediaMessageProtocolEntity, self).__init__(
-            "document", downloadablemedia_attrs, message_meta_attrs
+            "document", MessageAttributes(document=document_attrs), message_meta_attrs
         )
-        self.file_name = document_attrs.file_name
-        self.file_length = document_attrs.file_length
-        if document_attrs.title is not None:
-            self.title = document_attrs.title
-        if document_attrs.page_count is not None:
-            self.page_count = document_attrs.page_count
-        if document_attrs.jpeg_thumbnail is not None:
-            self.jpeg_thumbnail = document_attrs.jpeg_thumbnail
 
     @property
     def media_specific_attributes(self):
