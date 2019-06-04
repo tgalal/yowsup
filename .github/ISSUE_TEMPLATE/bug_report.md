@@ -1,8 +1,8 @@
 ---
 name: New issue
 about: Use this for creating issues. Please fill all required information relevant
-  to your issue. Issues missing necessary information that was requested in this template
-  will be closed without consideration
+  to your issue. Issues missing necessary information requested in this template will
+  be closed without consideration.
 title: ''
 labels: ''
 assignees: tgalal
