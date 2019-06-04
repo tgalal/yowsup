@@ -28,7 +28,7 @@ class VideoAttributes(object):
         if self.caption is not None:
             attrs.append(("caption", self.caption))
         if self.streaming_sidecar is not None:
-            attrs.append(("streaming_sidecar", self.streaming_sidecar))
+            attrs.append(("streaming_sidecar", "[binary data]"))
         attrs.append(("downloadable", self.downloadablemedia_attributes))
 
         return "[%s]" % " ".join((map(lambda item: "%s=%s" % item, attrs)))
