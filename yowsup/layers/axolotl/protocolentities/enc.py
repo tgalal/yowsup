@@ -41,4 +41,4 @@ class EncProtocolEntity(ProtocolEntity):
 
     @staticmethod
     def fromProtocolTreeNode(node):
-        return EncProtocolEntity(node["type"], node["v"], node.data.encode('latin-1') if sys.version_info >= (3,0) else node.data, node["mediatype"])
+        return EncProtocolEntity(node["type"], node["v"], node.data, node["mediatype"])

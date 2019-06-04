@@ -254,13 +254,13 @@ class ReadDecoder:
             nodeChildren = self.readList(read2, data)
         elif read2 == 252:
             size = self.readInt8(data)
-            nodeData = self.readArray(size, data)
+            nodeData = bytes(self.readArray(size, data))
         elif read2 == 253:
             size = self.readInt20(data)
-            nodeData = self.readArray(size, data)
+            nodeData = bytes(self.readArray(size, data))
         elif read2 == 254:
             size = self.readInt31(data)
-            nodeData = self.readArray(size, data)
+            nodeData = bytes(self.readArray(size, data))
         elif read2 in (255, 251):
             nodeData = self.readPacked8(read2, data)
         else:
