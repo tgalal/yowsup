@@ -96,7 +96,7 @@ class StorageTools:
     def getStorageForProfile(profile_name):
         if type(profile_name) is not str:
             profile_name = str(profile_name)
-        return StorageTools.constructPath(profile_name + '/')
+        return StorageTools.constructPath(profile_name)
 
     @staticmethod
     def writeProfileData(profile_name, name, val):
