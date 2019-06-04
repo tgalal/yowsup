@@ -16,8 +16,8 @@ class DownloadableMediaMessageAttributes(MediaAttributes):
 
     def __str__(self):
         return "[url=%s, mimetype=%s, file_length=%d, file_sha256=%s, media_key=%s]" % (
-            self.url,self.mimetype, self.file_length, base64.b64encode(self.file_sha256),
-            base64.b64encode(self.media_key)
+            self.url,self.mimetype, self.file_length, base64.b64encode(self.file_sha256) if self.file_sha256 else None,
+            base64.b64encode(self.media_key) if self.media_key else None
         )
 
     @property
