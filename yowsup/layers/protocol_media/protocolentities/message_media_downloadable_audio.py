@@ -40,3 +40,11 @@ class AudioDownloadableMediaMessageProtocolEntity(DownloadableMediaMessageProtoc
         :type value: bool
         """
         self.media_specific_attributes.ptt = value
+
+    @property
+    def streaming_sidecar(self):
+        return self.media_specific_attributes.streaming_sidecar
+
+    @streaming_sidecar.setter
+    def streaming_sidecar(self, value):
+        self.media_specific_attributes.streaming_sidecar = value
