@@ -1,7 +1,7 @@
 from yowsup.common import YowConstants
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
-import os, time
+import os,  struct
 class SetKeysIqProtocolEntity(IqProtocolEntity):
     def __init__(self, identityKey, signedPreKey, preKeys, djbType, registrationId = None):
         super(SetKeysIqProtocolEntity, self).__init__("encrypt", _type = "set", to = YowConstants.WHATSAPP_SERVER)
@@ -50,7 +50,7 @@ class SetKeysIqProtocolEntity(IqProtocolEntity):
         listNode.addChildren(keyNodes)
 
         regNode = ProtocolTreeNode("registration", data = self.registration)
-        typeNode = ProtocolTreeNode("type", data = chr(self.djbType))
+        typeNode = ProtocolTreeNode("type", data = struct.pack('<B', self.djbType))
         _id, val, signature = self.signedPreKey
         skeyNode = ProtocolTreeNode("skey", children = [
             ProtocolTreeNode("id", data = _id),
