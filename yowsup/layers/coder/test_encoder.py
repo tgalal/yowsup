@@ -9,7 +9,7 @@ class EncoderTest(unittest.TestCase):
         self.encoder = WriteEncoder(TokenDictionary())
 
     def test_encode(self):
-        node = ProtocolTreeNode("message", {"form": "abc", "to":"xyz"}, [ProtocolTreeNode("media", {"width" : "123"}, data="123456")])
+        node = ProtocolTreeNode("message", {"form": "abc", "to":"xyz"}, [ProtocolTreeNode("media", {"width" : "123"}, data=b"123456")])
         result = self.encoder.protocolTreeNodeToBytes(node)
 
         self.assertTrue(result in (

@@ -1,6 +1,10 @@
 from yowsup.common import YowConstants
 from yowsup.layers.protocol_iq.protocolentities import IqProtocolEntity
 from yowsup.structs import ProtocolTreeNode
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class SetStatusIqProtocolEntity(IqProtocolEntity):
     '''
@@ -10,9 +14,12 @@ class SetStatusIqProtocolEntity(IqProtocolEntity):
     '''
     XMLNS = "status"
     def __init__(self, text = None, _id = None):
+        if type(text) is not bytes:
+            logger.warning("Passing text as str is deprecated, pass bytes instead")
+            text = bytes(text, "latin-1")
         super(SetStatusIqProtocolEntity, self).__init__(self.__class__.XMLNS, _id, _type = "set", to = YowConstants.WHATSAPP_SERVER)
         self.setData(text)
-        
+
     def setData(self, text):
         self.text = text
 

@@ -6,5 +6,5 @@ class StatusNotificationProtocolEntityTest(NotificationProtocolEntityTest):
     def setUp(self):
         super(StatusNotificationProtocolEntityTest, self).setUp()
         self.ProtocolEntity = StatusNotificationProtocolEntity
-        setNode = ProtocolTreeNode("set", {}, [], "status_data")
+        setNode = ProtocolTreeNode("set", {}, [], b"status_data")
         self.node.addChild(setNode)

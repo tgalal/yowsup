@@ -6,6 +6,9 @@ class ProtocolTreeNode(object):
     _STR_INDENT = '  '
 
     def __init__(self, tag, attributes = None, children = None, data = None):
+        # type: (str, dict, list[ProtocolTreeNode], bytes) -> None
+        if data is not None:
+            assert type(data) is bytes, type(data)
 
         self.tag = tag
         self.attributes = attributes or {}

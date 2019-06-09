@@ -6,5 +6,5 @@ class SetStatusIqProtocolEntityTest(IqProtocolEntityTest):
     def setUp(self):
         super(SetStatusIqProtocolEntityTest, self).setUp()
         self.ProtocolEntity = SetStatusIqProtocolEntity
-        statusNode = ProtocolTreeNode("status", {}, [], "Hey there, I'm using WhatsApp")
+        statusNode = ProtocolTreeNode("status", {}, [], b"Hey there, I'm using WhatsApp")
         self.node.addChild(statusNode)

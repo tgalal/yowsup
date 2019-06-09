@@ -52,9 +52,9 @@ class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
 
     def toProtocolTreeNode(self):
         
-        outUsers = [ProtocolTreeNode("user", {"jid": jid}, None, number) for number, jid in self.outNumbers.items()]
-        inUsers = [ProtocolTreeNode("user", {"jid": jid}, None, number) for number, jid in self.inNumbers.items()]
-        invalidUsers = [ProtocolTreeNode("user", {}, None, number) for number in self.invalidNumbers]
+        outUsers = [ProtocolTreeNode("user", {"jid": jid}, None, number.encode()) for number, jid in self.outNumbers.items()]
+        inUsers = [ProtocolTreeNode("user", {"jid": jid}, None, number.encode()) for number, jid in self.inNumbers.items()]
+        invalidUsers = [ProtocolTreeNode("user", {}, None, number.encode()) for number in self.invalidNumbers]
 
         node = super(ResultSyncIqProtocolEntity, self).toProtocolTreeNode()
         syncNode = node.getChild("sync")
@@ -82,15 +82,15 @@ class ResultSyncIqProtocolEntity(SyncIqProtocolEntity):
         invalidNode      = syncNode.getChild("invalid")
         outUsers         = outNode.getAllChildren() if outNode else []
         inUsers          = inNode.getAllChildren()  if inNode else []
-        invalidUsers     = [inode.data for inode in invalidNode.getAllChildren()] if invalidNode else []
+        invalidUsers     = [inode.data.decode() for inode in invalidNode.getAllChildren()] if invalidNode else []
 
         outUsersDict = {}
         for u in outUsers:
-            outUsersDict[u.data] = u.getAttributeValue("jid")
+            outUsersDict[u.data.decode()] = u.getAttributeValue("jid")
 
         inUsersDict = {}
         for u in inUsers:
-            inUsersDict[u.data] = u.getAttributeValue("jid")
+            inUsersDict[u.data.decode()] = u.getAttributeValue("jid")
 
         entity           = SyncIqProtocolEntity.fromProtocolTreeNode(node)
         entity.__class__ = ResultSyncIqProtocolEntity
