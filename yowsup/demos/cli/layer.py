@@ -572,9 +572,6 @@ class YowsupCliLayer(Cli, YowInterfaceLayer):
         #resultGetPictureIqProtocolEntiy.writeToFile("/tmp/yowpics/%s_%s.jpg" % (getPictureIqProtocolEntity.getTo(), "preview" if resultGetPictureIqProtocolEntiy.isPreview() else "full"))
         pass
 
-    def __str__(self):
-        return "CLI Interface Layer"
-
     @clicmd("Print this message")
     def help(self):
         self.print_usage()
