@@ -2,6 +2,14 @@
 
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z9KKEUVYEY6BN" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
 
+---
+
+## WARNING
+
+It seems that recently yowsup gets detected during registration resulting in an instant ban for your number right after registering with the code you receive by sms/voice. I'd strongly recommend to not attempt registration through yowsup until I look further into this. Follow the status of this [here](https://github.com/tgalal/yowsup/issues/2829).
+
+---
+
 yowsup is a python library that enables building applications that can communicate with WhatsApp users.
 The project started as the protocol engine behind [Wazapp for Meego](https://wiki.maemo.org/Wazapp) and
 [OpenWA for BB10](https://www.lowyat.net/2013/5896/try-this-openwhatsapp-for-blackberry-10/). Now as a standalone
