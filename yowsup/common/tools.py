@@ -169,7 +169,7 @@ class MimeTools:
     mimetypes.init() # Load default mime.types
     try:
         mimetypes.init([MIME_FILE]) # Append whatsapp mime.types
-    except exception as e:
+    except Exception as e:
         logger.warning("Mime types supported can't be read. System mimes will be used. Cause: " + e.message)
 
     @staticmethod
