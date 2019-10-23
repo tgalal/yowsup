@@ -17,10 +17,18 @@ class AndroidYowsupEnv(YowsupEnv):
         "YHNtYoIvt5R3X6YZylbPftF/8ayWTALBgcqhkjOOAQDBQADLwAwLAIUAKYCp0d6z4QQdyN74JDfQ2WCyi8CFDUM4CaNB+ceVXd" \
         "KtOrNTQcc0e+t"
 
-    _MD5_CLASSES = "/QhoCBMppKpKQumhTC8kcQ=="
+     """
+     If you have "old_version" registration error:
+     1. Download com.whatsapp.apk (for example with https://github.com/matlink/gplaycli)
+        -gplaycli -d com.whatsapp
+     2. Calculate version and MD5 with https://gist.github.com/masbog/d29c779539581defbf542e70ce724ed8
+     3. Replace the appropriate values (_MD5_CLASSES and _VERSION)
+     """
+
+    _MD5_CLASSES = "byLExGUNHi7RMfrg6wgCkQ=="
     _KEY = "eQV5aq/Cg63Gsq1sshN9T3gh+UUp0wIw0xgHYT1bnCjEqOJQKCRrWxdAe2yvsDeCJL+Y4G3PRD2HUF7oUgiGo8vGlNJOaux26k+A2F3hj8A="
 
-    _VERSION = "2.19.244"
+    _VERSION = "2.17.253"
     _OS_NAME = "Android"
     _OS_VERSION = "8.0.0"
     _DEVICE_NAME = "star2lte"
