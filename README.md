@@ -64,8 +64,11 @@ pip install yowsup
 
 You need to have installed Python headers (probably from python-dev package) and ncurses-dev, then run
 ```
+sudo apt-get install python3 python3-pip python3-dev ncurses-dev
+pip3 install -r requirements.txt
 python setup.py install
 ```
+
 
 ### FreeBSD (*BSD)
 You need to have installed: py27-pip-7.1.2(+), py27-sqlite3-2.7.11_7(+), then run
@@ -93,6 +96,52 @@ compiler=mingw32
  - Install [zlib](http://www.zlib.net/)
  - ```python setup.py install```
 
+
+# How to use the cli?
+
+```
+chmod +x yowsup-cli
+
+# to show version
+python3 yowsup-cli version
+
+# to send sms
+python3 yowsup-cli registration -r [sms / voice] --config-phone [mobile-country-code-here][10-digit-phone-number-here] --config-cc [[mobile-country-code-here]
+
+# you'd recieve an sms that you can now verify by typing
+python3 yowsup-cli registration --config-phone [mobile-country-code-here][10-digit-phone-number-here] --config-cc [[mobile-country-code-here] -R [code here]
+
+# after verification you'd recieve a JSON text like
+{
+    "__version__": 1,
+    "cc": "91",
+    "client_static_keypair": "yIpIQ*****************************************************1L/n9Tw==",
+    "expid": "ByUTw5E****************==",
+    "fdid": "c1d3****-****-****-86a1-12b3c0d0f19c",
+    "id": "K2H1eL*******+NzYP1yi******=",
+    "login": "**80014*****",
+    "mcc": "000",
+    "mnc": "000",
+    "phone": "**80014*****",
+    "sim_mcc": "**",
+    "sim_mnc": "000"
+}
+
+# save it to config.json
+nano config.json C^Shift^V C^X Y
+
+# now let's send a message with the cli
+
+python3 yowsup-cli demo --config config.json -s [phone number with cc] [message]
+
+# now lets run the echo demo
+# -d tag is for debug logs
+
+python3 yowsup-cli demo --config config.json -e -d 
+```
+
+
+
 # License:
 
-As of January 1, 2015 yowsup is licensed under the GPLv3+: http://www.gnu.org/licenses/gpl-3.0.html.
+As of January 1, 2015 yowsup is licensed under the GPLv3+: http://www.gnu.org/licenses/gpl-3.0.html to TarekGalal[https://github.com/tgalal]
