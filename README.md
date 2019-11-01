@@ -1,5 +1,5 @@
 
-# yowsup2
+# yowsup2 - with goodies [ by scratchie171 ]
 ## Current Build: [![Build Status](https://travis-ci.org/tgalal/yowsup.svg?branch=master)](https://travis-ci.org/tgalal/yowsup)
 
 
