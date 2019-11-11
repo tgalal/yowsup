@@ -66,8 +66,7 @@ class YowNoiseLayer(YowLayer):
         username = int(self._profile.username)
 
         if local_static is None:
-            logger.error(
-                "client_static_keypair is not defined in specified config, disconnecting")
+            logger.error("client_static_keypair is not defined in specified config, disconnecting")
             self.broadcastEvent(
                 YowLayerEvent(
                     YowNetworkLayer.EVENT_STATE_DISCONNECT,
@@ -119,8 +118,7 @@ class YowNoiseLayer(YowLayer):
                 short_connect=True
             )
             if not self._in_handshake():
-                logger.debug(
-                    "Performing handshake [username= %d, passive=%s]" % (username, passive))
+                logger.debug("Performing handshake [username= %d, passive=%s]" % (username, passive))
                 self._handshake_worker = WANoiseProtocolHandshakeWorker(
                     self._wa_noiseprotocol, self._stream, client_config, local_static, remote_static,
                     self.on_handshake_finished
@@ -138,8 +136,7 @@ class YowNoiseLayer(YowLayer):
                 ProtocolTreeNode("failure", {"reason": str(e)})
             )
             self.toUpper(data)
-            logger.error(
-                "An error occurred during handshake, try login again.")
+            logger.error("An error occurred during handshake, try login again.")
 
     def _in_handshake(self):
         """
@@ -161,8 +158,7 @@ class YowNoiseLayer(YowLayer):
         if event == BlockingQueueSegmentedStream.EVENT_WRITE:
             self.toLower(self._stream.get_write_segment())
         elif event == BlockingQueueSegmentedStream.EVENT_READ:
-            self._stream.put_read_segment(
-                self._incoming_segments_queue.get(block=True))
+            self._stream.put_read_segment(self._incoming_segments_queue.get(block=True))
 
     def send(self, data):
         """
