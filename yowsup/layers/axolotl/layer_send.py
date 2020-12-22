@@ -223,7 +223,7 @@ class AxolotlSendLayer(AxolotlBaseLayer):
 
         received retry for a participant
             - request participants keys
-            - send message with dist key only + conversation, only for this participat
+            - send message with dist key only + conversation, only for this participant
         """
         logger.debug("sendToGroup(node=[omitted], retryReceiptEntity=[%s])" %
                      ("[retry_count=%s, retry_jid=%s]" % (
