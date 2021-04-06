@@ -18,6 +18,7 @@ from consonance.structs.keypair import KeyPair
 
 import threading
 import logging
+import base64
 
 
 logger = logging.getLogger(__name__)
@@ -40,7 +41,8 @@ class YowNoiseLayer(YowLayer):
         )  # type: WANoiseProtocol
 
         self._handshake_worker = None
-        self._stream = BlockingQueueSegmentedStream()  # type: BlockingQueueSegmentedStream
+        # type: BlockingQueueSegmentedStream
+        self._stream = BlockingQueueSegmentedStream()
         self._read_buffer = bytearray()
         self._flush_lock = threading.Lock()
         self._incoming_segments_queue = Queue.Queue()
@@ -72,8 +74,12 @@ class YowNoiseLayer(YowLayer):
                 )
             )
         else:
-            if type(local_static) is bytes:
+            _type = type(local_static)
+            if _type is bytes:
                 local_static = KeyPair.from_bytes(local_static)
+            elif _type is str:
+                local_static = KeyPair.from_bytes(
+                    base64.b64decode(local_static))
             assert type(local_static) is KeyPair, type(local_static)
             passive = event.getArg('passive')
 
@@ -112,7 +118,7 @@ class YowNoiseLayer(YowLayer):
                 short_connect=True
             )
             if not self._in_handshake():
-                logger.debug("Performing handshake [username= %d, passive=%s]" % (username, passive) )
+                logger.debug("Performing handshake [username= %d, passive=%s]" % (username, passive))
                 self._handshake_worker = WANoiseProtocolHandshakeWorker(
                     self._wa_noiseprotocol, self._stream, client_config, local_static, remote_static,
                     self.on_handshake_finished
@@ -124,8 +130,9 @@ class YowNoiseLayer(YowLayer):
     def on_handshake_finished(self, e=None):
         # type: (Exception) -> None
         if e is not None:
-            self.emitEvent(YowLayerEvent(self.EVENT_HANDSHAKE_FAILED, reason=e))
-            data=WriteEncoder(TokenDictionary()).protocolTreeNodeToBytes(
+            self.emitEvent(YowLayerEvent(
+                self.EVENT_HANDSHAKE_FAILED, reason=e))
+            data = WriteEncoder(TokenDictionary()).protocolTreeNodeToBytes(
                 ProtocolTreeNode("failure", {"reason": str(e)})
             )
             self.toUpper(data)
