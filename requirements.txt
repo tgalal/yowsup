@@ -1,0 +1,11 @@
+appdirs==1.4.4
+cffi==1.15.0
+consonance==0.1.5
+cryptography==36.0.0
+dissononce==0.34.3
+protobuf==4.0.0rc2
+pycparser==2.21
+python-axolotl==0.2.2
+python-axolotl-curve25519==0.4.1.post2
+six==1.10.0
+transitions==0.8.10
