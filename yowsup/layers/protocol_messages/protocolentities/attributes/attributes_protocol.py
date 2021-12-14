@@ -2,9 +2,9 @@ from yowsup.layers.protocol_messages.protocolentities.attributes.attributes_mess
 
 
 class ProtocolAttributes(object):
-    TYPE_REOVOKE = 0
+    TYPE_REVOKE = 0
     TYPES = {
-        TYPE_REOVOKE: "REVOKE"
+        TYPE_REVOKE: "REVOKE"
     }
 
     def __init__(self, key, type):

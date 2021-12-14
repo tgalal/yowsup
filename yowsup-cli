@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__ = "3.2.0"
+__version__ = "3.2.1"
 __author__ = "Tarek Galal"
 
 from yowsup.env import YowsupEnv
@@ -402,9 +402,9 @@ class RegistrationArgParser(YowArgParser):
             if result["status"] in ("sent", "ok"):
                 if "login" in result:
                     config.login = result["login"]
-                if "edge_routing_info" in result:
+                if "edge_routing_info" in result and result["edge_routing_info"]:
                     config.edge_routing_info = base64.b64decode(result["edge_routing_info"])
-                if "chat_dns_domain" in result:
+                if "chat_dns_domain" in result and result["chat_dns_domain"]:
                     config.chat_dns_domain = result["chat_dns_domain"]
                 self._profile.write_config(config)
             print(self.resultToString(result))
@@ -422,9 +422,9 @@ class RegistrationArgParser(YowArgParser):
         if not self._preview:
             if result["status"] == "ok":
                 config.login = result["login"]
-                if "edge_routing_info" in result:
+                if "edge_routing_info" in result and result["edge_routing_info"]:
                     config.edge_routing_info = base64.b64decode(result["edge_routing_info"])
-                if "chat_dns_domain" in result:
+                if "chat_dns_domain" in result and result["chat_dns_domain"]:
                     config.chat_dns_domain = result["chat_dns_domain"]
                 self._profile.write_config(self._profile.config)
 

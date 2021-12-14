@@ -29,14 +29,14 @@ except ImportError:
 
 class YowNoiseLayer(YowLayer):
     DEFAULT_PUSHNAME = "yowsup"
-    HEADER = b'WA\x02\x01'
+    HEADER = b'WA\x04\x00'
     EDGE_HEADER = b'ED\x00\x01'
     EVENT_HANDSHAKE_FAILED = "org.whatsapp.yowsup.layer.noise.event.handshake_failed"
 
     def __init__(self):
         super(YowNoiseLayer, self).__init__()
         self._wa_noiseprotocol = WANoiseProtocol(
-            2, 1, protocol_state_callbacks=self._on_protocol_state_changed
+            4, 0, protocol_state_callbacks=self._on_protocol_state_changed
         )  # type: WANoiseProtocol
 
         self._handshake_worker = None
