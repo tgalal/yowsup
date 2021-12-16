@@ -16,7 +16,7 @@ class SetStatusIqProtocolEntity(IqProtocolEntity):
     def __init__(self, text = None, _id = None):
         if type(text) is not bytes:
             logger.warning("Passing text as str is deprecated, pass bytes instead")
-            text = bytes(text, "latin-1")
+            text = bytes(text, "utf-8")
         super(SetStatusIqProtocolEntity, self).__init__(self.__class__.XMLNS, _id, _type = "set", to = YowConstants.WHATSAPP_SERVER)
         self.setData(text)
 
