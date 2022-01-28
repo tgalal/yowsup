@@ -2,11 +2,7 @@
 
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Z9KKEUVYEY6BN" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" /></a>
 
----
-
-## WARNING
-
-It seems that recently yowsup gets detected during registration resulting in an instant ban for your number right after registering with the code you receive by sms/voice. I'd strongly recommend to not attempt registration through yowsup until I look further into this. Follow the status of this [here](https://github.com/tgalal/yowsup/issues/2829).
+**For private consultancy feel free to directly schedule it over [codementor](https://www.codementor.io/@tgalal).**
 
 ---
 
@@ -16,12 +12,12 @@ The project started as the protocol engine behind [Wazapp for Meego](https://wik
 library it can be used to power any custom WhatsApp client.
 
 ```
-updated: 2019-05-07
-yowsup version: 3.2.3
-yowsup-cli version: 3.2.0
+updated: 2021-12-14
+yowsup version: 3.3.0
+yowsup-cli version: 3.2.1
 requires:
 - python>=2.7,<=3.7
-- consonance==0.1.3-1
+- consonance==0.1.5
 - python-axolotl==0.2.2
 - protobuf>=3.6.0
 - six==1.10
@@ -35,7 +31,7 @@ uses:
 
 ## See also
 
-During maintenance of yowsup, several projects have been spawned out in order to support different features that get
+During maintenance of yowsup, several projects have been spawned in order to support different features that get
 introduced by WhatsApp. Some of those features are not necessarily exclusive to WhatsApp and therefore it only made
 sense to maintain some parts as standalone projects:
 
