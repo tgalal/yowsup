@@ -4,14 +4,14 @@ import hashlib
 
 
 class iOsYowsupEnv(YowsupEnv):
-    _VERSION = "2.22.5.71" # 2.20.206.24
+    _VERSION = "2.22.16.77" # 2.20.206.24
     _OS_NAME = "iOS"
     _OS_VERSION = "15.3.1"
     _DEVICE_NAME = "iPhone 7"
     _MANUFACTURER = "Apple"
     _BUILD_VERSION = "19D52"
     _AXOLOTL = True
-    _TOKEN = "0a1mLfGUIBVrMKF1RdvLI5lkRBvof6vn0fD2QRSM45e25b6ddecace8d01828dd00bd4ff64{phone}"
+    _TOKEN = "0a1mLfGUIBVrMKF1RdvLI5lkRBvof6vn0fD2QRSM785a343e772d0c64ec999e7505ffdeaf{phone}"
 
     def getVersion(self):
         return self.__class__._VERSION
