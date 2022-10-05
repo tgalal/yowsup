@@ -16,7 +16,7 @@ HEX:33089eb3c90312210510e0196be72fe65913c6a84e75a54f40a3ee290574d6a23f408df990e7
 
     def setEncEntities(self, encEntities = None):
         assert type(encEntities) is list and len(encEntities) \
-            , "Must have at least a list of minumum 1 enc entity"
+            , "Must have at least a list of minimum 1 enc entity"
         self.encEntities = encEntities
 
     def getEnc(self, encType):

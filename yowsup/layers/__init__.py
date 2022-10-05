@@ -250,7 +250,7 @@ class YowLayerTest(unittest.TestCase):
         try:
             self.assertEqual(event, self.upperEventSink.pop())
         except IndexError:
-            raise AssertionError("Event '%s' was not emited through this layer" % (event.getName()))
+            raise AssertionError("Event '%s' was not emitted through this layer" % (event.getName()))
         
     def assert_broadcastEvent(self, event):
         self.broadcastEvent(event)
