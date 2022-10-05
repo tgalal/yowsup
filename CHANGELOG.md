@@ -372,7 +372,7 @@ example by triggering connect in a bg thread.
 
 ### Changed
 
-- As of January 2015, Yowsup is GPLv3 licensed (previouly was MIT)
+- As of January 2015, Yowsup is GPLv3 licensed (previously was MIT)
 - Fixed broadcast
 - Fixed registration no_routes error
 - Updated registration token
@@ -382,7 +382,7 @@ example by triggering connect in a bg thread.
 - Experimental Axolotl support (end-to-end encryption)
 - Upload and send images
 - Initial support for groups v2
-- Easy switch/ add new enviornment (S40/Android ..etc)
+- Easy switch/ add new environment (S40/Android ..etc)
 - _sendIq in YowProtocolLayer and YowInterfaceLayer with callbacks for Iq result and error
 - new send and exit demo
 - E2E encryption in yowsup and echo client demos

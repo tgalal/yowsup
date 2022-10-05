@@ -22,7 +22,7 @@ class SendLayer(YowInterfaceLayer):
     def onSuccess(self, successProtocolEntity):
         self.lock.acquire()
         for target in self.getProp(self.__class__.PROP_MESSAGES, []):
-            #getProp() is trying to retreive the list of (jid, message) tuples, if none exist, use the default []
+            #getProp() is trying to retrieve the list of (jid, message) tuples, if none exist, use the default []
             phone, message = target
             messageEntity = TextMessageProtocolEntity(message, to = Jid.normalize(phone))
             #append the id of message to ackQueue list

@@ -23,7 +23,7 @@ class YowMessagesProtocolLayer(YowProtocolLayer):
         if entity.getType() == "text":
             self.entityToLower(entity)
 
-    ###recieved node handlers handlers
+    ###received node handlers handlers
     def recvMessageStanza(self, node):
         protoNode = node.getChild("proto")
 

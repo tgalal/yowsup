@@ -121,7 +121,7 @@ class YowArgParser(argparse.ArgumentParser):
                 '--config-phone', '--phone',
                 action="store",
                 help="Your full phone number including the country code you defined in 'cc',"
-                     " without preceeding '+' or '00'"
+                     " without preceding '+' or '00'"
             )
             config_group.add_argument(
                 '--config-cc', '--cc',
