@@ -1,7 +1,7 @@
 appdirs==1.4.4
 cffi==1.15.0
 consonance==0.1.5
-cryptography==36.0.0
+cryptography==39.0.1
 dissononce==0.34.3
 protobuf==4.0.0rc2
 pycparser==2.21
