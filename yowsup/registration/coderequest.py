@@ -3,7 +3,7 @@ from yowsup.common.http.waresponseparser import JSONResponseParser
 from yowsup.common.tools import WATools
 from yowsup.registration.existsrequest import WAExistsRequest
 from yowsup.env import YowsupEnv
-
+import ssl
 
 class WACodeRequest(WARequest):
     def __init__(self, method, config):
@@ -43,6 +43,8 @@ class WACodeRequest(WARequest):
             self._config.id = WATools.generateIdentity()
             self.addParam("id", self._config.id)
 
+        # Disable SSL certificate verification to avoid CERTIFICATE_VERIFY_FAILED
+        ssl._create_default_https_context = ssl._create_unverified_context
         res = super(WACodeRequest, self).send(parser, encrypt=encrypt, preview=preview)
 
         return res
